@@ -51,6 +51,7 @@
 			]
 		}],
 		"no-case-declarations": "error",
+		"no-const-assign": "error",
 		"no-extra-parens": ["error", "all", {
 			"conditionalAssign": false,
 			"nestedBinaryExpressions": false,

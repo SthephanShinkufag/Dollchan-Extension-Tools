@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = 'b5afb4f';
+const commit = '51adde3';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -10192,7 +10192,6 @@ class Captcha {
 		this.tNum = initNum;
 		this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCapParent(el);
 		this.isAdded = false;
-		this.isSubmitWait = false;
 		this._isHcap = !!$q('.h-captcha', this.parentEl);
 		this._isRecap = this._isHcap || !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
 		this._lastUpdate = null;
@@ -10203,7 +10202,6 @@ class Captcha {
 		}
 	}
 	addCaptcha() {
-		// Run this function only once
 		if(this.isAdded) {
 			return;
 		}
@@ -16330,7 +16328,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qTrunc = null;
 
 			this.formParent = 'thread';
-			this.hasAltCaptcha = true;
 			this.hasArchive = true;
 			this.hasCatalog = true;
 			this.hasOPNum = true;
@@ -16359,6 +16356,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `.js-post-findimg, .js-post-saveimg, .media-expand-button, .media-thumbnail, .newpost,
 					.post__btn:not(.icon_type_active), .post__number, .post__refmap
 						{ display: none !important; }
+				.captcha__image { cursor: pointer; }
 				.de-fullimg-wrap-inpost { margin-right: 16px; }
 				.de-refmap { margin: 0 16px 4px; }
 				.de-pview > .post__details { margin-left: 4px; }
@@ -16436,77 +16434,72 @@ function getImageBoard(checkDomains, checkEngines) {
 			return value;
 		}
 		captchaInit(cap) {
-			const box = $q('.captcha-box, .captcha');
-			if(Cfg.altCaptcha) {
-				box.innerHTML = `<div id="captcha-widget-main"></div>
-					<input name="captcha_type" value="recaptcha" type="hidden">`;
-				return null;
-			}
-			const img = box.firstChild;
-			if(img?.tagName?.toLowerCase() !== 'img') {
-				box.innerHTML = `<img>
-					<input name="2chcaptcha_value" maxlength="6" type="text" style="display: block;">
-					<input name="2chcaptcha_id" type="hidden">`;
-				const [img, inp] = [...box.children];
-				img.onclick = () => this.updateCaptcha(cap);
-				inp.tabIndex = 999;
-				cap.textEl = inp;
-			}
-			return null;
+			const containerEl = $q('.captcha');
+			containerEl.innerHTML = `<div class="captcha__image"></div>
+				<input class="captcha__val" name="2chcaptcha_value" type="text" maxlength="6">
+				<input class="captcha__key" name="2chcaptcha_id" type="hidden">`;
+			const [imgParent, inputEl] = [...containerEl.children];
+			imgParent.onclick = () => this.captchaUpdate(cap);
+			inputEl.tabIndex = 999;
+			cap.textEl = inputEl;
+			return this.captchaUpdate(cap);
 		}
 		captchaUpdate(cap) {
-			const url = `/api/captcha/${ Cfg.altCaptcha ? 'recaptcha' : '2chcaptcha' }/id`;
-			return cap.updateHelper(url, xhr => {
-				const box = $q('.captcha-box, .captcha');
-				let data = xhr.responseText;
+			const captchaError = text => {
+				$popup('err-captcha', `Captcha error: ${ text }`);
+				$q('.captcha__image').innerHTML = '<button class="captcha__loadtext">Обновить</button>';
+			};
+			const containerEl = $q('.captcha');
+			const imgParent = $q('.captcha__image', containerEl);
+			imgParent.innerHTML = '<span class="captcha__loadtext">Загрузка...</span>';
+			const url = `/api/captcha/2chcaptcha/id?board=${ this.b }&thread=${ postform.tNum || 0 }`;
+			return cap.updateHelper(url, ({ responseText }) => {
+				let data;
 				try {
-					data = JSON.parse(data);
-				} catch(err) {}
-				if(cap.isSubmitWait && data.result !== 1) {
-					postform.subm.click();
+					data = JSON.parse(responseText);
+				} catch(err) {
+					captchaError(responseText);
+					return;
+				}
+				if(data.warning) {
+					$popup('warning', `Предупреждение!<br>${ decodeURIComponent(data.warning.message) }` +
+						`<br>Вот за <a href="${ data.warning.path }" target="_blank" >ЭТО</a>.`);
+					return;
+				} else if(data.banned) {
+					$popup('banned', `Banned!<br>${ data.banned.message }<br>Вот за <a href="${
+						data.banned.path }" target="_blank" >ЭТО</a>.<br>Купить пасскод и получить ` +
+						'мгновенный разбан можно <a href="/static/market.html" target="_blank">тут</a>');
+					return;
 				}
 				switch(data.result) {
-				case 0: box.textContent = 'Пасскод недействителен. Перелогиньтесь.'; break;
-				case 2: box.textContent = 'Вы - пасскодобоярин.'; break;
-				case 3: return CancelablePromise.reject(new CancelError()); // Captcha is disabled
-				case 1: // Captcha is enabled
-					if(!Cfg.altCaptcha) {
-						if(!cap.isSubmitWait) {
-							const img = box.firstChild;
-							img.src = '';
-							img.src = `/api/captcha/2chcaptcha/show?id=${ data.id }`;
-							box.lastChild.value = data.id;
-							break;
+				case 0: containerEl.textContent = 'Пасскод недействителен. Перелогиньтесь.'; break;
+				case 2: containerEl.textContent = 'Вы - пасскодобоярин.'; break;
+				case 3: $hide(containerEl); break; // Captcha is disabled
+				case 1: { // Captcha is enabled
+					let time = 90;
+					imgParent.innerHTML = `<img src="/api/captcha/2chcaptcha/show?id=${ data.id }">
+						<button class="captcha__loadtext" style="display: none;">Обновить</button>
+						<span class="captcha__timer">${ time }</span>`;
+					const timerEl = $q('.captcha__timer', imgParent);
+					const captchaTimer = setInterval(() => {
+						timerEl.innerHTML = --time;
+						if(!time) {
+							if(doc.hasFocus()) {
+								clearInterval(captchaTimer);
+								this.captchaUpdate(cap);
+							} else {
+								$hide(timerEl);
+								$show($q('.captcha__loadtext', containerEl));
+							}
 						}
-						$q('.captcha__key').value = data.id;
-						$script($id('captcha-widget').hasChildNodes() ?
-							`grecaptcha.reset(deCapWidget);
-							grecaptcha.execute(deCapWidget);` :
-							`deCapWidget = grecaptcha.render('captcha-widget', {
-								sitekey : '${ data.id }',
-								theme   : 'light',
-								size    : 'invisible',
-								callback: function() {
-									var el = document.getElementById('captcha-widget-main');
-									el.innerHTML = '<input type="hidden" name="g-recaptcha-response">';
-									el.firstChild.value = grecaptcha.getResponse();
-									document.getElementById('submit').click();
-								}
-							});
-							grecaptcha.execute(deCapWidget);`);
-						break;
-					} else if(data.type === 'recaptcha') {
-						$q('.captcha__key').value = data.id;
-						if(!$id('captcha-widget-main').hasChildNodes()) {
-							$script(`globRecapWidget = grecaptcha.render('captcha-widget-main', { sitekey: "${
-								data.id }" });`);
-						} else {
-							$script('grecaptcha.reset(globRecapWidget);');
-						}
-						break;
-					}
-					/* falls through */
-				default: box.innerHTML = data;
+					}, 1e3);
+					$q('.captcha__key', containerEl).value = data.id;
+					const inputEl = $q('.captcha__val', containerEl);
+					inputEl.value = '';
+					inputEl.focus();
+					break;
+				}
+				default: captchaError(responseText);
 				}
 			});
 		}
@@ -16662,7 +16655,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 
-			this.hasAltCaptcha = false;
 			this.JsonBuilder = null;
 		}
 		get reportForm() {
@@ -16864,12 +16856,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			let value = null;
 			if($id('captchaFormPart')) {
 				value = cap => {
-					const container = $id('t-root');
-					if(!container) {
+					const containerEl = $id('t-root');
+					if(!containerEl) {
 						cap.hasCaptcha = false;
 						return;
 					}
-					$replace(container, '<div id="t-root"></div>');
+					$replace(containerEl, '<div id="t-root"></div>');
 					$script('initTCaptcha();');
 					setTimeout(() => {
 						cap.textEl = $id('t-resp');

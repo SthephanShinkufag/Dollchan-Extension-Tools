@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.23.0';
-  var commit = 'b5afb4f';
+  var commit = '51adde3';
 
   var defaultCfg = {
     disabled: 0,
@@ -19375,8 +19375,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
 
               url = form.action;
-              return _context66.abrupt("return", $ajax(url, ajaxParams).then(function (_ref64) {
-                var text = _ref64.responseText;
+              return _context66.abrupt("return", $ajax(url, ajaxParams).then(function (_ref65) {
+                var text = _ref65.responseText;
                 return aib.jsonSubmit ? text : aib.stormWallFixSubmit ? aib.stormWallFixSubmit(url, text, ajaxParams) : $createDoc(text);
               })["catch"](function (err) {
                 return Promise.reject(err);
@@ -20362,7 +20362,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.tNum = initNum;
       this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCapParent(el);
       this.isAdded = false;
-      this.isSubmitWait = false;
       this._isHcap = !!$q('.h-captcha', this.parentEl);
       this._isRecap = this._isHcap || !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
       this._lastUpdate = null;
@@ -29256,7 +29255,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         _this112.qPostSubj = '.post__title';
         _this112.qTrunc = null;
         _this112.formParent = 'thread';
-        _this112.hasAltCaptcha = true;
         _this112.hasArchive = true;
         _this112.hasCatalog = true;
         _this112.hasOPNum = true;
@@ -29294,7 +29292,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "css",
         get: function get() {
-          return ".js-post-findimg, .js-post-saveimg, .media-expand-button, .media-thumbnail, .newpost,\n\t\t\t\t\t.post__btn:not(.icon_type_active), .post__number, .post__refmap\n\t\t\t\t\t\t{ display: none !important; }\n\t\t\t\t.de-fullimg-wrap-inpost { margin-right: 16px; }\n\t\t\t\t.de-refmap { margin: 0 16px 4px; }\n\t\t\t\t.de-pview > .post__details { margin-left: 4px; }\n\t\t\t\t.de-reply-class { background: var(--theme_default_postbg);\n\t\t\t\t\tborder: 1px solid var(--theme_default_border); border-radius: 3px; }\n\t\t\t\t#down-nav-arrow, #up-nav-arrow { z-index: 0; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post_type_reply { max-width: 100%; }\n\t\t\t\t.postarea { display: initial !important; }\n\t\t\t\t.postform { width: auto; }\n\t\t\t\t.postform__sticker-btn, .postform__sticker-prev { bottom: " + "".concat(!Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 : Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25, "px !important; }\n\t\t\t\t.post__message { padding-left: 0px; margin-left: 16px; min-width: 15%; max-width: 100%;\n\t\t\t\t\tword-wrap: normal; word-break: normal; }\n\t\t\t\t").concat(Cfg.addSageBtn ? ".options__box[onclick=\"ToggleSage()\"]\n\t\t\t\t\t{ display: none !important; }" : '', "\n\t\t\t\t").concat(Cfg.addTextBtns ? '.js-postform-mu { display: none; }' : '', "\n\t\t\t\t").concat(Cfg.expandTrunc ? ".expand-large-comment,\n\t\t\t\t\tdiv[id^=\"shrinked-post\"] { display: none !important; }\n\t\t\t\t\tdiv[id^=\"original-post\"] { display: block !important; }" : '', "\n\t\t\t\t").concat(Cfg.imgNames === 2 ? ".post__filezise { display: inline !important; }\n\t\t\t\t\t.post__file-attr { margin-bottom: 1px; }" : '', "\n\t\t\t\t").concat(Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '');
+          return ".js-post-findimg, .js-post-saveimg, .media-expand-button, .media-thumbnail, .newpost,\n\t\t\t\t\t.post__btn:not(.icon_type_active), .post__number, .post__refmap\n\t\t\t\t\t\t{ display: none !important; }\n\t\t\t\t.captcha__image { cursor: pointer; }\n\t\t\t\t.de-fullimg-wrap-inpost { margin-right: 16px; }\n\t\t\t\t.de-refmap { margin: 0 16px 4px; }\n\t\t\t\t.de-pview > .post__details { margin-left: 4px; }\n\t\t\t\t.de-reply-class { background: var(--theme_default_postbg);\n\t\t\t\t\tborder: 1px solid var(--theme_default_border); border-radius: 3px; }\n\t\t\t\t#down-nav-arrow, #up-nav-arrow { z-index: 0; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post_type_reply { max-width: 100%; }\n\t\t\t\t.postarea { display: initial !important; }\n\t\t\t\t.postform { width: auto; }\n\t\t\t\t.postform__sticker-btn, .postform__sticker-prev { bottom: " + "".concat(!Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 : Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25, "px !important; }\n\t\t\t\t.post__message { padding-left: 0px; margin-left: 16px; min-width: 15%; max-width: 100%;\n\t\t\t\t\tword-wrap: normal; word-break: normal; }\n\t\t\t\t").concat(Cfg.addSageBtn ? ".options__box[onclick=\"ToggleSage()\"]\n\t\t\t\t\t{ display: none !important; }" : '', "\n\t\t\t\t").concat(Cfg.addTextBtns ? '.js-postform-mu { display: none; }' : '', "\n\t\t\t\t").concat(Cfg.expandTrunc ? ".expand-large-comment,\n\t\t\t\t\tdiv[id^=\"shrinked-post\"] { display: none !important; }\n\t\t\t\t\tdiv[id^=\"original-post\"] { display: block !important; }" : '', "\n\t\t\t\t").concat(Cfg.imgNames === 2 ? ".post__filezise { display: inline !important; }\n\t\t\t\t\t.post__file-attr { margin-bottom: 1px; }" : '', "\n\t\t\t\t").concat(Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '');
         }
       }, {
         key: "isArchived",
@@ -29372,91 +29370,97 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "captchaInit",
         value: function captchaInit(cap) {
-          var _img$tagName,
-              _this114 = this;
+          var _this114 = this;
 
-          var box = $q('.captcha-box, .captcha');
+          var containerEl = $q('.captcha');
+          containerEl.innerHTML = "<div class=\"captcha__image\"></div>\n\t\t\t\t<input class=\"captcha__val\" name=\"2chcaptcha_value\" type=\"text\" maxlength=\"6\">\n\t\t\t\t<input class=\"captcha__key\" name=\"2chcaptcha_id\" type=\"hidden\">";
 
-          if (Cfg.altCaptcha) {
-            box.innerHTML = "<div id=\"captcha-widget-main\"></div>\n\t\t\t\t\t<input name=\"captcha_type\" value=\"recaptcha\" type=\"hidden\">";
-            return null;
-          }
+          var _ref59 = _toConsumableArray(containerEl.children),
+              imgParent = _ref59[0],
+              inputEl = _ref59[1];
 
-          var img = box.firstChild;
+          imgParent.onclick = function () {
+            return _this114.captchaUpdate(cap);
+          };
 
-          if ((img === null || img === void 0 ? void 0 : (_img$tagName = img.tagName) === null || _img$tagName === void 0 ? void 0 : _img$tagName.toLowerCase()) !== 'img') {
-            box.innerHTML = "<img>\n\t\t\t\t\t<input name=\"2chcaptcha_value\" maxlength=\"6\" type=\"text\" style=\"display: block;\">\n\t\t\t\t\t<input name=\"2chcaptcha_id\" type=\"hidden\">";
-
-            var _ref59 = _toConsumableArray(box.children),
-                _img2 = _ref59[0],
-                inp = _ref59[1];
-
-            _img2.onclick = function () {
-              return _this114.updateCaptcha(cap);
-            };
-
-            inp.tabIndex = 999;
-            cap.textEl = inp;
-          }
-
-          return null;
+          inputEl.tabIndex = 999;
+          cap.textEl = inputEl;
+          return this.captchaUpdate(cap);
         }
       }, {
         key: "captchaUpdate",
         value: function captchaUpdate(cap) {
-          var url = "/api/captcha/".concat(Cfg.altCaptcha ? 'recaptcha' : '2chcaptcha', "/id");
-          return cap.updateHelper(url, function (xhr) {
-            var box = $q('.captcha-box, .captcha');
-            var data = xhr.responseText;
+          var _this115 = this;
+
+          var captchaError = function captchaError(text) {
+            $popup('err-captcha', "Captcha error: ".concat(text));
+            $q('.captcha__image').innerHTML = '<button class="captcha__loadtext">Обновить</button>';
+          };
+
+          var containerEl = $q('.captcha');
+          var imgParent = $q('.captcha__image', containerEl);
+          imgParent.innerHTML = '<span class="captcha__loadtext">Загрузка...</span>';
+          var url = "/api/captcha/2chcaptcha/id?board=".concat(this.b, "&thread=").concat(postform.tNum || 0);
+          return cap.updateHelper(url, function (_ref60) {
+            var responseText = _ref60.responseText;
+            var data;
 
             try {
-              data = JSON.parse(data);
-            } catch (err) {}
+              data = JSON.parse(responseText);
+            } catch (err) {
+              captchaError(responseText);
+              return;
+            }
 
-            if (cap.isSubmitWait && data.result !== 1) {
-              postform.subm.click();
+            if (data.warning) {
+              $popup('warning', "\u041F\u0440\u0435\u0434\u0443\u043F\u0440\u0435\u0436\u0434\u0435\u043D\u0438\u0435!<br>".concat(decodeURIComponent(data.warning.message)) + "<br>\u0412\u043E\u0442 \u0437\u0430 <a href=\"".concat(data.warning.path, "\" target=\"_blank\" >\u042D\u0422\u041E</a>."));
+              return;
+            } else if (data.banned) {
+              $popup('banned', "Banned!<br>".concat(data.banned.message, "<br>\u0412\u043E\u0442 \u0437\u0430 <a href=\"").concat(data.banned.path, "\" target=\"_blank\" >\u042D\u0422\u041E</a>.<br>\u041A\u0443\u043F\u0438\u0442\u044C \u043F\u0430\u0441\u0441\u043A\u043E\u0434 \u0438 \u043F\u043E\u043B\u0443\u0447\u0438\u0442\u044C ") + 'мгновенный разбан можно <a href="/static/market.html" target="_blank">тут</a>');
+              return;
             }
 
             switch (data.result) {
               case 0:
-                box.textContent = 'Пасскод недействителен. Перелогиньтесь.';
+                containerEl.textContent = 'Пасскод недействителен. Перелогиньтесь.';
                 break;
 
               case 2:
-                box.textContent = 'Вы - пасскодобоярин.';
+                containerEl.textContent = 'Вы - пасскодобоярин.';
                 break;
 
               case 3:
-                return CancelablePromise.reject(new CancelError());
+                $hide(containerEl);
+                break;
 
               case 1:
-                if (!Cfg.altCaptcha) {
-                  if (!cap.isSubmitWait) {
-                    var img = box.firstChild;
-                    img.src = '';
-                    img.src = "/api/captcha/2chcaptcha/show?id=".concat(data.id);
-                    box.lastChild.value = data.id;
-                    break;
-                  }
+                {
+                  var time = 90;
+                  imgParent.innerHTML = "<img src=\"/api/captcha/2chcaptcha/show?id=".concat(data.id, "\">\n\t\t\t\t\t\t<button class=\"captcha__loadtext\" style=\"display: none;\">\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C</button>\n\t\t\t\t\t\t<span class=\"captcha__timer\">").concat(time, "</span>");
+                  var timerEl = $q('.captcha__timer', imgParent);
+                  var captchaTimer = setInterval(function () {
+                    timerEl.innerHTML = --time;
 
-                  $q('.captcha__key').value = data.id;
-                  $script($id('captcha-widget').hasChildNodes() ? "grecaptcha.reset(deCapWidget);\n\t\t\t\t\t\t\tgrecaptcha.execute(deCapWidget);" : "deCapWidget = grecaptcha.render('captcha-widget', {\n\t\t\t\t\t\t\t\tsitekey : '".concat(data.id, "',\n\t\t\t\t\t\t\t\ttheme   : 'light',\n\t\t\t\t\t\t\t\tsize    : 'invisible',\n\t\t\t\t\t\t\t\tcallback: function() {\n\t\t\t\t\t\t\t\t\tvar el = document.getElementById('captcha-widget-main');\n\t\t\t\t\t\t\t\t\tel.innerHTML = '<input type=\"hidden\" name=\"g-recaptcha-response\">';\n\t\t\t\t\t\t\t\t\tel.firstChild.value = grecaptcha.getResponse();\n\t\t\t\t\t\t\t\t\tdocument.getElementById('submit').click();\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tgrecaptcha.execute(deCapWidget);"));
-                  break;
-                } else if (data.type === 'recaptcha') {
-                  $q('.captcha__key').value = data.id;
+                    if (!time) {
+                      if (doc.hasFocus()) {
+                        clearInterval(captchaTimer);
 
-                  if (!$id('captcha-widget-main').hasChildNodes()) {
-                    $script("globRecapWidget = grecaptcha.render('captcha-widget-main', { sitekey: \"".concat(data.id, "\" });"));
-                  } else {
-                    $script('grecaptcha.reset(globRecapWidget);');
-                  }
-
+                        _this115.captchaUpdate(cap);
+                      } else {
+                        $hide(timerEl);
+                        $show($q('.captcha__loadtext', containerEl));
+                      }
+                    }
+                  }, 1e3);
+                  $q('.captcha__key', containerEl).value = data.id;
+                  var inputEl = $q('.captcha__val', containerEl);
+                  inputEl.value = '';
+                  inputEl.focus();
                   break;
                 }
 
-
               default:
-                box.innerHTML = data;
+                captchaError(responseText);
             }
           });
         }
@@ -29651,7 +29655,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super18 = _createSuper(_2channel);
 
       function _2channel() {
-        var _this115;
+        var _this116;
 
         _classCallCheck(this, _2channel);
 
@@ -29659,10 +29663,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key12] = arguments[_key12];
         }
 
-        _this115 = _super18.call.apply(_super18, [this].concat(args));
-        _this115.hasAltCaptcha = false;
-        _this115.JsonBuilder = null;
-        return _this115;
+        _this116 = _super18.call.apply(_super18, [this].concat(args));
+        _this116.JsonBuilder = null;
+        return _this116;
       }
 
       _createClass(_2channel, [{
@@ -29775,7 +29778,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super19 = _createSuper(_2chRip);
 
       function _2chRip() {
-        var _this116;
+        var _this117;
 
         _classCallCheck(this, _2chRip);
 
@@ -29783,11 +29786,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key13] = arguments[_key13];
         }
 
-        _this116 = _super19.call.apply(_super19, [this].concat(args));
-        _this116.captchaRu = true;
-        _this116.jsonSubmit = true;
-        _this116._capUpdPromise = null;
-        return _this116;
+        _this117 = _super19.call.apply(_super19, [this].concat(args));
+        _this117.captchaRu = true;
+        _this117.jsonSubmit = true;
+        _this117._capUpdPromise = null;
+        return _this117;
       }
 
       _createClass(_2chRip, [{
@@ -29798,8 +29801,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "captchaUpdate",
         value: function captchaUpdate(cap) {
-          return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref60) {
-            var id = _ref60.responseText;
+          return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref61) {
+            var id = _ref61.responseText;
             $id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
             $id('captchaid').value = id;
           });
@@ -29832,7 +29835,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super20 = _createSuper(_410chan);
 
       function _410chan() {
-        var _this117;
+        var _this118;
 
         _classCallCheck(this, _410chan);
 
@@ -29840,15 +29843,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key14] = arguments[_key14];
         }
 
-        _this117 = _super20.call.apply(_super20, [this].concat(args));
-        _this117.qFormRedir = 'input#noko';
-        _this117.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
-        _this117.captchaRu = true;
-        _this117.hasCatalog = true;
-        _this117.markupBB = false;
-        _this117.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
-        _this117._capUpdPromise = null;
-        return _this117;
+        _this118 = _super20.call.apply(_super20, [this].concat(args));
+        _this118.qFormRedir = 'input#noko';
+        _this118.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
+        _this118.captchaRu = true;
+        _this118.hasCatalog = true;
+        _this118.markupBB = false;
+        _this118.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
+        _this118._capUpdPromise = null;
+        return _this118;
       }
 
       _createClass(_410chan, [{
@@ -29869,7 +29872,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "captchaUpdate",
         value: function captchaUpdate(cap) {
-          var _this118 = this;
+          var _this119 = this;
 
           return cap.updateHelper("/api_adaptive.php?board=".concat(this.b), function (xhr) {
             if (xhr.responseText === '1') {
@@ -29885,7 +29888,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             var img = $q('img', cap.parentEl);
             var src = img.getAttribute('src');
             img.src = '';
-            img.src = _this118.getCaptchaSrc(src);
+            img.src = _this119.getCaptchaSrc(src);
           });
         }
       }, {
@@ -29913,7 +29916,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super21 = _createSuper(_4chan);
 
       function _4chan() {
-        var _this119;
+        var _this120;
 
         _classCallCheck(this, _4chan);
 
@@ -29921,35 +29924,35 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key15] = arguments[_key15];
         }
 
-        _this119 = _super21.call.apply(_super21, [this].concat(args));
-        _this119._4chan = true;
-        _this119.cReply = 'post reply';
-        _this119.qBan = 'strong[style="color: red;"]';
-        _this119.qClosed = '.archivedIcon';
-        _this119.qDelBtn = '.deleteform > input[type="submit"]';
-        _this119.qError = '#errmsg';
-        _this119.qForm = 'form[name="post"]';
-        _this119.qFormRedir = null;
-        _this119.qOmitted = '.summary.desktop';
-        _this119.qOPost = '.op';
-        _this119.qOPostEnd = '.replyContainer';
-        _this119.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
-        _this119.qPostHeader = '.postInfo';
-        _this119.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
-        _this119.qPostImgInfo = '.fileText';
-        _this119.qPostName = '.name';
-        _this119.qPostRef = '.postInfo > .postNum';
-        _this119.qPostSubj = '.subject';
-        _this119.anchor = '#p';
-        _this119.docExt = '';
-        _this119.firstPage = 1;
-        _this119.formParent = 'resto';
-        _this119.hasCatalog = true;
-        _this119.hasTextLinks = true;
-        _this119.JsonBuilder = _4chanPostsBuilder;
-        _this119.res = 'thread/';
-        _this119.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
-        return _this119;
+        _this120 = _super21.call.apply(_super21, [this].concat(args));
+        _this120._4chan = true;
+        _this120.cReply = 'post reply';
+        _this120.qBan = 'strong[style="color: red;"]';
+        _this120.qClosed = '.archivedIcon';
+        _this120.qDelBtn = '.deleteform > input[type="submit"]';
+        _this120.qError = '#errmsg';
+        _this120.qForm = 'form[name="post"]';
+        _this120.qFormRedir = null;
+        _this120.qOmitted = '.summary.desktop';
+        _this120.qOPost = '.op';
+        _this120.qOPostEnd = '.replyContainer';
+        _this120.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
+        _this120.qPostHeader = '.postInfo';
+        _this120.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
+        _this120.qPostImgInfo = '.fileText';
+        _this120.qPostName = '.name';
+        _this120.qPostRef = '.postInfo > .postNum';
+        _this120.qPostSubj = '.subject';
+        _this120.anchor = '#p';
+        _this120.docExt = '';
+        _this120.firstPage = 1;
+        _this120.formParent = 'resto';
+        _this120.hasCatalog = true;
+        _this120.hasTextLinks = true;
+        _this120.JsonBuilder = _4chanPostsBuilder;
+        _this120.res = 'thread/';
+        _this120.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
+        return _this120;
       }
 
       _createClass(_4chan, [{
@@ -29969,14 +29972,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           if ($id('captchaFormPart')) {
             value = function value(cap) {
-              var container = $id('t-root');
+              var containerEl = $id('t-root');
 
-              if (!container) {
+              if (!containerEl) {
                 cap.hasCaptcha = false;
                 return;
               }
 
-              $replace(container, '<div id="t-root"></div>');
+              $replace(containerEl, '<div id="t-root"></div>');
               $script('initTCaptcha();');
               setTimeout(function () {
                 cap.textEl = $id('t-resp');
@@ -30133,7 +30136,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super23 = _createSuper(Arhivach);
 
       function Arhivach() {
-        var _this120;
+        var _this121;
 
         _classCallCheck(this, Arhivach);
 
@@ -30141,21 +30144,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key16] = arguments[_key16];
         }
 
-        _this120 = _super23.call.apply(_super23, [this].concat(args));
-        _this120.cReply = 'post';
-        _this120.qDelBtn = null;
-        _this120.qDelForm = 'body > .container-fluid';
-        _this120.qDelPassw = null;
-        _this120.qPost = '.post[postid]:not([postid=""])';
-        _this120.qPostHeader = '.post_head';
-        _this120.qPostImg = '.post_image > img';
-        _this120.qPostMsg = '.post_comment_body';
-        _this120.qPostRef = '.post_id, .post_head > b';
-        _this120.qPostSubj = '.post_subject';
-        _this120.docExt = '';
-        _this120.hasOPNum = true;
-        _this120.res = 'thread/';
-        return _this120;
+        _this121 = _super23.call.apply(_super23, [this].concat(args));
+        _this121.cReply = 'post';
+        _this121.qDelBtn = null;
+        _this121.qDelForm = 'body > .container-fluid';
+        _this121.qDelPassw = null;
+        _this121.qPost = '.post[postid]:not([postid=""])';
+        _this121.qPostHeader = '.post_head';
+        _this121.qPostImg = '.post_image > img';
+        _this121.qPostMsg = '.post_comment_body';
+        _this121.qPostRef = '.post_id, .post_head > b';
+        _this121.qPostSubj = '.post_subject';
+        _this121.docExt = '';
+        _this121.hasOPNum = true;
+        _this121.res = 'thread/';
+        return _this121;
       }
 
       _createClass(Arhivach, [{
@@ -30235,14 +30238,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "init",
         value: function init() {
-          var _this121 = this;
+          var _this122 = this;
 
           defaultCfg.ajaxUpdThr = 0;
           setTimeout(function () {
             var delPosts = $Q('.post_deleted');
 
             for (var i = 0, len = delPosts.length; i < len; ++i) {
-              var post = pByNum.get(_this121.getPNum(delPosts[i]));
+              var post = pByNum.get(_this122.getPNum(delPosts[i]));
 
               if (post) {
                 post.thr.deletePosts(post, false, false);
@@ -30266,7 +30269,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super24 = _createSuper(Dobrochan);
 
       function Dobrochan() {
-        var _this122;
+        var _this123;
 
         _classCallCheck(this, Dobrochan);
 
@@ -30274,26 +30277,26 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key17] = arguments[_key17];
         }
 
-        _this122 = _super24.call.apply(_super24, [this].concat(args));
-        _this122.dobrochan = true;
-        _this122.qClosed = 'img[src="/images/locked.png"]';
-        _this122.qDelForm = 'form[action*="delete"]';
-        _this122.qError = '.post-error, h2';
-        _this122.qFormRedir = 'select[name="goto"]';
-        _this122.qOmitted = '.abbrev > span:last-of-type';
-        _this122.qPages = '.pages > tbody > tr > td';
-        _this122.qPostImgInfo = '.fileinfo';
-        _this122.qPostMsg = '.postbody';
-        _this122.qPostSubj = '.replytitle';
-        _this122.qTrunc = '.abbrev > span:first-of-type';
-        _this122.anchor = '#i';
-        _this122.captchaRu = true;
-        _this122.formParent = 'thread_id';
-        _this122.hasPicWrap = true;
-        _this122.JsonBuilder = DobrochanPostsBuilder;
-        _this122.multiFile = true;
-        _this122.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
-        return _this122;
+        _this123 = _super24.call.apply(_super24, [this].concat(args));
+        _this123.dobrochan = true;
+        _this123.qClosed = 'img[src="/images/locked.png"]';
+        _this123.qDelForm = 'form[action*="delete"]';
+        _this123.qError = '.post-error, h2';
+        _this123.qFormRedir = 'select[name="goto"]';
+        _this123.qOmitted = '.abbrev > span:last-of-type';
+        _this123.qPages = '.pages > tbody > tr > td';
+        _this123.qPostImgInfo = '.fileinfo';
+        _this123.qPostMsg = '.postbody';
+        _this123.qPostSubj = '.replytitle';
+        _this123.qTrunc = '.abbrev > span:first-of-type';
+        _this123.anchor = '#i';
+        _this123.captchaRu = true;
+        _this123.formParent = 'thread_id';
+        _this123.hasPicWrap = true;
+        _this123.JsonBuilder = DobrochanPostsBuilder;
+        _this123.multiFile = true;
+        _this123.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+        return _this123;
       }
 
       _createClass(Dobrochan, [{
@@ -30458,7 +30461,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super25 = _createSuper(Dollchan);
 
       function Dollchan() {
-        var _this123;
+        var _this124;
 
         _classCallCheck(this, Dollchan);
 
@@ -30466,11 +30469,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key18] = arguments[_key18];
         }
 
-        _this123 = _super25.call.apply(_super25, [this].concat(args));
-        _this123.markupBB = true;
-        _this123.multiFile = true;
-        _this123.timePattern = 'yy+nn+dd+w+hh+ii+ss';
-        return _this123;
+        _this124 = _super25.call.apply(_super25, [this].concat(args));
+        _this124.markupBB = true;
+        _this124.multiFile = true;
+        _this124.timePattern = 'yy+nn+dd+w+hh+ii+ss';
+        return _this124;
       }
 
       _createClass(Dollchan, [{
@@ -30507,7 +30510,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super26 = _createSuper(Endchan);
 
       function Endchan() {
-        var _this124;
+        var _this125;
 
         _classCallCheck(this, Endchan);
 
@@ -30515,9 +30518,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key19] = arguments[_key19];
         }
 
-        _this124 = _super26.call.apply(_super26, [this].concat(args));
-        _this124.qTrunc = '.contentOmissionIndicator > p';
-        return _this124;
+        _this125 = _super26.call.apply(_super26, [this].concat(args));
+        _this125.qTrunc = '.contentOmissionIndicator > p';
+        return _this125;
       }
 
       _createClass(Endchan, [{
@@ -30552,7 +30555,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super27 = _createSuper(Ernstchan);
 
       function Ernstchan() {
-        var _this125;
+        var _this126;
 
         _classCallCheck(this, Ernstchan);
 
@@ -30560,25 +30563,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key20] = arguments[_key20];
         }
 
-        _this125 = _super27.call.apply(_super27, [this].concat(args));
-        _this125.cReply = 'post';
-        _this125.qError = '.error > .info';
-        _this125.qFormRedir = 'input[name="gb2"][value="thread"]';
-        _this125.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
-        _this125.qOPost = '.thread_OP';
-        _this125.qPages = '.pagelist > li:nth-last-child(2)';
-        _this125.qPost = '.thread_reply';
-        _this125.qPostHeader = '.post_head';
-        _this125.qPostMsg = '.text';
-        _this125.qPostSubj = '.subject';
-        _this125.qPostTrip = '.tripcode';
-        _this125.qTrunc = '.tldr';
-        _this125.docExt = '';
-        _this125.firstPage = 1;
-        _this125.markupBB = true;
-        _this125.multiFile = true;
-        _this125.res = 'thread/';
-        return _this125;
+        _this126 = _super27.call.apply(_super27, [this].concat(args));
+        _this126.cReply = 'post';
+        _this126.qError = '.error > .info';
+        _this126.qFormRedir = 'input[name="gb2"][value="thread"]';
+        _this126.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
+        _this126.qOPost = '.thread_OP';
+        _this126.qPages = '.pagelist > li:nth-last-child(2)';
+        _this126.qPost = '.thread_reply';
+        _this126.qPostHeader = '.post_head';
+        _this126.qPostMsg = '.text';
+        _this126.qPostSubj = '.subject';
+        _this126.qPostTrip = '.tripcode';
+        _this126.qTrunc = '.tldr';
+        _this126.docExt = '';
+        _this126.firstPage = 1;
+        _this126.markupBB = true;
+        _this126.multiFile = true;
+        _this126.res = 'thread/';
+        return _this126;
       }
 
       _createClass(Ernstchan, [{
@@ -30629,7 +30632,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super28 = _createSuper(Gensokyo);
 
       function Gensokyo() {
-        var _this126;
+        var _this127;
 
         _classCallCheck(this, Gensokyo);
 
@@ -30637,9 +30640,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key21] = arguments[_key21];
         }
 
-        _this126 = _super28.call.apply(_super28, [this].concat(args));
-        _this126.hasRefererErr = true;
-        return _this126;
+        _this127 = _super28.call.apply(_super28, [this].concat(args));
+        _this127.hasRefererErr = true;
+        return _this127;
       }
 
       return _createClass(Gensokyo);
@@ -30653,7 +30656,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super29 = _createSuper(Iichan);
 
       function Iichan() {
-        var _this127;
+        var _this128;
 
         _classCallCheck(this, Iichan);
 
@@ -30661,10 +30664,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key22] = arguments[_key22];
         }
 
-        _this127 = _super29.call.apply(_super29, [this].concat(args));
-        _this127.hasArchive = true;
-        _this127.hasCatalog = true;
-        return _this127;
+        _this128 = _super29.call.apply(_super29, [this].concat(args));
+        _this128.hasArchive = true;
+        _this128.hasCatalog = true;
+        return _this128;
       }
 
       _createClass(Iichan, [{
@@ -30709,11 +30712,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "stormWallFixCaptcha",
         value: function stormWallFixCaptcha(url, img) {
-          var _this128 = this;
+          var _this129 = this;
 
           img.onload = img.onerror = function () {
             if (!(img.naturalHeight + img.naturalWidth)) {
-              _this128.stormWallHelper(url, null, emptyFn, function () {
+              _this129.stormWallHelper(url, null, emptyFn, function () {
                 img.src = '';
                 img.src = url;
               });
@@ -30795,7 +30798,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super30 = _createSuper(Kohlchan);
 
       function Kohlchan() {
-        var _this129;
+        var _this130;
 
         _classCallCheck(this, Kohlchan);
 
@@ -30803,14 +30806,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key23] = arguments[_key23];
         }
 
-        _this129 = _super30.call.apply(_super30, [this].concat(args));
-        _this129.kohlchan = true;
-        _this129.qFormRules = '#rules_row';
-        _this129.qPostImg = '.imgLink > img, .de-img-link > img';
-        _this129.hasTextLinks = true;
-        _this129.markupBB = true;
-        _this129.timePattern = 'yyyy+nn+dd+hh+ii+ss';
-        return _this129;
+        _this130 = _super30.call.apply(_super30, [this].concat(args));
+        _this130.kohlchan = true;
+        _this130.qFormRules = '#rules_row';
+        _this130.qPostImg = '.imgLink > img, .de-img-link > img';
+        _this130.hasTextLinks = true;
+        _this130.markupBB = true;
+        _this130.timePattern = 'yyyy+nn+dd+hh+ii+ss';
+        return _this130;
       }
 
       _createClass(Kohlchan, [{
@@ -30969,7 +30972,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super31 = _createSuper(Kropyvach);
 
       function Kropyvach() {
-        var _this130;
+        var _this131;
 
         _classCallCheck(this, Kropyvach);
 
@@ -30977,9 +30980,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key24] = arguments[_key24];
         }
 
-        _this130 = _super31.call.apply(_super31, [this].concat(args));
-        _this130.markupBB = true;
-        return _this130;
+        _this131 = _super31.call.apply(_super31, [this].concat(args));
+        _this131.markupBB = true;
+        return _this131;
       }
 
       _createClass(Kropyvach, [{
@@ -31005,7 +31008,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super32 = _createSuper(Lainchan);
 
       function Lainchan() {
-        var _this131;
+        var _this132;
 
         _classCallCheck(this, Lainchan);
 
@@ -31013,9 +31016,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key25] = arguments[_key25];
         }
 
-        _this131 = _super32.call.apply(_super32, [this].concat(args));
-        _this131.qOPost = '.op';
-        return _this131;
+        _this132 = _super32.call.apply(_super32, [this].concat(args));
+        _this132.qOPost = '.op';
+        return _this132;
       }
 
       _createClass(Lainchan, [{
@@ -31103,7 +31106,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super35 = _createSuper(Ponyach);
 
       function Ponyach() {
-        var _this132;
+        var _this133;
 
         _classCallCheck(this, Ponyach);
 
@@ -31111,13 +31114,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key26] = arguments[_key26];
         }
 
-        _this132 = _super35.call.apply(_super35, [this].concat(args));
-        _this132.qBan = 'font[color="#FF0000"]';
-        _this132.qPostImgInfo = '.filesize[style="display: inline;"]';
-        _this132.formParent = 'replythread';
-        _this132.jsonSubmit = true;
-        _this132.multiFile = true;
-        return _this132;
+        _this133 = _super35.call.apply(_super35, [this].concat(args));
+        _this133.qBan = 'font[color="#FF0000"]';
+        _this133.qPostImgInfo = '.filesize[style="display: inline;"]';
+        _this133.formParent = 'replythread';
+        _this133.jsonSubmit = true;
+        _this133.multiFile = true;
+        return _this133;
       }
 
       _createClass(Ponyach, [{
@@ -31147,9 +31150,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       }, {
         key: "getSubmitData",
-        value: function getSubmitData(_ref62) {
-          var error = _ref62.error,
-              id = _ref62.id;
+        value: function getSubmitData(_ref63) {
+          var error = _ref63.error,
+              id = _ref63.id;
           return {
             error: error,
             postNum: id && +id
@@ -31181,7 +31184,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super36 = _createSuper(Ponychan);
 
       function Ponychan() {
-        var _this133;
+        var _this134;
 
         _classCallCheck(this, Ponychan);
 
@@ -31189,10 +31192,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key27] = arguments[_key27];
         }
 
-        _this133 = _super36.call.apply(_super36, [this].concat(args));
-        _this133.qOPost = '.opContainer';
-        _this133.jsonSubmit = false;
-        return _this133;
+        _this134 = _super36.call.apply(_super36, [this].concat(args));
+        _this134.qOPost = '.opContainer';
+        _this134.jsonSubmit = false;
+        return _this134;
       }
 
       _createClass(Ponychan, [{
@@ -31251,7 +31254,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super38 = _createSuper(Spirech);
 
       function Spirech() {
-        var _this134;
+        var _this135;
 
         _classCallCheck(this, Spirech);
 
@@ -31259,12 +31262,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key28] = arguments[_key28];
         }
 
-        _this134 = _super38.call.apply(_super38, [this].concat(args));
-        _this134.qForm = 'form[name="post"], form[name="de-post"]';
-        _this134.qFormRules = '#post-info';
-        _this134.jsonSubmit = true;
-        _this134.markupBB = true;
-        return _this134;
+        _this135 = _super38.call.apply(_super38, [this].concat(args));
+        _this135.qForm = 'form[name="post"], form[name="de-post"]';
+        _this135.qFormRules = '#post-info';
+        _this135.jsonSubmit = true;
+        _this135.markupBB = true;
+        return _this135;
       }
 
       _createClass(Spirech, [{
@@ -31304,7 +31307,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super39 = _createSuper(Synch);
 
       function Synch() {
-        var _this135;
+        var _this136;
 
         _classCallCheck(this, Synch);
 
@@ -31312,11 +31315,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key29] = arguments[_key29];
         }
 
-        _this135 = _super39.call.apply(_super39, [this].concat(args));
-        _this135.qPages = '.pagination';
-        _this135.qPostImgInfo = '.unimportant';
-        _this135.markupBB = true;
-        return _this135;
+        _this136 = _super39.call.apply(_super39, [this].concat(args));
+        _this136.qPages = '.pagination';
+        _this136.qPostImgInfo = '.unimportant';
+        _this136.markupBB = true;
+        return _this136;
       }
 
       _createClass(Synch, [{
@@ -31378,7 +31381,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super40 = _createSuper(Warosu);
 
       function Warosu() {
-        var _this136;
+        var _this137;
 
         _classCallCheck(this, Warosu);
 
@@ -31386,14 +31389,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key30] = arguments[_key30];
         }
 
-        _this136 = _super40.call.apply(_super40, [this].concat(args));
-        _this136.qDelForm = '.content';
-        _this136.qForm = '.subreply';
-        _this136.qPostImgInfo = 'span';
-        _this136.qPostRef = '.js';
-        _this136.qOPost = 'div[itemscope]';
-        _this136.res = 'thread/';
-        return _this136;
+        _this137 = _super40.call.apply(_super40, [this].concat(args));
+        _this137.qDelForm = '.content';
+        _this137.qForm = '.subreply';
+        _this137.qPostImgInfo = 'span';
+        _this137.qPostRef = '.js';
+        _this137.qOPost = 'div[itemscope]';
+        _this137.res = 'thread/';
+        return _this137;
       }
 
       _createClass(Warosu, [{
@@ -31465,7 +31468,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var DollchanAPI = {
     initAPI: function initAPI() {
-      var _this137 = this;
+      var _this138 = this;
 
       this.hasListeners = false;
 
@@ -31480,7 +31483,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var port = channel.port2;
       doc.defaultView.addEventListener('message', function (e) {
         if (e.data === 'de-request-api-message') {
-          _this137.hasListeners = true;
+          _this138.hasListeners = true;
           doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
         }
       });
@@ -31496,8 +31499,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         });
       }
     },
-    _handleMessage: function _handleMessage(_ref63) {
-      var arg = _ref63.data;
+    _handleMessage: function _handleMessage(_ref64) {
+      var arg = _ref64.data;
 
       if (!(arg !== null && arg !== void 0 && arg.name)) {
         return;

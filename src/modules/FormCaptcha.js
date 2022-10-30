@@ -9,7 +9,6 @@ class Captcha {
 		this.tNum = initNum;
 		this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCapParent(el);
 		this.isAdded = false;
-		this.isSubmitWait = false;
 		this._isHcap = !!$q('.h-captcha', this.parentEl);
 		this._isRecap = this._isHcap || !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
 		this._lastUpdate = null;
@@ -20,7 +19,6 @@ class Captcha {
 		}
 	}
 	addCaptcha() {
-		// Run this function only once
 		if(this.isAdded) {
 			return;
 		}
