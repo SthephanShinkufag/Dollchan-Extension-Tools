@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.23.0';
-  var commit = '51adde3';
+  var commit = '9fa32f5';
 
   var defaultCfg = {
     disabled: 0,
@@ -29392,6 +29392,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         value: function captchaUpdate(cap) {
           var _this115 = this;
 
+          if (this._captchaTimer) {
+            clearInterval(this._captchaTimer);
+            this._captchaTimer = null;
+          }
+
           var captchaError = function captchaError(text) {
             $popup('err-captcha', "Captcha error: ".concat(text));
             $q('.captcha__image').innerHTML = '<button class="captcha__loadtext">Обновить</button>';
@@ -29438,12 +29443,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   var time = 90;
                   imgParent.innerHTML = "<img src=\"/api/captcha/2chcaptcha/show?id=".concat(data.id, "\">\n\t\t\t\t\t\t<button class=\"captcha__loadtext\" style=\"display: none;\">\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C</button>\n\t\t\t\t\t\t<span class=\"captcha__timer\">").concat(time, "</span>");
                   var timerEl = $q('.captcha__timer', imgParent);
-                  var captchaTimer = setInterval(function () {
+                  _this115._captchaTimer = setInterval(function () {
                     timerEl.innerHTML = --time;
 
                     if (!time) {
                       if (doc.hasFocus()) {
-                        clearInterval(captchaTimer);
+                        clearInterval(_this115._captchaTimer);
 
                         _this115.captchaUpdate(cap);
                       } else {

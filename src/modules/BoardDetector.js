@@ -733,6 +733,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.captchaUpdate(cap);
 		}
 		captchaUpdate(cap) {
+			if(this._captchaTimer) {
+				clearInterval(this._captchaTimer);
+				this._captchaTimer = null;
+			}
 			const captchaError = text => {
 				$popup('err-captcha', `Captcha error: ${ text }`);
 				$q('.captcha__image').innerHTML = '<button class="captcha__loadtext">Обновить</button>';
@@ -769,11 +773,11 @@ function getImageBoard(checkDomains, checkEngines) {
 						<button class="captcha__loadtext" style="display: none;">Обновить</button>
 						<span class="captcha__timer">${ time }</span>`;
 					const timerEl = $q('.captcha__timer', imgParent);
-					const captchaTimer = setInterval(() => {
+					this._captchaTimer = setInterval(() => {
 						timerEl.innerHTML = --time;
 						if(!time) {
 							if(doc.hasFocus()) {
-								clearInterval(captchaTimer);
+								clearInterval(this._captchaTimer);
 								this.captchaUpdate(cap);
 							} else {
 								$hide(timerEl);
