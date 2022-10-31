@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.23.0';
-  var commit = '7dc019f';
+  var commit = 'b81c443';
 
   var defaultCfg = {
     disabled: 0,
@@ -14989,7 +14989,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             clearTimeout(_loadTO);
           }
 
-          if (e.readyState === 4 && !(e.responseHeaders.includes('content-type: text/html;') && typeof e.responseText === 'undefined')) {
+          if (e.readyState === 4 && !(e.responseHeaders.match(/content-type: text\/(?:html|plain);/i) && typeof e.responseText === 'undefined')) {
             if (aib.isAjaxStatusOK(e.status)) {
               resolve(e);
             } else {

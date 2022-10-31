@@ -65,7 +65,7 @@ function $ajax(url, params = null, isCORS = false) {
 				if(needTO) {
 					clearTimeout(loadTO);
 				}
-				if(e.readyState === 4 && !(e.responseHeaders.includes('content-type: text/html;') &&
+				if(e.readyState === 4 && !(e.responseHeaders.match(/content-type: text\/(?:html|plain);/i) &&
 					typeof e.responseText === 'undefined')
 				) {
 					if(aib.isAjaxStatusOK(e.status)) {

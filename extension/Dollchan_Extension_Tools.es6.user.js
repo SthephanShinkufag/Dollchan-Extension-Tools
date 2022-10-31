@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = '7dc019f';
+const commit = 'b81c443';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6882,7 +6882,7 @@ function $ajax(url, params = null, isCORS = false) {
 				if(needTO) {
 					clearTimeout(loadTO);
 				}
-				if(e.readyState === 4 && !(e.responseHeaders.includes('content-type: text/html;') &&
+				if(e.readyState === 4 && !(e.responseHeaders.match(/content-type: text\/(?:html|plain);/i) &&
 					typeof e.responseText === 'undefined')
 				) {
 					if(aib.isAjaxStatusOK(e.status)) {
