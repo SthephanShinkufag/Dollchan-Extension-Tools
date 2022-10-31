@@ -431,6 +431,9 @@ function updateCSS() {
 	${ Cfg.noSpoilers === 2 ?
 		`.spoiler, s { color: inherit !important; }
 			.spoiler > a, s > a:not(:hover) { color: inherit !important; }` : '' }
+	${ Cfg.favFolders ? '' : `.de-fav-entries-hide { display: block; }
+		.de-fav-header { display: none; }
+		.de-fav-link::before { content: attr(de-host) "/" attr(de-board) "/" }` }
 	${ Cfg.addSageBtn ? '' : '#de-sagebtn, ' }
 	${ Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ?
 		'.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + hr, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' :

@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = 'd8a44d4';
+const commit = 'feaf7af';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -152,6 +152,7 @@ const defaultCfg = {
 	hideReplies  : 0,    // show only op-posts in threads list
 	scrollToTop  : 0,    // always scroll to top in the threads list
 	saveScroll   : 1,    // remember the scroll position in threads
+	favFolders   : 1,    // boards folders in the Favorites Window
 	favThrOrder  : 0,    /* threads sorting order in the Favorites window
 		[0=by opnum, 1=by opnum (desc), 2=by adding, 3=by adding (desc)] */
 	favWinOn     : 0,    // always open the Favorites window
@@ -724,6 +725,10 @@ const Lng = {
 			'Запоминать позицию скролла в тредах',
 			'Remember the scroll position in threads',
 			'Пам`ятати позицію скролла в тредах'],
+		favFolders: [
+			'Папки досок в окне Избранного',
+			'Boards folders in the Favorites window',
+			'Папки дошок в вікні Вибраного'],
 		favThrOrder: {
 			sel: [
 				['По номеру', 'По номеру (убыв)', 'По добавлению', 'По добавлению (убыв)'],
@@ -3946,7 +3951,7 @@ function showFavoritesWindow(body, favObj) {
 				innerHtml += `<div class="de-entry ${ aib.cReply }" ${
 					hb } de-num="${ tNum }" de-url="${ entry.url }">
 					${ delBtn }
-					<a class="de-fav-link" title="${ Lng.goToThread[lang] }"` +
+					<a class="de-fav-link" title="${ Lng.goToThread[lang] }" ${ hb }` +
 						` href="${ favLinkHref }" rel="noreferrer">${ tNum }</a>
 					<div class="de-entry-title">- ${ entry.txt }</div>
 					<div class="de-fav-inf">
@@ -4605,6 +4610,7 @@ const CfgWindow = {
 			case 'strikeHidd':
 			case 'removeHidd':
 			case 'noBoardRule':
+			case 'favFolders':
 			case 'userCSS': updateCSS(); break;
 			case 'hideBySpell': await Spells.toggle(); break;
 			case 'sortSpells':
@@ -5052,6 +5058,7 @@ const CfgWindow = {
 				${ this._getBox('hideReplies', true) }<br>
 				${ this._getBox('scrollToTop') }<br>` : '' }
 			${ this._getBox('saveScroll') }<br>
+			${ this._getBox('favFolders') }<br>
 			${ this._getSel('favThrOrder') }<br>
 			${ this._getBox('favWinOn') }<br>
 			${ this._getBox('closePopups') }
@@ -18613,6 +18620,9 @@ function updateCSS() {
 	${ Cfg.noSpoilers === 2 ?
 		`.spoiler, s { color: inherit !important; }
 			.spoiler > a, s > a:not(:hover) { color: inherit !important; }` : '' }
+	${ Cfg.favFolders ? '' : `.de-fav-entries-hide { display: block; }
+		.de-fav-header { display: none; }
+		.de-fav-link::before { content: attr(de-host) "/" attr(de-board) "/" }` }
 	${ Cfg.addSageBtn ? '' : '#de-sagebtn, ' }
 	${ Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ?
 		'.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + hr, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' :

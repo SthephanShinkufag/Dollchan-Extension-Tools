@@ -120,6 +120,7 @@ const defaultCfg = {
 	hideReplies  : 0,    // show only op-posts in threads list
 	scrollToTop  : 0,    // always scroll to top in the threads list
 	saveScroll   : 1,    // remember the scroll position in threads
+	favFolders   : 1,    // boards folders in the Favorites Window
 	favThrOrder  : 0,    /* threads sorting order in the Favorites window
 		[0=by opnum, 1=by opnum (desc), 2=by adding, 3=by adding (desc)] */
 	favWinOn     : 0,    // always open the Favorites window

@@ -543,6 +543,10 @@ const Lng = {
 			'Запоминать позицию скролла в тредах',
 			'Remember the scroll position in threads',
 			'Пам`ятати позицію скролла в тредах'],
+		favFolders: [
+			'Папки досок в окне Избранного',
+			'Boards folders in the Favorites window',
+			'Папки дошок в вікні Вибраного'],
 		favThrOrder: {
 			sel: [
 				['По номеру', 'По номеру (убыв)', 'По добавлению', 'По добавлению (убыв)'],

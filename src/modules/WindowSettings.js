@@ -320,6 +320,7 @@ const CfgWindow = {
 			case 'strikeHidd':
 			case 'removeHidd':
 			case 'noBoardRule':
+			case 'favFolders':
 			case 'userCSS': updateCSS(); break;
 			case 'hideBySpell': await Spells.toggle(); break;
 			case 'sortSpells':
@@ -767,6 +768,7 @@ const CfgWindow = {
 				${ this._getBox('hideReplies', true) }<br>
 				${ this._getBox('scrollToTop') }<br>` : '' }
 			${ this._getBox('saveScroll') }<br>
+			${ this._getBox('favFolders') }<br>
 			${ this._getSel('favThrOrder') }<br>
 			${ this._getBox('favWinOn') }<br>
 			${ this._getBox('closePopups') }

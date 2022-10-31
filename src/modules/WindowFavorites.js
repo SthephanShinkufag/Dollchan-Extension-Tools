@@ -153,7 +153,7 @@ function showFavoritesWindow(body, favObj) {
 				innerHtml += `<div class="de-entry ${ aib.cReply }" ${
 					hb } de-num="${ tNum }" de-url="${ entry.url }">
 					${ delBtn }
-					<a class="de-fav-link" title="${ Lng.goToThread[lang] }"` +
+					<a class="de-fav-link" title="${ Lng.goToThread[lang] }" ${ hb }` +
 						` href="${ favLinkHref }" rel="noreferrer">${ tNum }</a>
 					<div class="de-entry-title">- ${ entry.txt }</div>
 					<div class="de-fav-inf">
