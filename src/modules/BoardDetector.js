@@ -644,7 +644,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `.js-post-findimg, .js-post-saveimg, .media-expand-button, .media-thumbnail, .newpost,
 					.post__btn:not(.icon_type_active), .post__number, .post__refmap
 						{ display: none !important; }
+				.captcha { align-items: start; flex-direction: column; }
 				.captcha__image { cursor: pointer; }
+				.captcha__val { width: 270px; margin-top: 4px; padding: 4px; }
 				.de-fullimg-wrap-inpost { margin-right: 16px; }
 				.de-refmap { margin: 0 16px 4px; }
 				.de-pview > .post__details { margin-left: 4px; }
@@ -724,7 +726,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		captchaInit(cap) {
 			const containerEl = $q('.captcha');
 			containerEl.innerHTML = `<div class="captcha__image"></div>
-				<input class="captcha__val" name="2chcaptcha_value" type="text" maxlength="6">
+				<input class="captcha__val input" name="2chcaptcha_value" type="text" maxlength="6">
 				<input class="captcha__key" name="2chcaptcha_id" type="hidden">`;
 			const [imgParent, inputEl] = [...containerEl.children];
 			imgParent.onclick = () => this.captchaUpdate(cap);
@@ -882,11 +884,6 @@ function getImageBoard(checkDomains, checkEngines) {
 					$Q('.thread__missed').forEach(el =>
 						el.innerHTML = el.innerHTML.replace(/ (\d+) постов/, (m, i) => ` ${ i - 1 } постов`));
 				}
-				const infEl = $q('.postform .filer__limits');
-				const optEl = $q('.postform .options');
-				if(infEl && optEl) {
-					optEl.append(infEl);
-				}
 			}
 			$script(`(function() {
 				function fixGlobalFunc(name) {
@@ -897,8 +894,6 @@ function getImageBoard(checkDomains, checkEngines) {
 				fixGlobalFunc("autorefresh_start"); // Old makaba only
 				fixGlobalFunc("linkremover");
 				fixGlobalFunc("Media");
-				fixGlobalFunc("MExpandMedia");
-				MExpandMedia.close = Function.prototype;
 				window.FormData = void 0;
 				$(function() { $(window).off(); });
 			})();`);

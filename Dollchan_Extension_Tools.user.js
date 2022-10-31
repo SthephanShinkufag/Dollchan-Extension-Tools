@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.23.0';
-  var commit = '9fa32f5';
+  var commit = 'd8a44d4';
 
   var defaultCfg = {
     disabled: 0,
@@ -29292,7 +29292,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "css",
         get: function get() {
-          return ".js-post-findimg, .js-post-saveimg, .media-expand-button, .media-thumbnail, .newpost,\n\t\t\t\t\t.post__btn:not(.icon_type_active), .post__number, .post__refmap\n\t\t\t\t\t\t{ display: none !important; }\n\t\t\t\t.captcha__image { cursor: pointer; }\n\t\t\t\t.de-fullimg-wrap-inpost { margin-right: 16px; }\n\t\t\t\t.de-refmap { margin: 0 16px 4px; }\n\t\t\t\t.de-pview > .post__details { margin-left: 4px; }\n\t\t\t\t.de-reply-class { background: var(--theme_default_postbg);\n\t\t\t\t\tborder: 1px solid var(--theme_default_border); border-radius: 3px; }\n\t\t\t\t#down-nav-arrow, #up-nav-arrow { z-index: 0; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post_type_reply { max-width: 100%; }\n\t\t\t\t.postarea { display: initial !important; }\n\t\t\t\t.postform { width: auto; }\n\t\t\t\t.postform__sticker-btn, .postform__sticker-prev { bottom: " + "".concat(!Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 : Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25, "px !important; }\n\t\t\t\t.post__message { padding-left: 0px; margin-left: 16px; min-width: 15%; max-width: 100%;\n\t\t\t\t\tword-wrap: normal; word-break: normal; }\n\t\t\t\t").concat(Cfg.addSageBtn ? ".options__box[onclick=\"ToggleSage()\"]\n\t\t\t\t\t{ display: none !important; }" : '', "\n\t\t\t\t").concat(Cfg.addTextBtns ? '.js-postform-mu { display: none; }' : '', "\n\t\t\t\t").concat(Cfg.expandTrunc ? ".expand-large-comment,\n\t\t\t\t\tdiv[id^=\"shrinked-post\"] { display: none !important; }\n\t\t\t\t\tdiv[id^=\"original-post\"] { display: block !important; }" : '', "\n\t\t\t\t").concat(Cfg.imgNames === 2 ? ".post__filezise { display: inline !important; }\n\t\t\t\t\t.post__file-attr { margin-bottom: 1px; }" : '', "\n\t\t\t\t").concat(Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '');
+          return ".js-post-findimg, .js-post-saveimg, .media-expand-button, .media-thumbnail, .newpost,\n\t\t\t\t\t.post__btn:not(.icon_type_active), .post__number, .post__refmap\n\t\t\t\t\t\t{ display: none !important; }\n\t\t\t\t.captcha { align-items: start; flex-direction: column; }\n\t\t\t\t.captcha__image { cursor: pointer; }\n\t\t\t\t.captcha__val { width: 270px; margin-top: 4px; padding: 4px; }\n\t\t\t\t.de-fullimg-wrap-inpost { margin-right: 16px; }\n\t\t\t\t.de-refmap { margin: 0 16px 4px; }\n\t\t\t\t.de-pview > .post__details { margin-left: 4px; }\n\t\t\t\t.de-reply-class { background: var(--theme_default_postbg);\n\t\t\t\t\tborder: 1px solid var(--theme_default_border); border-radius: 3px; }\n\t\t\t\t#down-nav-arrow, #up-nav-arrow { z-index: 0; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post_type_reply { max-width: 100%; }\n\t\t\t\t.postarea { display: initial !important; }\n\t\t\t\t.postform { width: auto; }\n\t\t\t\t.postform__sticker-btn, .postform__sticker-prev { bottom: " + "".concat(!Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 : Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25, "px !important; }\n\t\t\t\t.post__message { padding-left: 0px; margin-left: 16px; min-width: 15%; max-width: 100%;\n\t\t\t\t\tword-wrap: normal; word-break: normal; }\n\t\t\t\t").concat(Cfg.addSageBtn ? ".options__box[onclick=\"ToggleSage()\"]\n\t\t\t\t\t{ display: none !important; }" : '', "\n\t\t\t\t").concat(Cfg.addTextBtns ? '.js-postform-mu { display: none; }' : '', "\n\t\t\t\t").concat(Cfg.expandTrunc ? ".expand-large-comment,\n\t\t\t\t\tdiv[id^=\"shrinked-post\"] { display: none !important; }\n\t\t\t\t\tdiv[id^=\"original-post\"] { display: block !important; }" : '', "\n\t\t\t\t").concat(Cfg.imgNames === 2 ? ".post__filezise { display: inline !important; }\n\t\t\t\t\t.post__file-attr { margin-bottom: 1px; }" : '', "\n\t\t\t\t").concat(Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '');
         }
       }, {
         key: "isArchived",
@@ -29373,7 +29373,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var _this114 = this;
 
           var containerEl = $q('.captcha');
-          containerEl.innerHTML = "<div class=\"captcha__image\"></div>\n\t\t\t\t<input class=\"captcha__val\" name=\"2chcaptcha_value\" type=\"text\" maxlength=\"6\">\n\t\t\t\t<input class=\"captcha__key\" name=\"2chcaptcha_id\" type=\"hidden\">";
+          containerEl.innerHTML = "<div class=\"captcha__image\"></div>\n\t\t\t\t<input class=\"captcha__val input\" name=\"2chcaptcha_value\" type=\"text\" maxlength=\"6\">\n\t\t\t\t<input class=\"captcha__key\" name=\"2chcaptcha_id\" type=\"hidden\">";
 
           var _ref59 = _toConsumableArray(containerEl.children),
               imgParent = _ref59[0],
@@ -29582,16 +29582,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 });
               });
             }
-
-            var infEl = $q('.postform .filer__limits');
-            var optEl = $q('.postform .options');
-
-            if (infEl && optEl) {
-              optEl.append(infEl);
-            }
           }
 
-          $script("(function() {\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name,\n\t\t\t\t\t\t{ value: Function.prototype, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc(\"$alert\");\n\t\t\t\tfixGlobalFunc(\"autorefresh_start\"); // Old makaba only\n\t\t\t\tfixGlobalFunc(\"linkremover\");\n\t\t\t\tfixGlobalFunc(\"Media\");\n\t\t\t\tfixGlobalFunc(\"MExpandMedia\");\n\t\t\t\tMExpandMedia.close = Function.prototype;\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t})();");
+          $script("(function() {\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name,\n\t\t\t\t\t\t{ value: Function.prototype, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc(\"$alert\");\n\t\t\t\tfixGlobalFunc(\"autorefresh_start\"); // Old makaba only\n\t\t\t\tfixGlobalFunc(\"linkremover\");\n\t\t\t\tfixGlobalFunc(\"Media\");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t})();");
           $Q('.autorefresh').forEach(function (el) {
             var inpEl = $q('input', el);
 
