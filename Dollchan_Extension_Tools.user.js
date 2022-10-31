@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.23.0';
-  var commit = 'feaf7af';
+  var commit = 'a09a0c0';
 
   var defaultCfg = {
     disabled: 0,
@@ -18019,10 +18019,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "refreshCap",
       value: function refreshCap() {
-        var isErr = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+        var isError = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
         if (this.cap) {
-          this.cap.refreshCaptcha(isErr, isErr, this.tNum);
+          this.cap.refreshCaptcha(isError, isError, this.tNum);
         }
       }
     }, {
@@ -20533,7 +20533,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       value: function refreshCaptcha(isFocus) {
         var _this59 = this;
 
-        var isErr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+        var isError = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var tNum = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.tNum;
 
         if (!this.isAdded || tNum !== this.tNum) {
@@ -20544,14 +20544,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           $hide(this.parentEl);
           this.addCaptcha();
           return;
-        } else if (!this.hasCaptcha && !isErr) {
+        } else if (!this.hasCaptcha && !isError) {
           return;
         }
 
         this._lastUpdate = Date.now();
 
         if (aib.captchaUpdate) {
-          var updatePromise = aib.captchaUpdate(this, isErr);
+          var updatePromise = aib.captchaUpdate(this, isError);
 
           if (updatePromise) {
             updatePromise.then(function () {
@@ -29391,8 +29391,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       }, {
         key: "captchaUpdate",
-        value: function captchaUpdate(cap) {
+        value: function captchaUpdate(cap, isError) {
           var _this115 = this;
+
+          var isFocus = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
 
           if (this._captchaTimer) {
             clearInterval(this._captchaTimer);
@@ -29452,7 +29454,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       if (doc.hasFocus()) {
                         clearInterval(_this115._captchaTimer);
 
-                        _this115.captchaUpdate(cap);
+                        _this115.captchaUpdate(cap, false, false);
                       } else {
                         $hide(timerEl);
                         $show($q('.captcha__loadtext', containerEl));
@@ -29462,7 +29464,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   $q('.captcha__key', containerEl).value = data.id;
                   var inputEl = $q('.captcha__val', containerEl);
                   inputEl.value = '';
-                  inputEl.focus();
+
+                  if (isFocus) {
+                    inputEl.focus();
+                  }
+
                   break;
                 }
 
@@ -30316,7 +30322,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       }, {
         key: "captchaUpdate",
-        value: function captchaUpdate(cap, isErr) {
+        value: function captchaUpdate(cap, isError) {
           var img = $q('img', cap.parentEl);
 
           if (!img) {
@@ -30328,7 +30334,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             img.src = '';
             img.src = src;
             cap.textEl.value = '';
-          } else if (isErr) {
+          } else if (isError) {
             var el = img.parentNode;
             el.innerHTML = '';
             el.append(img);

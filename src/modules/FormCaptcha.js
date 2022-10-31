@@ -122,7 +122,7 @@ class Captcha {
 		}
 		$show(this.parentEl);
 	}
-	refreshCaptcha(isFocus, isErr = false, tNum = this.tNum) {
+	refreshCaptcha(isFocus, isError = false, tNum = this.tNum) {
 		if(!this.isAdded || tNum !== this.tNum) {
 			this.tNum = tNum;
 			this.isAdded = false;
@@ -131,12 +131,12 @@ class Captcha {
 			$hide(this.parentEl);
 			this.addCaptcha();
 			return;
-		} else if(!this.hasCaptcha && !isErr) {
+		} else if(!this.hasCaptcha && !isError) {
 			return;
 		}
 		this._lastUpdate = Date.now();
 		if(aib.captchaUpdate) {
-			const updatePromise = aib.captchaUpdate(this, isErr);
+			const updatePromise = aib.captchaUpdate(this, isError);
 			if(updatePromise) {
 				updatePromise.then(() => this._updateTextEl(isFocus), err => this._setUpdateError(err));
 			}

@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = 'feaf7af';
+const commit = 'a09a0c0';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -8853,9 +8853,9 @@ class PostForm {
 		e.preventDefault();
 		e.stopPropagation();
 	}
-	refreshCap(isErr = false) {
+	refreshCap(isError = false) {
 		if(this.cap) {
-			this.cap.refreshCaptcha(isErr, isErr, this.tNum);
+			this.cap.refreshCaptcha(isError, isError, this.tNum);
 		}
 	}
 	setPlaceholders() {
@@ -10312,7 +10312,7 @@ class Captcha {
 		}
 		$show(this.parentEl);
 	}
-	refreshCaptcha(isFocus, isErr = false, tNum = this.tNum) {
+	refreshCaptcha(isFocus, isError = false, tNum = this.tNum) {
 		if(!this.isAdded || tNum !== this.tNum) {
 			this.tNum = tNum;
 			this.isAdded = false;
@@ -10321,12 +10321,12 @@ class Captcha {
 			$hide(this.parentEl);
 			this.addCaptcha();
 			return;
-		} else if(!this.hasCaptcha && !isErr) {
+		} else if(!this.hasCaptcha && !isError) {
 			return;
 		}
 		this._lastUpdate = Date.now();
 		if(aib.captchaUpdate) {
-			const updatePromise = aib.captchaUpdate(this, isErr);
+			const updatePromise = aib.captchaUpdate(this, isError);
 			if(updatePromise) {
 				updatePromise.then(() => this._updateTextEl(isFocus), err => this._setUpdateError(err));
 			}
@@ -16453,7 +16453,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			cap.textEl = inputEl;
 			return this.captchaUpdate(cap);
 		}
-		captchaUpdate(cap) {
+		captchaUpdate(cap, isError, isFocus = true) {
 			if(this._captchaTimer) {
 				clearInterval(this._captchaTimer);
 				this._captchaTimer = null;
@@ -16499,7 +16499,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						if(!time) {
 							if(doc.hasFocus()) {
 								clearInterval(this._captchaTimer);
-								this.captchaUpdate(cap);
+								this.captchaUpdate(cap, false, false);
 							} else {
 								$hide(timerEl);
 								$show($q('.captcha__loadtext', containerEl));
@@ -16509,7 +16509,9 @@ function getImageBoard(checkDomains, checkEngines) {
 					$q('.captcha__key', containerEl).value = data.id;
 					const inputEl = $q('.captcha__val', containerEl);
 					inputEl.value = '';
-					inputEl.focus();
+					if(isFocus) {
+						inputEl.focus();
+					}
 					break;
 				}
 				default: captchaError(responseText);
@@ -17086,7 +17088,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return null;
 		}
-		captchaUpdate(cap, isErr) {
+		captchaUpdate(cap, isError) {
 			const img = $q('img', cap.parentEl);
 			if(!img) {
 				return null;
@@ -17097,7 +17099,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				img.src = '';
 				img.src = src;
 				cap.textEl.value = '';
-			} else if(isErr) {
+			} else if(isError) {
 				const el = img.parentNode;
 				el.innerHTML = '';
 				el.append(img);

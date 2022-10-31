@@ -734,7 +734,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			cap.textEl = inputEl;
 			return this.captchaUpdate(cap);
 		}
-		captchaUpdate(cap) {
+		captchaUpdate(cap, isError, isFocus = true) {
 			if(this._captchaTimer) {
 				clearInterval(this._captchaTimer);
 				this._captchaTimer = null;
@@ -780,7 +780,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						if(!time) {
 							if(doc.hasFocus()) {
 								clearInterval(this._captchaTimer);
-								this.captchaUpdate(cap);
+								this.captchaUpdate(cap, false, false);
 							} else {
 								$hide(timerEl);
 								$show($q('.captcha__loadtext', containerEl));
@@ -790,7 +790,9 @@ function getImageBoard(checkDomains, checkEngines) {
 					$q('.captcha__key', containerEl).value = data.id;
 					const inputEl = $q('.captcha__val', containerEl);
 					inputEl.value = '';
-					inputEl.focus();
+					if(isFocus) {
+						inputEl.focus();
+					}
 					break;
 				}
 				default: captchaError(responseText);
@@ -1367,7 +1369,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return null;
 		}
-		captchaUpdate(cap, isErr) {
+		captchaUpdate(cap, isError) {
 			const img = $q('img', cap.parentEl);
 			if(!img) {
 				return null;
@@ -1378,7 +1380,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				img.src = '';
 				img.src = src;
 				cap.textEl.value = '';
-			} else if(isErr) {
+			} else if(isError) {
 				const el = img.parentNode;
 				el.innerHTML = '';
 				el.append(img);

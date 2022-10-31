@@ -227,9 +227,9 @@ class PostForm {
 		e.preventDefault();
 		e.stopPropagation();
 	}
-	refreshCap(isErr = false) {
+	refreshCap(isError = false) {
 		if(this.cap) {
-			this.cap.refreshCaptcha(isErr, isErr, this.tNum);
+			this.cap.refreshCaptcha(isError, isError, this.tNum);
 		}
 	}
 	setPlaceholders() {
