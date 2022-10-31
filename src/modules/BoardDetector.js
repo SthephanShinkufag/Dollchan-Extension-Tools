@@ -746,7 +746,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			const containerEl = $q('.captcha');
 			const imgParent = $q('.captcha__image', containerEl);
 			imgParent.innerHTML = '<span class="captcha__loadtext">Загрузка...</span>';
-			const url = `/api/captcha/2chcaptcha/id?board=${ this.b }&thread=${ postform.tNum || 0 }`;
+			const url = `/api/captcha/2chcaptcha/id?board=${ this.b }&thread=${ postform.tNum || 0 }&random=${
+				Math.floor(Math.random() * 9e9) }`;
 			return cap.updateHelper(url, ({ responseText }) => {
 				let data;
 				try {

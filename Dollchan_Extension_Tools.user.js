@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.23.0';
-  var commit = 'a09a0c0';
+  var commit = '7dc019f';
 
   var defaultCfg = {
     disabled: 0,
@@ -29409,7 +29409,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var containerEl = $q('.captcha');
           var imgParent = $q('.captcha__image', containerEl);
           imgParent.innerHTML = '<span class="captcha__loadtext">Загрузка...</span>';
-          var url = "/api/captcha/2chcaptcha/id?board=".concat(this.b, "&thread=").concat(postform.tNum || 0);
+          var url = "/api/captcha/2chcaptcha/id?board=".concat(this.b, "&thread=").concat(postform.tNum || 0, "&random=").concat(Math.floor(Math.random() * 9e9));
           return cap.updateHelper(url, function (_ref60) {
             var responseText = _ref60.responseText;
             var data;
