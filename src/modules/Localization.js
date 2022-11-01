@@ -489,9 +489,12 @@ const Lng = {
 		// "Common" tab
 		scriptStyle: {
 			sel: [
-				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark'],
-				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark'],
-				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark']],
+				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark',
+					'Gradient pink'],
+				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark',
+					'Gradient pink'],
+				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark',
+					'Gradient pink']],
 			txt: [
 				'Стиль Dollchan',
 				'Dollchan style',
@@ -664,7 +667,7 @@ const Lng = {
 			'Posts in thread (without hidden)',
 			'Постів у треді (крім схованих)'],
 		imglen: [
-			'Картинок и сидео в треде',
+			'Картинок и видео в треде',
 			'Images and videos in thread',
 			'Зображень та відео у треді'],
 		posters: [

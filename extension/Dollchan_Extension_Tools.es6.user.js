@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.31.0';
-const commit = 'baf8e44';
+const commit = '8f689bf';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -138,8 +138,9 @@ const defaultCfg = {
 	noName       : 0,    // hide form "Name" field
 	noSubj       : 0,    // hide form "Subject" field
 	// COMMON
-	scriptStyle  : 0,    /* Dollchan style
-		[0=Gradient darkblue, 1=gradient blue, 2=solid grey, 3=transparent blue, 4=square dark] */
+	scriptStyle  : 0,    /* Dollchan style [
+		0=gradient darkblue, 1=gradient blue, 2=solid grey, 3=transparent blue, 4=square dark,
+		5=gradient pink] */
 	userCSS      : 0,    // user CSS
 	userCSSTxt   : '',   //    css text
 	expandPanel  : 0,    // show full main panel
@@ -671,9 +672,12 @@ const Lng = {
 		// "Common" tab
 		scriptStyle: {
 			sel: [
-				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark'],
-				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark'],
-				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark']],
+				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark',
+					'Gradient pink'],
+				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark',
+					'Gradient pink'],
+				['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark',
+					'Gradient pink']],
 			txt: [
 				'Стиль Dollchan',
 				'Dollchan style',
@@ -846,7 +850,7 @@ const Lng = {
 			'Posts in thread (without hidden)',
 			'Постів у треді (крім схованих)'],
 		imglen: [
-			'Картинок и сидео в треде',
+			'Картинок и видео в треде',
 			'Images and videos in thread',
 			'Зображень та відео у треді'],
 		posters: [
@@ -18226,9 +18230,9 @@ function scriptCSS() {
 	/* Panel theme */
 	.de-img-btn, #de-panel, .de-win-head ${ [
 		/* Gradient darkblue */
-		'{ background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }',
+		'{ background: linear-gradient(to bottom, #7b849b, #616b86 8%, #121212 60%, #1f2740 100%); }',
 		/* Gradient blue */
-		`{ background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }
+		`{ background: linear-gradient(to bottom, #4b90df, #183d77 60%, #325f9e 100%); }
 		#de-panel-buttons { border-color: #8fbbed; }`,
 		/* Solid grey */
 		`{ background-color: #777; }
@@ -18239,9 +18243,12 @@ function scriptCSS() {
 		/* Square dark */
 		`{ background: none; background-color: #333; border-radius: 0 !important; }
 		#de-win-reply.de-win { border-radius: 0 !important; }
-		#de-panel-buttons { border-color: #666; }`
+		#de-panel-buttons { border-color: #666; }`,
+		/* Gradient pink */
+		`{ background: linear-gradient(to bottom, #e854ca, #8c1273 60%, #832da2 100%); }
+		#de-panel-buttons { border-color: #c15dad; }`
 	][Cfg.scriptStyle] }
-	.de-logo { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }
+	.de-logo { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #121212 60%, #1f2740 100%) }
 	${ Cfg.scriptStyle === 2 ?
 		'.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }' :
 		'.de-panel-button:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }' }\r\n`;
@@ -18323,7 +18330,11 @@ function scriptCSS() {
 		.de-cfg-tab { border-color: #001450 !important; }`,
 		/* Square dark */
 		`#de-cfg-bar { background-color: #222; }
-		.de-cfg-body, #de-cfg-buttons { border-color: #666; }`
+		.de-cfg-body, #de-cfg-buttons { border-color: #666; }`,
+		/* Gradient pink */
+		`#de-cfg-bar { background-color: #832da2; }
+		.de-cfg-body, #de-cfg-buttons { border-color: #c125a1 !important; }
+		.de-cfg-tab { border-color: #832da2 !important; }`
 	][Cfg.scriptStyle] }
 
 	/* Favorites window */

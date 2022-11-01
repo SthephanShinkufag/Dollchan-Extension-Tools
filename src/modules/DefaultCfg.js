@@ -106,8 +106,9 @@ const defaultCfg = {
 	noName       : 0,    // hide form "Name" field
 	noSubj       : 0,    // hide form "Subject" field
 	// COMMON
-	scriptStyle  : 0,    /* Dollchan style
-		[0=Gradient darkblue, 1=gradient blue, 2=solid grey, 3=transparent blue, 4=square dark] */
+	scriptStyle  : 0,    /* Dollchan style [
+		0=gradient darkblue, 1=gradient blue, 2=solid grey, 3=transparent blue, 4=square dark,
+		5=gradient pink] */
 	userCSS      : 0,    // user CSS
 	userCSSTxt   : '',   //    css text
 	expandPanel  : 0,    // show full main panel
