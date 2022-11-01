@@ -257,7 +257,7 @@ function scriptCSS() {
 	.de-img-btn-none { display: none; }
 	#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }
 	#de-img-btn-rotate { right: 0; margin-top: 20px; }
-	.de-webm-title { color: #ffe100 !important; }
+	.de-webm-title { color: #ffe100 !important; font: bold 12px tahoma; }
 
 	/* Embedders */
 	${ cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') }

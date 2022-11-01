@@ -655,7 +655,7 @@ class ExpandableImage {
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
 				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
 			<div class="de-fullimg-info">${ imgNameEl }</a> <span class="de-fullimg-scale"></span>
-				<span class="de-fullimg-link de-webm-title">${ hasTitle && title ? title : '' }</span>
+				<span class="de-webm-title">${ hasTitle && title ? title : '' }</span>
 				${ needTitle && !hasTitle ? `<svg class="de-wait">
 					<use xlink:href="#de-symbol-wait"/></svg>` : '' }
 			</div>

@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.31.0';
-const commit = '8f689bf';
+const commit = '08b7781';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -5318,7 +5318,7 @@ class Menu {
 				dlLinks += getDlLnk(href, realName, Lng.origName[lang], false);
 			}
 			let webmTitle;
-			if(isFullImg && (webmTitle = link.nextElementSibling) && (webmTitle = webmTitle.textContent)) {
+			if(isFullImg && (webmTitle = $q('.de-webm-title', link.parentNode)?.textContent)) {
 				dlLinks += getDlLnk(href, webmTitle, Lng.metaName[lang], true);
 			}
 			dlLinks += getDlLnk(href, name, Lng.boardName[lang], false);
@@ -12584,7 +12584,7 @@ class ExpandableImage {
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
 				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
 			<div class="de-fullimg-info">${ imgNameEl }</a> <span class="de-fullimg-scale"></span>
-				<span class="de-fullimg-link de-webm-title">${ hasTitle && title ? title : '' }</span>
+				<span class="de-webm-title">${ hasTitle && title ? title : '' }</span>
 				${ needTitle && !hasTitle ? `<svg class="de-wait">
 					<use xlink:href="#de-symbol-wait"/></svg>` : '' }
 			</div>
@@ -18453,7 +18453,7 @@ function scriptCSS() {
 	.de-img-btn-none { display: none; }
 	#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }
 	#de-img-btn-rotate { right: 0; margin-top: 20px; }
-	.de-webm-title { color: #ffe100 !important; }
+	.de-webm-title { color: #ffe100 !important; font: bold 12px tahoma; }
 
 	/* Embedders */
 	${ cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') }

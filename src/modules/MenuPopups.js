@@ -127,7 +127,7 @@ class Menu {
 				dlLinks += getDlLnk(href, realName, Lng.origName[lang], false);
 			}
 			let webmTitle;
-			if(isFullImg && (webmTitle = link.nextElementSibling) && (webmTitle = webmTitle.textContent)) {
+			if(isFullImg && (webmTitle = $q('.de-webm-title', link.parentNode)?.textContent)) {
 				dlLinks += getDlLnk(href, webmTitle, Lng.metaName[lang], true);
 			}
 			dlLinks += getDlLnk(href, name, Lng.boardName[lang], false);
