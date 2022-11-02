@@ -243,7 +243,7 @@ class Pview extends AbstractPost {
 		const { isOp } = this;
 		const isFav = isOp && (post.thr.isFav || (await readFavorites())[aib.host]?.[this.board]?.[num]);
 		const isCached = post instanceof CacheItem;
-		const pCountHtml = (post.isDeleted ? ` de-post-counter-deleted">${ Lng.deleted[lang] }</span>` :
+		const postsCountHtml = (post.isDeleted ? ` de-post-counter-deleted">${ Lng.deleted[lang] }</span>` :
 			`">${ isOp ? '(OP)' : post.count + +!(aib.JsonBuilder && isCached) }</span>`) +
 			(isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '');
 		const pText = '<svg class="de-btn-reply"><use xlink:href="#de-symbol-post-reply"/></svg>' +
@@ -251,7 +251,7 @@ class Pview extends AbstractPost {
 				'<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') +
 			(post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
 			'<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' +
-			'<span class="de-post-counter' + pCountHtml;
+			'<span class="de-post-counter' + postsCountHtml;
 		if(isCached) {
 			if(isOp) {
 				this.remoteThr = post.thr;
@@ -426,8 +426,8 @@ class CacheItem {
 	get thr() {
 		let value = null;
 		if(this.isOp) {
-			const pcount = this._pBuilder.length;
-			value = { lastNum: this._pBuilder.getPNum(pcount - 1), pcount };
+			const postsCount = this._pBuilder.length;
+			value = { lastNum: this._pBuilder.getPNum(postsCount - 1), postsCount };
 			Object.defineProperty(value, 'title', { get: () => this.title });
 		}
 		Object.defineProperty(this, 'thr', { value });

@@ -623,7 +623,7 @@ class Post extends AbstractPost {
 			return;
 		}
 		if(aib.t) {
-			Thread.first.hidCounter++;
+			Thread.first.hiddenCount++;
 		}
 		btnHide.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
 		if(headerEl) {

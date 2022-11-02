@@ -5,7 +5,7 @@
 const Panel = Object.create({
 	isVidEnabled: false,
 	initPanel(formEl) {
-		const imgLen = $Q(aib.qPostImg, formEl).length;
+		const filesCount = $Q(aib.qPostImg, formEl).length;
 		const isThr = aib.t;
 		(postform?.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `<div id="de-main">
 			<div id="de-panel">
@@ -25,9 +25,9 @@ const Panel = Object.create({
 						(!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') +
 					this._getButton('goup') +
 					this._getButton('godown') +
-					(imgLen ? this._getButton('expimg') + this._getButton('maskimg') : '') +
+					(filesCount ? this._getButton('expimg') + this._getButton('maskimg') : '') +
 					(!localData && !nav.isPresto ?
-						(imgLen && !Cfg.preLoadImgs ? this._getButton('preimg') : '') +
+						(filesCount && !Cfg.preLoadImgs ? this._getButton('preimg') : '') +
 						(isThr ? this._getButton('savethr') : '') : '') +
 					(!localData && isThr ?
 						this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') +
@@ -35,12 +35,13 @@ const Panel = Object.create({
 					(aib.hasCatalog ? this._getButton('catalog') : '') +
 					this._getButton('enable') +
 					(isThr && Thread.first ? `<span id="de-panel-info">
-						<span id="de-panel-info-pcount" title="` +
-							`${ Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] }">` +
-							`${ Thread.first.pcount }</span>
-						<span id="de-panel-info-icount" title="${ Lng.panelBtn.imglen[lang] }">${
-							imgLen }</span>
-						<span id="de-panel-info-acount" title="${ Lng.panelBtn.posters[lang] }"></span>
+						<span id="de-panel-info-posts" title="${
+						Lng.panelBtn[Cfg.panelCounter !== 2 ? 'postsCount' : 'postsNotHid'][lang]
+						}">${ Thread.first.postsCount }</span>
+						<span id="de-panel-info-files" title="${ Lng.panelBtn.filesCount[lang] }">${
+							filesCount }</span>
+						<span id="de-panel-info-posters" title="${ Lng.panelBtn.posters[lang] }">${
+							aib.postersCount }</span>
 					</span>` : '') }
 				</span>
 			</div>
@@ -55,9 +56,9 @@ const Panel = Object.create({
 	removeMain() {
 		this._el.removeEventListener('click', this, true);
 		['mouseover', 'mouseout'].forEach(e => this._el.removeEventListener(e, this));
-		delete this._pcountEl;
-		delete this._icountEl;
-		delete this._acountEl;
+		delete this._postsCountEl;
+		delete this._filesCountEl;
+		delete this._postersCountEl;
 		$id('de-main').remove();
 	},
 	async handleEvent(e) {
@@ -175,15 +176,15 @@ const Panel = Object.create({
 			}
 		}
 	},
-	updateCounter(postCount, imgsCount, postersCount) {
-		this._pcountEl.textContent = postCount;
-		this._icountEl.textContent = imgsCount;
-		this._acountEl.textContent = postersCount;
+	updateCounter(postCount, filesCount, postersCount) {
+		this._postsCountEl.textContent = postCount;
+		this._filesCountEl.textContent = filesCount;
+		this._postersCountEl.textContent = postersCount;
 		if(aib.makaba) {
 			$Q('span[title="Всего постов в треде"]').forEach(
 				el => el.innerHTML = el.innerHTML.replace(/\d+$/, postCount));
 			$Q('span[title="Всего файлов в треде"]').forEach(
-				el => el.innerHTML = el.innerHTML.replace(/\d+$/, imgsCount));
+				el => el.innerHTML = el.innerHTML.replace(/\d+$/, filesCount));
 			$Q('span[title="Постеры"]').forEach(
 				el => el.innerHTML = el.innerHTML.replace(/\d+$/, postersCount));
 		}
@@ -194,19 +195,19 @@ const Panel = Object.create({
 	_hideTO : 0,
 	_menu   : null,
 	_menuTO : 0,
-	get _acountEl() {
-		const value = $id('de-panel-info-acount');
-		Object.defineProperty(this, '_acountEl', { value, configurable: true });
+	get _filesCountEl() {
+		const value = $id('de-panel-info-files');
+		Object.defineProperty(this, '_filesCountEl', { value, configurable: true });
 		return value;
 	},
-	get _icountEl() {
-		const value = $id('de-panel-info-icount');
-		Object.defineProperty(this, '_icountEl', { value, configurable: true });
+	get _postersCountEl() {
+		const value = $id('de-panel-info-posters');
+		Object.defineProperty(this, '_postersCountEl', { value, configurable: true });
 		return value;
 	},
-	get _pcountEl() {
-		const value = $id('de-panel-info-pcount');
-		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
+	get _postsCountEl() {
+		const value = $id('de-panel-info-posts');
+		Object.defineProperty(this, '_postsCountEl', { value, configurable: true });
 		return value;
 	},
 	_getButton(id) {

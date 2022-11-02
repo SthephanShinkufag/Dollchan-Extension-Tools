@@ -11,7 +11,7 @@ function initThreadUpdater(title, enableUpdate) {
 	let newPosts = 0;
 	let paused = false;
 	let sendError = false;
-	const storageName = `de-lastpcount-${ aib.b }-${ aib.t }`;
+	const storageName = `de-last-postscount-${ aib.b }-${ aib.t }`;
 
 	const audio = {
 		enabled  : false,
@@ -405,7 +405,7 @@ function initThreadUpdater(title, enableUpdate) {
 					if(audio.enabled) {
 						audio.playAudio();
 					}
-					sesStorage[storageName] = Thread.first.pcount;
+					sesStorage[storageName] = Thread.first.postsCount;
 					this._delay = this._initDelay;
 				} else if(this._delay !== 12e4) {
 					this._delay = Math.min(this._delay + this._initDelay, 12e4);

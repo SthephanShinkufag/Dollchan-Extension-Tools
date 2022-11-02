@@ -126,8 +126,8 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	Logger.log('Parse delform');
 	if(aib.t) {
-		const storageName = `de-lastpcount-${ aib.b }-${ aib.t }`;
-		if(sesStorage[storageName] > Thread.first.pcount) {
+		const storageName = `de-last-postscount-${ aib.b }-${ aib.t }`;
+		if(sesStorage[storageName] > Thread.first.postsCount) {
 			sesStorage.removeItem(storageName);
 			deWindow.location.reload();
 		}

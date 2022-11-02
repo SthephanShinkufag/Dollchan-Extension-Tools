@@ -260,7 +260,7 @@ function readPostsData(firstPost, favObj) {
 			post.toggleFavBtn(true);
 			post.thr.isFav = true;
 			if(aib.t) {
-				entry.cnt = thr.pcount;
+				entry.cnt = thr.postsCount;
 				entry.new = entry.you = 0;
 				if(Cfg.markNewPosts && entry.last) {
 					let lastPost = pByNum.get(+entry.last.match(/\d+/));
@@ -273,9 +273,9 @@ function readPostsData(firstPost, favObj) {
 				}
 				entry.last = aib.anchor + thr.last.num;
 			} else {
-				entry.new = thr.pcount - entry.cnt;
+				entry.new = thr.postsCount - entry.cnt;
 			}
-			updateFav = [aib.host, aib.b, aib.t, [thr.pcount, thr.last.num], 'update'];
+			updateFav = [aib.host, aib.b, aib.t, [thr.postsCount, thr.last.num], 'update'];
 		}
 		if(HiddenPosts.has(num)) {
 			HiddenPosts.hideHidden(post, num);
@@ -307,7 +307,7 @@ function readPostsData(firstPost, favObj) {
 		maybeSpells.value.endSpells();
 	}
 	if(aib.t && Cfg.panelCounter === 2) {
-		$id('de-panel-info-pcount').textContent = Thread.first.pcount - Thread.first.hidCounter;
+		$id('de-panel-info-posts').textContent = Thread.first.postsCount - Thread.first.hiddenCount;
 	}
 	if(updateFav) {
 		saveFavorites(favObj);

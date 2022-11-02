@@ -5,7 +5,7 @@
 class Thread {
 	constructor(el, num, prev, form) {
 		this.hasNew = false;
-		this.hidCounter = 0;
+		this.hiddenCount = 0;
 		this.isFav = false;
 		this.isHidden = false;
 		this.loadCount = 0;
@@ -14,7 +14,7 @@ class Thread {
 		const els = $Q(aib.qPost, el);
 		const len = els.length;
 		const omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
-		this.pcount = omt + len;
+		this.postsCount = omt + len;
 		this.el = el;
 		this.prev = prev;
 		this.form = form;
@@ -100,7 +100,7 @@ class Thread {
 				tPost.counterEl.textContent = tPost.count + 1;
 			}
 		}
-		this.pcount -= count;
+		this.postsCount -= count;
 		return post;
 	}
 	handleEvent(e) {
@@ -196,13 +196,13 @@ class Thread {
 			this.isFav = isEnable;
 			({ host, b: board } = aib);
 			({ num } = this);
-			cnt = this.pcount;
+			cnt = this.postsCount;
 			txt = this.op.title;
 			last = aib.anchor + this.last.num;
 		} else { // Loaded preview for oppost in remote thread
 			({ host } = aib);
 			({ board, num } = preview);
-			cnt = preview.remoteThr.pcount;
+			cnt = preview.remoteThr.postsCount;
 			txt = preview.remoteThr.title;
 			last = aib.anchor + preview.remoteThr.lastNum;
 		}
@@ -330,8 +330,8 @@ class Thread {
 		let needToHide, needToOmit, needToShow;
 		let post = op.next;
 		let needRMUpdate = false;
-		const hasPosts = post && this.pcount > 1;
-		let existed = hasPosts ? this.pcount - post.count : 0;
+		const hasPosts = post && this.postsCount > 1;
+		let existed = hasPosts ? this.postsCount - post.count : 0;
 		switch(last) {
 		case 'new': // get new posts
 			needToHide = $Q('.de-hidden', thrEl).length;
@@ -434,7 +434,7 @@ class Thread {
 		}
 		if(newPosts !== 0 || Panel.isNew) {
 			Panel.updateCounter(
-				pBuilder.length + 1 - (Cfg.panelCounter === 2 ? this.hidCounter : 0),
+				pBuilder.length + 1 - (Cfg.panelCounter === 2 ? this.hiddenCount : 0),
 				$Q(`.de-reply:not(.de-post-removed) ${
 					aib.qPostImg }, .de-oppost ${ aib.qPostImg }`, this.el).length,
 				pBuilder.postersCount);
@@ -490,7 +490,7 @@ class Thread {
 				} while(pBuilder.getPNum(i) < num);
 				const res = this._importPosts(prev, pBuilder, i - cnt, i, maybeVParser, maybeSpells);
 				newPosts += res[0];
-				this.pcount += res[0];
+				this.postsCount += res[0];
 				newVisPosts += res[1];
 				prev.wrap.after(res[2]);
 				res[3].next = post;
@@ -514,7 +514,7 @@ class Thread {
 				}
 			}
 		}
-		if(len + 1 > this.pcount) {
+		if(len + 1 > this.postsCount) {
 			const res = this._importPosts(this.last, pBuilder, this.lastNotDeleted.count,
 				len, maybeVParser, maybeSpells);
 			newPosts += res[0];
@@ -522,9 +522,9 @@ class Thread {
 			(aib.qPostsParent ? $q(aib.qPostsParent, this.el) : this.el).append(res[2]);
 			this.last = res[3];
 			DollchanAPI.notify('newpost', res[4]);
-			this.pcount = len + 1;
+			this.postsCount = len + 1;
 		}
-		updateFavorites(this.op.num, [this.pcount, this.last.num], 'update');
+		updateFavorites(this.op.num, [this.postsCount, this.last.num], 'update');
 		if(maybeVParser.hasValue) {
 			maybeVParser.value.endParser();
 		}
@@ -545,7 +545,7 @@ class Thread {
 			`${ isHide ? 'de-replies-show' : 'de-replies-hide' } de-abtn`;
 		[...this.btns.children].forEach(el => el !== this.btnReplies && $toggle(el, !isHide));
 		$del($q(aib.qOmitted + ', .de-omitted', this.el));
-		i = this.pcount - 1 - (isHide ? 0 : i);
+		i = this.postsCount - 1 - (isHide ? 0 : i);
 		if(i) {
 			this.op.el.insertAdjacentHTML('afterend', `<span class="de-omitted">${ i }</span> `);
 		}

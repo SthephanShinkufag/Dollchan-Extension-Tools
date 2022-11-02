@@ -684,6 +684,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['B', 'I', 'U', 'S', 'SPOILER', '', 'SUP', 'SUB'];
 		}
+		get postersCount() {
+			return $q('span[title="Постеры"]')?.innerHTML.match(/\d+$/)[0] || '';
+		}
 		get reportForm() {
 			const value = (pNum, tNum) => ($q('input[type="button"]', $popup(
 				'edit-report',
@@ -1182,6 +1185,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['', '', '', '', $q('input[type="checkbox"][name="spoiler"]') ? '[spoiler' : '',
 				this.b === 'g' ? '[code' : ''];
+		}
+		get postersCount() {
+			return $q('span[class="ts-ips"]')?.innerHTML || '';
 		}
 		fixDeadLinks(str) {
 			return str.replace(/<span class="deadlink">&gt;&gt;(\d+)<\/span>/g,

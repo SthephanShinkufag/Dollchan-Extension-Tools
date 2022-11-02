@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.31.0';
-  var commit = '2b80de0';
+  var commit = '5a49613';
 
   var defaultCfg = {
     disabled: 0,
@@ -7494,9 +7494,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       'audio-off': ['Звуковое оповещение о новых постах', 'Sound notification about new posts', 'Звукове сповіщення про нові пости'],
       catalog: ['Перейти в каталог', 'Go to catalog', 'Перейти до каталогу'],
       enable: ['Включить/выключить Dollchan', 'Turn on/off the Dollchan', 'Увімкнути/вимкнути Dollchan'],
-      pcount: ['Постов в треде', 'Posts in thread', 'Постів у треді'],
-      pcountNotHid: ['Постов в треде (без скрытых)', 'Posts in thread (without hidden)', 'Постів у треді (крім схованих)'],
-      imglen: ['Картинок и видео в треде', 'Images and videos in thread', 'Зображень та відео у треді'],
+      postsCount: ['Постов в треде', 'Posts in thread', 'Постів у треді'],
+      postsNotHid: ['Постов в треде (без скрытых)', 'Posts in thread (without hidden)', 'Постів у треді (крім схованих)'],
+      filesCount: ['Картинок и видео в треде', 'Images and videos in thread', 'Зображень та відео у треді'],
       posters: ['Постящих в треде', 'Posters in thread', 'Постувачів у треді']
     },
     togglePost: ['Скрыть/Раскрыть пост', 'Hide/Unhide post', 'Сховати/показати пост'],
@@ -7649,7 +7649,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     oldPosts: ['Постов при последнем посещении', 'Posts at the last visit', 'Постів під час останнього відвідування'],
     newPosts: ['Количество новых постов', 'Number of new posts', 'Кількість нових постів'],
     myPostsRep: ['Ответов на ваши посты', 'Replies to your posts', 'Відповідей на ваші пости'],
-    thrPage: ['Тред на @странице', 'Thread on @page', 'Тред на @сторінці'],
+    thrPage: ['На какой странице сейчас тред', 'What page is the thread on now', 'На якій сторінці зараз тред'],
     goToThread: ['Перейти к треду', 'Go to the thread', 'Перейти до треду'],
     goToBoard: ['Перейти к доске', 'Go to the board', 'Перейти до дошки'],
     toggleEntries: ['Скрыть/раскрыть записи', 'Hide/expand entries', 'Сховати/розкрити записи'],
@@ -9274,7 +9274,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         post.thr.isFav = true;
 
         if (aib.t) {
-          entry.cnt = thr.pcount;
+          entry.cnt = thr.postsCount;
           entry["new"] = entry.you = 0;
 
           if (Cfg.markNewPosts && entry.last) {
@@ -9289,10 +9289,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           entry.last = aib.anchor + thr.last.num;
         } else {
-          entry["new"] = thr.pcount - entry.cnt;
+          entry["new"] = thr.postsCount - entry.cnt;
         }
 
-        updateFav = [aib.host, aib.b, aib.t, [thr.pcount, thr.last.num], 'update'];
+        updateFav = [aib.host, aib.b, aib.t, [thr.postsCount, thr.last.num], 'update'];
       }
 
       if (HiddenPosts.has(num)) {
@@ -9334,7 +9334,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }
 
     if (aib.t && Cfg.panelCounter === 2) {
-      $id('de-panel-info-pcount').textContent = Thread.first.pcount - Thread.first.hidCounter;
+      $id('de-panel-info-posts').textContent = Thread.first.postsCount - Thread.first.hiddenCount;
     }
 
     if (updateFav) {
@@ -9845,9 +9845,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _postform,
           _this12 = this;
 
-      var imgLen = $Q(aib.qPostImg, formEl).length;
+      var filesCount = $Q(aib.qPostImg, formEl).length;
       var isThr = aib.t;
-      (((_postform = postform) === null || _postform === void 0 ? void 0 : _postform.pArea[0]) || formEl).insertAdjacentHTML('beforebegin', "<div id=\"de-main\">\n\t\t\t<div id=\"de-panel\">\n\t\t\t\t<div id=\"de-panel-logo\" title=\"".concat(Lng.panelBtn.attach[lang], "\">\n\t\t\t\t\t<svg class=\"de-panel-logo-svg\">\n\t\t\t\t\t\t<use xlink:href=\"#de-symbol-panel-logo\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id=\"de-panel-buttons\"").concat(!Cfg.expandPanel ? ' style="display: none;"' : '', ">\n\t\t\t\t").concat(Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (Cfg.embedYTube ? this._getButton('vid') : '') + (!localData ? this._getButton('refresh') + (isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') + (!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') + this._getButton('goup') + this._getButton('godown') + (imgLen ? this._getButton('expimg') + this._getButton('maskimg') : '') + (!localData && !nav.isPresto ? (imgLen && !Cfg.preLoadImgs ? this._getButton('preimg') : '') + (isThr ? this._getButton('savethr') : '') : '') + (!localData && isThr ? this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (!nav.isSafari ? this._getButton('audio-off') : '') : '') + (aib.hasCatalog ? this._getButton('catalog') : '') + this._getButton('enable') + (isThr && Thread.first ? "<span id=\"de-panel-info\">\n\t\t\t\t\t\t<span id=\"de-panel-info-pcount\" title=\"" + "".concat(Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang], "\">") + "".concat(Thread.first.pcount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-icount\" title=\"").concat(Lng.panelBtn.imglen[lang], "\">").concat(imgLen, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-acount\" title=\"").concat(Lng.panelBtn.posters[lang], "\"></span>\n\t\t\t\t\t</span>") : ''), "\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t").concat(Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">', "\n\t\t</div>"));
+      (((_postform = postform) === null || _postform === void 0 ? void 0 : _postform.pArea[0]) || formEl).insertAdjacentHTML('beforebegin', "<div id=\"de-main\">\n\t\t\t<div id=\"de-panel\">\n\t\t\t\t<div id=\"de-panel-logo\" title=\"".concat(Lng.panelBtn.attach[lang], "\">\n\t\t\t\t\t<svg class=\"de-panel-logo-svg\">\n\t\t\t\t\t\t<use xlink:href=\"#de-symbol-panel-logo\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id=\"de-panel-buttons\"").concat(!Cfg.expandPanel ? ' style="display: none;"' : '', ">\n\t\t\t\t").concat(Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (Cfg.embedYTube ? this._getButton('vid') : '') + (!localData ? this._getButton('refresh') + (isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') + (!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') + this._getButton('goup') + this._getButton('godown') + (filesCount ? this._getButton('expimg') + this._getButton('maskimg') : '') + (!localData && !nav.isPresto ? (filesCount && !Cfg.preLoadImgs ? this._getButton('preimg') : '') + (isThr ? this._getButton('savethr') : '') : '') + (!localData && isThr ? this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (!nav.isSafari ? this._getButton('audio-off') : '') : '') + (aib.hasCatalog ? this._getButton('catalog') : '') + this._getButton('enable') + (isThr && Thread.first ? "<span id=\"de-panel-info\">\n\t\t\t\t\t\t<span id=\"de-panel-info-posts\" title=\"".concat(Lng.panelBtn[Cfg.panelCounter !== 2 ? 'postsCount' : 'postsNotHid'][lang], "\">").concat(Thread.first.postsCount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-files\" title=\"").concat(Lng.panelBtn.filesCount[lang], "\">").concat(filesCount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-posters\" title=\"").concat(Lng.panelBtn.posters[lang], "\">").concat(aib.postersCount, "</span>\n\t\t\t\t\t</span>") : ''), "\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t").concat(Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">', "\n\t\t</div>"));
       this._el = $id('de-panel');
 
       this._el.addEventListener('click', this, true);
@@ -9866,9 +9866,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       ['mouseover', 'mouseout'].forEach(function (e) {
         return _this13._el.removeEventListener(e, _this13);
       });
-      delete this._pcountEl;
-      delete this._icountEl;
-      delete this._acountEl;
+      delete this._postsCountEl;
+      delete this._filesCountEl;
+      delete this._postersCountEl;
       $id('de-main').remove();
     },
     handleEvent: function handleEvent(e) {
@@ -10106,17 +10106,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee5);
       }))();
     },
-    updateCounter: function updateCounter(postCount, imgsCount, postersCount) {
-      this._pcountEl.textContent = postCount;
-      this._icountEl.textContent = imgsCount;
-      this._acountEl.textContent = postersCount;
+    updateCounter: function updateCounter(postCount, filesCount, postersCount) {
+      this._postsCountEl.textContent = postCount;
+      this._filesCountEl.textContent = filesCount;
+      this._postersCountEl.textContent = postersCount;
 
       if (aib.makaba) {
         $Q('span[title="Всего постов в треде"]').forEach(function (el) {
           return el.innerHTML = el.innerHTML.replace(/\d+$/, postCount);
         });
         $Q('span[title="Всего файлов в треде"]').forEach(function (el) {
-          return el.innerHTML = el.innerHTML.replace(/\d+$/, imgsCount);
+          return el.innerHTML = el.innerHTML.replace(/\d+$/, filesCount);
         });
         $Q('span[title="Постеры"]').forEach(function (el) {
           return el.innerHTML = el.innerHTML.replace(/\d+$/, postersCount);
@@ -10130,27 +10130,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _menu: null,
     _menuTO: 0,
 
-    get _acountEl() {
-      var value = $id('de-panel-info-acount');
-      Object.defineProperty(this, '_acountEl', {
+    get _filesCountEl() {
+      var value = $id('de-panel-info-files');
+      Object.defineProperty(this, '_filesCountEl', {
         value: value,
         configurable: true
       });
       return value;
     },
 
-    get _icountEl() {
-      var value = $id('de-panel-info-icount');
-      Object.defineProperty(this, '_icountEl', {
+    get _postersCountEl() {
+      var value = $id('de-panel-info-posters');
+      Object.defineProperty(this, '_postersCountEl', {
         value: value,
         configurable: true
       });
       return value;
     },
 
-    get _pcountEl() {
-      var value = $id('de-panel-info-pcount');
-      Object.defineProperty(this, '_pcountEl', {
+    get _postsCountEl() {
+      var value = $id('de-panel-info-posts');
+      Object.defineProperty(this, '_postsCountEl', {
         value: value,
         configurable: true
       });
@@ -22011,7 +22011,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
 
         if (aib.t) {
-          Thread.first.hidCounter++;
+          Thread.first.hiddenCount++;
         }
 
         btnHide.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
@@ -22477,7 +22477,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var _buildPview2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee39(post) {
           var _yield$readFavorites$, _yield$readFavorites$2;
 
-          var num, pv, isMyPost, isOp, isFav, isCached, pCountHtml, pText, btnsEl, link;
+          var num, pv, isMyPost, isOp, isFav, isCached, postsCountHtml, pText, btnsEl, link;
           return _regeneratorRuntime().wrap(function _callee39$(_context43) {
             while (1) {
               switch (_context43.prev = _context43.next) {
@@ -22553,8 +22553,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 case 30:
                   isFav = _context43.t0;
                   isCached = post instanceof CacheItem;
-                  pCountHtml = (post.isDeleted ? " de-post-counter-deleted\">".concat(Lng.deleted[lang], "</span>") : "\">".concat(isOp ? '(OP)' : post.count + +!(aib.JsonBuilder && isCached), "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '');
-                  pText = '<svg class="de-btn-reply"><use xlink:href="#de-symbol-post-reply"/></svg>' + (isOp ? "<svg class=\"".concat(isFav ? 'de-btn-fav-sel' : 'de-btn-fav', "\">") + '<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') + (post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' + '<span class="de-post-counter' + pCountHtml;
+                  postsCountHtml = (post.isDeleted ? " de-post-counter-deleted\">".concat(Lng.deleted[lang], "</span>") : "\">".concat(isOp ? '(OP)' : post.count + +!(aib.JsonBuilder && isCached), "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '');
+                  pText = '<svg class="de-btn-reply"><use xlink:href="#de-symbol-post-reply"/></svg>' + (isOp ? "<svg class=\"".concat(isFav ? 'de-btn-fav-sel' : 'de-btn-fav', "\">") + '<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') + (post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' + '<span class="de-post-counter' + postsCountHtml;
 
                   if (isCached) {
                     if (isOp) {
@@ -22933,10 +22933,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var value = null;
 
         if (this.isOp) {
-          var pcount = this._pBuilder.length;
+          var postsCount = this._pBuilder.length;
           value = {
-            lastNum: this._pBuilder.getPNum(pcount - 1),
-            pcount: pcount
+            lastNum: this._pBuilder.getPNum(postsCount - 1),
+            postsCount: postsCount
           };
           Object.defineProperty(value, 'title', {
             get: function get() {
@@ -25571,7 +25571,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       _classCallCheck(this, Thread);
 
       this.hasNew = false;
-      this.hidCounter = 0;
+      this.hiddenCount = 0;
       this.isFav = false;
       this.isHidden = false;
       this.loadCount = 0;
@@ -25580,7 +25580,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var els = $Q(aib.qPost, el);
       var len = els.length;
       var omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
-      this.pcount = omt + len;
+      this.postsCount = omt + len;
       this.el = el;
       this.prev = prev;
       this.form = form;
@@ -25703,7 +25703,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
         }
 
-        this.pcount -= count;
+        this.postsCount -= count;
         return post;
       }
     }, {
@@ -25839,7 +25839,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           host = _aib.host;
           board = _aib.b;
           num = this.num;
-          cnt = this.pcount;
+          cnt = this.postsCount;
           txt = this.op.title;
           last = aib.anchor + this.last.num;
         } else {
@@ -25847,7 +25847,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           host = _aib2.host;
           board = preview.board;
           num = preview.num;
-          cnt = preview.remoteThr.pcount;
+          cnt = preview.remoteThr.postsCount;
           txt = preview.remoteThr.title;
           last = aib.anchor + preview.remoteThr.lastNum;
         }
@@ -26024,8 +26024,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var needToHide, needToOmit, needToShow;
         var post = op.next;
         var needRMUpdate = false;
-        var hasPosts = post && this.pcount > 1;
-        var existed = hasPosts ? this.pcount - post.count : 0;
+        var hasPosts = post && this.postsCount > 1;
+        var existed = hasPosts ? this.postsCount - post.count : 0;
 
         switch (last) {
           case 'new':
@@ -26157,7 +26157,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
 
         if (newPosts !== 0 || Panel.isNew) {
-          Panel.updateCounter(pBuilder.length + 1 - (Cfg.panelCounter === 2 ? this.hidCounter : 0), $Q(".de-reply:not(.de-post-removed) ".concat(aib.qPostImg, ", .de-oppost ").concat(aib.qPostImg), this.el).length, pBuilder.postersCount);
+          Panel.updateCounter(pBuilder.length + 1 - (Cfg.panelCounter === 2 ? this.hiddenCount : 0), $Q(".de-reply:not(.de-post-removed) ".concat(aib.qPostImg, ", .de-oppost ").concat(aib.qPostImg), this.el).length, pBuilder.postersCount);
           Pview.updatePosition(true);
         }
 
@@ -26236,7 +26236,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             var res = this._importPosts(prev, pBuilder, i - cnt, i, maybeVParser, maybeSpells);
 
             newPosts += res[0];
-            this.pcount += res[0];
+            this.postsCount += res[0];
             newVisPosts += res[1];
             prev.wrap.after(res[2]);
             res[3].next = post;
@@ -26265,7 +26265,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
         }
 
-        if (len + 1 > this.pcount) {
+        if (len + 1 > this.postsCount) {
           var _res = this._importPosts(this.last, pBuilder, this.lastNotDeleted.count, len, maybeVParser, maybeSpells);
 
           newPosts += _res[0];
@@ -26273,10 +26273,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           (aib.qPostsParent ? $q(aib.qPostsParent, this.el) : this.el).append(_res[2]);
           this.last = _res[3];
           DollchanAPI.notify('newpost', _res[4]);
-          this.pcount = len + 1;
+          this.postsCount = len + 1;
         }
 
-        updateFavorites(this.op.num, [this.pcount, this.last.num], 'update');
+        updateFavorites(this.op.num, [this.postsCount, this.last.num], 'update');
 
         if (maybeVParser.hasValue) {
           maybeVParser.value.endParser();
@@ -26309,7 +26309,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         });
 
         $del($q(aib.qOmitted + ', .de-omitted', this.el));
-        i = this.pcount - 1 - (isHide ? 0 : i);
+        i = this.postsCount - 1 - (isHide ? 0 : i);
 
         if (i) {
           this.op.el.insertAdjacentHTML('afterend', "<span class=\"de-omitted\">".concat(i, "</span> "));
@@ -26472,7 +26472,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var newPosts = 0;
     var paused = false;
     var sendError = false;
-    var storageName = "de-lastpcount-".concat(aib.b, "-").concat(aib.t);
+    var storageName = "de-last-postscount-".concat(aib.b, "-").concat(aib.t);
     var audio = {
       enabled: false,
       repeatMS: 0,
@@ -27018,7 +27018,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               audio.playAudio();
             }
 
-            sesStorage[storageName] = Thread.first.pcount;
+            sesStorage[storageName] = Thread.first.postsCount;
             this._delay = this._initDelay;
           } else if (this._delay !== 12e4) {
             this._delay = Math.min(this._delay + this._initDelay, 12e4);
@@ -27895,6 +27895,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       key: "observeContent",
       get: function get() {
         return null;
+      }
+    }, {
+      key: "postersCount",
+      get: function get() {
+        return '';
       }
     }, {
       key: "reCrossLinks",
@@ -29321,6 +29326,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return ['B', 'I', 'U', 'S', 'SPOILER', '', 'SUP', 'SUB'];
         }
       }, {
+        key: "postersCount",
+        get: function get() {
+          var _$q3;
+
+          return ((_$q3 = $q('span[title="Постеры"]')) === null || _$q3 === void 0 ? void 0 : _$q3.innerHTML.match(/\d+$/)[0]) || '';
+        }
+      }, {
         key: "reportForm",
         get: function get() {
           var _this113 = this;
@@ -29909,9 +29921,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "getSage",
         value: function getSage(post) {
-          var _$q3;
+          var _$q4;
 
-          return !!((_$q3 = $q('.filetitle', post)) !== null && _$q3 !== void 0 && _$q3.textContent.includes("\u21E9"));
+          return !!((_$q4 = $q('.filetitle', post)) !== null && _$q4 !== void 0 && _$q4.textContent.includes("\u21E9"));
         }
       }]);
 
@@ -30014,6 +30026,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         key: "markupTags",
         get: function get() {
           return ['', '', '', '', $q('input[type="checkbox"][name="spoiler"]') ? '[spoiler' : '', this.b === 'g' ? '[code' : ''];
+        }
+      }, {
+        key: "postersCount",
+        get: function get() {
+          var _$q5;
+
+          return ((_$q5 = $q('span[class="ts-ips"]')) === null || _$q5 === void 0 ? void 0 : _$q5.innerHTML) || '';
         }
       }, {
         key: "fixDeadLinks",
@@ -31998,9 +32017,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               Logger.log('Parse delform');
 
               if (aib.t) {
-                storageName = "de-lastpcount-".concat(aib.b, "-").concat(aib.t);
+                storageName = "de-last-postscount-".concat(aib.b, "-").concat(aib.t);
 
-                if (sesStorage[storageName] > Thread.first.pcount) {
+                if (sesStorage[storageName] > Thread.first.postsCount) {
                   sesStorage.removeItem(storageName);
                   deWindow.location.reload();
                 }

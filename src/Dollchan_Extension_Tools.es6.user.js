@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.31.0';
-const commit = '2b80de0';
+const commit = '5a49613';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -841,15 +841,15 @@ const Lng = {
 			'Включить/выключить Dollchan',
 			'Turn on/off the Dollchan',
 			'Увімкнути/вимкнути Dollchan'],
-		pcount: [
+		postsCount: [
 			'Постов в треде',
 			'Posts in thread',
 			'Постів у треді'],
-		pcountNotHid: [
+		postsNotHid: [
 			'Постов в треде (без скрытых)',
 			'Posts in thread (without hidden)',
 			'Постів у треді (крім схованих)'],
-		imglen: [
+		filesCount: [
 			'Картинок и видео в треде',
 			'Images and videos in thread',
 			'Зображень та відео у треді'],
@@ -1373,9 +1373,9 @@ const Lng = {
 		'Replies to your posts',
 		'Відповідей на ваші пости'],
 	thrPage: [
-		'Тред на @странице',
-		'Thread on @page',
-		'Тред на @сторінці'],
+		'На какой странице сейчас тред',
+		'What page is the thread on now',
+		'На якій сторінці зараз тред'],
 	goToThread: [
 		'Перейти к треду',
 		'Go to the thread',
@@ -2693,7 +2693,7 @@ function readPostsData(firstPost, favObj) {
 			post.toggleFavBtn(true);
 			post.thr.isFav = true;
 			if(aib.t) {
-				entry.cnt = thr.pcount;
+				entry.cnt = thr.postsCount;
 				entry.new = entry.you = 0;
 				if(Cfg.markNewPosts && entry.last) {
 					let lastPost = pByNum.get(+entry.last.match(/\d+/));
@@ -2706,9 +2706,9 @@ function readPostsData(firstPost, favObj) {
 				}
 				entry.last = aib.anchor + thr.last.num;
 			} else {
-				entry.new = thr.pcount - entry.cnt;
+				entry.new = thr.postsCount - entry.cnt;
 			}
-			updateFav = [aib.host, aib.b, aib.t, [thr.pcount, thr.last.num], 'update'];
+			updateFav = [aib.host, aib.b, aib.t, [thr.postsCount, thr.last.num], 'update'];
 		}
 		if(HiddenPosts.has(num)) {
 			HiddenPosts.hideHidden(post, num);
@@ -2740,7 +2740,7 @@ function readPostsData(firstPost, favObj) {
 		maybeSpells.value.endSpells();
 	}
 	if(aib.t && Cfg.panelCounter === 2) {
-		$id('de-panel-info-pcount').textContent = Thread.first.pcount - Thread.first.hidCounter;
+		$id('de-panel-info-posts').textContent = Thread.first.postsCount - Thread.first.hiddenCount;
 	}
 	if(updateFav) {
 		saveFavorites(favObj);
@@ -3060,7 +3060,7 @@ function initStorageEvent() {
 const Panel = Object.create({
 	isVidEnabled: false,
 	initPanel(formEl) {
-		const imgLen = $Q(aib.qPostImg, formEl).length;
+		const filesCount = $Q(aib.qPostImg, formEl).length;
 		const isThr = aib.t;
 		(postform?.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `<div id="de-main">
 			<div id="de-panel">
@@ -3080,9 +3080,9 @@ const Panel = Object.create({
 						(!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') +
 					this._getButton('goup') +
 					this._getButton('godown') +
-					(imgLen ? this._getButton('expimg') + this._getButton('maskimg') : '') +
+					(filesCount ? this._getButton('expimg') + this._getButton('maskimg') : '') +
 					(!localData && !nav.isPresto ?
-						(imgLen && !Cfg.preLoadImgs ? this._getButton('preimg') : '') +
+						(filesCount && !Cfg.preLoadImgs ? this._getButton('preimg') : '') +
 						(isThr ? this._getButton('savethr') : '') : '') +
 					(!localData && isThr ?
 						this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') +
@@ -3090,12 +3090,13 @@ const Panel = Object.create({
 					(aib.hasCatalog ? this._getButton('catalog') : '') +
 					this._getButton('enable') +
 					(isThr && Thread.first ? `<span id="de-panel-info">
-						<span id="de-panel-info-pcount" title="` +
-							`${ Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] }">` +
-							`${ Thread.first.pcount }</span>
-						<span id="de-panel-info-icount" title="${ Lng.panelBtn.imglen[lang] }">${
-							imgLen }</span>
-						<span id="de-panel-info-acount" title="${ Lng.panelBtn.posters[lang] }"></span>
+						<span id="de-panel-info-posts" title="${
+						Lng.panelBtn[Cfg.panelCounter !== 2 ? 'postsCount' : 'postsNotHid'][lang]
+						}">${ Thread.first.postsCount }</span>
+						<span id="de-panel-info-files" title="${ Lng.panelBtn.filesCount[lang] }">${
+							filesCount }</span>
+						<span id="de-panel-info-posters" title="${ Lng.panelBtn.posters[lang] }">${
+							aib.postersCount }</span>
 					</span>` : '') }
 				</span>
 			</div>
@@ -3110,9 +3111,9 @@ const Panel = Object.create({
 	removeMain() {
 		this._el.removeEventListener('click', this, true);
 		['mouseover', 'mouseout'].forEach(e => this._el.removeEventListener(e, this));
-		delete this._pcountEl;
-		delete this._icountEl;
-		delete this._acountEl;
+		delete this._postsCountEl;
+		delete this._filesCountEl;
+		delete this._postersCountEl;
 		$id('de-main').remove();
 	},
 	async handleEvent(e) {
@@ -3230,15 +3231,15 @@ const Panel = Object.create({
 			}
 		}
 	},
-	updateCounter(postCount, imgsCount, postersCount) {
-		this._pcountEl.textContent = postCount;
-		this._icountEl.textContent = imgsCount;
-		this._acountEl.textContent = postersCount;
+	updateCounter(postCount, filesCount, postersCount) {
+		this._postsCountEl.textContent = postCount;
+		this._filesCountEl.textContent = filesCount;
+		this._postersCountEl.textContent = postersCount;
 		if(aib.makaba) {
 			$Q('span[title="Всего постов в треде"]').forEach(
 				el => el.innerHTML = el.innerHTML.replace(/\d+$/, postCount));
 			$Q('span[title="Всего файлов в треде"]').forEach(
-				el => el.innerHTML = el.innerHTML.replace(/\d+$/, imgsCount));
+				el => el.innerHTML = el.innerHTML.replace(/\d+$/, filesCount));
 			$Q('span[title="Постеры"]').forEach(
 				el => el.innerHTML = el.innerHTML.replace(/\d+$/, postersCount));
 		}
@@ -3249,19 +3250,19 @@ const Panel = Object.create({
 	_hideTO : 0,
 	_menu   : null,
 	_menuTO : 0,
-	get _acountEl() {
-		const value = $id('de-panel-info-acount');
-		Object.defineProperty(this, '_acountEl', { value, configurable: true });
+	get _filesCountEl() {
+		const value = $id('de-panel-info-files');
+		Object.defineProperty(this, '_filesCountEl', { value, configurable: true });
 		return value;
 	},
-	get _icountEl() {
-		const value = $id('de-panel-info-icount');
-		Object.defineProperty(this, '_icountEl', { value, configurable: true });
+	get _postersCountEl() {
+		const value = $id('de-panel-info-posters');
+		Object.defineProperty(this, '_postersCountEl', { value, configurable: true });
 		return value;
 	},
-	get _pcountEl() {
-		const value = $id('de-panel-info-pcount');
-		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
+	get _postsCountEl() {
+		const value = $id('de-panel-info-posts');
+		Object.defineProperty(this, '_postsCountEl', { value, configurable: true });
 		return value;
 	},
 	_getButton(id) {
@@ -11033,7 +11034,7 @@ class Post extends AbstractPost {
 			return;
 		}
 		if(aib.t) {
-			Thread.first.hidCounter++;
+			Thread.first.hiddenCount++;
 		}
 		btnHide.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
 		if(headerEl) {
@@ -11698,7 +11699,7 @@ class Pview extends AbstractPost {
 		const { isOp } = this;
 		const isFav = isOp && (post.thr.isFav || (await readFavorites())[aib.host]?.[this.board]?.[num]);
 		const isCached = post instanceof CacheItem;
-		const pCountHtml = (post.isDeleted ? ` de-post-counter-deleted">${ Lng.deleted[lang] }</span>` :
+		const postsCountHtml = (post.isDeleted ? ` de-post-counter-deleted">${ Lng.deleted[lang] }</span>` :
 			`">${ isOp ? '(OP)' : post.count + +!(aib.JsonBuilder && isCached) }</span>`) +
 			(isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '');
 		const pText = '<svg class="de-btn-reply"><use xlink:href="#de-symbol-post-reply"/></svg>' +
@@ -11706,7 +11707,7 @@ class Pview extends AbstractPost {
 				'<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') +
 			(post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
 			'<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' +
-			'<span class="de-post-counter' + pCountHtml;
+			'<span class="de-post-counter' + postsCountHtml;
 		if(isCached) {
 			if(isOp) {
 				this.remoteThr = post.thr;
@@ -11881,8 +11882,8 @@ class CacheItem {
 	get thr() {
 		let value = null;
 		if(this.isOp) {
-			const pcount = this._pBuilder.length;
-			value = { lastNum: this._pBuilder.getPNum(pcount - 1), pcount };
+			const postsCount = this._pBuilder.length;
+			value = { lastNum: this._pBuilder.getPNum(postsCount - 1), postsCount };
 			Object.defineProperty(value, 'title', { get: () => this.title });
 		}
 		Object.defineProperty(this, 'thr', { value });
@@ -13752,7 +13753,7 @@ class RefMap {
 class Thread {
 	constructor(el, num, prev, form) {
 		this.hasNew = false;
-		this.hidCounter = 0;
+		this.hiddenCount = 0;
 		this.isFav = false;
 		this.isHidden = false;
 		this.loadCount = 0;
@@ -13761,7 +13762,7 @@ class Thread {
 		const els = $Q(aib.qPost, el);
 		const len = els.length;
 		const omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
-		this.pcount = omt + len;
+		this.postsCount = omt + len;
 		this.el = el;
 		this.prev = prev;
 		this.form = form;
@@ -13847,7 +13848,7 @@ class Thread {
 				tPost.counterEl.textContent = tPost.count + 1;
 			}
 		}
-		this.pcount -= count;
+		this.postsCount -= count;
 		return post;
 	}
 	handleEvent(e) {
@@ -13943,13 +13944,13 @@ class Thread {
 			this.isFav = isEnable;
 			({ host, b: board } = aib);
 			({ num } = this);
-			cnt = this.pcount;
+			cnt = this.postsCount;
 			txt = this.op.title;
 			last = aib.anchor + this.last.num;
 		} else { // Loaded preview for oppost in remote thread
 			({ host } = aib);
 			({ board, num } = preview);
-			cnt = preview.remoteThr.pcount;
+			cnt = preview.remoteThr.postsCount;
 			txt = preview.remoteThr.title;
 			last = aib.anchor + preview.remoteThr.lastNum;
 		}
@@ -14077,8 +14078,8 @@ class Thread {
 		let needToHide, needToOmit, needToShow;
 		let post = op.next;
 		let needRMUpdate = false;
-		const hasPosts = post && this.pcount > 1;
-		let existed = hasPosts ? this.pcount - post.count : 0;
+		const hasPosts = post && this.postsCount > 1;
+		let existed = hasPosts ? this.postsCount - post.count : 0;
 		switch(last) {
 		case 'new': // get new posts
 			needToHide = $Q('.de-hidden', thrEl).length;
@@ -14181,7 +14182,7 @@ class Thread {
 		}
 		if(newPosts !== 0 || Panel.isNew) {
 			Panel.updateCounter(
-				pBuilder.length + 1 - (Cfg.panelCounter === 2 ? this.hidCounter : 0),
+				pBuilder.length + 1 - (Cfg.panelCounter === 2 ? this.hiddenCount : 0),
 				$Q(`.de-reply:not(.de-post-removed) ${
 					aib.qPostImg }, .de-oppost ${ aib.qPostImg }`, this.el).length,
 				pBuilder.postersCount);
@@ -14237,7 +14238,7 @@ class Thread {
 				} while(pBuilder.getPNum(i) < num);
 				const res = this._importPosts(prev, pBuilder, i - cnt, i, maybeVParser, maybeSpells);
 				newPosts += res[0];
-				this.pcount += res[0];
+				this.postsCount += res[0];
 				newVisPosts += res[1];
 				prev.wrap.after(res[2]);
 				res[3].next = post;
@@ -14261,7 +14262,7 @@ class Thread {
 				}
 			}
 		}
-		if(len + 1 > this.pcount) {
+		if(len + 1 > this.postsCount) {
 			const res = this._importPosts(this.last, pBuilder, this.lastNotDeleted.count,
 				len, maybeVParser, maybeSpells);
 			newPosts += res[0];
@@ -14269,9 +14270,9 @@ class Thread {
 			(aib.qPostsParent ? $q(aib.qPostsParent, this.el) : this.el).append(res[2]);
 			this.last = res[3];
 			DollchanAPI.notify('newpost', res[4]);
-			this.pcount = len + 1;
+			this.postsCount = len + 1;
 		}
-		updateFavorites(this.op.num, [this.pcount, this.last.num], 'update');
+		updateFavorites(this.op.num, [this.postsCount, this.last.num], 'update');
 		if(maybeVParser.hasValue) {
 			maybeVParser.value.endParser();
 		}
@@ -14292,7 +14293,7 @@ class Thread {
 			`${ isHide ? 'de-replies-show' : 'de-replies-hide' } de-abtn`;
 		[...this.btns.children].forEach(el => el !== this.btnReplies && $toggle(el, !isHide));
 		$del($q(aib.qOmitted + ', .de-omitted', this.el));
-		i = this.pcount - 1 - (isHide ? 0 : i);
+		i = this.postsCount - 1 - (isHide ? 0 : i);
 		if(i) {
 			this.op.el.insertAdjacentHTML('afterend', `<span class="de-omitted">${ i }</span> `);
 		}
@@ -14415,7 +14416,7 @@ function initThreadUpdater(title, enableUpdate) {
 	let newPosts = 0;
 	let paused = false;
 	let sendError = false;
-	const storageName = `de-lastpcount-${ aib.b }-${ aib.t }`;
+	const storageName = `de-last-postscount-${ aib.b }-${ aib.t }`;
 
 	const audio = {
 		enabled  : false,
@@ -14809,7 +14810,7 @@ function initThreadUpdater(title, enableUpdate) {
 					if(audio.enabled) {
 						audio.playAudio();
 					}
-					sesStorage[storageName] = Thread.first.pcount;
+					sesStorage[storageName] = Thread.first.postsCount;
 					this._delay = this._initDelay;
 				} else if(this._delay !== 12e4) {
 					this._delay = Math.min(this._delay + this._initDelay, 12e4);
@@ -15492,6 +15493,9 @@ class BaseBoard {
 	}
 	get observeContent() {
 		return null;
+	}
+	get postersCount() {
+		return '';
 	}
 	get reCrossLinks() {
 		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.domain }\\/([a-z0-9]+)\\/${
@@ -16407,6 +16411,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['B', 'I', 'U', 'S', 'SPOILER', '', 'SUP', 'SUB'];
 		}
+		get postersCount() {
+			return $q('span[title="Постеры"]')?.innerHTML.match(/\d+$/)[0] || '';
+		}
 		get reportForm() {
 			const value = (pNum, tNum) => ($q('input[type="button"]', $popup(
 				'edit-report',
@@ -16905,6 +16912,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['', '', '', '', $q('input[type="checkbox"][name="spoiler"]') ? '[spoiler' : '',
 				this.b === 'g' ? '[code' : ''];
+		}
+		get postersCount() {
+			return $q('span[class="ts-ips"]')?.innerHTML || '';
 		}
 		fixDeadLinks(str) {
 			return str.replace(/<span class="deadlink">&gt;&gt;(\d+)<\/span>/g,
@@ -18796,8 +18806,8 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	Logger.log('Parse delform');
 	if(aib.t) {
-		const storageName = `de-lastpcount-${ aib.b }-${ aib.t }`;
-		if(sesStorage[storageName] > Thread.first.pcount) {
+		const storageName = `de-last-postscount-${ aib.b }-${ aib.t }`;
+		if(sesStorage[storageName] > Thread.first.postsCount) {
 			sesStorage.removeItem(storageName);
 			deWindow.location.reload();
 		}

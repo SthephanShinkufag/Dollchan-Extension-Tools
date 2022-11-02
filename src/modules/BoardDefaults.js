@@ -162,6 +162,9 @@ class BaseBoard {
 	get observeContent() {
 		return null;
 	}
+	get postersCount() {
+		return '';
+	}
 	get reCrossLinks() {
 		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.domain }\\/([a-z0-9]+)\\/${
 			escapeRegExp(this.res) }(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<`, 'g');

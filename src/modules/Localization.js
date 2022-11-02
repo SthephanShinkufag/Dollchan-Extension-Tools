@@ -658,15 +658,15 @@ const Lng = {
 			'Включить/выключить Dollchan',
 			'Turn on/off the Dollchan',
 			'Увімкнути/вимкнути Dollchan'],
-		pcount: [
+		postsCount: [
 			'Постов в треде',
 			'Posts in thread',
 			'Постів у треді'],
-		pcountNotHid: [
+		postsNotHid: [
 			'Постов в треде (без скрытых)',
 			'Posts in thread (without hidden)',
 			'Постів у треді (крім схованих)'],
-		imglen: [
+		filesCount: [
 			'Картинок и видео в треде',
 			'Images and videos in thread',
 			'Зображень та відео у треді'],
@@ -1190,9 +1190,9 @@ const Lng = {
 		'Replies to your posts',
 		'Відповідей на ваші пости'],
 	thrPage: [
-		'Тред на @странице',
-		'Thread on @page',
-		'Тред на @сторінці'],
+		'На какой странице сейчас тред',
+		'What page is the thread on now',
+		'На якій сторінці зараз тред'],
 	goToThread: [
 		'Перейти к треду',
 		'Go to the thread',
