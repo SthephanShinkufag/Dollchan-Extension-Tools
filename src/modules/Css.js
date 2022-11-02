@@ -134,11 +134,13 @@ function scriptCSS() {
 		.de-cfg-tab { border-color: #001450 !important; }`,
 		/* Square dark */
 		`#de-cfg-bar { background-color: #222; }
-		.de-cfg-body, #de-cfg-buttons { border-color: #666; }`,
+		.de-cfg-body, #de-cfg-buttons, { border-color: #666; }
+		#de-spell-rowmeter { background-color: #555; }`,
 		/* Gradient pink */
 		`#de-cfg-bar { background-color: #832da2; }
 		.de-cfg-body, #de-cfg-buttons { border-color: #c125a1 !important; }
-		.de-cfg-tab { border-color: #832da2 !important; }`
+		.de-cfg-tab { border-color: #832da2 !important; }
+		#de-spell-rowmeter { background-color: #844b83; }`
 	][Cfg.scriptStyle] }
 
 	/* Favorites window */
@@ -425,10 +427,9 @@ function updateCSS() {
 		`${ aib.qPostImg }, .de-img-embed, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; }
 			${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }
 			.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
-	${ Cfg.imgNames === 1 ? '.de-img-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }' : '' }
-	${ Cfg.imgNames === 1 || Cfg.imgNames === 3 ?
-		'.de-img-name { display: inline-block; max-width: 230px; vertical-align: top; word-wrap: break-word; }' :
-		Cfg.imgNames === 2 ? '.de-img-name { text-decoration: none !important; text-transform: capitalize; }' : '' }
+	${ Cfg.imgNames === 1 ? '.de-img-name { display: inline-block; max-width: 230px; vertical-align: top; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }' : '' }
+	${ Cfg.imgNames === 2 ? '.de-img-name { text-decoration: none !important; text-transform: capitalize; }' : '' }
+	${ Cfg.imgNames === 3 ? '.de-img-name { display: inline-block; max-width: 230px; vertical-align: top; word-wrap: break-word; white-space: break-spaces; }' : '' }
 	${ Cfg.widePosts ? '.de-reply { float: none; width: 99vw; margin-left: 0; }' : '' }
 	${ aib.qPostMsg } { max-width: ${ Cfg.limitPostMsg }px; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }

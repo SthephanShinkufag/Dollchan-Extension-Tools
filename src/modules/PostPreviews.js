@@ -351,7 +351,7 @@ class Pview extends AbstractPost {
 			style.top = top + 'px';
 			return;
 		}
-		const uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
+		const uId = 'de-movecss-' + Math.round(Math.random() * 1e12);
 		$css(`@keyframes ${ uId } { to { ${ lmw } top:${ top }px; } }`).className = 'de-css-move';
 		if(this._newPos) {
 			style.cssText = this._newPos;

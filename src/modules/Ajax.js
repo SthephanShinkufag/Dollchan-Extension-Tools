@@ -182,7 +182,7 @@ const AjaxCache = {
 	clearCache() {
 		this._data = new Map();
 	},
-	fixURL: url => `${ url }${ url.includes('?') ? '&' : '?' }nocache=${ Math.random() }`,
+	fixURL: url => `${ url }${ url.includes('?') ? '&' : '?' }nocache=${ Math.round(Math.random() * 1e12) }`,
 	runCachedAjax(url, useCache) {
 		const { hasCacheControl, params } = this._data.get(url) || {};
 		const ajaxURL = hasCacheControl === false ? this.fixURL(url) : url;

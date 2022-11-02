@@ -437,7 +437,7 @@ class PostForm {
 			if(Cfg.ajaxPosting) {
 				$popup('upload', Lng.checking[lang], true);
 			}
-			if(this.video && (val = this.video.value) && (val = val.match(Videos.ytReg))) {
+			if(this.video && (val = this.video.value?.match(Videos.ytReg))) {
 				this.video.value = 'http://www.youtube.com/watch?v=' + val[1];
 			}
 			if(this.isQuick) {
