@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.31.0';
-  var commit = 'c0f0e03';
+  var commit = '2b80de0';
 
   var defaultCfg = {
     disabled: 0,
@@ -30008,7 +30008,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "css",
         get: function get() {
-          return ".backlink, #blotter, .de-file-utils + .desktop, .extButton, hr.desktop, .navLinks,\n\t\t\t\t\t.postMenuBtn, #togglePostFormLink { display: none !important; }\n\t\t\t\t#bottomReportBtn { display: initial !important; }\n\t\t\t\t#g-recaptcha { height: initial; }\n\t\t\t\t.postForm { display: table !important; width: auto !important; }\n\t\t\t\ttextarea { margin-right: 0 !important; }\n\t\t\t\t".concat(Cfg.widePosts ? '.sideArrows { display: none; }' : '');
+          return ".backlink, #blotter, .de-file-utils + .desktop, .extButton, hr.desktop, .navLinks,\n\t\t\t\t\t.postMenuBtn, #togglePostFormLink { display: none !important; }\n\t\t\t\t#bottomReportBtn { display: initial !important; }\n\t\t\t\t#g-recaptcha { height: initial; }\n\t\t\t\t.post-hidden:not(#quote-preview) input, .post-hidden:not(#quote-preview) .replyContainer,\n\t\t\t\t\t.post-hidden:not(#quote-preview) .summary, .post-hidden:not(#quote-preview) .op .file,\n\t\t\t\t\t.post-hidden:not(#quote-preview) .file, .post-hidden .wbtn, .post-hidden .postNum span,\n\t\t\t\t\t.post-hidden:not(#quote-preview) .backlink, div.post-hidden:not(#quote-preview) div.file,\n\t\t\t\t\tdiv.post-hidden:not(#quote-preview) blockquote.postMessage { display: unset; }\n\t\t\t\t.post-hidden .extButton, .post-hidden:not(#quote-preview) .postInfo { opacity: unset; }\n\t\t\t\t.postForm { display: table !important; width: auto !important; }\n\t\t\t\ttextarea { margin-right: 0 !important; }\n\t\t\t\t".concat(Cfg.widePosts ? '.sideArrows { display: none; }' : '');
         }
       }, {
         key: "markupTags",

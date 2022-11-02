@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.31.0';
-const commit = 'c0f0e03';
+const commit = '2b80de0';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16892,6 +16892,12 @@ function getImageBoard(checkDomains, checkEngines) {
 					.postMenuBtn, #togglePostFormLink { display: none !important; }
 				#bottomReportBtn { display: initial !important; }
 				#g-recaptcha { height: initial; }
+				.post-hidden:not(#quote-preview) input, .post-hidden:not(#quote-preview) .replyContainer,
+					.post-hidden:not(#quote-preview) .summary, .post-hidden:not(#quote-preview) .op .file,
+					.post-hidden:not(#quote-preview) .file, .post-hidden .wbtn, .post-hidden .postNum span,
+					.post-hidden:not(#quote-preview) .backlink, div.post-hidden:not(#quote-preview) div.file,
+					div.post-hidden:not(#quote-preview) blockquote.postMessage { display: unset; }
+				.post-hidden .extButton, .post-hidden:not(#quote-preview) .postInfo { opacity: unset; }
 				.postForm { display: table !important; width: auto !important; }
 				textarea { margin-right: 0 !important; }
 				${ Cfg.widePosts ? '.sideArrows { display: none; }' : '' }`;
