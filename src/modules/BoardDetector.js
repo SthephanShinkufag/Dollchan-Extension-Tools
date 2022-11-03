@@ -641,9 +641,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.file-attr > .desktop, .post__file-attr > .desktop';
 		}
 		get css() {
-			return `.js-post-findimg, .js-post-saveimg, .media-expand-button, .media-thumbnail, .newpost,
-					.post__btn:not(.icon_type_active), .post__number, .post__refmap
-						{ display: none !important; }
+			return `.js-post-findimg, .js-post-saveimg, .js-update-thread, .media-expand-button,
+					.media-thumbnail, .newpost, .post__btn:not(.icon_type_active), .post__number,
+					.post__refmap { display: none !important; }
 				.captcha { align-items: start; flex-direction: column; }
 				.captcha__image { cursor: pointer; }
 				.captcha__val { width: 270px; margin-top: 4px; padding: 4px; }
