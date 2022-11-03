@@ -660,8 +660,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				.postform__sticker-btn, .postform__sticker-prev { bottom: ` +
 					`${ !Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 :
 					Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25 }px !important; }
-				.post__message { padding-left: 0px; margin-left: 16px; min-width: 15%; max-width: 100%;
-					word-wrap: normal; word-break: normal; }
+				.post__message { padding-left: 0px; margin-left: 16px; min-width: 15%; word-wrap: normal;
+					word-break: normal; }
 				${ Cfg.addSageBtn ? `.options__box[onclick="ToggleSage()"]
 					{ display: none !important; }` : '' }
 				${ Cfg.addTextBtns ? '.js-postform-mu { display: none; }' : '' }
