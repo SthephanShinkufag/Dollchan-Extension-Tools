@@ -1252,6 +1252,13 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['4chan.org'] = ibDomains['4channel.org'] = _4chan;
 
+	class _7chan extends Kusaba {
+		init() {
+			return true;
+		}
+	}
+	ibDomains['7chan.org'] = _4chan;
+
 	class Archived extends FoolFuuka {
 		getImgRedirectSrc(url) {
 			return $ajax(url).then(xhr => xhr.responseText.match(/<meta[^>]+url=([^"]+)">/)[1]);

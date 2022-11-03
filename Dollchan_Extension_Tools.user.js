@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.31.0';
-  var commit = 'b96eb21';
+  var commit = 'c0a8206';
 
   var defaultCfg = {
     disabled: 0,
@@ -30136,15 +30136,38 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     ibDomains['4chan.org'] = ibDomains['4channel.org'] = _4chan;
 
+    var _7chan = function (_Kusaba3) {
+      _inherits(_7chan, _Kusaba3);
+
+      var _super22 = _createSuper(_7chan);
+
+      function _7chan() {
+        _classCallCheck(this, _7chan);
+
+        return _super22.apply(this, arguments);
+      }
+
+      _createClass(_7chan, [{
+        key: "init",
+        value: function init() {
+          return true;
+        }
+      }]);
+
+      return _7chan;
+    }(Kusaba);
+
+    ibDomains['7chan.org'] = _4chan;
+
     var Archived = function (_FoolFuuka) {
       _inherits(Archived, _FoolFuuka);
 
-      var _super22 = _createSuper(Archived);
+      var _super23 = _createSuper(Archived);
 
       function Archived() {
         _classCallCheck(this, Archived);
 
-        return _super22.apply(this, arguments);
+        return _super23.apply(this, arguments);
       }
 
       _createClass(Archived, [{
@@ -30164,7 +30187,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Arhivach = function (_BaseBoard9) {
       _inherits(Arhivach, _BaseBoard9);
 
-      var _super23 = _createSuper(Arhivach);
+      var _super24 = _createSuper(Arhivach);
 
       function Arhivach() {
         var _this121;
@@ -30175,7 +30198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key16] = arguments[_key16];
         }
 
-        _this121 = _super23.call.apply(_super23, [this].concat(args));
+        _this121 = _super24.call.apply(_super24, [this].concat(args));
         _this121.cReply = 'post';
         _this121.qDelBtn = null;
         _this121.qDelForm = 'body > .container-fluid';
@@ -30297,7 +30320,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Dobrochan = function (_BaseBoard10) {
       _inherits(Dobrochan, _BaseBoard10);
 
-      var _super24 = _createSuper(Dobrochan);
+      var _super25 = _createSuper(Dobrochan);
 
       function Dobrochan() {
         var _this123;
@@ -30308,7 +30331,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key17] = arguments[_key17];
         }
 
-        _this123 = _super24.call.apply(_super24, [this].concat(args));
+        _this123 = _super25.call.apply(_super25, [this].concat(args));
         _this123.dobrochan = true;
         _this123.qClosed = 'img[src="/images/locked.png"]';
         _this123.qDelForm = 'form[action*="delete"]';
@@ -30489,7 +30512,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Dollchan = function (_TinyIB) {
       _inherits(Dollchan, _TinyIB);
 
-      var _super25 = _createSuper(Dollchan);
+      var _super26 = _createSuper(Dollchan);
 
       function Dollchan() {
         var _this124;
@@ -30500,7 +30523,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key18] = arguments[_key18];
         }
 
-        _this124 = _super25.call.apply(_super25, [this].concat(args));
+        _this124 = _super26.call.apply(_super26, [this].concat(args));
         _this124.markupBB = true;
         _this124.multiFile = true;
         _this124.timePattern = 'yy+nn+dd+w+hh+ii+ss';
@@ -30538,7 +30561,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Endchan = function (_Lynxchan) {
       _inherits(Endchan, _Lynxchan);
 
-      var _super26 = _createSuper(Endchan);
+      var _super27 = _createSuper(Endchan);
 
       function Endchan() {
         var _this125;
@@ -30549,7 +30572,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key19] = arguments[_key19];
         }
 
-        _this125 = _super26.call.apply(_super26, [this].concat(args));
+        _this125 = _super27.call.apply(_super27, [this].concat(args));
         _this125.qTrunc = '.contentOmissionIndicator > p';
         return _this125;
       }
@@ -30583,7 +30606,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Ernstchan = function (_BaseBoard11) {
       _inherits(Ernstchan, _BaseBoard11);
 
-      var _super27 = _createSuper(Ernstchan);
+      var _super28 = _createSuper(Ernstchan);
 
       function Ernstchan() {
         var _this126;
@@ -30594,7 +30617,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key20] = arguments[_key20];
         }
 
-        _this126 = _super27.call.apply(_super27, [this].concat(args));
+        _this126 = _super28.call.apply(_super28, [this].concat(args));
         _this126.cReply = 'post';
         _this126.qError = '.error > .info';
         _this126.qFormRedir = 'input[name="gb2"][value="thread"]';
@@ -30657,10 +30680,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     ibDomains['ernstchan.xyz'] = Ernstchan;
 
-    var Gensokyo = function (_Kusaba3) {
-      _inherits(Gensokyo, _Kusaba3);
+    var Gensokyo = function (_Kusaba4) {
+      _inherits(Gensokyo, _Kusaba4);
 
-      var _super28 = _createSuper(Gensokyo);
+      var _super29 = _createSuper(Gensokyo);
 
       function Gensokyo() {
         var _this127;
@@ -30671,7 +30694,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key21] = arguments[_key21];
         }
 
-        _this127 = _super28.call.apply(_super28, [this].concat(args));
+        _this127 = _super29.call.apply(_super29, [this].concat(args));
         _this127.hasRefererErr = true;
         return _this127;
       }
@@ -30684,7 +30707,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Iichan = function (_BaseBoard12) {
       _inherits(Iichan, _BaseBoard12);
 
-      var _super29 = _createSuper(Iichan);
+      var _super30 = _createSuper(Iichan);
 
       function Iichan() {
         var _this128;
@@ -30695,7 +30718,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key22] = arguments[_key22];
         }
 
-        _this128 = _super29.call.apply(_super29, [this].concat(args));
+        _this128 = _super30.call.apply(_super30, [this].concat(args));
         _this128.hasArchive = true;
         _this128.hasCatalog = true;
         return _this128;
@@ -30826,7 +30849,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Kohlchan = function (_Lynxchan2) {
       _inherits(Kohlchan, _Lynxchan2);
 
-      var _super30 = _createSuper(Kohlchan);
+      var _super31 = _createSuper(Kohlchan);
 
       function Kohlchan() {
         var _this130;
@@ -30837,7 +30860,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key23] = arguments[_key23];
         }
 
-        _this130 = _super30.call.apply(_super30, [this].concat(args));
+        _this130 = _super31.call.apply(_super31, [this].concat(args));
         _this130.kohlchan = true;
         _this130.qFormRules = '#rules_row';
         _this130.qPostImg = '.imgLink > img, .de-img-link > img';
@@ -31000,7 +31023,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Kropyvach = function (_Vichan) {
       _inherits(Kropyvach, _Vichan);
 
-      var _super31 = _createSuper(Kropyvach);
+      var _super32 = _createSuper(Kropyvach);
 
       function Kropyvach() {
         var _this131;
@@ -31011,7 +31034,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key24] = arguments[_key24];
         }
 
-        _this131 = _super31.call.apply(_super31, [this].concat(args));
+        _this131 = _super32.call.apply(_super32, [this].concat(args));
         _this131.markupBB = true;
         return _this131;
       }
@@ -31036,7 +31059,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Lainchan = function (_Vichan2) {
       _inherits(Lainchan, _Vichan2);
 
-      var _super32 = _createSuper(Lainchan);
+      var _super33 = _createSuper(Lainchan);
 
       function Lainchan() {
         var _this132;
@@ -31047,7 +31070,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key25] = arguments[_key25];
         }
 
-        _this132 = _super32.call.apply(_super32, [this].concat(args));
+        _this132 = _super33.call.apply(_super33, [this].concat(args));
         _this132.qOPost = '.op';
         return _this132;
       }
@@ -31079,15 +31102,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     ibDomains['lainchan.org'] = Lainchan;
 
-    var Niuchan = function (_Kusaba4) {
-      _inherits(Niuchan, _Kusaba4);
+    var Niuchan = function (_Kusaba5) {
+      _inherits(Niuchan, _Kusaba5);
 
-      var _super33 = _createSuper(Niuchan);
+      var _super34 = _createSuper(Niuchan);
 
       function Niuchan() {
         _classCallCheck(this, Niuchan);
 
-        return _super33.apply(this, arguments);
+        return _super34.apply(this, arguments);
       }
 
       _createClass(Niuchan, [{
@@ -31105,12 +31128,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Nowere = function (_BaseBoard13) {
       _inherits(Nowere, _BaseBoard13);
 
-      var _super34 = _createSuper(Nowere);
+      var _super35 = _createSuper(Nowere);
 
       function Nowere() {
         _classCallCheck(this, Nowere);
 
-        return _super34.apply(this, arguments);
+        return _super35.apply(this, arguments);
       }
 
       _createClass(Nowere, [{
@@ -31134,7 +31157,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Ponyach = function (_BaseBoard14) {
       _inherits(Ponyach, _BaseBoard14);
 
-      var _super35 = _createSuper(Ponyach);
+      var _super36 = _createSuper(Ponyach);
 
       function Ponyach() {
         var _this133;
@@ -31145,7 +31168,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key26] = arguments[_key26];
         }
 
-        _this133 = _super35.call.apply(_super35, [this].concat(args));
+        _this133 = _super36.call.apply(_super36, [this].concat(args));
         _this133.qBan = 'font[color="#FF0000"]';
         _this133.qPostImgInfo = '.filesize[style="display: inline;"]';
         _this133.formParent = 'replythread';
@@ -31212,7 +31235,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Ponychan = function (_Tinyboard2) {
       _inherits(Ponychan, _Tinyboard2);
 
-      var _super36 = _createSuper(Ponychan);
+      var _super37 = _createSuper(Ponychan);
 
       function Ponychan() {
         var _this134;
@@ -31223,7 +31246,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key27] = arguments[_key27];
         }
 
-        _this134 = _super36.call.apply(_super36, [this].concat(args));
+        _this134 = _super37.call.apply(_super37, [this].concat(args));
         _this134.qOPost = '.opContainer';
         _this134.jsonSubmit = false;
         return _this134;
@@ -31259,12 +31282,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Rfch = function (_Vichan3) {
       _inherits(Rfch, _Vichan3);
 
-      var _super37 = _createSuper(Rfch);
+      var _super38 = _createSuper(Rfch);
 
       function Rfch() {
         _classCallCheck(this, Rfch);
 
-        return _super37.apply(this, arguments);
+        return _super38.apply(this, arguments);
       }
 
       _createClass(Rfch, [{
@@ -31282,7 +31305,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Spirech = function (_Vichan4) {
       _inherits(Spirech, _Vichan4);
 
-      var _super38 = _createSuper(Spirech);
+      var _super39 = _createSuper(Spirech);
 
       function Spirech() {
         var _this135;
@@ -31293,7 +31316,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key28] = arguments[_key28];
         }
 
-        _this135 = _super38.call.apply(_super38, [this].concat(args));
+        _this135 = _super39.call.apply(_super39, [this].concat(args));
         _this135.qForm = 'form[name="post"], form[name="de-post"]';
         _this135.qFormRules = '#post-info';
         _this135.jsonSubmit = true;
@@ -31335,7 +31358,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Synch = function (_Tinyboard3) {
       _inherits(Synch, _Tinyboard3);
 
-      var _super39 = _createSuper(Synch);
+      var _super40 = _createSuper(Synch);
 
       function Synch() {
         var _this136;
@@ -31346,7 +31369,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key29] = arguments[_key29];
         }
 
-        _this136 = _super39.call.apply(_super39, [this].concat(args));
+        _this136 = _super40.call.apply(_super40, [this].concat(args));
         _this136.qPages = '.pagination';
         _this136.qPostImgInfo = '.unimportant';
         _this136.markupBB = true;
@@ -31409,7 +31432,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Warosu = function (_BaseBoard15) {
       _inherits(Warosu, _BaseBoard15);
 
-      var _super40 = _createSuper(Warosu);
+      var _super41 = _createSuper(Warosu);
 
       function Warosu() {
         var _this137;
@@ -31420,7 +31443,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           args[_key30] = arguments[_key30];
         }
 
-        _this137 = _super40.call.apply(_super40, [this].concat(args));
+        _this137 = _super41.call.apply(_super41, [this].concat(args));
         _this137.qDelForm = '.content';
         _this137.qForm = '.subreply';
         _this137.qPostImgInfo = 'span';

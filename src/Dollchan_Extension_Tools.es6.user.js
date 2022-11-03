@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.31.0';
-const commit = 'b96eb21';
+const commit = 'c0a8206';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16978,6 +16978,13 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['4chan.org'] = ibDomains['4channel.org'] = _4chan;
+
+	class _7chan extends Kusaba {
+		init() {
+			return true;
+		}
+	}
+	ibDomains['7chan.org'] = _4chan;
 
 	class Archived extends FoolFuuka {
 		getImgRedirectSrc(url) {
