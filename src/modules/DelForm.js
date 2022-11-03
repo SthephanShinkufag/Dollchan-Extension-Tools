@@ -96,10 +96,13 @@ class DelForm {
 			} else {
 				cThr.append(el);
 				if(i === len - 1) {
+					let tNum;
 					try {
-						aib.getTNum(cThr);
-						threads.push(cThr);
+						tNum = aib.getTNum(cThr);
 					} catch(err) {}
+					if(tNum) {
+						threads.push(cThr);
+					}
 				}
 			}
 		}

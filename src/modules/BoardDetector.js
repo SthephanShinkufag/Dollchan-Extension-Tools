@@ -1257,7 +1257,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return true;
 		}
 	}
-	ibDomains['7chan.org'] = _4chan;
+	ibDomains['7chan.org'] = _7chan;
 
 	class Archived extends FoolFuuka {
 		getImgRedirectSrc(url) {

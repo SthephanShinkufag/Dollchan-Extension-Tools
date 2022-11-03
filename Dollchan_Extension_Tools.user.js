@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.31.0';
-  var commit = 'c0a8206';
+  var commit = '2efcabf';
 
   var defaultCfg = {
     disabled: 0,
@@ -27422,10 +27422,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             cThr.append(el);
 
             if (i === len - 1) {
+              var tNum = void 0;
+
               try {
-                aib.getTNum(cThr);
-                threads.push(cThr);
+                tNum = aib.getTNum(cThr);
               } catch (err) {}
+
+              if (tNum) {
+                threads.push(cThr);
+              }
             }
           }
         }
@@ -30157,7 +30162,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return _7chan;
     }(Kusaba);
 
-    ibDomains['7chan.org'] = _4chan;
+    ibDomains['7chan.org'] = _7chan;
 
     var Archived = function (_FoolFuuka) {
       _inherits(Archived, _FoolFuuka);

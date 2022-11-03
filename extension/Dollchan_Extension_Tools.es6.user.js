@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.31.0';
-const commit = 'c0a8206';
+const commit = '2efcabf';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15096,10 +15096,13 @@ class DelForm {
 			} else {
 				cThr.append(el);
 				if(i === len - 1) {
+					let tNum;
 					try {
-						aib.getTNum(cThr);
-						threads.push(cThr);
+						tNum = aib.getTNum(cThr);
 					} catch(err) {}
+					if(tNum) {
+						threads.push(cThr);
+					}
 				}
 			}
 		}
@@ -16984,7 +16987,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return true;
 		}
 	}
-	ibDomains['7chan.org'] = _4chan;
+	ibDomains['7chan.org'] = _7chan;
 
 	class Archived extends FoolFuuka {
 		getImgRedirectSrc(url) {
