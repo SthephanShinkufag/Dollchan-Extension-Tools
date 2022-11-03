@@ -40,7 +40,7 @@ const Panel = Object.create({
 						}">${ Thread.first.postsCount }</span>
 						<span id="de-panel-info-files" title="${ Lng.panelBtn.filesCount[lang] }">${
 							filesCount }</span>
-						<span id="de-panel-info-posters" title="${ Lng.panelBtn.posters[lang] }">${
+						<span id="de-panel-info-posters" title="${ Lng.panelBtn.postersCount[lang] }">${
 							aib.postersCount }</span>
 					</span>` : '') }
 				</span>

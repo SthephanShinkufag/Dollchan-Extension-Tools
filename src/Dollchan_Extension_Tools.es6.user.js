@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.31.0';
-const commit = '5a49613';
+const commit = '184c4da';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -853,7 +853,7 @@ const Lng = {
 			'Картинок и видео в треде',
 			'Images and videos in thread',
 			'Зображень та відео у треді'],
-		posters: [
+		postersCount: [
 			'Постящих в треде',
 			'Posters in thread',
 			'Постувачів у треді']
@@ -3095,7 +3095,7 @@ const Panel = Object.create({
 						}">${ Thread.first.postsCount }</span>
 						<span id="de-panel-info-files" title="${ Lng.panelBtn.filesCount[lang] }">${
 							filesCount }</span>
-						<span id="de-panel-info-posters" title="${ Lng.panelBtn.posters[lang] }">${
+						<span id="de-panel-info-posters" title="${ Lng.panelBtn.postersCount[lang] }">${
 							aib.postersCount }</span>
 					</span>` : '') }
 				</span>
@@ -16454,11 +16454,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return value;
 		}
 		captchaInit(cap) {
-			const containerEl = $q('.captcha');
-			containerEl.innerHTML = `<div class="captcha__image"></div>
+			cap.parentEl.innerHTML = `<div class="captcha__image"></div>
 				<input class="captcha__val input" name="2chcaptcha_value" type="text" maxlength="6">
 				<input class="captcha__key" name="2chcaptcha_id" type="hidden">`;
-			const [imgParent, inputEl] = [...containerEl.children];
+			const [imgParent, inputEl] = [...cap.parentEl.children];
 			imgParent.onclick = () => this.captchaUpdate(cap);
 			inputEl.tabIndex = 999;
 			cap.textEl = inputEl;
@@ -16473,9 +16472,10 @@ function getImageBoard(checkDomains, checkEngines) {
 				$popup('err-captcha', `Captcha error: ${ text }`);
 				$q('.captcha__image').innerHTML = '<button class="captcha__loadtext">Обновить</button>';
 			};
-			const containerEl = $q('.captcha');
-			const imgParent = $q('.captcha__image', containerEl);
-			imgParent.innerHTML = '<span class="captcha__loadtext">Загрузка...</span>';
+			const imgParent = $q('.captcha__image', cap.parentEl);
+			if(imgParent) {
+				imgParent.innerHTML = '<span class="captcha__loadtext">Загрузка...</span>';
+			}
 			const url = `/api/captcha/2chcaptcha/id?board=${ this.b }&thread=${
 				postform.tNum || 0 }&nocache=${ Math.floor(Math.random() * 1e12) }`;
 			return cap.updateHelper(url, ({ responseText }) => {
@@ -16497,15 +16497,15 @@ function getImageBoard(checkDomains, checkEngines) {
 					return;
 				}
 				switch(data.result) {
-				case 0: containerEl.textContent = 'Пасскод недействителен. Перелогиньтесь.'; break;
-				case 2: containerEl.textContent = 'Вы - пасскодобоярин.'; break;
-				case 3: $hide(containerEl); break; // Captcha is disabled
+				case 0: cap.parentEl.textContent = 'Пасскод недействителен. Перелогиньтесь.'; break;
+				case 2: cap.parentEl.textContent = 'Вы - пасскодобоярин.'; break;
+				case 3: $hide(cap.parentEl); break; // Captcha is disabled
 				case 1: { // Captcha is enabled
 					let time = 90;
 					imgParent.innerHTML = `<img src="/api/captcha/2chcaptcha/show?id=${ data.id }">
 						<button class="captcha__loadtext" style="display: none;">Обновить</button>
 						<span class="captcha__timer">${ time }</span>`;
-					const timerEl = $q('.captcha__timer', imgParent);
+					const timerEl = $q('.captcha__timer', cap.parentEl);
 					this._captchaTimer = setInterval(() => {
 						timerEl.innerHTML = --time;
 						if(!time) {
@@ -16514,12 +16514,12 @@ function getImageBoard(checkDomains, checkEngines) {
 								this.captchaUpdate(cap, false, false);
 							} else {
 								$hide(timerEl);
-								$show($q('.captcha__loadtext', containerEl));
+								$show($q('.captcha__loadtext', cap.parentEl));
 							}
 						}
 					}, 1e3);
-					$q('.captcha__key', containerEl).value = data.id;
-					const inputEl = $q('.captcha__val', containerEl);
+					$q('.captcha__key', cap.parentEl).value = data.id;
+					const inputEl = $q('.captcha__val', cap.parentEl);
 					inputEl.value = '';
 					if(isFocus) {
 						inputEl.focus();

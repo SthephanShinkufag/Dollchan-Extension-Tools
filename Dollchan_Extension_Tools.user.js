@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.31.0';
-  var commit = '5a49613';
+  var commit = '184c4da';
 
   var defaultCfg = {
     disabled: 0,
@@ -7497,7 +7497,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       postsCount: ['Постов в треде', 'Posts in thread', 'Постів у треді'],
       postsNotHid: ['Постов в треде (без скрытых)', 'Posts in thread (without hidden)', 'Постів у треді (крім схованих)'],
       filesCount: ['Картинок и видео в треде', 'Images and videos in thread', 'Зображень та відео у треді'],
-      posters: ['Постящих в треде', 'Posters in thread', 'Постувачів у треді']
+      postersCount: ['Постящих в треде', 'Posters in thread', 'Постувачів у треді']
     },
     togglePost: ['Скрыть/Раскрыть пост', 'Hide/Unhide post', 'Сховати/показати пост'],
     toggleThr: ['Скрыть/Раскрыть тред', 'Hide/Unhide thread', 'Сховати/показати тред'],
@@ -9847,7 +9847,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       var filesCount = $Q(aib.qPostImg, formEl).length;
       var isThr = aib.t;
-      (((_postform = postform) === null || _postform === void 0 ? void 0 : _postform.pArea[0]) || formEl).insertAdjacentHTML('beforebegin', "<div id=\"de-main\">\n\t\t\t<div id=\"de-panel\">\n\t\t\t\t<div id=\"de-panel-logo\" title=\"".concat(Lng.panelBtn.attach[lang], "\">\n\t\t\t\t\t<svg class=\"de-panel-logo-svg\">\n\t\t\t\t\t\t<use xlink:href=\"#de-symbol-panel-logo\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id=\"de-panel-buttons\"").concat(!Cfg.expandPanel ? ' style="display: none;"' : '', ">\n\t\t\t\t").concat(Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (Cfg.embedYTube ? this._getButton('vid') : '') + (!localData ? this._getButton('refresh') + (isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') + (!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') + this._getButton('goup') + this._getButton('godown') + (filesCount ? this._getButton('expimg') + this._getButton('maskimg') : '') + (!localData && !nav.isPresto ? (filesCount && !Cfg.preLoadImgs ? this._getButton('preimg') : '') + (isThr ? this._getButton('savethr') : '') : '') + (!localData && isThr ? this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (!nav.isSafari ? this._getButton('audio-off') : '') : '') + (aib.hasCatalog ? this._getButton('catalog') : '') + this._getButton('enable') + (isThr && Thread.first ? "<span id=\"de-panel-info\">\n\t\t\t\t\t\t<span id=\"de-panel-info-posts\" title=\"".concat(Lng.panelBtn[Cfg.panelCounter !== 2 ? 'postsCount' : 'postsNotHid'][lang], "\">").concat(Thread.first.postsCount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-files\" title=\"").concat(Lng.panelBtn.filesCount[lang], "\">").concat(filesCount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-posters\" title=\"").concat(Lng.panelBtn.posters[lang], "\">").concat(aib.postersCount, "</span>\n\t\t\t\t\t</span>") : ''), "\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t").concat(Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">', "\n\t\t</div>"));
+      (((_postform = postform) === null || _postform === void 0 ? void 0 : _postform.pArea[0]) || formEl).insertAdjacentHTML('beforebegin', "<div id=\"de-main\">\n\t\t\t<div id=\"de-panel\">\n\t\t\t\t<div id=\"de-panel-logo\" title=\"".concat(Lng.panelBtn.attach[lang], "\">\n\t\t\t\t\t<svg class=\"de-panel-logo-svg\">\n\t\t\t\t\t\t<use xlink:href=\"#de-symbol-panel-logo\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id=\"de-panel-buttons\"").concat(!Cfg.expandPanel ? ' style="display: none;"' : '', ">\n\t\t\t\t").concat(Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (Cfg.embedYTube ? this._getButton('vid') : '') + (!localData ? this._getButton('refresh') + (isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') + (!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') + this._getButton('goup') + this._getButton('godown') + (filesCount ? this._getButton('expimg') + this._getButton('maskimg') : '') + (!localData && !nav.isPresto ? (filesCount && !Cfg.preLoadImgs ? this._getButton('preimg') : '') + (isThr ? this._getButton('savethr') : '') : '') + (!localData && isThr ? this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (!nav.isSafari ? this._getButton('audio-off') : '') : '') + (aib.hasCatalog ? this._getButton('catalog') : '') + this._getButton('enable') + (isThr && Thread.first ? "<span id=\"de-panel-info\">\n\t\t\t\t\t\t<span id=\"de-panel-info-posts\" title=\"".concat(Lng.panelBtn[Cfg.panelCounter !== 2 ? 'postsCount' : 'postsNotHid'][lang], "\">").concat(Thread.first.postsCount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-files\" title=\"").concat(Lng.panelBtn.filesCount[lang], "\">").concat(filesCount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-posters\" title=\"").concat(Lng.panelBtn.postersCount[lang], "\">").concat(aib.postersCount, "</span>\n\t\t\t\t\t</span>") : ''), "\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t").concat(Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">', "\n\t\t</div>"));
       this._el = $id('de-panel');
 
       this._el.addEventListener('click', this, true);
@@ -29390,10 +29390,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         value: function captchaInit(cap) {
           var _this114 = this;
 
-          var containerEl = $q('.captcha');
-          containerEl.innerHTML = "<div class=\"captcha__image\"></div>\n\t\t\t\t<input class=\"captcha__val input\" name=\"2chcaptcha_value\" type=\"text\" maxlength=\"6\">\n\t\t\t\t<input class=\"captcha__key\" name=\"2chcaptcha_id\" type=\"hidden\">";
+          cap.parentEl.innerHTML = "<div class=\"captcha__image\"></div>\n\t\t\t\t<input class=\"captcha__val input\" name=\"2chcaptcha_value\" type=\"text\" maxlength=\"6\">\n\t\t\t\t<input class=\"captcha__key\" name=\"2chcaptcha_id\" type=\"hidden\">";
 
-          var _ref59 = _toConsumableArray(containerEl.children),
+          var _ref59 = _toConsumableArray(cap.parentEl.children),
               imgParent = _ref59[0],
               inputEl = _ref59[1];
 
@@ -29422,9 +29421,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             $q('.captcha__image').innerHTML = '<button class="captcha__loadtext">Обновить</button>';
           };
 
-          var containerEl = $q('.captcha');
-          var imgParent = $q('.captcha__image', containerEl);
-          imgParent.innerHTML = '<span class="captcha__loadtext">Загрузка...</span>';
+          var imgParent = $q('.captcha__image', cap.parentEl);
+
+          if (imgParent) {
+            imgParent.innerHTML = '<span class="captcha__loadtext">Загрузка...</span>';
+          }
+
           var url = "/api/captcha/2chcaptcha/id?board=".concat(this.b, "&thread=").concat(postform.tNum || 0, "&nocache=").concat(Math.floor(Math.random() * 1e12));
           return cap.updateHelper(url, function (_ref60) {
             var responseText = _ref60.responseText;
@@ -29447,22 +29449,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             switch (data.result) {
               case 0:
-                containerEl.textContent = 'Пасскод недействителен. Перелогиньтесь.';
+                cap.parentEl.textContent = 'Пасскод недействителен. Перелогиньтесь.';
                 break;
 
               case 2:
-                containerEl.textContent = 'Вы - пасскодобоярин.';
+                cap.parentEl.textContent = 'Вы - пасскодобоярин.';
                 break;
 
               case 3:
-                $hide(containerEl);
+                $hide(cap.parentEl);
                 break;
 
               case 1:
                 {
                   var time = 90;
                   imgParent.innerHTML = "<img src=\"/api/captcha/2chcaptcha/show?id=".concat(data.id, "\">\n\t\t\t\t\t\t<button class=\"captcha__loadtext\" style=\"display: none;\">\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C</button>\n\t\t\t\t\t\t<span class=\"captcha__timer\">").concat(time, "</span>");
-                  var timerEl = $q('.captcha__timer', imgParent);
+                  var timerEl = $q('.captcha__timer', cap.parentEl);
                   _this115._captchaTimer = setInterval(function () {
                     timerEl.innerHTML = --time;
 
@@ -29473,12 +29475,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                         _this115.captchaUpdate(cap, false, false);
                       } else {
                         $hide(timerEl);
-                        $show($q('.captcha__loadtext', containerEl));
+                        $show($q('.captcha__loadtext', cap.parentEl));
                       }
                     }
                   }, 1e3);
-                  $q('.captcha__key', containerEl).value = data.id;
-                  var inputEl = $q('.captcha__val', containerEl);
+                  $q('.captcha__key', cap.parentEl).value = data.id;
+                  var inputEl = $q('.captcha__val', cap.parentEl);
                   inputEl.value = '';
 
                   if (isFocus) {

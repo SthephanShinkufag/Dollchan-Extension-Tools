@@ -670,7 +670,7 @@ const Lng = {
 			'Картинок и видео в треде',
 			'Images and videos in thread',
 			'Зображень та відео у треді'],
-		posters: [
+		postersCount: [
 			'Постящих в треде',
 			'Posters in thread',
 			'Постувачів у треді']
