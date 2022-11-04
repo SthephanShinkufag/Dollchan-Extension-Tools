@@ -52,7 +52,7 @@ async function runMain(checkDomains, dataPromise) {
 	if(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true))) {
 		return;
 	}
-	let formEl = $q(aib.qDelForm + ', form[de-form]');
+	let formEl = $q(aib.qDelForm + ', [de-form]');
 	if(!formEl) {
 		runFrames();
 		return;

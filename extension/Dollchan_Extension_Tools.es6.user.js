@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.31.0';
-const commit = 'fcef153';
+const commit = 'cf62c56';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16647,7 +16647,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		observeContent(checkDomains, dataPromise) {
-			if($q('#posts-form > .thread, #js-posts > .thread, form[de-form] > .thread')) {
+			if($q('#posts-form > .thread, #js-posts > .thread, [de-form] > .thread')) {
 				return true;
 			}
 			const initObserver = new MutationObserver(mutations => {
@@ -16656,7 +16656,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					runMain(checkDomains, dataPromise);
 				}
 			});
-			const el = $q('#posts-form, #js-posts, form[de-form]');
+			const el = $q('#posts-form, #js-posts, [de-form]');
 			if(el) {
 				initObserver.observe(el, { childList: true });
 			}
@@ -18742,7 +18742,7 @@ async function runMain(checkDomains, dataPromise) {
 	if(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true))) {
 		return;
 	}
-	let formEl = $q(aib.qDelForm + ', form[de-form]');
+	let formEl = $q(aib.qDelForm + ', [de-form]');
 	if(!formEl) {
 		runFrames();
 		return;

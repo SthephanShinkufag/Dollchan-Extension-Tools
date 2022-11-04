@@ -917,7 +917,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		observeContent(checkDomains, dataPromise) {
-			if($q('#posts-form > .thread, #js-posts > .thread, form[de-form] > .thread')) {
+			if($q('#posts-form > .thread, #js-posts > .thread, [de-form] > .thread')) {
 				return true;
 			}
 			const initObserver = new MutationObserver(mutations => {
@@ -926,7 +926,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					runMain(checkDomains, dataPromise);
 				}
 			});
-			const el = $q('#posts-form, #js-posts, form[de-form]');
+			const el = $q('#posts-form, #js-posts, [de-form]');
 			if(el) {
 				initObserver.observe(el, { childList: true });
 			}
