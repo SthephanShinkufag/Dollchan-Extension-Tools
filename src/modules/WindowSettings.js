@@ -735,7 +735,7 @@ const CfgWindow = {
 			${ postform.mail ? `${ this._getBox('addSageBtn') }
 				${ this._getBox('saveSage') }<br>` : '' }
 			${ postform.cap ? `${ aib.hasAltCaptcha ? `${ this._getBox('altCaptcha') }<br>` : '' }
-				${ this._getInp('capUpdTime') }<br>
+				${ !aib.makaba ? `${ this._getInp('capUpdTime') }<br>` : '' }
 				${ this._getSel('captchaLang') }<br>` : '' }
 			${ postform.txta ? `${ this._getSel('addTextBtns') }
 				${ !aib._4chan ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }

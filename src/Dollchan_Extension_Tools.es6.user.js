@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.31.0';
-const commit = '039ee0a';
+const commit = 'fcef153';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -5030,7 +5030,7 @@ const CfgWindow = {
 			${ postform.mail ? `${ this._getBox('addSageBtn') }
 				${ this._getBox('saveSage') }<br>` : '' }
 			${ postform.cap ? `${ aib.hasAltCaptcha ? `${ this._getBox('altCaptcha') }<br>` : '' }
-				${ this._getInp('capUpdTime') }<br>
+				${ !aib.makaba ? `${ this._getInp('capUpdTime') }<br>` : '' }
 				${ this._getSel('captchaLang') }<br>` : '' }
 			${ postform.txta ? `${ this._getSel('addTextBtns') }
 				${ !aib._4chan ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
@@ -10374,7 +10374,7 @@ class Captcha {
 		}));
 	}
 	updateOutdated() {
-		if(this._lastUpdate && (Date.now() - this._lastUpdate > Cfg.capUpdTime * 1e3)) {
+		if(!aib.makaba && this._lastUpdate && (Date.now() - this._lastUpdate > Cfg.capUpdTime * 1e3)) {
 			this.refreshCaptcha(false);
 		}
 	}
