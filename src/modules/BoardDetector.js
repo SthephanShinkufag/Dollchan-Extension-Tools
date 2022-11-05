@@ -126,7 +126,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				postform.closeReply();
 			};
 			$popup('load-form', Lng.loading[lang], true);
-			await ajaxLoad(aib.getThrUrl(this.b, tNum), false).then(loadedDoc => {
+			await ajaxLoad(this.getThrUrl(this.b, tNum), false).then(loadedDoc => {
 				const loadedForm = $q(this.qForm, loadedDoc);
 				if(!loadedForm) {
 					errFn();
@@ -654,6 +654,10 @@ function getImageBoard(checkDomains, checkEngines) {
 					border: 1px solid var(--theme_default_border); border-radius: 3px; }
 				#down-nav-arrow, #up-nav-arrow { z-index: 0; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
+				.post__detailpart:nth-of-type(5) { display: none; }
+				.post_type_hidden { opacity: unset; cursor: default; }
+				.post_type_hidden .post__message:not(.de-post-hiddencontent),
+					.post_type_hidden .post__images:not(.de-post-hiddencontent) { display: block !important; }
 				.post_type_reply { max-width: 100%; }
 				.postarea { display: initial !important; }
 				.postform { width: auto; }
@@ -1098,7 +1102,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 		}
 		getCaptchaSrc(src) {
-			return src.replace(/\?[^?]+$|$/, `?board=${ aib.b }&${ Math.random() }`);
+			return src.replace(/\?[^?]+$|$/, `?board=${ this.b }&${ Math.random() }`);
 		}
 		getSage(post) {
 			return !!$q('.filetitle', post)?.textContent.includes('\u21E9');

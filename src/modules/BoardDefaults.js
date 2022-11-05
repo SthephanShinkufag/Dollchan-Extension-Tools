@@ -190,7 +190,7 @@ class BaseBoard {
 		return null;
 	}
 	disableRedirection(el) {
-		$hide(el.closest(aib.qFormTr));
+		$hide(el.closest(this.qFormTr));
 		el.checked = true;
 	}
 	fixHTML(data, isForm = false) {
@@ -225,7 +225,7 @@ class BaseBoard {
 			str = Spells.replace(str);
 		}
 		if(Cfg.crossLinks) {
-			str = str.replace(aib.reCrossLinks,
+			str = str.replace(this.reCrossLinks,
 				(_, board, tNum, pNum) => `>&gt;&gt;/${ board }/${ pNum || tNum }<`);
 		}
 		if(Cfg.decodeLinks) {
