@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.31.0';
-  var commit = '6fbf82e';
+  var commit = '51fbbca';
 
   var defaultCfg = {
     disabled: 0,
@@ -7188,7 +7188,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     resizeDPI: 0,
     resizeImgs: 1,
     minImgSize: 100,
-    maxImgSize: 9e4,
+    maxImgSize: 2000,
     zoomFactor: 20,
     webmControl: 1,
     webmTitles: 0,
@@ -23345,10 +23345,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         } else {
           width = oldW * this._zoomFactor;
           height = oldH * this._zoomFactor;
-
-          if (width >= Cfg.maxImgSize || height >= Cfg.maxImgSize) {
-            return;
-          }
         }
 
         this._width = width;
