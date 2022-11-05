@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.31.0';
-  var commit = 'dcfe01d';
+  var commit = '0e52ada';
 
   var defaultCfg = {
     disabled: 0,
@@ -9856,7 +9856,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         return _this12._el.addEventListener(e, _this12);
       });
       this._buttons = $id('de-panel-buttons');
-      this.isNew = true;
     },
     removeMain: function removeMain() {
       var _this13 = this;
@@ -10122,8 +10121,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return el.innerHTML = el.innerHTML.replace(/\d+$/, postersCount);
         });
       }
-
-      this.isNew = false;
     },
     _el: null,
     _hideTO: 0,
@@ -25178,45 +25175,44 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "bannedPostsData",
       value: _regeneratorRuntime().mark(function bannedPostsData() {
-        var p, _iterator29, _step29, _step29$value, banned, num;
+        var _iterator29, _step29, _step29$value, banned, num;
 
         return _regeneratorRuntime().wrap(function bannedPostsData$(_context51) {
           while (1) {
             switch (_context51.prev = _context51.next) {
               case 0:
-                p = this._isNew ? 'post__' : '';
                 _iterator29 = _createForOfIteratorHelperLoose(this._posts);
 
-              case 2:
+              case 1:
                 if ((_step29 = _iterator29()).done) {
-                  _context51.next = 15;
+                  _context51.next = 14;
                   break;
                 }
 
                 _step29$value = _step29.value, banned = _step29$value.banned, num = _step29$value.num;
                 _context51.t0 = banned;
-                _context51.next = _context51.t0 === 1 ? 7 : _context51.t0 === 2 ? 10 : 13;
+                _context51.next = _context51.t0 === 1 ? 6 : _context51.t0 === 2 ? 9 : 12;
                 break;
 
-              case 7:
-                _context51.next = 9;
-                return [1, num, $add("<span class=\"".concat(p, "pomyanem\">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u0437\u0430\u0431\u0430\u043D\u0435\u043D.)</span>"))];
+              case 6:
+                _context51.next = 8;
+                return [1, num, $add('<span class="post__pomyanem">(Автор этого поста был забанен.)</span>')];
+
+              case 8:
+                return _context51.abrupt("break", 12);
 
               case 9:
-                return _context51.abrupt("break", 13);
+                _context51.next = 11;
+                return [2, num, $add('<span class="post__pomyanem">' + '(Автор этого поста был предупрежден.)</span>')];
 
-              case 10:
-                _context51.next = 12;
-                return [2, num, $add("<span class=\"".concat(p, "pomyanem\">") + '(Автор этого поста был предупрежден.)</span>')];
+              case 11:
+                return _context51.abrupt("break", 12);
 
               case 12:
-                return _context51.abrupt("break", 13);
-
-              case 13:
-                _context51.next = 2;
+                _context51.next = 1;
                 break;
 
-              case 15:
+              case 14:
               case "end":
                 return _context51.stop();
             }
@@ -26156,7 +26152,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + postform.top - lastOffset);
         }
 
-        if (newPosts !== 0 || Panel.isNew) {
+        if (newPosts !== 0) {
           Panel.updateCounter(pBuilder.length + 1 - (Cfg.panelCounter === 2 ? this.hiddenCount : 0), $Q(".de-reply:not(.de-post-removed) ".concat(aib.qPostImg, ", .de-oppost ").concat(aib.qPostImg), this.el).length, pBuilder.postersCount);
           Pview.updatePosition(true);
         }
@@ -29194,7 +29190,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "captchaUpdate",
         value: function captchaUpdate() {
-          $script('var captchaTimeout = 29.5;Captcha.state = "init";');
+          $script('var captchaTimeout = 29.5; Captcha.state = "init";');
           return null;
         }
       }, {
@@ -30039,7 +30035,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         get: function get() {
           var _$q5;
 
-          return ((_$q5 = $q('span[class="ts-ips"]')) === null || _$q5 === void 0 ? void 0 : _$q5.innerHTML) || '';
+          var value = ((_$q5 = $q('span[class="ts-ips"]')) === null || _$q5 === void 0 ? void 0 : _$q5.innerHTML) || '';
+
+          if (!value) {
+            $script("setTimeout(function() {\n\t\t\t\t\tdocument.getElementById(\"de-panel-info-posters\").textContent = window.unique_ips || \"\";\n\t\t\t\t}, 0)");
+          }
+
+          return value;
         }
       }, {
         key: "fixDeadLinks",

@@ -562,7 +562,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				form { position: initial; }`;
 		}
 		captchaUpdate() {
-			$script('var captchaTimeout = 29.5;Captcha.state = "init";');
+			$script('var captchaTimeout = 29.5; Captcha.state = "init";');
 			return null;
 		}
 		fixFileInputs(el) {
@@ -1191,7 +1191,13 @@ function getImageBoard(checkDomains, checkEngines) {
 				this.b === 'g' ? '[code' : ''];
 		}
 		get postersCount() {
-			return $q('span[class="ts-ips"]')?.innerHTML || '';
+			const value = $q('span[class="ts-ips"]')?.innerHTML || '';
+			if(!value) {
+				$script(`setTimeout(function() {
+					document.getElementById("de-panel-info-posters").textContent = window.unique_ips || "";
+				}, 0)`);
+			}
+			return value;
 		}
 		fixDeadLinks(str) {
 			return str.replace(/<span class="deadlink">&gt;&gt;(\d+)<\/span>/g,

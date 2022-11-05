@@ -432,7 +432,7 @@ class Thread {
 		if(lastOffset !== null) {
 			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + postform.top - lastOffset);
 		}
-		if(newPosts !== 0 || Panel.isNew) {
+		if(newPosts !== 0) {
 			Panel.updateCounter(
 				pBuilder.length + 1 - (Cfg.panelCounter === 2 ? this.hiddenCount : 0),
 				$Q(`.de-reply:not(.de-post-removed) ${

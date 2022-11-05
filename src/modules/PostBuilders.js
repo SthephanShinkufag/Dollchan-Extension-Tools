@@ -458,14 +458,13 @@ class MakabaPostsBuilder {
 		</div>`;
 	}
 	* bannedPostsData() {
-		const p = this._isNew ? 'post__' : '';
 		for(const { banned, num } of this._posts) {
 			switch(banned) {
 			case 1:
-				yield [1, num, $add(`<span class="${ p }pomyanem">(Автор этого поста был забанен.)</span>`)];
+				yield [1, num, $add('<span class="post__pomyanem">(Автор этого поста был забанен.)</span>')];
 				break;
 			case 2:
-				yield [2, num, $add(`<span class="${ p }pomyanem">` +
+				yield [2, num, $add('<span class="post__pomyanem">' +
 					'(Автор этого поста был предупрежден.)</span>')];
 				break;
 			}

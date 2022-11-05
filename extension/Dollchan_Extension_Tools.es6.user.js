@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.31.0';
-const commit = 'dcfe01d';
+const commit = '0e52ada';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3106,7 +3106,6 @@ const Panel = Object.create({
 		this._el.addEventListener('click', this, true);
 		['mouseover', 'mouseout'].forEach(e => this._el.addEventListener(e, this));
 		this._buttons = $id('de-panel-buttons');
-		this.isNew = true;
 	},
 	removeMain() {
 		this._el.removeEventListener('click', this, true);
@@ -3243,7 +3242,6 @@ const Panel = Object.create({
 			$Q('span[title="Постеры"]').forEach(
 				el => el.innerHTML = el.innerHTML.replace(/\d+$/, postersCount));
 		}
-		this.isNew = false;
 	},
 
 	_el     : null,
@@ -13500,14 +13498,13 @@ class MakabaPostsBuilder {
 		</div>`;
 	}
 	* bannedPostsData() {
-		const p = this._isNew ? 'post__' : '';
 		for(const { banned, num } of this._posts) {
 			switch(banned) {
 			case 1:
-				yield [1, num, $add(`<span class="${ p }pomyanem">(Автор этого поста был забанен.)</span>`)];
+				yield [1, num, $add('<span class="post__pomyanem">(Автор этого поста был забанен.)</span>')];
 				break;
 			case 2:
-				yield [2, num, $add(`<span class="${ p }pomyanem">` +
+				yield [2, num, $add('<span class="post__pomyanem">' +
 					'(Автор этого поста был предупрежден.)</span>')];
 				break;
 			}
@@ -14180,7 +14177,7 @@ class Thread {
 		if(lastOffset !== null) {
 			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + postform.top - lastOffset);
 		}
-		if(newPosts !== 0 || Panel.isNew) {
+		if(newPosts !== 0) {
 			Panel.updateCounter(
 				pBuilder.length + 1 - (Cfg.panelCounter === 2 ? this.hiddenCount : 0),
 				$Q(`.de-reply:not(.de-post-removed) ${
@@ -16292,7 +16289,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				form { position: initial; }`;
 		}
 		captchaUpdate() {
-			$script('var captchaTimeout = 29.5;Captcha.state = "init";');
+			$script('var captchaTimeout = 29.5; Captcha.state = "init";');
 			return null;
 		}
 		fixFileInputs(el) {
@@ -16921,7 +16918,13 @@ function getImageBoard(checkDomains, checkEngines) {
 				this.b === 'g' ? '[code' : ''];
 		}
 		get postersCount() {
-			return $q('span[class="ts-ips"]')?.innerHTML || '';
+			const value = $q('span[class="ts-ips"]')?.innerHTML || '';
+			if(!value) {
+				$script(`setTimeout(function() {
+					document.getElementById("de-panel-info-posters").textContent = window.unique_ips || "";
+				}, 0)`);
+			}
+			return value;
 		}
 		fixDeadLinks(str) {
 			return str.replace(/<span class="deadlink">&gt;&gt;(\d+)<\/span>/g,

@@ -51,7 +51,6 @@ const Panel = Object.create({
 		this._el.addEventListener('click', this, true);
 		['mouseover', 'mouseout'].forEach(e => this._el.addEventListener(e, this));
 		this._buttons = $id('de-panel-buttons');
-		this.isNew = true;
 	},
 	removeMain() {
 		this._el.removeEventListener('click', this, true);
@@ -188,7 +187,6 @@ const Panel = Object.create({
 			$Q('span[title="Постеры"]').forEach(
 				el => el.innerHTML = el.innerHTML.replace(/\d+$/, postersCount));
 		}
-		this.isNew = false;
 	},
 
 	_el     : null,
