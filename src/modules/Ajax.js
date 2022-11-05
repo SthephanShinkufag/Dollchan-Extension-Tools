@@ -65,9 +65,12 @@ function $ajax(url, params = null, isCORS = false) {
 				if(needTO) {
 					clearTimeout(loadTO);
 				}
-				if(e.readyState === 4 && !(e.responseHeaders.match(/content-type: text\/(?:html|plain);/i) &&
-					typeof e.responseText === 'undefined')
-				) {
+				if(e.readyState === 4 && !(
+					// Violentmonkey gives extra stage with undefined responseText and 200 status
+					nav.scriptHandler.startsWith('Violentmonkey') &&
+					typeof e.responseText === 'undefined' && e.status === 200 &&
+					e.responseHeaders.match(/content-type: text\/(?:html|plain);/i)
+				)) {
 					if(aib.isAjaxStatusOK(e.status)) {
 						resolve(e);
 					} else {
