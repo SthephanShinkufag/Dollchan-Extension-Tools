@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.31.0';
-  var commit = 'f8ad3f0';
+  var commit = '04d98cb';
 
   var defaultCfg = {
     disabled: 0,
@@ -14989,7 +14989,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
 
           if (e.readyState === 4 && !( 
-          nav.scriptHandler.startsWith('Violentmonkey') && typeof e.responseText === 'undefined' && e.status === 200 && e.responseHeaders.match(/content-type: text\/(?:html|plain);/i))) {
+          nav.scriptHandler.startsWith('Violentmonkey') && e.status === 200 && typeof e.responseText === 'undefined' && typeof e.response === 'undefined')) {
             if (aib.isAjaxStatusOK(e.status)) {
               resolve(e);
             } else {

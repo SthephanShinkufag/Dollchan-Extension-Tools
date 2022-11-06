@@ -67,9 +67,8 @@ function $ajax(url, params = null, isCORS = false) {
 				}
 				if(e.readyState === 4 && !(
 					// Violentmonkey gives extra stage with undefined responseText and 200 status
-					nav.scriptHandler.startsWith('Violentmonkey') &&
-					typeof e.responseText === 'undefined' && e.status === 200 &&
-					e.responseHeaders.match(/content-type: text\/(?:html|plain);/i)
+					nav.scriptHandler.startsWith('Violentmonkey') && e.status === 200 &&
+					typeof e.responseText === 'undefined' && typeof e.response === 'undefined'
 				)) {
 					if(aib.isAjaxStatusOK(e.status)) {
 						resolve(e);
