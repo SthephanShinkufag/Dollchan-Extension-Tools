@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.31.0';
-  var commit = '04d98cb';
+  var commit = 'bd31ba7';
 
   var defaultCfg = {
     disabled: 0,
@@ -13914,7 +13914,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             return;
           }
 
-          var fName = delSymbols(getFileName(url), '_').toLowerCase();
+          var fName = delSymbols(getFileName(url).replace(/(#|\?).*?$/, ''), '_').toLowerCase();
 
           if (files.indexOf(fName) !== -1) {
             var temp = url.lastIndexOf('.');

@@ -108,7 +108,7 @@ const ContentLoader = {
 					el.remove();
 					return;
 				}
-				let fName = delSymbols(getFileName(url), '_').toLowerCase();
+				let fName = delSymbols(getFileName(url).replace(/(#|\?).*?$/, ''), '_').toLowerCase();
 				if(files.indexOf(fName) !== -1) {
 					let temp = url.lastIndexOf('.');
 					const ext = url.substring(temp);
