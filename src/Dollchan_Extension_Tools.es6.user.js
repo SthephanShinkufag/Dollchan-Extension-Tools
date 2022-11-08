@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         22.10.31.0
+// @version         22.11.8.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
@@ -27,8 +27,8 @@
 (function deMainFuncInner(deWindow, prestoStorage, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '22.10.31.0';
-const commit = 'bd31ba7';
+const version = '22.11.8.0';
+const commit = '24347a9';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -18240,7 +18240,7 @@ function scriptCSS() {
 	#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }
 	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }
-	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; min-width: auto; transition: all .3s ease; border: none; background-color: transparent; color: inherit !important; cursor: pointer; }
+	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; min-width: auto; transition: all .3s ease; border: none; background-color: transparent !important; color: inherit !important; cursor: pointer; }
 	.de-panel-button-active { stroke: #32ff32 !important; fill: #32ff32 !important; }
 	.de-panel-svg, #de-panel-logo, .de-panel-logo-svg, .de-panel-button { width: 25px; height: 25px; }
 	#de-panel-expimg, #de-panel-maskimg, #de-panel-preimg { stroke: currentColor; fill: currentColor; }

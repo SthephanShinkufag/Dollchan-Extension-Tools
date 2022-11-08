@@ -28,9 +28,9 @@ function getDollchanAPI() {
 function runAPI() {
 	getDollchanAPI().then(port => {
 		port.onmessage = ({ data }) => {
-			const result = data.data ;
+			const result = data.data;
 			switch(data.name) {
-			case 'expandmedia':
+			case 'expandmedia': {
 				const ext = result.split('.').pop();
 				console.log(ext + ' is opened:', result);
 				if(ext === 'webm' || ext == 'mp4') {
@@ -39,6 +39,7 @@ function runAPI() {
 					console.log(document.querySelector(`img[src="${ result }"]`));
 				}
 				break;
+			}
 			case 'filechange':
 				console.log('Files changed:', result);
 				break;
@@ -46,7 +47,7 @@ function runAPI() {
 				console.log('New posts detected:', result);
 				break;
 			case 'registerapi':
-				for(let key in result) {
+				for(const key in result) {
 					console.log(`API ${ key } ${ result[key] ? 'is' : 'not' } registered.`);
 				}
 				break;
@@ -57,14 +58,14 @@ function runAPI() {
 					console.log('Post submitting error!', result.error);
 				}
 				break;
-		 /* case '...': */
+				/* case '...': */
 			}
 		};
 		port.postMessage({ name: 'registerapi', data: ['expandmedia'] });
 		port.postMessage({ name: 'registerapi', data: ['filechange'] });
 		port.postMessage({ name: 'registerapi', data: ['newpost'] });
 		port.postMessage({ name: 'registerapi', data: ['submitform'] });
-	 /* port.postMessage({ name: 'registerapi', data: ['...'] }); */
+		/* port.postMessage({ name: 'registerapi', data: ['...'] }); */
 	}).catch(() => console.log('Dollchan API not detected!'));
 }
 
