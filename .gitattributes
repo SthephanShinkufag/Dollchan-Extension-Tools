@@ -2,7 +2,9 @@
 
 Dollchan_Extension_Tools.user.js -diff
 Dollchan_Extension_Tools.user.js linguist-generated=true
-extension/Dollchan_Extension_Tools.es6.user.js -diff
-extension/Dollchan_Extension_Tools.es6.user.js linguist-generated=true
+extension/v2/Dollchan_Extension_Tools.es6.user.js -diff
+extension/v2/Dollchan_Extension_Tools.es6.user.js linguist-generated=true
+extension/v3/Dollchan_Extension_Tools.es6.user.js -diff
+extension/v3/Dollchan_Extension_Tools.es6.user.js linguist-generated=true
 src/Dollchan_Extension_Tools.es6.user.js -diff
 src/Dollchan_Extension_Tools.es6.user.js linguist-generated=true

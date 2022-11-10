@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 25 25">
+	<linearGradient id="de-panel" x1="50%" y1="0%" y2="100%" x2="50%">
+		<stop offset="0%" stop-color="#4b90df"/>
+		<stop offset="20%" stop-color="#3d77be"/>
+		<stop offset="28%" stop-color="#376cb0"/>
+		<stop offset="52%" stop-color="#295591"/>
+		<stop offset="52%" stop-color="#183d77"/>
+		<stop offset="72%" stop-color="#1f4485"/>
+		<stop offset="80%" stop-color="#264c90"/>
+		<stop offset="100%" stop-color="#325f9e"/>
+	</linearGradient>
+	<path fill="url(#de-panel)" d="M0,25V12.5C1,6.1,6.1,1,12.5,0H25v25h25"/>
+	<path fill="#f5f5f5" d="M21.1,4h-10v16h4V6h6V4z"/>
+	<path stroke="#f5f5f5" fill="none" stroke-width="3" d="M21.1,19.5h-10c-2.8,0-5.7,0-5.7-4s2.8-4,5.7-4h9"/>
+</svg>

@@ -56,7 +56,8 @@ gulp.task('make:es6', gulp.series('updatecommit', () =>
 
 // Copy es6 script from src/ to extension/ folder
 gulp.task('copyext', () => gulp.src('src/Dollchan_Extension_Tools.es6.user.js')
-	.pipe(gulp.dest('extension/')));
+	.pipe(replace(/\s+\/\/ <EXCLUDED_FROM_EXTENSION>[\s\S]*?<\/EXCLUDED_FROM_EXTENSION>/g, ''))
+	.pipe(gulp.dest('extension/v2')).pipe(gulp.dest('extension/v3')));
 
 // Makes es5-script from es6-script
 gulp.task('make:es5', gulp.series(

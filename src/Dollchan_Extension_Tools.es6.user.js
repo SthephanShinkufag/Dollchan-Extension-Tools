@@ -3587,7 +3587,7 @@ function showVideosWindow(body) {
 		body.innerHTML = `<b>${ Lng.noVideoLinks[lang] }</b>`;
 		return;
 	}
-	// EXCLUDED FROM FIREFOX EXTENSION - START
+	// <EXCLUDED_FROM_EXTENSION>
 	if(!$id('de-ytube-api')) {
 		// YouTube APT script. We canʼt insert scripts directly as html.
 		const script = doc.createElement('script');
@@ -3596,7 +3596,7 @@ function showVideosWindow(body) {
 		script.id = 'de-ytube-api';
 		doc.head.append(script);
 	}
-	// EXCLUDED FROM FIREFOX EXTENSION - END
+	// </EXCLUDED_FROM_EXTENSION>
 	body.innerHTML = `<div de-disableautoplay class="de-video-obj"></div>
 	<div id="de-video-buttons">
 		<a class="de-abtn" id="de-video-btn-prev" href="#" title="${ Lng.prevVideo[lang] }">&#x25C0;</a>
@@ -3608,7 +3608,7 @@ function showVideosWindow(body) {
 		+Cfg.YTubeWidth + 40 }px; max-height: ${
 		nav.viewportHeight() * 0.92 - +Cfg.YTubeHeigh - 82 }px;"></div>`);
 
-	// EXCLUDED FROM FIREFOX EXTENSION - START
+	// <EXCLUDED_FROM_EXTENSION>
 	// A script to detect the end of current video playback, and auto play next. Uses YouTube API.
 	// The first video should not start automatically!
 	const script = doc.createElement('script');
@@ -3647,7 +3647,7 @@ function showVideosWindow(body) {
 		}
 	})();`;
 	body.append(script);
-	// EXCLUDED FROM FIREFOX EXTENSION - END
+	// </EXCLUDED_FROM_EXTENSION>
 
 	// Events for control buttons
 	body.addEventListener('click', {
@@ -10391,13 +10391,13 @@ class Captcha {
 		}
 	}
 	_updateRecap() {
-		// EXCLUDED FROM FIREFOX EXTENSION - START
+		// <EXCLUDED_FROM_EXTENSION>
 		const script = doc.createElement('script');
 		script.src = aib.protocol +
 			(this._isHcap ? '//js.hcaptcha.com/1/api.js' : '//www.google.com/recaptcha/api.js');
 		doc.head.append(script);
 		setTimeout(() => script.remove(), 1e5);
-		// EXCLUDED FROM FIREFOX EXTENSION - END
+		// </EXCLUDED_FROM_EXTENSION>
 	}
 	_updateTextEl(isFocus) {
 		if(this.textEl) {

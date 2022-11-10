@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="settings.css"/>
+	<script type="text/javascript" src="settings.js"></script>
+</head>
+<body>
+	<div id="tabs">
+		<img id="logo" src="../icons/logo-32.png">
+		<div class="tab active" id="tab-scope">Scope</div>
+		<div class="tab" id="tab-info">Info</div>
+	</div>
+	<div class="content active" id="content-scope">
+		<div class="content-block">
+			Includes<br>
+			<textarea id="scope-includes-value"></textarea>
+		</div>
+		<div class="content-block">
+			Exludes<br>
+			<textarea id="scope-excludes-value"></textarea>
+		</div>
+		<div class="content-block">
+			<button id="save-scope">Save</button>
+		</div>
+		<div class="content-block">
+			Example:<br>
+			<code>*://2ch.hk/*</code><br>
+			<code>*4chan.org/*</code><br>
+			<code>http://boards.4channel.org/*</code><br>
+			<code>*://8ch.net/test/*</code><br>
+			<code>...</code>
+		</div>
+	</div>
+	<div class="content" id="content-info">
+		<div class="content-block">
+			Info...
+		</div>
+	</div>
+</body>
+</html>
