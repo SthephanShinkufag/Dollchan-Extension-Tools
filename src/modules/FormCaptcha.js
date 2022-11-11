@@ -196,13 +196,13 @@ class Captcha {
 		}
 	}
 	_updateRecap() {
-		// EXCLUDED FROM FIREFOX EXTENSION - START
+		// <EXCLUDED_FROM_EXTENSION>
 		const script = doc.createElement('script');
 		script.src = aib.protocol +
 			(this._isHcap ? '//js.hcaptcha.com/1/api.js' : '//www.google.com/recaptcha/api.js');
 		doc.head.append(script);
 		setTimeout(() => script.remove(), 1e5);
-		// EXCLUDED FROM FIREFOX EXTENSION - END
+		// </EXCLUDED_FROM_EXTENSION>
 	}
 	_updateTextEl(isFocus) {
 		if(this.textEl) {
