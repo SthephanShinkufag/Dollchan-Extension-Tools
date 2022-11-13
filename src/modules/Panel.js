@@ -10,7 +10,7 @@ const Panel = Object.create({
 		(postform?.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `<div id="de-main">
 			<div id="de-panel">
 				<div id="de-panel-logo" title="${ Lng.panelBtn.attach[lang] }">
-					<svg class="de-panel-logo-svg">
+					<svg id="de-panel-logo-svg">
 						<use xlink:href="#de-symbol-panel-logo"/>
 					</svg>
 				</div>
