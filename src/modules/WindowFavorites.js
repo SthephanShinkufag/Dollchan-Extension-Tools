@@ -256,30 +256,30 @@ function showFavoritesWindow(body, favObj) {
 			}
 			let isUpdate = false;
 			let last404 = false;
-			const myposts = JSON.parse(locStorage['de-myposts'] || '{}');
-			const els = $Q('.de-entry');
-			for(let i = 0, len = els.length; i < len; ++i) {
-				const el = els[i];
-				const host = el.getAttribute('de-host');
-				const board = el.getAttribute('de-board');
-				const num = el.getAttribute('de-num');
+			const myPosts = JSON.parse(locStorage['de-myposts'] || '{}');
+			const entryEls = $Q('.de-entry');
+			for(let i = 0, len = entryEls.length; i < len; ++i) {
+				const entryEl = entryEls[i];
+				const host = entryEl.getAttribute('de-host');
+				const board = entryEl.getAttribute('de-board');
+				const num = entryEl.getAttribute('de-num');
 				const entry = favObj[host][board][num];
 				// Updating doesnʼt works for other domains because of different posts structure
 				// Updating is not needed in closed threads
 				if(host !== aib.host || entry.err === 'Closed' || entry.err === 'Archived') {
 					continue;
 				}
-				const [titleEl, youEl, countEl] = [...el.lastElementChild.children];
+				const [titleEl, youEl, newEl, totalEl] = [...entryEl.lastElementChild.children];
 				const iconEl = titleEl.firstElementChild;
-				// setAttribute for class is used because of SVG (for correct work in some browsers)
+				// setAttribute for class is used for correct SVG work in old browsers
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 				titleEl.title = Lng.updating[lang];
-				let form, isArchived;
+				let formEl, isArchived;
 				try {
 					if(!aib.hasArchive) {
-						form = await ajaxLoad(aib.getThrUrl(board, num));
+						formEl = await ajaxLoad(aib.getThrUrl(board, num));
 					} else {
-						[form, isArchived] = await ajaxLoad(aib.getThrUrl(board, num), true, false, true);
+						[formEl, isArchived] = await ajaxLoad(aib.getThrUrl(board, num), true, false, true);
 					}
 					last404 = false;
 				} catch(err) {
@@ -293,19 +293,21 @@ function showFavoritesWindow(body, favObj) {
 						}
 					}
 					last404 = false;
-					$hide(countEl);
+					$hide(newEl);
 					$hide(youEl);
 					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-					entry.err = titleEl.title = getErrorMessage(err);
+					titleEl.title = entry.err = getErrorMessage(err);
 					isUpdate = true;
 					continue;
 				}
-				if(aib.qClosed && $q(aib.qClosed, form)) { // Check for closed thread
+				if(aib.qClosed && $q(aib.qClosed, formEl)) {
+					// Thread is closed
 					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 					titleEl.title = Lng.thrClosed[lang];
 					entry.err = 'Closed';
 					isUpdate = true;
 				} else if(isArchived) {
+					// Thread is archived
 					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 					titleEl.title = Lng.thrArchived[lang];
 					entry.err = 'Archived';
@@ -319,35 +321,44 @@ function showFavoritesWindow(body, favObj) {
 						isUpdate = true;
 					}
 				}
-				// Updating a counter of new posts
-				const posts = $Q(aib.qPost, form);
-				const cnt = posts.length + 1 - entry.cnt;
-				countEl.textContent = cnt;
-				if(cnt === 0) {
-					$hide(countEl); // Hide counter if no new posts
-					$hide(youEl);
-				} else {
-					$show(countEl);
-					entry.new = cnt;
-					isUpdate = true;
+				// Updating the posts counters
+				let newCount = 0;
+				let youCount = 0;
+				const lastNum = entry.last.match(/\d+$/)?.[0] || 0;
+				const hasMyPosts = myPosts?.[board];
+				const posts = $Q(aib.qPost, formEl);
+				const postsLen = posts.length;
+				for(let j = 0; j < postsLen; ++j) {
+					const post = posts[j];
+					if(lastNum >= aib.getPNum(post)) {
+						continue;
+					}
+					newCount++;
+					if(!hasMyPosts) {
+						continue;
+					}
 					// Check for replies to my posts
-					if(myposts?.[board]) {
-						entry.you = 0;
-						for(let j = 0; j < cnt; ++j) {
-							const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a',
-								posts[posts.length - 1 - j]);
-							for(let a = 0, len = links.length; a < len; ++a) {
-								const tc = links[a].textContent;
-								if(tc[0] === '>' && tc[1] === '>' && myposts[board][tc.substr(2)]) {
-									entry.you++;
-								}
-							}
-						}
-						if(entry.you) {
-							youEl.textContent = entry.you;
-							$show(youEl);
+					const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
+					for(let a = 0, linksLen = links.length; a < linksLen; ++a) {
+						const tc = links[a].textContent;
+						if(tc[0] === '>' && tc[1] === '>' && myPosts[board][tc.substr(2)]) {
+							youCount++;
+							break;
 						}
 					}
+				}
+				totalEl.textContent = entry.cnt = postsLen + 1;
+				if(newCount) {
+					newEl.textContent = entry.new = newCount;
+					$show(newEl);
+					if(youCount) {
+						youEl.textContent = entry.you = youCount;
+						$show(youEl);
+					}
+					isUpdate = true;
+				} else {
+					$hide(newEl);
+					$hide(youEl);
 				}
 			}
 			AjaxCache.clearCache();

@@ -7198,7 +7198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.11.8.0';
-  var commit = '9d566c2';
+  var commit = '879a9cb';
 
 
   var defaultCfg = {
@@ -7472,7 +7472,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         txt: ['Форма ответа в треде', 'Reply form display in thread', 'Форма відповіді в треді']
       },
       spacedQuote: ['Вставлять пробел при цитировании "> "', 'Insert a space when quoting "> "', 'Вставляти пробіл при цитуванні "> "'],
-      favOnReply: ['Добавлять тред в "Избранное" после ответа', 'Add thread to "Favorites" after reply', 'Додавати тред в "Вибране" після відповіді'],
+      favOnReply: ['Добавлять тред в Избранное после ответа', 'Add thread to Favorites after reply', 'Додавати тред в Вибране після відповіді'],
       warnSubjTrip: ['Оповещать о трипкоде в поле "Тема"', 'Warn about a tripcode in "Subject" field', 'Сповіщувати про трипкод в полі "Тема"'],
       addSageBtn: ['Кнопка Sage вместо поля "Email" ', 'Replace "Email" with Sage button ', 'Кнопка Sage замість "E-mail" '],
       saveSage: ['Помнить сажу', 'Remember sage', 'Памʼятати сажу'],
@@ -10524,7 +10524,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       });
     }),
     $button(Lng.refresh[lang], Lng.infoCount[lang], _asyncToGenerator( _regeneratorRuntime().mark(function _callee10() {
-      var favObj, isUpdate, last404, myposts, els, _i3, _len3, el, _host, _board, num, _entry, _ref6, titleEl, youEl, countEl, iconEl, form, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, posts, cnt, j, links, a, _len4, tc;
+      var favObj, isUpdate, last404, myPosts, entryEls, _i3, _len3, _entry$last$match, entryEl, _host, _board, num, _entry, _ref6, titleEl, youEl, newEl, totalEl, iconEl, formEl, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, newCount, youCount, lastNum, hasMyPosts, posts, postsLen, j, post, links, a, linksLen, tc;
       return _regeneratorRuntime().wrap(function _callee10$(_context11) {
         while (1) {
           switch (_context11.prev = _context11.next) {
@@ -10541,30 +10541,30 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             case 5:
               isUpdate = false;
               last404 = false;
-              myposts = JSON.parse(locStorage['de-myposts'] || '{}');
-              els = $Q('.de-entry');
-              _i3 = 0, _len3 = els.length;
+              myPosts = JSON.parse(locStorage['de-myposts'] || '{}');
+              entryEls = $Q('.de-entry');
+              _i3 = 0, _len3 = entryEls.length;
             case 10:
               if (!(_i3 < _len3)) {
-                _context11.next = 64;
+                _context11.next = 89;
                 break;
               }
-              el = els[_i3];
-              _host = el.getAttribute('de-host');
-              _board = el.getAttribute('de-board');
-              num = el.getAttribute('de-num');
+              entryEl = entryEls[_i3];
+              _host = entryEl.getAttribute('de-host');
+              _board = entryEl.getAttribute('de-board');
+              num = entryEl.getAttribute('de-num');
               _entry = favObj[_host][_board][num]; 
               if (!(_host !== aib.host || _entry.err === 'Closed' || _entry.err === 'Archived')) {
                 _context11.next = 18;
                 break;
               }
-              return _context11.abrupt("continue", 61);
+              return _context11.abrupt("continue", 86);
             case 18:
-              _ref6 = _toConsumableArray(el.lastElementChild.children), titleEl = _ref6[0], youEl = _ref6[1], countEl = _ref6[2];
+              _ref6 = _toConsumableArray(entryEl.lastElementChild.children), titleEl = _ref6[0], youEl = _ref6[1], newEl = _ref6[2], totalEl = _ref6[3];
               iconEl = titleEl.firstElementChild; 
               iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
               titleEl.title = Lng.updating[lang];
-              form = void 0, isArchived = void 0;
+              formEl = void 0, isArchived = void 0;
               _context11.prev = 23;
               if (aib.hasArchive) {
                 _context11.next = 30;
@@ -10573,7 +10573,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               _context11.next = 27;
               return ajaxLoad(aib.getThrUrl(_board, num));
             case 27:
-              form = _context11.sent;
+              formEl = _context11.sent;
               _context11.next = 36;
               break;
             case 30:
@@ -10582,7 +10582,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             case 32:
               _yield$ajaxLoad = _context11.sent;
               _yield$ajaxLoad2 = _slicedToArray(_yield$ajaxLoad, 2);
-              form = _yield$ajaxLoad2[0];
+              formEl = _yield$ajaxLoad2[0];
               isArchived = _yield$ajaxLoad2[1];
             case 36:
               last404 = false;
@@ -10605,17 +10605,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             case 46:
               last404 = true;
               --_i3; 
-              return _context11.abrupt("continue", 61);
+              return _context11.abrupt("continue", 86);
             case 49:
               last404 = false;
-              $hide(countEl);
+              $hide(newEl);
               $hide(youEl);
               iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-              _entry.err = titleEl.title = getErrorMessage(_context11.t0);
+              titleEl.title = _entry.err = getErrorMessage(_context11.t0);
               isUpdate = true;
-              return _context11.abrupt("continue", 61);
+              return _context11.abrupt("continue", 86);
             case 56:
-              if (aib.qClosed && $q(aib.qClosed, form)) {
+              if (aib.qClosed && $q(aib.qClosed, formEl)) {
                 iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
                 titleEl.title = Lng.thrClosed[lang];
                 _entry.err = 'Closed';
@@ -10633,43 +10633,78 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   isUpdate = true;
                 }
               }
-              posts = $Q(aib.qPost, form);
-              cnt = posts.length + 1 - _entry.cnt;
-              countEl.textContent = cnt;
-              if (cnt === 0) {
-                $hide(countEl); 
-                $hide(youEl);
-              } else {
-                $show(countEl);
-                _entry["new"] = cnt;
-                isUpdate = true;
-                if (myposts !== null && myposts !== void 0 && myposts[_board]) {
-                  _entry.you = 0;
-                  for (j = 0; j < cnt; ++j) {
-                    links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', posts[posts.length - 1 - j]);
-                    for (a = 0, _len4 = links.length; a < _len4; ++a) {
-                      tc = links[a].textContent;
-                      if (tc[0] === '>' && tc[1] === '>' && myposts[_board][tc.substr(2)]) {
-                        _entry.you++;
-                      }
-                    }
-                  }
-                  if (_entry.you) {
-                    youEl.textContent = _entry.you;
-                    $show(youEl);
-                  }
-                }
+              newCount = 0;
+              youCount = 0;
+              lastNum = ((_entry$last$match = _entry.last.match(/\d+$/)) === null || _entry$last$match === void 0 ? void 0 : _entry$last$match[0]) || 0;
+              hasMyPosts = myPosts === null || myPosts === void 0 ? void 0 : myPosts[_board];
+              posts = $Q(aib.qPost, formEl);
+              postsLen = posts.length;
+              j = 0;
+            case 64:
+              if (!(j < postsLen)) {
+                _context11.next = 84;
+                break;
               }
-            case 61:
+              post = posts[j];
+              if (!(lastNum >= aib.getPNum(post))) {
+                _context11.next = 68;
+                break;
+              }
+              return _context11.abrupt("continue", 81);
+            case 68:
+              newCount++;
+              if (hasMyPosts) {
+                _context11.next = 71;
+                break;
+              }
+              return _context11.abrupt("continue", 81);
+            case 71:
+              links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
+              a = 0, linksLen = links.length;
+            case 73:
+              if (!(a < linksLen)) {
+                _context11.next = 81;
+                break;
+              }
+              tc = links[a].textContent;
+              if (!(tc[0] === '>' && tc[1] === '>' && myPosts[_board][tc.substr(2)])) {
+                _context11.next = 78;
+                break;
+              }
+              youCount++;
+              return _context11.abrupt("break", 81);
+            case 78:
+              ++a;
+              _context11.next = 73;
+              break;
+            case 81:
+              ++j;
+              _context11.next = 64;
+              break;
+            case 84:
+              totalEl.textContent = _entry.cnt = postsLen + 1;
+              if (newCount) {
+                newEl.textContent = _entry["new"] = newCount;
+                $show(newEl);
+                if (youCount) {
+                  youEl.textContent = _entry.you = youCount;
+                  $show(youEl);
+                }
+                isUpdate = true;
+              } else {
+                $hide(newEl);
+                $hide(youEl);
+              }
+            case 86:
               ++_i3;
               _context11.next = 10;
               break;
-            case 64:
+            case 89:
               AjaxCache.clearCache();
               if (isUpdate) {
                 saveFavorites(favObj);
               }
-            case 66:
+            case 91:
             case "end":
               return _context11.stop();
           }
@@ -10677,7 +10712,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, _callee10, null, [[23, 39]]);
     }))),
     $button(Lng.page[lang], Lng.infoPage[lang], _asyncToGenerator( _regeneratorRuntime().mark(function _callee11() {
-      var els, len, thrInfo, _i4, el, iconEl, titleEl, endPage, infoLoaded, updateInf, page, _tNums, form, _els, _i5, _len5, _i6, inf, _i7, _inf;
+      var els, len, thrInfo, _i4, el, iconEl, titleEl, endPage, infoLoaded, updateInf, page, _tNums, form, _els, _i5, _len4, _i6, inf, _i7, _inf;
       return _regeneratorRuntime().wrap(function _callee11$(_context12) {
         while (1) {
           switch (_context12.prev = _context12.next) {
@@ -10728,7 +10763,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             case 16:
               form = _context12.sent;
               _els = DelForm.getThreads(form);
-              for (_i5 = 0, _len5 = _els.length; _i5 < _len5; ++_i5) {
+              for (_i5 = 0, _len4 = _els.length; _i5 < _len4; ++_i5) {
                 _tNums.add(aib.getTNum(_els[_i5]));
               }
               _context12.next = 24;
@@ -10771,7 +10806,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, _callee11, null, [[13, 21]]);
     }))),
     $button(Lng.clear[lang], Lng.clrDeleted[lang], _asyncToGenerator( _regeneratorRuntime().mark(function _callee12() {
-      var last404, els, parent, _loop3, _i8, _len6;
+      var last404, els, parent, _loop3, _i8, _len5;
       return _regeneratorRuntime().wrap(function _callee12$(_context14) {
         while (1) {
           switch (_context14.prev = _context14.next) {
@@ -10780,7 +10815,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               els = $Q('.de-entry');
               parent = $q('.de-fav-table');
               parent.classList.add('de-fav-table-unfold');
-              _loop3 = _regeneratorRuntime().mark(function _loop3(_i9, _len6) {
+              _loop3 = _regeneratorRuntime().mark(function _loop3(_i9, _len5) {
                 var el, iconEl, titleEl;
                 return _regeneratorRuntime().wrap(function _loop3$(_context13) {
                   while (1) {
@@ -10832,13 +10867,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }
                 }, _loop3);
               });
-              _i8 = 0, _len6 = els.length;
+              _i8 = 0, _len5 = els.length;
             case 6:
-              if (!(_i8 < _len6)) {
+              if (!(_i8 < _len5)) {
                 _context14.next = 11;
                 break;
               }
-              return _context14.delegateYield(_loop3(_i8, _len6), "t0", 8);
+              return _context14.delegateYield(_loop3(_i8, _len5), "t0", 8);
             case 8:
               ++_i8;
               _context14.next = 6;
@@ -13388,7 +13423,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           isYtube = _ref17[1],
           videoObj = _ref17[2],
           id = _ref17[3];
-        for (var _len7 = arguments.length, data = new Array(_len7 > 2 ? _len7 - 2 : 0), _key3 = 2; _key3 < _len7; _key3++) {
+        for (var _len6 = arguments.length, data = new Array(_len6 > 2 ? _len6 - 2 : 0), _key3 = 2; _key3 < _len6; _key3++) {
           data[_key3 - 2] = arguments[_key3];
         }
         if (data.length) {
@@ -14706,18 +14741,18 @@ this.disableSpells();
           a[2] && !b[2] || a[2] && b[2] && (a[2][0] > b[2][0] || a[2][1] > b[2][1]) ? 1 : 0
         );
       });
-      for (var _i10 = 0, _len8 = sp.length - 1; _i10 < _len8; ++_i10) {
+      for (var _i10 = 0, _len7 = sp.length - 1; _i10 < _len7; ++_i10) {
         var j = _i10 + 1;
         if (sp[_i10][0] === sp[j][0] && sp[_i10][1] <= sp[j][1] && sp[_i10][1] >= sp[j][1] && (sp[_i10][2] === null ||
         sp[_i10][2] === undefined ||
         sp[_i10][2] <= sp[j][2] && sp[_i10][2] >= sp[j][2])) {
           sp.splice(j, 1);
           _i10--;
-          _len8--;
+          _len7--;
         } else if (sp[_i10][0] === 0xFF) {
           sp.push(sp.splice(_i10, 1)[0]);
           _i10--;
-          _len8--;
+          _len7--;
         }
       }
     },
@@ -21148,7 +21183,7 @@ Spells.addSpell(9, '', false);
       }
       if (Cfg.addImgs || localData) {
         els = $Q('.de-img-embed', post.el);
-        for (var _i15 = 0, _len9 = els.length; _i15 < _len9; ++_i15) {
+        for (var _i15 = 0, _len8 = els.length; _i15 < _len8; ++_i15) {
           var _el7 = els[_i15];
           last = new EmbeddedImage(post, _el7, last);
           filesMap.set(_el7, last);
@@ -24508,7 +24543,7 @@ Spells.addSpell(9, '', false);
       function Kusaba() {
         var _this102;
         _classCallCheck(this, Kusaba);
-        for (var _len10 = arguments.length, args = new Array(_len10), _key4 = 0; _key4 < _len10; _key4++) {
+        for (var _len9 = arguments.length, args = new Array(_len9), _key4 = 0; _key4 < _len9; _key4++) {
           args[_key4] = arguments[_key4];
         }
         _this102 = _super10.call.apply(_super10, [this].concat(args));
@@ -24560,7 +24595,7 @@ Spells.addSpell(9, '', false);
       function Tinyboard() {
         var _this103;
         _classCallCheck(this, Tinyboard);
-        for (var _len11 = arguments.length, args = new Array(_len11), _key5 = 0; _key5 < _len11; _key5++) {
+        for (var _len10 = arguments.length, args = new Array(_len10), _key5 = 0; _key5 < _len10; _key5++) {
           args[_key5] = arguments[_key5];
         }
         _this103 = _super11.call.apply(_super11, [this].concat(args));
@@ -24758,7 +24793,7 @@ Spells.addSpell(9, '', false);
       function Vichan() {
         var _this106;
         _classCallCheck(this, Vichan);
-        for (var _len12 = arguments.length, args = new Array(_len12), _key6 = 0; _key6 < _len12; _key6++) {
+        for (var _len11 = arguments.length, args = new Array(_len11), _key6 = 0; _key6 < _len11; _key6++) {
           args[_key6] = arguments[_key6];
         }
         _this106 = _super12.call.apply(_super12, [this].concat(args));
@@ -24815,7 +24850,7 @@ Spells.addSpell(9, '', false);
       function TinyIB() {
         var _this107;
         _classCallCheck(this, TinyIB);
-        for (var _len13 = arguments.length, args = new Array(_len13), _key7 = 0; _key7 < _len13; _key7++) {
+        for (var _len12 = arguments.length, args = new Array(_len12), _key7 = 0; _key7 < _len12; _key7++) {
           args[_key7] = arguments[_key7];
         }
         _this107 = _super13.call.apply(_super13, [this].concat(args));
@@ -24876,7 +24911,7 @@ Spells.addSpell(9, '', false);
       function Lynxchan() {
         var _this108;
         _classCallCheck(this, Lynxchan);
-        for (var _len14 = arguments.length, args = new Array(_len14), _key8 = 0; _key8 < _len14; _key8++) {
+        for (var _len13 = arguments.length, args = new Array(_len13), _key8 = 0; _key8 < _len13; _key8++) {
           args[_key8] = arguments[_key8];
         }
         _this108 = _super14.call.apply(_super14, [this].concat(args));
@@ -25201,7 +25236,7 @@ Spells.addSpell(9, '', false);
       function FoolFuuka() {
         var _this109;
         _classCallCheck(this, FoolFuuka);
-        for (var _len15 = arguments.length, args = new Array(_len15), _key9 = 0; _key9 < _len15; _key9++) {
+        for (var _len14 = arguments.length, args = new Array(_len14), _key9 = 0; _key9 < _len14; _key9++) {
           args[_key9] = arguments[_key9];
         }
         _this109 = _super15.call.apply(_super15, [this].concat(args));
@@ -25291,7 +25326,7 @@ Spells.addSpell(9, '', false);
       function _0chan() {
         var _this110;
         _classCallCheck(this, _0chan);
-        for (var _len16 = arguments.length, args = new Array(_len16), _key10 = 0; _key10 < _len16; _key10++) {
+        for (var _len15 = arguments.length, args = new Array(_len15), _key10 = 0; _key10 < _len15; _key10++) {
           args[_key10] = arguments[_key10];
         }
         _this110 = _super16.call.apply(_super16, [this].concat(args));
@@ -25355,7 +25390,7 @@ Spells.addSpell(9, '', false);
       function Makaba() {
         var _this112;
         _classCallCheck(this, Makaba);
-        for (var _len17 = arguments.length, args = new Array(_len17), _key11 = 0; _key11 < _len17; _key11++) {
+        for (var _len16 = arguments.length, args = new Array(_len16), _key11 = 0; _key11 < _len16; _key11++) {
           args[_key11] = arguments[_key11];
         }
         _this112 = _super17.call.apply(_super17, [this].concat(args));
@@ -25750,7 +25785,7 @@ Spells.addSpell(9, '', false);
       function _2channel() {
         var _this116;
         _classCallCheck(this, _2channel);
-        for (var _len18 = arguments.length, args = new Array(_len18), _key12 = 0; _key12 < _len18; _key12++) {
+        for (var _len17 = arguments.length, args = new Array(_len17), _key12 = 0; _key12 < _len17; _key12++) {
           args[_key12] = arguments[_key12];
         }
         _this116 = _super18.call.apply(_super18, [this].concat(args));
@@ -25853,7 +25888,7 @@ Spells.addSpell(9, '', false);
       function _2chRip() {
         var _this117;
         _classCallCheck(this, _2chRip);
-        for (var _len19 = arguments.length, args = new Array(_len19), _key13 = 0; _key13 < _len19; _key13++) {
+        for (var _len18 = arguments.length, args = new Array(_len18), _key13 = 0; _key13 < _len18; _key13++) {
           args[_key13] = arguments[_key13];
         }
         _this117 = _super19.call.apply(_super19, [this].concat(args));
@@ -25901,7 +25936,7 @@ Spells.addSpell(9, '', false);
       function _410chan() {
         var _this118;
         _classCallCheck(this, _410chan);
-        for (var _len20 = arguments.length, args = new Array(_len20), _key14 = 0; _key14 < _len20; _key14++) {
+        for (var _len19 = arguments.length, args = new Array(_len19), _key14 = 0; _key14 < _len19; _key14++) {
           args[_key14] = arguments[_key14];
         }
         _this118 = _super20.call.apply(_super20, [this].concat(args));
@@ -25970,7 +26005,7 @@ Spells.addSpell(9, '', false);
       function _4chan() {
         var _this120;
         _classCallCheck(this, _4chan);
-        for (var _len21 = arguments.length, args = new Array(_len21), _key15 = 0; _key15 < _len21; _key15++) {
+        for (var _len20 = arguments.length, args = new Array(_len20), _key15 = 0; _key15 < _len20; _key15++) {
           args[_key15] = arguments[_key15];
         }
         _this120 = _super21.call.apply(_super21, [this].concat(args));
@@ -26193,7 +26228,7 @@ Spells.addSpell(9, '', false);
       function Arhivach() {
         var _this121;
         _classCallCheck(this, Arhivach);
-        for (var _len22 = arguments.length, args = new Array(_len22), _key16 = 0; _key16 < _len22; _key16++) {
+        for (var _len21 = arguments.length, args = new Array(_len21), _key16 = 0; _key16 < _len21; _key16++) {
           args[_key16] = arguments[_key16];
         }
         _this121 = _super24.call.apply(_super24, [this].concat(args));
@@ -26309,7 +26344,7 @@ Spells.addSpell(9, '', false);
       function Dobrochan() {
         var _this123;
         _classCallCheck(this, Dobrochan);
-        for (var _len23 = arguments.length, args = new Array(_len23), _key17 = 0; _key17 < _len23; _key17++) {
+        for (var _len22 = arguments.length, args = new Array(_len22), _key17 = 0; _key17 < _len22; _key17++) {
           args[_key17] = arguments[_key17];
         }
         _this123 = _super25.call.apply(_super25, [this].concat(args));
@@ -26480,7 +26515,7 @@ Spells.addSpell(9, '', false);
       function Dollchan() {
         var _this124;
         _classCallCheck(this, Dollchan);
-        for (var _len24 = arguments.length, args = new Array(_len24), _key18 = 0; _key18 < _len24; _key18++) {
+        for (var _len23 = arguments.length, args = new Array(_len23), _key18 = 0; _key18 < _len23; _key18++) {
           args[_key18] = arguments[_key18];
         }
         _this124 = _super26.call.apply(_super26, [this].concat(args));
@@ -26520,7 +26555,7 @@ Spells.addSpell(9, '', false);
       function Endchan() {
         var _this125;
         _classCallCheck(this, Endchan);
-        for (var _len25 = arguments.length, args = new Array(_len25), _key19 = 0; _key19 < _len25; _key19++) {
+        for (var _len24 = arguments.length, args = new Array(_len24), _key19 = 0; _key19 < _len24; _key19++) {
           args[_key19] = arguments[_key19];
         }
         _this125 = _super27.call.apply(_super27, [this].concat(args));
@@ -26555,7 +26590,7 @@ Spells.addSpell(9, '', false);
       function Ernstchan() {
         var _this126;
         _classCallCheck(this, Ernstchan);
-        for (var _len26 = arguments.length, args = new Array(_len26), _key20 = 0; _key20 < _len26; _key20++) {
+        for (var _len25 = arguments.length, args = new Array(_len25), _key20 = 0; _key20 < _len25; _key20++) {
           args[_key20] = arguments[_key20];
         }
         _this126 = _super28.call.apply(_super28, [this].concat(args));
@@ -26622,7 +26657,7 @@ Spells.addSpell(9, '', false);
       function Gensokyo() {
         var _this127;
         _classCallCheck(this, Gensokyo);
-        for (var _len27 = arguments.length, args = new Array(_len27), _key21 = 0; _key21 < _len27; _key21++) {
+        for (var _len26 = arguments.length, args = new Array(_len26), _key21 = 0; _key21 < _len26; _key21++) {
           args[_key21] = arguments[_key21];
         }
         _this127 = _super29.call.apply(_super29, [this].concat(args));
@@ -26638,7 +26673,7 @@ Spells.addSpell(9, '', false);
       function Iichan() {
         var _this128;
         _classCallCheck(this, Iichan);
-        for (var _len28 = arguments.length, args = new Array(_len28), _key22 = 0; _key22 < _len28; _key22++) {
+        for (var _len27 = arguments.length, args = new Array(_len27), _key22 = 0; _key22 < _len27; _key22++) {
           args[_key22] = arguments[_key22];
         }
         _this128 = _super30.call.apply(_super30, [this].concat(args));
@@ -26762,7 +26797,7 @@ Spells.addSpell(9, '', false);
       function Kohlchan() {
         var _this130;
         _classCallCheck(this, Kohlchan);
-        for (var _len29 = arguments.length, args = new Array(_len29), _key23 = 0; _key23 < _len29; _key23++) {
+        for (var _len28 = arguments.length, args = new Array(_len28), _key23 = 0; _key23 < _len28; _key23++) {
           args[_key23] = arguments[_key23];
         }
         _this130 = _super31.call.apply(_super31, [this].concat(args));
@@ -26911,7 +26946,7 @@ Spells.addSpell(9, '', false);
       function Kropyvach() {
         var _this131;
         _classCallCheck(this, Kropyvach);
-        for (var _len30 = arguments.length, args = new Array(_len30), _key24 = 0; _key24 < _len30; _key24++) {
+        for (var _len29 = arguments.length, args = new Array(_len29), _key24 = 0; _key24 < _len29; _key24++) {
           args[_key24] = arguments[_key24];
         }
         _this131 = _super32.call.apply(_super32, [this].concat(args));
@@ -26938,7 +26973,7 @@ Spells.addSpell(9, '', false);
       function Lainchan() {
         var _this132;
         _classCallCheck(this, Lainchan);
-        for (var _len31 = arguments.length, args = new Array(_len31), _key25 = 0; _key25 < _len31; _key25++) {
+        for (var _len30 = arguments.length, args = new Array(_len30), _key25 = 0; _key25 < _len30; _key25++) {
           args[_key25] = arguments[_key25];
         }
         _this132 = _super33.call.apply(_super33, [this].concat(args));
@@ -27012,7 +27047,7 @@ Spells.addSpell(9, '', false);
       function Ponyach() {
         var _this133;
         _classCallCheck(this, Ponyach);
-        for (var _len32 = arguments.length, args = new Array(_len32), _key26 = 0; _key26 < _len32; _key26++) {
+        for (var _len31 = arguments.length, args = new Array(_len31), _key26 = 0; _key26 < _len31; _key26++) {
           args[_key26] = arguments[_key26];
         }
         _this133 = _super36.call.apply(_super36, [this].concat(args));
@@ -27079,7 +27114,7 @@ Spells.addSpell(9, '', false);
       function Ponychan() {
         var _this134;
         _classCallCheck(this, Ponychan);
-        for (var _len33 = arguments.length, args = new Array(_len33), _key27 = 0; _key27 < _len33; _key27++) {
+        for (var _len32 = arguments.length, args = new Array(_len32), _key27 = 0; _key27 < _len32; _key27++) {
           args[_key27] = arguments[_key27];
         }
         _this134 = _super37.call.apply(_super37, [this].concat(args));
@@ -27132,7 +27167,7 @@ Spells.addSpell(9, '', false);
       function Spirech() {
         var _this135;
         _classCallCheck(this, Spirech);
-        for (var _len34 = arguments.length, args = new Array(_len34), _key28 = 0; _key28 < _len34; _key28++) {
+        for (var _len33 = arguments.length, args = new Array(_len33), _key28 = 0; _key28 < _len33; _key28++) {
           args[_key28] = arguments[_key28];
         }
         _this135 = _super39.call.apply(_super39, [this].concat(args));
@@ -27175,7 +27210,7 @@ Spells.addSpell(9, '', false);
       function Synch() {
         var _this136;
         _classCallCheck(this, Synch);
-        for (var _len35 = arguments.length, args = new Array(_len35), _key29 = 0; _key29 < _len35; _key29++) {
+        for (var _len34 = arguments.length, args = new Array(_len34), _key29 = 0; _key29 < _len34; _key29++) {
           args[_key29] = arguments[_key29];
         }
         _this136 = _super40.call.apply(_super40, [this].concat(args));
@@ -27234,7 +27269,7 @@ Spells.addSpell(9, '', false);
       function Warosu() {
         var _this137;
         _classCallCheck(this, Warosu);
-        for (var _len36 = arguments.length, args = new Array(_len36), _key30 = 0; _key30 < _len36; _key30++) {
+        for (var _len35 = arguments.length, args = new Array(_len35), _key30 = 0; _key30 < _len35; _key30++) {
           args[_key30] = arguments[_key30];
         }
         _this137 = _super41.call.apply(_super41, [this].concat(args));

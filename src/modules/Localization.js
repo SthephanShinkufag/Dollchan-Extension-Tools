@@ -414,9 +414,9 @@ const Lng = {
 			'Insert a space when quoting "> "',
 			'Вставляти пробіл при цитуванні "> "'],
 		favOnReply: [
-			'Добавлять тред в "Избранное" после ответа',
-			'Add thread to "Favorites" after reply',
-			'Додавати тред в "Вибране" після відповіді'],
+			'Добавлять тред в Избранное после ответа',
+			'Add thread to Favorites after reply',
+			'Додавати тред в Вибране після відповіді'],
 		warnSubjTrip: [
 			'Оповещать о трипкоде в поле "Тема"',
 			'Warn about a tripcode in "Subject" field',
