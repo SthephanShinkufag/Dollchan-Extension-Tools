@@ -239,7 +239,6 @@ const CfgWindow = {
 				if(postform.form) {
 					postform.addMarkupPanel();
 					postform.setPlaceholders();
-					postform.updateLanguage();
 					aib.updateSubmitBtn(postform.subm);
 					if(postform.files) {
 						$Q('.de-file-img, .de-file-txt-input', postform.form).forEach(

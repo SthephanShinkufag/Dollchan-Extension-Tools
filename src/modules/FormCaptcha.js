@@ -165,15 +165,15 @@ class Captcha {
 		}
 	}
 	updateHelper(url, fn) {
-		if(aib._capUpdPromise) {
-			aib._capUpdPromise.cancelPromise();
+		if(aib.captchaUpdPromise) {
+			aib.captchaUpdPromise.cancelPromise();
 		}
-		return (aib._capUpdPromise = $ajax(url).then(xhr => {
-			aib._capUpdPromise = null;
+		return (aib.captchaUpdPromise = $ajax(url).then(xhr => {
+			aib.captchaUpdPromise = null;
 			fn(xhr);
 		}, err => {
 			if(!(err instanceof CancelError)) {
-				aib._capUpdPromise = null;
+				aib.captchaUpdPromise = null;
 				return CancelablePromise.reject(err);
 			}
 		}));

@@ -7198,7 +7198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.11.8.0';
-  var commit = '879a9cb';
+  var commit = '0e6d22d';
 
 
   var defaultCfg = {
@@ -7709,7 +7709,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     published: ['опубликовано: ', 'published: ', 'опубліковано: '],
     author: ['Автор: ', 'Author: ', 'Автор: '],
     views: ['просмотров: ', 'views: ', 'переглядів: '],
-    pasteImage: ['Ctrl+V - вставить картинку из буфера', 'Ctrl+V - paste an image from clipboard', 'Ctrl+V - додати зображення з буферу'],
     dropFileHere: ['Бросьте сюда файл(ы) или ссылку', 'Drop file(s) or link here', 'Киньте сюди файл(и) чи посилання'],
     youCanDrag: ['Можно перетаскивать картинки и ссылки на файлы\r\nпрямо со страницы или других сайтов', 'You can drag images and file links\r\ndirectly from the page or other sites', 'Можна перетягувати зображення чи посилання на файли\r\nбезпосередньо зі сторінки чи інших сайтів'],
     removeFile: ['Удалить файл', 'Remove file', 'Видалити файл'],
@@ -11230,7 +11229,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 if (postform.form) {
                   postform.addMarkupPanel();
                   postform.setPlaceholders();
-                  postform.updateLanguage();
                   aib.updateSubmitBtn(postform.subm);
                   if (postform.files) {
                     $Q('.de-file-img, .de-file-txt-input', postform.form).forEach(function (el) {
@@ -15867,9 +15865,9 @@ this.disableSpells();
       this._initTextarea();
       this.addMarkupPanel();
       this.setPlaceholders();
-      this.updateLanguage();
       this._initCaptcha();
       this._initSubmit();
+      aib.updateSubmitBtn(this.subm);
       if (Cfg.ajaxPosting) {
         this._initAjaxPosting();
       }
@@ -16154,12 +16152,6 @@ this.disableSpells();
         } else {
           this.mail.checked = isSage;
         }
-      }
-    }, {
-      key: "updateLanguage",
-      value: function updateLanguage() {
-        this.txta.title = Lng.pasteImage[lang];
-        aib.updateSubmitBtn(this.subm);
       }
     }, {
       key: "updatePAreaBtns",
@@ -18122,15 +18114,15 @@ this.disableSpells();
     }, {
       key: "updateHelper",
       value: function updateHelper(url, fn) {
-        if (aib._capUpdPromise) {
-          aib._capUpdPromise.cancelPromise();
+        if (aib.captchaUpdPromise) {
+          aib.captchaUpdPromise.cancelPromise();
         }
-        return aib._capUpdPromise = $ajax(url).then(function (xhr) {
-          aib._capUpdPromise = null;
+        return aib.captchaUpdPromise = $ajax(url).then(function (xhr) {
+          aib.captchaUpdPromise = null;
           fn(xhr);
         }, function (err) {
           if (!(err instanceof CancelError)) {
-            aib._capUpdPromise = null;
+            aib.captchaUpdPromise = null;
             return CancelablePromise.reject(err);
           }
         });
@@ -18449,14 +18441,8 @@ Spells.addSpell(9, '', false);
             return _this61.el.addEventListener(e, _this61, true);
           });
         }
-        if (el.classList.contains('de-video-link')) {
-          if (aib.makaba && !el.videoInfo) {
-            var origMsg = this.msg.firstChild;
-            this.videos.updatePost($Q('.de-video-link', origMsg), $Q('.de-video-link', origMsg.nextSibling), true);
-          }
-          if (Cfg.embedYTube === 2) {
-            this.videos.toggleFloatedThumb(el, isOutEvent);
-          }
+        if (Cfg.embedYTube === 2 && el.classList.contains('de-video-link')) {
+          this.videos.toggleFloatedThumb(el, isOutEvent);
         }
         if (!isOutEvent && Cfg.expandImgs && el.tagName.toLowerCase() === 'img' && !el.classList.contains('de-fullimg') && (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)) {
           el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
@@ -18864,7 +18850,6 @@ Spells.addSpell(9, '', false);
         isMyPost = true;
       }
       el.classList.add(isOp ? 'de-oppost' : 'de-reply');
-      _this66.sage = aib.getSage(el);
       _this66.btns = $aEnd(_this66._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) + (_this66.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + (isOp ? '' : "<span class=\"de-post-counter\">".concat(count + 1, "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '') + '</span>');
       _this66.counterEl = isOp ? null : $q('.de-post-counter', _this66.btns);
       if (Cfg.expandTrunc && _this66.trunc) {
@@ -18932,6 +18917,15 @@ Spells.addSpell(9, '', false);
       key: "posterTrip",
       get: function get() {
         return new Post.Сontent(this).posterTrip;
+      }
+    }, {
+      key: "sage",
+      get: function get() {
+        var value = aib.getSage(this.el);
+        Object.defineProperty(this, 'sage', {
+          value: value
+        });
+        return value;
       }
     }, {
       key: "subj",
@@ -25417,6 +25411,7 @@ Spells.addSpell(9, '', false);
         _this112.qPostRef = '.post__reflink:nth-child(2)';
         _this112.qPostSubj = '.post__title';
         _this112.qTrunc = null;
+        _this112.captchaUpdPromise = null;
         _this112.formParent = 'thread';
         _this112.hasArchive = true;
         _this112.hasCatalog = true;
@@ -25427,7 +25422,6 @@ Spells.addSpell(9, '', false);
         _this112.markupBB = true;
         _this112.multiFile = true;
         _this112.timePattern = 'dd+nn+yy+w+hh+ii+ss';
-        _this112._capUpdPromise = null;
         _this112._isBeta = false;
         return _this112;
       }
@@ -25454,7 +25448,7 @@ Spells.addSpell(9, '', false);
       }, {
         key: "css",
         get: function get() {
-          return ".js-post-findimg, .js-post-saveimg, .js-update-thread, .media-expand-button,\n\t\t\t\t\t.media-thumbnail, .newpost, .post__btn:not(.icon_type_active), .post__number,\n\t\t\t\t\t.post__refmap { display: none !important; }\n\t\t\t\t.captcha { align-items: start; flex-direction: column; }\n\t\t\t\t.captcha__image { cursor: pointer; }\n\t\t\t\t.captcha__val { width: 270px; margin-top: 4px; padding: 4px; }\n\t\t\t\t.de-fullimg-wrap-inpost { margin-right: 16px; }\n\t\t\t\t.de-refmap { margin: 0 16px 4px; }\n\t\t\t\t.de-pview > .post__details { margin-left: 4px; }\n\t\t\t\t.de-reply-class { background: var(--theme_default_postbg);\n\t\t\t\t\tborder: 1px solid var(--theme_default_border); border-radius: 3px; }\n\t\t\t\t#down-nav-arrow, #up-nav-arrow { z-index: 0; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post__detailpart:nth-of-type(5):not(.desktop) { display: none; }\n\t\t\t\t.post_type_hidden { opacity: unset; cursor: default; }\n\t\t\t\t.post_type_hidden .post__message:not(.de-post-hiddencontent),\n\t\t\t\t\t.post_type_hidden .post__images:not(.de-post-hiddencontent) { display: block !important; }\n\t\t\t\t.post_type_reply { max-width: 100%; }\n\t\t\t\t.postarea { display: initial !important; }\n\t\t\t\t.postform { width: auto; }\n\t\t\t\t.postform__sticker-btn, .postform__sticker-prev { bottom: " + "".concat(!Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 : Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25, "px !important; }\n\t\t\t\t.post__message { padding-left: 0px; margin-left: 16px; min-width: 15%; word-wrap: normal;\n\t\t\t\t\tword-break: normal; }\n\t\t\t\t").concat(Cfg.addSageBtn ? ".options__box[onclick=\"ToggleSage()\"]\n\t\t\t\t\t{ display: none !important; }" : '', "\n\t\t\t\t").concat(Cfg.addTextBtns ? '.js-postform-mu { display: none; }' : '', "\n\t\t\t\t").concat(Cfg.expandTrunc ? ".expand-large-comment,\n\t\t\t\t\tdiv[id^=\"shrinked-post\"] { display: none !important; }\n\t\t\t\t\tdiv[id^=\"original-post\"] { display: block !important; }" : '', "\n\t\t\t\t").concat(Cfg.imgNames === 2 ? ".post__filezise { display: inline !important; }\n\t\t\t\t\t.post__file-attr { margin-bottom: 1px; }" : '', "\n\t\t\t\t").concat(Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '');
+          return ".js-post-findimg, .js-post-saveimg, .js-update-thread, .media-expand-button,\n\t\t\t\t\t.media-thumbnail, .newpost, .post__btn:not(.icon_type_active), .post__number,\n\t\t\t\t\t.post__refmap { display: none !important; }\n\t\t\t\t.captcha { align-items: start; flex-direction: column; }\n\t\t\t\t.captcha__image { cursor: pointer; }\n\t\t\t\t.captcha__val { width: 270px; margin-top: 4px; padding: 4px; }\n\t\t\t\t.de-fullimg-wrap-inpost { margin-right: 16px; }\n\t\t\t\t.de-refmap { margin: 0 16px 4px; }\n\t\t\t\t.de-pview > .post__details { margin-left: 4px; }\n\t\t\t\t.de-reply-class { background: var(--theme_default_postbg);\n\t\t\t\t\tborder: 1px solid var(--theme_default_border); border-radius: 3px; }\n\t\t\t\t#down-nav-arrow, #up-nav-arrow { z-index: 0; }\n\t\t\t\t.header__opts_sticky { z-index: 10; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post__detailpart:nth-of-type(5):not(.desktop) { display: none; }\n\t\t\t\t.post_type_hidden { opacity: unset; cursor: default; }\n\t\t\t\t.post_type_hidden .post__message:not(.de-post-hiddencontent),\n\t\t\t\t\t.post_type_hidden .post__images:not(.de-post-hiddencontent) { display: block !important; }\n\t\t\t\t.post_type_reply { max-width: 100%; }\n\t\t\t\t.postarea { display: initial !important; }\n\t\t\t\t.postform { width: auto; }\n\t\t\t\t.postform__sticker-btn, .postform__sticker-prev { bottom: " + "".concat(!Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 : Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25, "px !important; }\n\t\t\t\t.post__message { padding-left: 0px; margin-left: 16px; min-width: 15%; word-wrap: normal;\n\t\t\t\t\tword-break: normal; }\n\t\t\t\t").concat(Cfg.addSageBtn ? ".options__box[onclick=\"ToggleSage()\"]\n\t\t\t\t\t{ display: none !important; }" : '', "\n\t\t\t\t").concat(Cfg.addTextBtns ? '.js-postform-mu { display: none; }' : '', "\n\t\t\t\t").concat(Cfg.expandTrunc ? ".expand-large-comment,\n\t\t\t\t\tdiv[id^=\"shrinked-post\"] { display: none !important; }\n\t\t\t\t\tdiv[id^=\"original-post\"] { display: block !important; }" : '', "\n\t\t\t\t").concat(Cfg.imgNames === 2 ? ".post__filezise { display: inline !important; }\n\t\t\t\t\t.post__file-attr { margin-bottom: 1px; }" : '', "\n\t\t\t\t").concat(Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '');
         }
       }, {
         key: "isArchived",
@@ -25661,9 +25655,9 @@ Spells.addSpell(9, '', false);
       }, {
         key: "getSage",
         value: function getSage(post) {
-          this.getSage = !$q('span[id^="id_tag_"]') ? _get(_getPrototypeOf(Makaba.prototype), "getSage", this) : function (post) {
+          this.getSage = $q('span[id^="id_tag_"]') ? function (post) {
             return !$q('span[id^="id_tag_"], .post__ophui', post);
-          };
+          } : _get(_getPrototypeOf(Makaba.prototype), "getSage", this);
           return this.getSage(post);
         }
       }, {
@@ -25692,7 +25686,14 @@ Spells.addSpell(9, '', false);
       }, {
         key: "init",
         value: function init() {
-          if ($q('section.posts')) {
+          if ($id('js-posts')) {
+            this._isBeta = true;
+            $Q('.thread__missed').forEach(function (el) {
+              return el.innerHTML = el.innerHTML.replace(/ (\d+) постов/, function (m, i) {
+                return " ".concat(i - 1, " \u043F\u043E\u0441\u0442\u043E\u0432");
+              });
+            });
+          } else if ($q('section.posts')) {
             this.cReply = 'post reply';
             this.qBan = '.pomyanem';
             this.qFormFile = 'tr input[type="file"]';
@@ -25717,17 +25718,8 @@ Spells.addSpell(9, '', false);
                 return "".concat(css, "\n\t\t\t\t\t\t#ABU-alert-wait, .ABU-refmap, .fa-media-icon, .kupi-passcode-suka, .logo + hr,\n\t\t\t\t\t\t.media-expand-button, #media-thumbnail, .message-byte-len, .nav-arrows, .norm-reply,\n\t\t\t\t\t\t.postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav,\n\t\t\t\t\t\t.toolbar-area { display: none !important; }\n\t\t\t\t\t\t").concat(Cfg.addSageBtn ? ".box[onclick=\"ToggleSage()\"] {\n\t\t\t\t\t\t\tdisplay: none !important; }" : '', "\n\t\t\t\t\t\t").concat(Cfg.imgNames === 2 ? ".filesize { display: inline !important; }\n\t\t\t\t\t\t\t.file-attr { margin-bottom: 1px; }" : '');
               }
             });
-          } else {
-            if ($id('js-posts')) {
-              this._isBeta = true;
-              $Q('.thread__missed').forEach(function (el) {
-                return el.innerHTML = el.innerHTML.replace(/ (\d+) постов/, function (m, i) {
-                  return " ".concat(i - 1, " \u043F\u043E\u0441\u0442\u043E\u0432");
-                });
-              });
-            }
           }
-          $script("(function() {\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name,\n\t\t\t\t\t\t{ value: Function.prototype, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc(\"$alert\");\n\t\t\t\tfixGlobalFunc(\"autorefresh_start\"); // Old makaba only\n\t\t\t\tfixGlobalFunc(\"linkremover\");\n\t\t\t\tfixGlobalFunc(\"Media\");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t})();");
+          $script("(function() {\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name,\n\t\t\t\t\t\t{ value: Function.prototype, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc(\"$alert\");\n\t\t\t\t".concat(this._isBeta ? '' : 'fixGlobalFunc("autorefresh_start");', "\n\t\t\t\tfixGlobalFunc(\"linkremover\");\n\t\t\t\tfixGlobalFunc(\"Media\");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t})();"));
           $Q('.autorefresh').forEach(function (el) {
             var inpEl = $q('input', el);
             if (inpEl.checked) {
@@ -25894,7 +25886,7 @@ Spells.addSpell(9, '', false);
         _this117 = _super19.call.apply(_super19, [this].concat(args));
         _this117.captchaRu = true;
         _this117.jsonSubmit = true;
-        _this117._capUpdPromise = null;
+        _this117.captchaUpdPromise = null;
         return _this117;
       }
       _createClass(_2chRip, [{
@@ -25943,10 +25935,10 @@ Spells.addSpell(9, '', false);
         _this118.qFormRedir = 'input#noko';
         _this118.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
         _this118.captchaRu = true;
+        _this118.captchaUpdPromise = null;
         _this118.hasCatalog = true;
         _this118.markupBB = false;
         _this118.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
-        _this118._capUpdPromise = null;
         return _this118;
       }
       _createClass(_410chan, [{

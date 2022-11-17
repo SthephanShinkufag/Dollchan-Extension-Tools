@@ -55,9 +55,9 @@ class PostForm {
 		this._initTextarea();
 		this.addMarkupPanel();
 		this.setPlaceholders();
-		this.updateLanguage();
 		this._initCaptcha();
 		this._initSubmit();
+		aib.updateSubmitBtn(this.subm);
 		if(Cfg.ajaxPosting) {
 			this._initAjaxPosting();
 		}
@@ -326,10 +326,6 @@ class PostForm {
 		} else {
 			this.mail.checked = isSage;
 		}
-	}
-	updateLanguage() {
-		this.txta.title = Lng.pasteImage[lang];
-		aib.updateSubmitBtn(this.subm);
 	}
 	updatePAreaBtns() {
 		const txt = 'de-abtn de-parea-btn-';

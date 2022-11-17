@@ -210,15 +210,8 @@ class AbstractPost {
 			['click', 'mouseout'].forEach(e => this.el.addEventListener(e, this, true));
 		}
 		// Mouseover/mouseout on YouTube links
-		if(el.classList.contains('de-video-link')) {
-			if(aib.makaba && !el.videoInfo) {
-				const origMsg = this.msg.firstChild;
-				this.videos.updatePost($Q('.de-video-link', origMsg),
-					$Q('.de-video-link', origMsg.nextSibling), true);
-			}
-			if(Cfg.embedYTube === 2) {
-				this.videos.toggleFloatedThumb(el, isOutEvent);
-			}
+		if(Cfg.embedYTube === 2 && el.classList.contains('de-video-link')) {
+			this.videos.toggleFloatedThumb(el, isOutEvent);
 		}
 		// Mouseover/mouseout on attached images/videos - update title
 		if(!isOutEvent && Cfg.expandImgs &&
@@ -535,7 +528,6 @@ class Post extends AbstractPost {
 			isMyPost = true;
 		}
 		el.classList.add(isOp ? 'de-oppost' : 'de-reply');
-		this.sage = aib.getSage(el);
 		this.btns = $aEnd(this._pref = $q(aib.qPostRef, el),
 			'<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) +
 			(this.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
@@ -668,6 +660,11 @@ class Post extends AbstractPost {
 	}
 	get posterTrip() {
 		return new Post.Сontent(this).posterTrip;
+	}
+	get sage() {
+		const value = aib.getSage(this.el);
+		Object.defineProperty(this, 'sage', { value });
+		return value;
 	}
 	get subj() {
 		return new Post.Сontent(this).subj;

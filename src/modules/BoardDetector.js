@@ -615,6 +615,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostSubj = '.post__title';
 			this.qTrunc = null;
 
+			this.captchaUpdPromise = null;
 			this.formParent = 'thread';
 			this.hasArchive = true;
 			this.hasCatalog = true;
@@ -625,7 +626,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 			this.multiFile = true;
 			this.timePattern = 'dd+nn+yy+w+hh+ii+ss';
-			this._capUpdPromise = null;
 			this._isBeta = false;
 		}
 		get qFormMail() {
@@ -653,6 +653,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.de-reply-class { background: var(--theme_default_postbg);
 					border: 1px solid var(--theme_default_border); border-radius: 3px; }
 				#down-nav-arrow, #up-nav-arrow { z-index: 0; }
+				.header__opts_sticky { z-index: 10; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.post__detailpart:nth-of-type(5):not(.desktop) { display: none; }
 				.post_type_hidden { opacity: unset; cursor: default; }
@@ -834,9 +835,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this._isBeta ? el : el.parentNode;
 		}
 		getSage(post) {
-			this.getSage = !$q('span[id^="id_tag_"]') ? super.getSage : post => {
-				return !$q('span[id^="id_tag_"], .post__ophui', post);
-			};
+			this.getSage = $q('span[id^="id_tag_"]') ?
+				post => !$q('span[id^="id_tag_"], .post__ophui', post) : super.getSage;
 			return this.getSage(post);
 		}
 		fixHTMLHelper(str) {
@@ -857,7 +857,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			return { error, postNum };
 		}
 		init() {
-			if($q('section.posts')) { // Old Makaba engine
+			if($id('js-posts')) { // New Makaba engine
+				this._isBeta = true;
+				$Q('.thread__missed').forEach(el =>
+					el.innerHTML = el.innerHTML.replace(/ (\d+) постов/, (m, i) => ` ${ i - 1 } постов`));
+			} else if($q('section.posts')) { // Old Makaba engine
 				this.cReply = 'post reply';
 				this.qBan = '.pomyanem';
 				this.qFormFile = 'tr input[type="file"]';
@@ -888,12 +892,6 @@ function getImageBoard(checkDomains, checkEngines) {
 						${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }
 							.file-attr { margin-bottom: 1px; }` : '' }`
 				});
-			} else {
-				if($id('js-posts')) { // Fix counters in beta.2ch.hk
-					this._isBeta = true;
-					$Q('.thread__missed').forEach(el =>
-						el.innerHTML = el.innerHTML.replace(/ (\d+) постов/, (m, i) => ` ${ i - 1 } постов`));
-				}
 			}
 			$script(`(function() {
 				function fixGlobalFunc(name) {
@@ -901,7 +899,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						{ value: Function.prototype, writable: false, configurable: false });
 				}
 				fixGlobalFunc("$alert");
-				fixGlobalFunc("autorefresh_start"); // Old makaba only
+				${ this._isBeta ? '' : 'fixGlobalFunc("autorefresh_start");' }
 				fixGlobalFunc("linkremover");
 				fixGlobalFunc("Media");
 				window.FormData = void 0;
@@ -1031,7 +1029,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.captchaRu = true;
 			this.jsonSubmit = true;
 
-			this._capUpdPromise = null;
+			this.captchaUpdPromise = null;
 		}
 		get css() {
 			return `small[id^="rfmap_"], #submit_button, .qreply_btn { display: none; }
@@ -1066,10 +1064,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
 			this.captchaRu = true;
+			this.captchaUpdPromise = null;
 			this.hasCatalog = true;
 			this.markupBB = false;
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
-			this._capUpdPromise = null;
 		}
 		get captchaLang() {
 			return 0;

@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.11.8.0';
-const commit = '879a9cb';
+const commit = '0e6d22d';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1424,10 +1424,6 @@ const Lng = {
 		'переглядів: '],
 
 	// Postform file inputs: tooltips
-	pasteImage: [
-		'Ctrl+V - вставить картинку из буфера',
-		'Ctrl+V - paste an image from clipboard',
-		'Ctrl+V - додати зображення з буферу'],
 	dropFileHere: [
 		'Бросьте сюда файл(ы) или ссылку',
 		'Drop file(s) or link here',
@@ -4543,7 +4539,6 @@ const CfgWindow = {
 				if(postform.form) {
 					postform.addMarkupPanel();
 					postform.setPlaceholders();
-					postform.updateLanguage();
 					aib.updateSubmitBtn(postform.subm);
 					if(postform.files) {
 						$Q('.de-file-img, .de-file-txt-input', postform.form).forEach(
@@ -8697,9 +8692,9 @@ class PostForm {
 		this._initTextarea();
 		this.addMarkupPanel();
 		this.setPlaceholders();
-		this.updateLanguage();
 		this._initCaptcha();
 		this._initSubmit();
+		aib.updateSubmitBtn(this.subm);
 		if(Cfg.ajaxPosting) {
 			this._initAjaxPosting();
 		}
@@ -8968,10 +8963,6 @@ class PostForm {
 		} else {
 			this.mail.checked = isSage;
 		}
-	}
-	updateLanguage() {
-		this.txta.title = Lng.pasteImage[lang];
-		aib.updateSubmitBtn(this.subm);
 	}
 	updatePAreaBtns() {
 		const txt = 'de-abtn de-parea-btn-';
@@ -10371,15 +10362,15 @@ class Captcha {
 		}
 	}
 	updateHelper(url, fn) {
-		if(aib._capUpdPromise) {
-			aib._capUpdPromise.cancelPromise();
+		if(aib.captchaUpdPromise) {
+			aib.captchaUpdPromise.cancelPromise();
 		}
-		return (aib._capUpdPromise = $ajax(url).then(xhr => {
-			aib._capUpdPromise = null;
+		return (aib.captchaUpdPromise = $ajax(url).then(xhr => {
+			aib.captchaUpdPromise = null;
 			fn(xhr);
 		}, err => {
 			if(!(err instanceof CancelError)) {
-				aib._capUpdPromise = null;
+				aib.captchaUpdPromise = null;
 				return CancelablePromise.reject(err);
 			}
 		}));
@@ -10632,15 +10623,8 @@ class AbstractPost {
 			['click', 'mouseout'].forEach(e => this.el.addEventListener(e, this, true));
 		}
 		// Mouseover/mouseout on YouTube links
-		if(el.classList.contains('de-video-link')) {
-			if(aib.makaba && !el.videoInfo) {
-				const origMsg = this.msg.firstChild;
-				this.videos.updatePost($Q('.de-video-link', origMsg),
-					$Q('.de-video-link', origMsg.nextSibling), true);
-			}
-			if(Cfg.embedYTube === 2) {
-				this.videos.toggleFloatedThumb(el, isOutEvent);
-			}
+		if(Cfg.embedYTube === 2 && el.classList.contains('de-video-link')) {
+			this.videos.toggleFloatedThumb(el, isOutEvent);
 		}
 		// Mouseover/mouseout on attached images/videos - update title
 		if(!isOutEvent && Cfg.expandImgs &&
@@ -10957,7 +10941,6 @@ class Post extends AbstractPost {
 			isMyPost = true;
 		}
 		el.classList.add(isOp ? 'de-oppost' : 'de-reply');
-		this.sage = aib.getSage(el);
 		this.btns = $aEnd(this._pref = $q(aib.qPostRef, el),
 			'<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) +
 			(this.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
@@ -11090,6 +11073,11 @@ class Post extends AbstractPost {
 	}
 	get posterTrip() {
 		return new Post.Сontent(this).posterTrip;
+	}
+	get sage() {
+		const value = aib.getSage(this.el);
+		Object.defineProperty(this, 'sage', { value });
+		return value;
 	}
 	get subj() {
 		return new Post.Сontent(this).subj;
@@ -16352,6 +16340,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostSubj = '.post__title';
 			this.qTrunc = null;
 
+			this.captchaUpdPromise = null;
 			this.formParent = 'thread';
 			this.hasArchive = true;
 			this.hasCatalog = true;
@@ -16362,7 +16351,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 			this.multiFile = true;
 			this.timePattern = 'dd+nn+yy+w+hh+ii+ss';
-			this._capUpdPromise = null;
 			this._isBeta = false;
 		}
 		get qFormMail() {
@@ -16390,6 +16378,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.de-reply-class { background: var(--theme_default_postbg);
 					border: 1px solid var(--theme_default_border); border-radius: 3px; }
 				#down-nav-arrow, #up-nav-arrow { z-index: 0; }
+				.header__opts_sticky { z-index: 10; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.post__detailpart:nth-of-type(5):not(.desktop) { display: none; }
 				.post_type_hidden { opacity: unset; cursor: default; }
@@ -16571,9 +16560,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this._isBeta ? el : el.parentNode;
 		}
 		getSage(post) {
-			this.getSage = !$q('span[id^="id_tag_"]') ? super.getSage : post => {
-				return !$q('span[id^="id_tag_"], .post__ophui', post);
-			};
+			this.getSage = $q('span[id^="id_tag_"]') ?
+				post => !$q('span[id^="id_tag_"], .post__ophui', post) : super.getSage;
 			return this.getSage(post);
 		}
 		fixHTMLHelper(str) {
@@ -16594,7 +16582,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			return { error, postNum };
 		}
 		init() {
-			if($q('section.posts')) { // Old Makaba engine
+			if($id('js-posts')) { // New Makaba engine
+				this._isBeta = true;
+				$Q('.thread__missed').forEach(el =>
+					el.innerHTML = el.innerHTML.replace(/ (\d+) постов/, (m, i) => ` ${ i - 1 } постов`));
+			} else if($q('section.posts')) { // Old Makaba engine
 				this.cReply = 'post reply';
 				this.qBan = '.pomyanem';
 				this.qFormFile = 'tr input[type="file"]';
@@ -16625,12 +16617,6 @@ function getImageBoard(checkDomains, checkEngines) {
 						${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }
 							.file-attr { margin-bottom: 1px; }` : '' }`
 				});
-			} else {
-				if($id('js-posts')) { // Fix counters in beta.2ch.hk
-					this._isBeta = true;
-					$Q('.thread__missed').forEach(el =>
-						el.innerHTML = el.innerHTML.replace(/ (\d+) постов/, (m, i) => ` ${ i - 1 } постов`));
-				}
 			}
 			$script(`(function() {
 				function fixGlobalFunc(name) {
@@ -16638,7 +16624,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						{ value: Function.prototype, writable: false, configurable: false });
 				}
 				fixGlobalFunc("$alert");
-				fixGlobalFunc("autorefresh_start"); // Old makaba only
+				${ this._isBeta ? '' : 'fixGlobalFunc("autorefresh_start");' }
 				fixGlobalFunc("linkremover");
 				fixGlobalFunc("Media");
 				window.FormData = void 0;
@@ -16768,7 +16754,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.captchaRu = true;
 			this.jsonSubmit = true;
 
-			this._capUpdPromise = null;
+			this.captchaUpdPromise = null;
 		}
 		get css() {
 			return `small[id^="rfmap_"], #submit_button, .qreply_btn { display: none; }
@@ -16803,10 +16789,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
 			this.captchaRu = true;
+			this.captchaUpdPromise = null;
 			this.hasCatalog = true;
 			this.markupBB = false;
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
-			this._capUpdPromise = null;
 		}
 		get captchaLang() {
 			return 0;

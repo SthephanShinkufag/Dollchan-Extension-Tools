@@ -1241,10 +1241,6 @@ const Lng = {
 		'переглядів: '],
 
 	// Postform file inputs: tooltips
-	pasteImage: [
-		'Ctrl+V - вставить картинку из буфера',
-		'Ctrl+V - paste an image from clipboard',
-		'Ctrl+V - додати зображення з буферу'],
 	dropFileHere: [
 		'Бросьте сюда файл(ы) или ссылку',
 		'Drop file(s) or link here',
