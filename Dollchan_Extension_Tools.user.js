@@ -7198,7 +7198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.11.8.0';
-  var commit = '0e6d22d';
+  var commit = 'c5541cc';
 
 
   var defaultCfg = {
@@ -23970,7 +23970,7 @@ Spells.addSpell(9, '', false);
         return value;
       },
       get fixEventEl() {
-        var value = !nav.isPresto ? function (el) {
+        var value = !this.isPresto ? function (el) {
           return el;
         } : function (el) {
           var _el$correspondingUseE;
@@ -23983,7 +23983,7 @@ Spells.addSpell(9, '', false);
       },
       getUnsafeUint8Array: function getUnsafeUint8Array(data, i, len) {
         var Ctor = Uint8Array;
-        if (nav.isFirefox && nav.hasOldGM) {
+        if (this.isFirefox && (this.hasOldGM || this.scriptHandler.startsWith('Tampermonkey'))) {
           try {
             if (!(new Uint8Array(data) instanceof Uint8Array)) {
               Ctor = unsafeWindow.Uint8Array;
@@ -24004,7 +24004,7 @@ Spells.addSpell(9, '', false);
       },
       getUnsafeDataView: function getUnsafeDataView(data, offset) {
         var value = new DataView(data, offset || 0);
-        return nav.isFirefox && nav.hasOldGM && !(value instanceof DataView) ? new unsafeWindow.DataView(data, offset || 0) : value;
+        return this.isFirefox && this.hasOldGM && !(value instanceof DataView) ? new unsafeWindow.DataView(data, offset || 0) : value;
       }
     };
   }

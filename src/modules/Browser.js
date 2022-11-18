@@ -152,7 +152,8 @@ function initNavFuncs() {
 		},
 		// XXX: Opera Presto - hack for SVG events
 		get fixEventEl() {
-			const value = !nav.isPresto ? el => el : el => el?.correspondingUseElement?.ownerSVGElement || el;
+			const value = !this.isPresto ? el => el :
+				el => el?.correspondingUseElement?.ownerSVGElement || el;
 			Object.defineProperty(this, 'fixEventEl', { value });
 			return value;
 		},
@@ -160,7 +161,7 @@ function initNavFuncs() {
 		//    'Accessing TypedArray data over Xrays is slow, and forbidden' errors
 		getUnsafeUint8Array(data, i, len) {
 			let Ctor = Uint8Array;
-			if(nav.isFirefox && nav.hasOldGM) {
+			if(this.isFirefox && (this.hasOldGM || this.scriptHandler.startsWith('Tampermonkey'))) {
 				try {
 					if(!(new Uint8Array(data) instanceof Uint8Array)) {
 						Ctor = unsafeWindow.Uint8Array;
@@ -178,7 +179,7 @@ function initNavFuncs() {
 		},
 		getUnsafeDataView(data, offset) { // XXX: Firefox + old Greasemonkey
 			const value = new DataView(data, offset || 0);
-			return nav.isFirefox && nav.hasOldGM && !(value instanceof DataView) ?
+			return this.isFirefox && this.hasOldGM && !(value instanceof DataView) ?
 				new unsafeWindow.DataView(data, offset || 0) : value;
 		}
 	};
