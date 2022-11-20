@@ -185,7 +185,7 @@ function showHiddenWindow(body) {
 			toggleWindow('hid', true);
 		})),
 		// "Clear" button. Allows to clear 404'd threads.
-		$button(Lng.clear[lang], Lng.clrDeleted[lang], async e => {
+		$button(Lng.clear[lang], Lng.clear404[lang], async e => {
 			// Sequentially load threads, and remove inaccessible
 			const els = $Q('.de-entry[info]', e.target.parentNode.parentNode);
 			for(let i = 0, len = els.length; i < len; ++i) {

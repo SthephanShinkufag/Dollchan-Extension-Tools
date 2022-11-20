@@ -99,7 +99,6 @@ function initNavFuncs() {
 		hasOldGM,
 		hasPrestoStorage,
 		hasWebStorage,
-		isChrome,
 		isESNext         : typeof deMainFuncOuter === 'undefined',
 		isFirefox,
 		isMsEdge         : ua.includes('Edge/'),

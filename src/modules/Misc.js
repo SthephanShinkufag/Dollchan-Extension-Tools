@@ -84,8 +84,8 @@ async function checkForUpdates(isManual, lastUpdateTime) {
 		throw new Error('Canʼt get remote version');
 	}
 	const currentVer = version.split('.');
-	const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
-		nav.isESNext ? 'es6.' : '' }user.js`;
+	const src = `${ gitRaw }${
+		nav.isESNext ? 'src/Dollchan_Extension_Tools.es6' : 'Dollchan_Extension_Tools' }.user.js`;
 	await CfgSaver.saveObj('lastUpd', () => Date.now());
 	const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
 	const chLogLink = `<a target="_blank" href="${ gitWiki }${

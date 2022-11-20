@@ -1165,18 +1165,22 @@ const Lng = {
 		'Інформація для відлагодження'],
 
 	// Favorites window: tooltips
-	infoCount: [
+	refreshCounters: [
 		'Обновить счетчики постов',
 		'Refresh posts counters',
 		'Оновити лічильники постів'],
+	refreshClear404: [
+		'Обновить счетчики и очистить недоступные (404) треды',
+		'Refresh counters and clear inaccessible (404) threads',
+		'Оновити лічильники та очистити недоступні (404) треди'],
+	clear404: [
+		'Очистить недоступные (404) треды',
+		'Clear inaccessible (404) threads',
+		'Очистити недоступні (404) треди'],
 	infoPage: [
 		'Проверить положение тредов (до 10-й страницы)',
 		'Check for threads position (up to 10th page)',
 		'Перевірити актуальність тредів (до 10 сторінки)'],
-	clrDeleted: [
-		'Очистить недоступные (404) треды',
-		'Clear inaccessible (404) threads',
-		'Очистити недоступні (404) треди'],
 	oldPosts: [
 		'Постов при последнем посещении',
 		'Posts at the last visit',

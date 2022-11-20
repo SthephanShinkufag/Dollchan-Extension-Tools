@@ -88,23 +88,167 @@ function updateFavWindow(host, board, num, value, mode) {
 }
 
 // Delete previously marked entries from Favorites
-function cleanFavorites() {
+async function clear404Favorites(favObj) {
 	const els = $Q('.de-entry[de-removed]');
 	const len = els.length;
 	if(!len) {
 		return;
 	}
-	readFavorites().then(favObj => {
-		for(let i = 0; i < len; ++i) {
-			const el = els[i];
-			const host = el.getAttribute('de-host');
-			const board = el.getAttribute('de-board');
-			const num = +el.getAttribute('de-num');
-			removeFavEntry(favObj, host, board, num);
-			toggleThrFavBtn(host, board, num, false);
+	if(!favObj) {
+		favObj = await readFavorites();
+	}
+	for(let i = 0; i < len; ++i) {
+		const el = els[i];
+		const host = el.getAttribute('de-host');
+		const board = el.getAttribute('de-board');
+		const num = +el.getAttribute('de-num');
+		removeFavEntry(favObj, host, board, num);
+		toggleThrFavBtn(host, board, num, false);
+	}
+	saveRenewFavorites(favObj);
+}
+
+async function refreshFavorites(needClear404) {
+	let isUpdate = false;
+	let last404 = false;
+	const favObj = await readFavorites();
+	const myPosts = JSON.parse(locStorage['de-myposts'] || '{}');
+	const parentEl = $q('.de-fav-table');
+	const entryEls = $Q('.de-entry');
+	for(let i = 0, len = entryEls.length; i < len; ++i) {
+		const entryEl = entryEls[i];
+		const [titleEl, youEl, newEl, totalEl] = [...entryEl.lastElementChild.children];
+		const iconEl = titleEl.firstElementChild;
+		// setAttribute for class is used for correct SVG work in old browsers
+		iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+		titleEl.title = Lng.updating[lang];
+		const host = entryEl.getAttribute('de-host');
+		const board = entryEl.getAttribute('de-board');
+		const num = entryEl.getAttribute('de-num');
+		const url = entryEl.getAttribute('de-url');
+		const entry = favObj[host][board][num];
+		if(host !== aib.host || entry.err === 'Closed' || entry.err === 'Archived') {
+			if(needClear404) {
+				parentEl.classList.add('de-fav-table-unfold');
+				try {
+					await $ajax(url, null, true);
+					iconEl.setAttribute('class', 'de-fav-inf-icon');
+					titleEl.removeAttribute('title');
+					last404 = false;
+				} catch(err) {
+					if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
+						if(!last404) {
+							last404 = true;
+							--i; // Repeat this cycle again
+							continue;
+						}
+						Thread.removeSavedData(board, num); // Not working yet
+						entryEl.setAttribute('de-removed', ''); // Mark an entry as deleted
+						isUpdate = true;
+					}
+					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
+					titleEl.title = getErrorMessage(err);
+					last404 = false;
+				}
+			}
+			continue;
 		}
-		saveRenewFavorites(favObj);
-	});
+		let formEl, isArchived;
+		try {
+			if(!aib.hasArchive) {
+				formEl = await ajaxLoad(url);
+			} else {
+				[formEl, isArchived] = await ajaxLoad(url, true, false, true);
+			}
+			last404 = false;
+		} catch(err) {
+			if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
+				if(!last404) {
+					last404 = true;
+					--i; // Repeat this cycle again
+					continue;
+				}
+				Thread.removeSavedData(board, num); // Not working yet
+			}
+			$hide(newEl);
+			$hide(youEl);
+			entryEl.setAttribute('de-removed', '');
+			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
+			titleEl.title = entry.err = getErrorMessage(err);
+			last404 = false;
+			isUpdate = true;
+			continue;
+		}
+		if(aib.qClosed && $q(aib.qClosed, formEl)) {
+			// Thread is closed
+			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
+			titleEl.title = Lng.thrClosed[lang];
+			entry.err = 'Closed';
+			isUpdate = true;
+		} else if(isArchived) {
+			// Thread is archived
+			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
+			titleEl.title = Lng.thrArchived[lang];
+			entry.err = 'Archived';
+			isUpdate = true;
+		} else {
+			// Thread is available and not closed
+			iconEl.setAttribute('class', 'de-fav-inf-icon');
+			titleEl.removeAttribute('title');
+			if(entry.err) { // Cancel error status if existed
+				delete entry.err;
+				isUpdate = true;
+			}
+		}
+		// Updating the posts counters
+		let newCount = 0;
+		let youCount = 0;
+		const lastNum = entry.last.match(/\d+$/)?.[0] || 0;
+		const hasMyPosts = myPosts?.[board];
+		const posts = $Q(aib.qPost, formEl);
+		const postsLen = posts.length;
+		for(let j = 0; j < postsLen; ++j) {
+			const post = posts[j];
+			if(lastNum >= aib.getPNum(post)) {
+				continue;
+			}
+			newCount++;
+			if(!hasMyPosts) {
+				continue;
+			}
+			// Check for replies to my posts
+			const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
+			for(let a = 0, linksLen = links.length; a < linksLen; ++a) {
+				const tc = links[a].textContent;
+				if(tc[0] === '>' && tc[1] === '>' && myPosts[board][tc.substr(2)]) {
+					youCount++;
+					break;
+				}
+			}
+		}
+		totalEl.textContent = entry.cnt = postsLen + 1;
+		if(newCount) {
+			newEl.textContent = entry.new = newCount;
+			$show(newEl);
+			if(youCount) {
+				youEl.textContent = entry.you = youCount;
+				$show(youEl);
+			}
+			isUpdate = true;
+		} else {
+			$hide(newEl);
+			$hide(youEl);
+		}
+	}
+	AjaxCache.clearCache();
+	if(needClear404) {
+		if(isUpdate) {
+			clear404Favorites(favObj);
+		}
+		parentEl.classList.remove('de-fav-table-unfold');
+	} else if(isUpdate) {
+		saveFavorites(favObj);
+	}
 }
 
 function showFavoritesWindow(body, favObj) {
@@ -249,123 +393,10 @@ function showFavoritesWindow(body, favObj) {
 		getEditButton('favor', fn => readFavorites().then(favObj => fn(favObj, true, saveRenewFavorites))),
 
 		// "Refresh" button. Updates counters of new posts for each thread entry.
-		$button(Lng.refresh[lang], Lng.infoCount[lang], async () => {
-			const favObj = await readFavorites();
-			if(!favObj[aib.host]) {
-				return;
-			}
-			let isUpdate = false;
-			let last404 = false;
-			const myPosts = JSON.parse(locStorage['de-myposts'] || '{}');
-			const entryEls = $Q('.de-entry');
-			for(let i = 0, len = entryEls.length; i < len; ++i) {
-				const entryEl = entryEls[i];
-				const host = entryEl.getAttribute('de-host');
-				const board = entryEl.getAttribute('de-board');
-				const num = entryEl.getAttribute('de-num');
-				const entry = favObj[host][board][num];
-				// Updating doesnʼt works for other domains because of different posts structure
-				// Updating is not needed in closed threads
-				if(host !== aib.host || entry.err === 'Closed' || entry.err === 'Archived') {
-					continue;
-				}
-				const [titleEl, youEl, newEl, totalEl] = [...entryEl.lastElementChild.children];
-				const iconEl = titleEl.firstElementChild;
-				// setAttribute for class is used for correct SVG work in old browsers
-				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
-				titleEl.title = Lng.updating[lang];
-				let formEl, isArchived;
-				try {
-					if(!aib.hasArchive) {
-						formEl = await ajaxLoad(aib.getThrUrl(board, num));
-					} else {
-						[formEl, isArchived] = await ajaxLoad(aib.getThrUrl(board, num), true, false, true);
-					}
-					last404 = false;
-				} catch(err) {
-					if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
-						if(last404) {
-							Thread.removeSavedData(board, num); // Not working yet
-						} else {
-							last404 = true;
-							--i; // Repeat this cycle again
-							continue;
-						}
-					}
-					last404 = false;
-					$hide(newEl);
-					$hide(youEl);
-					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-					titleEl.title = entry.err = getErrorMessage(err);
-					isUpdate = true;
-					continue;
-				}
-				if(aib.qClosed && $q(aib.qClosed, formEl)) {
-					// Thread is closed
-					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
-					titleEl.title = Lng.thrClosed[lang];
-					entry.err = 'Closed';
-					isUpdate = true;
-				} else if(isArchived) {
-					// Thread is archived
-					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
-					titleEl.title = Lng.thrArchived[lang];
-					entry.err = 'Archived';
-					isUpdate = true;
-				} else {
-					// Thread is available and not closed
-					iconEl.setAttribute('class', 'de-fav-inf-icon');
-					titleEl.removeAttribute('title');
-					if(entry.err) { // Cancel error status if existed
-						delete entry.err;
-						isUpdate = true;
-					}
-				}
-				// Updating the posts counters
-				let newCount = 0;
-				let youCount = 0;
-				const lastNum = entry.last.match(/\d+$/)?.[0] || 0;
-				const hasMyPosts = myPosts?.[board];
-				const posts = $Q(aib.qPost, formEl);
-				const postsLen = posts.length;
-				for(let j = 0; j < postsLen; ++j) {
-					const post = posts[j];
-					if(lastNum >= aib.getPNum(post)) {
-						continue;
-					}
-					newCount++;
-					if(!hasMyPosts) {
-						continue;
-					}
-					// Check for replies to my posts
-					const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
-					for(let a = 0, linksLen = links.length; a < linksLen; ++a) {
-						const tc = links[a].textContent;
-						if(tc[0] === '>' && tc[1] === '>' && myPosts[board][tc.substr(2)]) {
-							youCount++;
-							break;
-						}
-					}
-				}
-				totalEl.textContent = entry.cnt = postsLen + 1;
-				if(newCount) {
-					newEl.textContent = entry.new = newCount;
-					$show(newEl);
-					if(youCount) {
-						youEl.textContent = entry.you = youCount;
-						$show(youEl);
-					}
-					isUpdate = true;
-				} else {
-					$hide(newEl);
-					$hide(youEl);
-				}
-			}
-			AjaxCache.clearCache();
-			if(isUpdate) {
-				saveFavorites(favObj);
-			}
-		}),
+		$button(Lng.refresh[lang], Lng.refreshCounters[lang], () => refreshFavorites(false)),
+
+		// "Clear" button. Allows to clear 404'd threads.
+		$button(Lng.clear[lang], Lng.refreshClear404[lang], () => refreshFavorites(true)),
 
 		// "Page" button. Shows on which page every thread is existed.
 		$button(Lng.page[lang], Lng.infoPage[lang], async () => {
@@ -434,52 +465,6 @@ function showFavoritesWindow(body, favObj) {
 				}
 			}
 			closePopup('load-pages');
-		}),
-
-		// "Clear" button. Allows to clear 404'd threads.
-		$button(Lng.clear[lang], Lng.clrDeleted[lang], async () => {
-			// Sequentially load threads, and remove inaccessible
-			let last404 = false;
-			const els = $Q('.de-entry');
-			const parent = $q('.de-fav-table');
-			parent.classList.add('de-fav-table-unfold');
-			for(let i = 0, len = els.length; i < len; ++i) {
-				const el = els[i];
-				const iconEl = $q('.de-fav-inf-icon', el);
-				const titleEl = iconEl.parentNode;
-				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
-				titleEl.title = Lng.updating[lang];
-				await $ajax(el.getAttribute('de-url'), null, true).then(xhr => {
-					switch(el.getAttribute('de-host')) { // Makaba doesnʼt return 404
-					case '2ch.hk':
-					case '2ch.life': {
-						const dc = $createDoc(xhr.responseText);
-						if(dc && $q('.message-title', dc)) {
-							throw new AjaxError(404, 'Error');
-						}
-					}
-					}
-					iconEl.setAttribute('class', 'de-fav-inf-icon');
-					titleEl.removeAttribute('title');
-					last404 = false;
-				}).catch(err => {
-					if(err.code === 404) { // Check for 404 error twice
-						if(!last404) {
-							last404 = true;
-							--i; // Repeat this cycle again
-							return;
-						}
-						Thread.removeSavedData(el.getAttribute('de-board'), // Not working yet
-							+el.getAttribute('de-num'));
-						el.setAttribute('de-removed', ''); // Mark an entry as deleted
-					}
-					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-					titleEl.title = getErrorMessage(err);
-					last404 = false;
-				});
-			}
-			cleanFavorites(); // Delete marked entries
-			parent.classList.remove('de-fav-table-unfold');
 		})
 	);
 
@@ -489,7 +474,7 @@ function showFavoritesWindow(body, favObj) {
 		$button(Lng.remove[lang], Lng.delEntries[lang], () => {
 			$Q('.de-entry > .de-fav-del-btn[de-checked]', body).forEach(
 				el => el.parentNode.setAttribute('de-removed', ''));
-			cleanFavorites(); // Delete marked entries
+			clear404Favorites(); // Delete marked entries
 			$show(btns);
 			$hide(delBtns);
 		}),
