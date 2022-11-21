@@ -7198,7 +7198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.11.8.0';
-  var commit = '408b583';
+  var commit = '75d3491';
 
 
   var defaultCfg = {
@@ -10446,13 +10446,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   }
   function _refreshFavorites() {
     _refreshFavorites = _asyncToGenerator( _regeneratorRuntime().mark(function _callee53(needClear404) {
-      var isUpdate, last404, favObj, myPosts, parentEl, entryEls, i, len, _entry$last$match, entryEl, _ref62, titleEl, youEl, newEl, totalEl, iconEl, host, board, num, url, entry, formEl, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, newCount, youCount, lastNum, hasMyPosts, posts, postsLen, j, post, links, a, linksLen, tc;
+      var isUpdate, isLast404, favObj, myPosts, parentEl, entryEls, i, len, _entry$last$match, entryEl, _ref62, titleEl, youEl, newEl, totalEl, iconEl, host, board, num, url, entry, oldClassName, oldTitle, formEl, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, newCount, youCount, lastNum, hasMyPosts, posts, postsLen, j, post, links, a, linksLen, tc;
       return _regeneratorRuntime().wrap(function _callee53$(_context62) {
         while (1) {
           switch (_context62.prev = _context62.next) {
             case 0:
               isUpdate = false;
-              last404 = false;
+              isLast404 = false;
               _context62.next = 4;
               return readFavorites();
             case 4:
@@ -10463,112 +10463,122 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               i = 0, len = entryEls.length;
             case 9:
               if (!(i < len)) {
-                _context62.next = 111;
+                _context62.next = 117;
                 break;
               }
               entryEl = entryEls[i];
               _ref62 = _toConsumableArray(entryEl.lastElementChild.children), titleEl = _ref62[0], youEl = _ref62[1], newEl = _ref62[2], totalEl = _ref62[3];
-              iconEl = titleEl.firstElementChild; 
-              iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
-              titleEl.title = Lng.updating[lang];
+              iconEl = titleEl.firstElementChild;
               host = entryEl.getAttribute('de-host');
               board = entryEl.getAttribute('de-board');
               num = entryEl.getAttribute('de-num');
               url = entryEl.getAttribute('de-url');
               entry = favObj[host][board][num];
-              if (!(host !== aib.host || entry.err === 'Closed' || entry.err === 'Archived')) {
-                _context62.next = 45;
+              if (!(entry.err === 'Archived')) {
+                _context62.next = 20;
+                break;
+              }
+              return _context62.abrupt("continue", 114);
+            case 20:
+              if (!(host !== aib.host || entry.err === 'Closed')) {
+                _context62.next = 49;
                 break;
               }
               if (!needClear404) {
-                _context62.next = 44;
+                _context62.next = 48;
                 break;
               }
               parentEl.classList.add('de-fav-table-unfold');
-              _context62.prev = 23;
-              _context62.next = 26;
+              oldClassName = iconEl.getAttribute('class');
+              oldTitle = titleEl.title; 
+              iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+              titleEl.title = Lng.updating[lang];
+              _context62.prev = 27;
+              _context62.next = 30;
               return $ajax(url, null, true);
-            case 26:
-              iconEl.setAttribute('class', 'de-fav-inf-icon');
-              titleEl.removeAttribute('title');
-              last404 = false;
-              _context62.next = 44;
+            case 30:
+              iconEl.setAttribute('class', oldClassName);
+              $toggleAttr(titleEl, 'title', oldTitle, oldTitle);
+              isLast404 = false;
+              _context62.next = 48;
               break;
-            case 31:
-              _context62.prev = 31;
-              _context62.t0 = _context62["catch"](23);
+            case 35:
+              _context62.prev = 35;
+              _context62.t0 = _context62["catch"](27);
               if (!(_context62.t0 instanceof AjaxError && _context62.t0.code === 404)) {
-                _context62.next = 41;
+                _context62.next = 43;
                 break;
               }
-              if (last404) {
-                _context62.next = 38;
+              if (isLast404) {
+                _context62.next = 42;
                 break;
               }
-              last404 = true;
+              isLast404 = true;
               --i; 
-              return _context62.abrupt("continue", 108);
-            case 38:
+              return _context62.abrupt("continue", 114);
+            case 42:
               Thread.removeSavedData(board, num); 
+            case 43:
               entryEl.setAttribute('de-removed', ''); 
-              isUpdate = true;
-            case 41:
               iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-              titleEl.title = getErrorMessage(_context62.t0);
-              last404 = false;
-            case 44:
-              return _context62.abrupt("continue", 108);
-            case 45:
+              titleEl.title = entry.err = getErrorMessage(_context62.t0);
+              isLast404 = false;
+              isUpdate = true;
+            case 48:
+              return _context62.abrupt("continue", 114);
+            case 49:
               formEl = void 0, isArchived = void 0;
-              _context62.prev = 46;
-              if (aib.hasArchive) {
-                _context62.next = 53;
+              iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+              titleEl.title = Lng.updating[lang];
+              _context62.prev = 52;
+              if (!aib.hasArchive) {
+                _context62.next = 62;
                 break;
               }
-              _context62.next = 50;
-              return ajaxLoad(url);
-            case 50:
-              formEl = _context62.sent;
-              _context62.next = 59;
-              break;
-            case 53:
-              _context62.next = 55;
+              _context62.next = 56;
               return ajaxLoad(url, true, false, true);
-            case 55:
+            case 56:
               _yield$ajaxLoad = _context62.sent;
               _yield$ajaxLoad2 = _slicedToArray(_yield$ajaxLoad, 2);
               formEl = _yield$ajaxLoad2[0];
               isArchived = _yield$ajaxLoad2[1];
-            case 59:
-              last404 = false;
-              _context62.next = 78;
+              _context62.next = 65;
               break;
             case 62:
-              _context62.prev = 62;
-              _context62.t1 = _context62["catch"](46);
+              _context62.next = 64;
+              return ajaxLoad(url);
+            case 64:
+              formEl = _context62.sent;
+            case 65:
+              isLast404 = false;
+              _context62.next = 84;
+              break;
+            case 68:
+              _context62.prev = 68;
+              _context62.t1 = _context62["catch"](52);
               if (!(_context62.t1 instanceof AjaxError && _context62.t1.code === 404)) {
-                _context62.next = 70;
+                _context62.next = 76;
                 break;
               }
-              if (last404) {
-                _context62.next = 69;
+              if (isLast404) {
+                _context62.next = 75;
                 break;
               }
-              last404 = true;
-              --i; 
-              return _context62.abrupt("continue", 108);
-            case 69:
-              Thread.removeSavedData(board, num); 
-            case 70:
+              isLast404 = true;
+              --i;
+              return _context62.abrupt("continue", 114);
+            case 75:
+              Thread.removeSavedData(board, num);
+            case 76:
               $hide(newEl);
               $hide(youEl);
               entryEl.setAttribute('de-removed', '');
               iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
               titleEl.title = entry.err = getErrorMessage(_context62.t1);
-              last404 = false;
+              isLast404 = false;
               isUpdate = true;
-              return _context62.abrupt("continue", 108);
-            case 78:
+              return _context62.abrupt("continue", 114);
+            case 84:
               if (aib.qClosed && $q(aib.qClosed, formEl)) {
                 iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
                 titleEl.title = Lng.thrClosed[lang];
@@ -10594,48 +10604,48 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               posts = $Q(aib.qPost, formEl);
               postsLen = posts.length;
               j = 0;
-            case 86:
+            case 92:
               if (!(j < postsLen)) {
-                _context62.next = 106;
+                _context62.next = 112;
                 break;
               }
               post = posts[j];
               if (!(lastNum >= aib.getPNum(post))) {
-                _context62.next = 90;
+                _context62.next = 96;
                 break;
               }
-              return _context62.abrupt("continue", 103);
-            case 90:
+              return _context62.abrupt("continue", 109);
+            case 96:
               newCount++;
               if (hasMyPosts) {
-                _context62.next = 93;
+                _context62.next = 99;
                 break;
               }
-              return _context62.abrupt("continue", 103);
-            case 93:
+              return _context62.abrupt("continue", 109);
+            case 99:
               links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
               a = 0, linksLen = links.length;
-            case 95:
+            case 101:
               if (!(a < linksLen)) {
-                _context62.next = 103;
+                _context62.next = 109;
                 break;
               }
               tc = links[a].textContent;
               if (!(tc[0] === '>' && tc[1] === '>' && myPosts[board][tc.substr(2)])) {
-                _context62.next = 100;
+                _context62.next = 106;
                 break;
               }
               youCount++;
-              return _context62.abrupt("break", 103);
-            case 100:
-              ++a;
-              _context62.next = 95;
-              break;
-            case 103:
-              ++j;
-              _context62.next = 86;
-              break;
+              return _context62.abrupt("break", 109);
             case 106:
+              ++a;
+              _context62.next = 101;
+              break;
+            case 109:
+              ++j;
+              _context62.next = 92;
+              break;
+            case 112:
               totalEl.textContent = entry.cnt = postsLen + 1;
               if (newCount) {
                 newEl.textContent = entry["new"] = newCount;
@@ -10649,11 +10659,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 $hide(newEl);
                 $hide(youEl);
               }
-            case 108:
+            case 114:
               ++i;
               _context62.next = 9;
               break;
-            case 111:
+            case 117:
               AjaxCache.clearCache();
               if (needClear404) {
                 if (isUpdate) {
@@ -10663,12 +10673,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               } else if (isUpdate) {
                 saveFavorites(favObj);
               }
-            case 113:
+            case 119:
             case "end":
               return _context62.stop();
           }
         }
-      }, _callee53, null, [[23, 31], [46, 62]]);
+      }, _callee53, null, [[27, 35], [52, 68]]);
     }));
     return _refreshFavorites.apply(this, arguments);
   }
@@ -24544,7 +24554,7 @@ Spells.addSpell(9, '', false);
       _createClass(Kusaba, [{
         key: "css",
         get: function get() {
-          return ".extrabtns > a, .extrabtns > span, #newposts_get, .replymode,\n\t\t\t\t\t.ui-resizable-handle, blockquote + a { display: none !important; }\n\t\t\t\t.ui-wrapper { display: inline-block; width: auto !important;\n\t\t\t\t\theight: auto !important; padding: 0 !important; }";
+          return ".extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle,\n\t\t\t\t\tblockquote + a { display: none; }\n\t\t\t\t.ui-wrapper { display: inline-block; width: auto !important;\n\t\t\t\t\theight: auto !important; padding: 0 !important; }";
         }
       }, {
         key: "getCaptchaSrc",
@@ -25384,7 +25394,7 @@ Spells.addSpell(9, '', false);
         _this112.makaba = true;
         _this112.cReply = 'de-reply-class';
         _this112.qBan = '.post__pomyanem';
-        _this112.qClosed = '.sticky-img[src$="locked.png"]';
+        _this112.qClosed = 'use[*|href="#icon__closed"]';
         _this112.qDelForm = '#posts-form, #js-posts';
         _this112.qFormFile = '.postform__raw.filer input[type="file"]';
         _this112.qFormRedir = null;
@@ -25441,7 +25451,7 @@ Spells.addSpell(9, '', false);
       }, {
         key: "css",
         get: function get() {
-          return ".js-post-findimg, .js-post-saveimg, .js-update-thread, .media-expand-button,\n\t\t\t\t\t.media-thumbnail, .newpost, .post__btn:not(.icon_type_active), .post__number,\n\t\t\t\t\t.post__refmap { display: none !important; }\n\t\t\t\t.captcha { align-items: start; flex-direction: column; }\n\t\t\t\t.captcha__image { cursor: pointer; }\n\t\t\t\t.captcha__val { width: 270px; margin-top: 4px; padding: 4px; }\n\t\t\t\t.de-fullimg-wrap-inpost { margin-right: 16px; }\n\t\t\t\t.de-refmap { margin: 0 16px 4px; }\n\t\t\t\t.de-pview > .post__details { margin-left: 4px; }\n\t\t\t\t.de-reply-class { background: var(--theme_default_postbg);\n\t\t\t\t\tborder: 1px solid var(--theme_default_border); border-radius: 3px; }\n\t\t\t\t#down-nav-arrow, #up-nav-arrow { z-index: 0; }\n\t\t\t\t.header__opts_sticky { z-index: 10; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post__detailpart:nth-of-type(5):not(.desktop) { display: none; }\n\t\t\t\t.post_type_hidden { opacity: unset; cursor: default; }\n\t\t\t\t.post_type_hidden .post__message:not(.de-post-hiddencontent),\n\t\t\t\t\t.post_type_hidden .post__images:not(.de-post-hiddencontent) { display: block !important; }\n\t\t\t\t.post_type_reply { max-width: 100%; }\n\t\t\t\t.postarea { display: initial !important; }\n\t\t\t\t.postform { width: auto; }\n\t\t\t\t.postform__sticker-btn, .postform__sticker-prev { bottom: " + "".concat(!Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 : Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25, "px !important; }\n\t\t\t\t.post__message { padding-left: 0px; margin-left: 16px; min-width: 15%; word-wrap: normal;\n\t\t\t\t\tword-break: normal; }\n\t\t\t\t").concat(Cfg.addSageBtn ? ".options__box[onclick=\"ToggleSage()\"]\n\t\t\t\t\t{ display: none !important; }" : '', "\n\t\t\t\t").concat(Cfg.addTextBtns ? '.js-postform-mu { display: none; }' : '', "\n\t\t\t\t").concat(Cfg.expandTrunc ? ".expand-large-comment,\n\t\t\t\t\tdiv[id^=\"shrinked-post\"] { display: none !important; }\n\t\t\t\t\tdiv[id^=\"original-post\"] { display: block !important; }" : '', "\n\t\t\t\t").concat(Cfg.imgNames === 2 ? ".post__filezise { display: inline !important; }\n\t\t\t\t\t.post__file-attr { margin-bottom: 1px; }" : '', "\n\t\t\t\t").concat(Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '');
+          return ".js-post-findimg, .js-post-saveimg, .js-update-thread, .media-expand-button,\n\t\t\t\t\t.media-thumbnail, .newpost, .post__btn:not(.icon_type_active), .post__number,\n\t\t\t\t\t.post__refmap { display: none !important; }\n\t\t\t\t.captcha { align-items: start; flex-direction: column; }\n\t\t\t\t.captcha__image { cursor: pointer; }\n\t\t\t\t.captcha__val { width: 270px; margin-top: 4px; padding: 4px; }\n\t\t\t\t.de-fullimg-wrap-inpost { margin-right: 16px; }\n\t\t\t\t.de-refmap { margin: 0 16px 4px; }\n\t\t\t\t.de-pview > .post__details { margin-left: 4px; }\n\t\t\t\t.de-reply-class { background: var(--theme_default_postbg);\n\t\t\t\t\tborder: 1px solid var(--theme_default_border); border-radius: 3px; }\n\t\t\t\t#down-nav-arrow, #up-nav-arrow { z-index: 0; }\n\t\t\t\t.header__opts_sticky { z-index: 10; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post_type_hidden { opacity: unset; cursor: default; }\n\t\t\t\t.post_type_hidden .post__message:not(.de-post-hiddencontent),\n\t\t\t\t\t.post_type_hidden .post__images:not(.de-post-hiddencontent) { display: block !important; }\n\t\t\t\t.post_type_reply { max-width: 100%; }\n\t\t\t\t.postarea { display: initial !important; }\n\t\t\t\t.postform { width: auto; }\n\t\t\t\t.postform__sticker-btn, .postform__sticker-prev { bottom: " + "".concat(!Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 : Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25, "px !important; }\n\t\t\t\t.post__message { padding-left: 0px; margin-left: 16px; min-width: 15%; word-wrap: normal;\n\t\t\t\t\tword-break: normal; }\n\t\t\t\t").concat(Cfg.addSageBtn ? ".options__box[onclick=\"ToggleSage()\"]\n\t\t\t\t\t{ display: none !important; }" : '', "\n\t\t\t\t").concat(Cfg.addTextBtns ? '.js-postform-mu { display: none; }' : '', "\n\t\t\t\t").concat(Cfg.expandTrunc ? ".expand-large-comment,\n\t\t\t\t\tdiv[id^=\"shrinked-post\"] { display: none !important; }\n\t\t\t\t\tdiv[id^=\"original-post\"] { display: block !important; }" : '', "\n\t\t\t\t").concat(Cfg.imgNames === 2 ? ".post__filezise { display: inline !important; }\n\t\t\t\t\t.post__file-attr { margin-bottom: 1px; }" : '', "\n\t\t\t\t").concat(Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '');
         }
       }, {
         key: "isArchived",
@@ -25774,6 +25784,7 @@ Spells.addSpell(9, '', false);
           args[_key12] = arguments[_key12];
         }
         _this116 = _super18.call.apply(_super18, [this].concat(args));
+        _this116.qClosed = '.icon-lock';
         _this116.JsonBuilder = null;
         return _this116;
       }
@@ -25925,6 +25936,7 @@ Spells.addSpell(9, '', false);
           args[_key14] = arguments[_key14];
         }
         _this118 = _super20.call.apply(_super20, [this].concat(args));
+        _this118.qClosed = '.post-badge-locked';
         _this118.qFormRedir = 'input#noko';
         _this118.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
         _this118.captchaRu = true;
@@ -25942,7 +25954,7 @@ Spells.addSpell(9, '', false);
       }, {
         key: "css",
         get: function get() {
-          return "".concat(_get(_getPrototypeOf(_410chan.prototype), "css", this), "\n\t\t\t\t#resizer { display: none; }\n\t\t\t\tform > span { margin-top: 5px; }\n\t\t\t\t.de-thr-hid { display: inherit; }\n\t\t\t\t.reflink::after { content: none !important; }\n\t\t\t\t.spoiler-image:hover::after { content: none !important; }\n\t\t\t\t.topmenu { z-index: 1; }");
+          return "".concat(_get(_getPrototypeOf(_410chan.prototype), "css", this), "\n\t\t\t\t#resizer { display: none; }\n\t\t\t\tform > span { margin-top: 5px; }\n\t\t\t\t.de-thr-hid { display: inherit; }\n\t\t\t\t.post-badge { display: inline-block !important; }\n\t\t\t\t.reflink::after { content: none !important; }\n\t\t\t\t.spoiler-image:hover::after { content: none !important; }\n\t\t\t\t.topmenu { z-index: 1; }");
         }
       }, {
         key: "markupTags",
@@ -25997,7 +26009,7 @@ Spells.addSpell(9, '', false);
         _this120._4chan = true;
         _this120.cReply = 'post reply';
         _this120.qBan = 'strong[style="color: red;"]';
-        _this120.qClosed = '.archivedIcon';
+        _this120.qClosed = '.archivedIcon, .closedIcon';
         _this120.qDelBtn = '.deleteform > input[type="submit"]';
         _this120.qError = '#errmsg';
         _this120.qForm = 'form[name="post"]';
@@ -27103,6 +27115,7 @@ Spells.addSpell(9, '', false);
           args[_key27] = arguments[_key27];
         }
         _this134 = _super37.call.apply(_super37, [this].concat(args));
+        _this134.qClosed = 'img[title="Locked"]';
         _this134.qOPost = '.opContainer';
         _this134.jsonSubmit = false;
         return _this134;
@@ -27541,7 +27554,7 @@ Spells.addSpell(9, '', false);
 
   function scriptCSS() {
     var contentIcon = function contentIcon(id, src) {
-      return "".concat(id, "::before { content: \"\"; display: inline-block; vertical-align: -3px; padding: 16px 16px 0 0; margin-right: 4px; background: url(").concat(src, ") no-repeat center; background-size: contain; }");
+      return "".concat(id, "::before { content: \"\"; display: inline-block; vertical-align: -3px; padding: 16px 16px 0 0; margin-right: 4px; background: url(").concat(src, ") no-repeat center; background-size: contain; white-space: initial; }");
     };
     var x = "\n\t/* Main panel */\n\t#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\n\t#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\n\t#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\n\t.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0 !important; min-width: auto; transition: all .3s ease; border: none !important; background-color: transparent !important; color: inherit !important; cursor: pointer; }\n\t.de-panel-button, #de-panel-logo, #de-panel-logo-svg, .de-panel-svg { width: 25px; height: 25px; }\n\t.de-panel-button-active { stroke: #32ff32 !important; fill: #32ff32 !important; }\n\t#de-panel-expimg, #de-panel-maskimg, #de-panel-preimg { stroke: currentColor; fill: currentColor; }\n\t#de-panel-goback { transform: rotate(180deg); will-change: transform; }\n\t#de-panel-godown { transform: rotate(90deg); will-change: transform; }\n\t#de-panel-goup { transform: rotate(-90deg); will-change: transform; }\n\t#de-panel-upd-on { fill: #32ff32; }\n\t#de-panel-upd-warn { fill: #fff441; }\n\t#de-panel-upd-off { fill: #ff3232; }\n\t#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\n\t#de-panel-info { display: flex; flex: none; margin-left: 2px; font: 18px arial; }\n\t#de-panel-info > span { background-color: #fff2; margin-right: 4px; padding: 0 1px; border: 1px solid #fff3; border-radius: 4px; }\n\t#de-panel-info > span:empty { display: none; }\n\t#de-svg-icons, #de-svg-icons > svg { height: 0; width: 0; position: fixed; }\n\t.de-svg-fill { stroke: none; fill: currentColor; }\n\t.de-svg-stroke { stroke: currentColor; fill: none; }\n\tuse { fill: inherit; pointer-events: none; }\n\n\t/* Panel theme */\n\t.de-img-btn, #de-panel, .de-win-head ".concat([
     '{ background: linear-gradient(to bottom, #7b849b, #616b86 8%, #121212 60%, #1f2740 100%); }', "{ background: linear-gradient(to bottom, #4b90df, #183d77 60%, #325f9e 100%); }\n\t\t#de-panel-buttons { border-color: #8fbbed; }", "{ background-color: #777; }\n\t\t#de-panel-buttons { border-color: #ccc; }", 

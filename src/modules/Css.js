@@ -5,7 +5,7 @@
 /* eslint-disable max-len */
 
 function scriptCSS() {
-	const contentIcon = (id, src) => `${ id }::before { content: ""; display: inline-block; vertical-align: -3px; padding: 16px 16px 0 0; margin-right: 4px; background: url(${ src }) no-repeat center; background-size: contain; }`;
+	const contentIcon = (id, src) => `${ id }::before { content: ""; display: inline-block; vertical-align: -3px; padding: 16px 16px 0 0; margin-right: 4px; background: url(${ src }) no-repeat center; background-size: contain; white-space: initial; }`;
 
 	let x = `
 	/* Main panel */

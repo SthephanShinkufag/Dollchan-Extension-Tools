@@ -21,8 +21,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 		}
 		get css() {
-			return `.extrabtns > a, .extrabtns > span, #newposts_get, .replymode,
-					.ui-resizable-handle, blockquote + a { display: none !important; }
+			return `.extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle,
+					blockquote + a { display: none; }
 				.ui-wrapper { display: inline-block; width: auto !important;
 					height: auto !important; padding: 0 !important; }`;
 		}
@@ -594,7 +594,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.cReply = 'de-reply-class';
 			this.qBan = '.post__pomyanem';
-			this.qClosed = '.sticky-img[src$="locked.png"]';
+			this.qClosed = 'use[*|href="#icon__closed"]';
 			this.qDelForm = '#posts-form, #js-posts';
 			this.qFormFile = '.postform__raw.filer input[type="file"]';
 			this.qFormRedir = null;
@@ -655,7 +655,6 @@ function getImageBoard(checkDomains, checkEngines) {
 				#down-nav-arrow, #up-nav-arrow { z-index: 0; }
 				.header__opts_sticky { z-index: 10; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
-				.post__detailpart:nth-of-type(5):not(.desktop) { display: none; }
 				.post_type_hidden { opacity: unset; cursor: default; }
 				.post_type_hidden .post__message:not(.de-post-hiddencontent),
 					.post_type_hidden .post__images:not(.de-post-hiddencontent) { display: block !important; }
@@ -950,6 +949,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 
+			this.qClosed = '.icon-lock';
+
 			this.JsonBuilder = null;
 		}
 		get reportForm() {
@@ -1060,6 +1061,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 
+			this.qClosed = '.post-badge-locked';
 			this.qFormRedir = 'input#noko';
 			this.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
@@ -1077,6 +1079,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				#resizer { display: none; }
 				form > span { margin-top: 5px; }
 				.de-thr-hid { display: inherit; }
+				.post-badge { display: inline-block !important; }
 				.reflink::after { content: none !important; }
 				.spoiler-image:hover::after { content: none !important; }
 				.topmenu { z-index: 1; }`;
@@ -1115,7 +1118,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.cReply = 'post reply';
 			this.qBan = 'strong[style="color: red;"]';
-			this.qClosed = '.archivedIcon';
+			this.qClosed = '.archivedIcon, .closedIcon';
 			this.qDelBtn = '.deleteform > input[type="submit"]';
 			this.qError = '#errmsg';
 			this.qForm = 'form[name="post"]';
@@ -1919,6 +1922,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 
+			this.qClosed = 'img[title="Locked"]';
 			this.qOPost = '.opContainer';
 
 			this.jsonSubmit = false;

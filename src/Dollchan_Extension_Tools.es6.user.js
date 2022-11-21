@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.11.8.0';
-const commit = '408b583';
+const commit = '75d3491';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3911,7 +3911,7 @@ async function clear404Favorites(favObj) {
 
 async function refreshFavorites(needClear404) {
 	let isUpdate = false;
-	let last404 = false;
+	let isLast404 = false;
 	const favObj = await readFavorites();
 	const myPosts = JSON.parse(locStorage['de-myposts'] || '{}');
 	const parentEl = $q('.de-fav-table');
@@ -3920,63 +3920,70 @@ async function refreshFavorites(needClear404) {
 		const entryEl = entryEls[i];
 		const [titleEl, youEl, newEl, totalEl] = [...entryEl.lastElementChild.children];
 		const iconEl = titleEl.firstElementChild;
-		// setAttribute for class is used for correct SVG work in old browsers
-		iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
-		titleEl.title = Lng.updating[lang];
 		const host = entryEl.getAttribute('de-host');
 		const board = entryEl.getAttribute('de-board');
 		const num = entryEl.getAttribute('de-num');
 		const url = entryEl.getAttribute('de-url');
 		const entry = favObj[host][board][num];
-		if(host !== aib.host || entry.err === 'Closed' || entry.err === 'Archived') {
+		if(entry.err === 'Archived') {
+			continue;
+		}
+		if(host !== aib.host || entry.err === 'Closed') {
 			if(needClear404) {
 				parentEl.classList.add('de-fav-table-unfold');
+				const oldClassName = iconEl.getAttribute('class');
+				const oldTitle = titleEl.title;
+				// setAttribute for class is used for correct SVG work in old browsers
+				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+				titleEl.title = Lng.updating[lang];
 				try {
 					await $ajax(url, null, true);
-					iconEl.setAttribute('class', 'de-fav-inf-icon');
-					titleEl.removeAttribute('title');
-					last404 = false;
+					iconEl.setAttribute('class', oldClassName);
+					$toggleAttr(titleEl, 'title', oldTitle, oldTitle);
+					isLast404 = false;
 				} catch(err) {
 					if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
-						if(!last404) {
-							last404 = true;
+						if(!isLast404) {
+							isLast404 = true;
 							--i; // Repeat this cycle again
 							continue;
 						}
 						Thread.removeSavedData(board, num); // Not working yet
-						entryEl.setAttribute('de-removed', ''); // Mark an entry as deleted
-						isUpdate = true;
 					}
+					entryEl.setAttribute('de-removed', ''); // Mark an entry as deleted
 					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-					titleEl.title = getErrorMessage(err);
-					last404 = false;
+					titleEl.title = entry.err = getErrorMessage(err);
+					isLast404 = false;
+					isUpdate = true;
 				}
 			}
 			continue;
 		}
 		let formEl, isArchived;
+		iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+		titleEl.title = Lng.updating[lang];
 		try {
-			if(!aib.hasArchive) {
-				formEl = await ajaxLoad(url);
-			} else {
+			if(aib.hasArchive) {
 				[formEl, isArchived] = await ajaxLoad(url, true, false, true);
+			} else {
+				formEl = await ajaxLoad(url);
 			}
-			last404 = false;
+			isLast404 = false;
 		} catch(err) {
-			if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
-				if(!last404) {
-					last404 = true;
-					--i; // Repeat this cycle again
+			if((err instanceof AjaxError) && err.code === 404) {
+				if(!isLast404) {
+					isLast404 = true;
+					--i;
 					continue;
 				}
-				Thread.removeSavedData(board, num); // Not working yet
+				Thread.removeSavedData(board, num);
 			}
 			$hide(newEl);
 			$hide(youEl);
 			entryEl.setAttribute('de-removed', '');
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 			titleEl.title = entry.err = getErrorMessage(err);
-			last404 = false;
+			isLast404 = false;
 			isUpdate = true;
 			continue;
 		}
@@ -15735,8 +15742,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 		}
 		get css() {
-			return `.extrabtns > a, .extrabtns > span, #newposts_get, .replymode,
-					.ui-resizable-handle, blockquote + a { display: none !important; }
+			return `.extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle,
+					blockquote + a { display: none; }
 				.ui-wrapper { display: inline-block; width: auto !important;
 					height: auto !important; padding: 0 !important; }`;
 		}
@@ -16308,7 +16315,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.cReply = 'de-reply-class';
 			this.qBan = '.post__pomyanem';
-			this.qClosed = '.sticky-img[src$="locked.png"]';
+			this.qClosed = 'use[*|href="#icon__closed"]';
 			this.qDelForm = '#posts-form, #js-posts';
 			this.qFormFile = '.postform__raw.filer input[type="file"]';
 			this.qFormRedir = null;
@@ -16369,7 +16376,6 @@ function getImageBoard(checkDomains, checkEngines) {
 				#down-nav-arrow, #up-nav-arrow { z-index: 0; }
 				.header__opts_sticky { z-index: 10; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
-				.post__detailpart:nth-of-type(5):not(.desktop) { display: none; }
 				.post_type_hidden { opacity: unset; cursor: default; }
 				.post_type_hidden .post__message:not(.de-post-hiddencontent),
 					.post_type_hidden .post__images:not(.de-post-hiddencontent) { display: block !important; }
@@ -16664,6 +16670,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 
+			this.qClosed = '.icon-lock';
+
 			this.JsonBuilder = null;
 		}
 		get reportForm() {
@@ -16774,6 +16782,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 
+			this.qClosed = '.post-badge-locked';
 			this.qFormRedir = 'input#noko';
 			this.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
@@ -16791,6 +16800,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				#resizer { display: none; }
 				form > span { margin-top: 5px; }
 				.de-thr-hid { display: inherit; }
+				.post-badge { display: inline-block !important; }
 				.reflink::after { content: none !important; }
 				.spoiler-image:hover::after { content: none !important; }
 				.topmenu { z-index: 1; }`;
@@ -16829,7 +16839,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.cReply = 'post reply';
 			this.qBan = 'strong[style="color: red;"]';
-			this.qClosed = '.archivedIcon';
+			this.qClosed = '.archivedIcon, .closedIcon';
 			this.qDelBtn = '.deleteform > input[type="submit"]';
 			this.qError = '#errmsg';
 			this.qForm = 'form[name="post"]';
@@ -17633,6 +17643,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 
+			this.qClosed = 'img[title="Locked"]';
 			this.qOPost = '.opContainer';
 
 			this.jsonSubmit = false;
@@ -18219,7 +18230,7 @@ function addSVGIcons() {
 /* eslint-disable max-len */
 
 function scriptCSS() {
-	const contentIcon = (id, src) => `${ id }::before { content: ""; display: inline-block; vertical-align: -3px; padding: 16px 16px 0 0; margin-right: 4px; background: url(${ src }) no-repeat center; background-size: contain; }`;
+	const contentIcon = (id, src) => `${ id }::before { content: ""; display: inline-block; vertical-align: -3px; padding: 16px 16px 0 0; margin-right: 4px; background: url(${ src }) no-repeat center; background-size: contain; white-space: initial; }`;
 
 	let x = `
 	/* Main panel */

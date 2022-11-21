@@ -110,7 +110,7 @@ async function clear404Favorites(favObj) {
 
 async function refreshFavorites(needClear404) {
 	let isUpdate = false;
-	let last404 = false;
+	let isLast404 = false;
 	const favObj = await readFavorites();
 	const myPosts = JSON.parse(locStorage['de-myposts'] || '{}');
 	const parentEl = $q('.de-fav-table');
@@ -119,63 +119,70 @@ async function refreshFavorites(needClear404) {
 		const entryEl = entryEls[i];
 		const [titleEl, youEl, newEl, totalEl] = [...entryEl.lastElementChild.children];
 		const iconEl = titleEl.firstElementChild;
-		// setAttribute for class is used for correct SVG work in old browsers
-		iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
-		titleEl.title = Lng.updating[lang];
 		const host = entryEl.getAttribute('de-host');
 		const board = entryEl.getAttribute('de-board');
 		const num = entryEl.getAttribute('de-num');
 		const url = entryEl.getAttribute('de-url');
 		const entry = favObj[host][board][num];
-		if(host !== aib.host || entry.err === 'Closed' || entry.err === 'Archived') {
+		if(entry.err === 'Archived') {
+			continue;
+		}
+		if(host !== aib.host || entry.err === 'Closed') {
 			if(needClear404) {
 				parentEl.classList.add('de-fav-table-unfold');
+				const oldClassName = iconEl.getAttribute('class');
+				const oldTitle = titleEl.title;
+				// setAttribute for class is used for correct SVG work in old browsers
+				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+				titleEl.title = Lng.updating[lang];
 				try {
 					await $ajax(url, null, true);
-					iconEl.setAttribute('class', 'de-fav-inf-icon');
-					titleEl.removeAttribute('title');
-					last404 = false;
+					iconEl.setAttribute('class', oldClassName);
+					$toggleAttr(titleEl, 'title', oldTitle, oldTitle);
+					isLast404 = false;
 				} catch(err) {
 					if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
-						if(!last404) {
-							last404 = true;
+						if(!isLast404) {
+							isLast404 = true;
 							--i; // Repeat this cycle again
 							continue;
 						}
 						Thread.removeSavedData(board, num); // Not working yet
-						entryEl.setAttribute('de-removed', ''); // Mark an entry as deleted
-						isUpdate = true;
 					}
+					entryEl.setAttribute('de-removed', ''); // Mark an entry as deleted
 					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-					titleEl.title = getErrorMessage(err);
-					last404 = false;
+					titleEl.title = entry.err = getErrorMessage(err);
+					isLast404 = false;
+					isUpdate = true;
 				}
 			}
 			continue;
 		}
 		let formEl, isArchived;
+		iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+		titleEl.title = Lng.updating[lang];
 		try {
-			if(!aib.hasArchive) {
-				formEl = await ajaxLoad(url);
-			} else {
+			if(aib.hasArchive) {
 				[formEl, isArchived] = await ajaxLoad(url, true, false, true);
+			} else {
+				formEl = await ajaxLoad(url);
 			}
-			last404 = false;
+			isLast404 = false;
 		} catch(err) {
-			if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
-				if(!last404) {
-					last404 = true;
-					--i; // Repeat this cycle again
+			if((err instanceof AjaxError) && err.code === 404) {
+				if(!isLast404) {
+					isLast404 = true;
+					--i;
 					continue;
 				}
-				Thread.removeSavedData(board, num); // Not working yet
+				Thread.removeSavedData(board, num);
 			}
 			$hide(newEl);
 			$hide(youEl);
 			entryEl.setAttribute('de-removed', '');
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 			titleEl.title = entry.err = getErrorMessage(err);
-			last404 = false;
+			isLast404 = false;
 			isUpdate = true;
 			continue;
 		}
