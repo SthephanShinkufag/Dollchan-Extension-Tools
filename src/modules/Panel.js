@@ -92,7 +92,7 @@ const Panel = Object.create({
 			case 'de-panel-expimg':
 				el.classList.toggle('de-panel-button-active');
 				isExpImg = !isExpImg;
-				$del($q('.de-fullimg-center'));
+				$q('.de-fullimg-center')?.remove();
 				for(let post = Thread.first.op; post; post = post.next) {
 					post.toggleImages(isExpImg, false);
 				}
@@ -124,7 +124,7 @@ const Panel = Object.create({
 				} else {
 					el.id = 'de-panel-audio-off';
 				}
-				$del($q('.de-menu'));
+				$q('.de-menu')?.remove();
 				return;
 			case 'de-panel-savethr': return;
 			case 'de-panel-enable':

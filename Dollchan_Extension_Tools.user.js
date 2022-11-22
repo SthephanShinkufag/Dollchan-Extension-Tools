@@ -7198,7 +7198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.11.8.0';
-  var commit = '75d3491';
+  var commit = '0344e7e';
 
 
   var defaultCfg = {
@@ -7822,49 +7822,46 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     return doc.getElementById(id);
   };
   var $q = function $q(path) {
-    var root = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : docBody;
-    return root.querySelector(path);
+    var rootEl = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : docBody;
+    return rootEl.querySelector(path);
   };
   var $Q = function $Q(path) {
-    var root = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : docBody;
-    return root.querySelectorAll(path);
+    var rootEl = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : docBody;
+    return rootEl.querySelectorAll(path);
   };
-  var $match = function $match(parent) {
+  var $match = function $match(parentEl) {
     for (var _len = arguments.length, rules = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
       rules[_key - 1] = arguments[_key];
     }
-    return parent.split(', ').map(function (val) {
+    return parentEl.split(', ').map(function (val) {
       return val + rules.join(', ' + val);
     }).join(', ');
   };
 
 
-  function $bBegin(sibling, html) {
-    sibling.insertAdjacentHTML('beforebegin', html);
-    return sibling.previousSibling;
+  function $bBegin(siblingEl, html) {
+    siblingEl.insertAdjacentHTML('beforebegin', html);
+    return siblingEl.previousSibling;
   }
-  function $aBegin(parent, html) {
-    parent.insertAdjacentHTML('afterbegin', html);
-    return parent.firstChild;
+  function $aBegin(parentEl, html) {
+    parentEl.insertAdjacentHTML('afterbegin', html);
+    return parentEl.firstChild;
   }
-  function $bEnd(parent, html) {
-    parent.insertAdjacentHTML('beforeend', html);
-    return parent.lastChild;
+  function $bEnd(parentEl, html) {
+    parentEl.insertAdjacentHTML('beforeend', html);
+    return parentEl.lastChild;
   }
-  function $aEnd(sibling, html) {
-    sibling.insertAdjacentHTML('afterend', html);
-    return sibling.nextSibling;
+  function $aEnd(siblingEl, html) {
+    siblingEl.insertAdjacentHTML('afterend', html);
+    return siblingEl.nextSibling;
   }
   function $replace(el, html) {
     el.insertAdjacentHTML('afterend', html);
     el.remove();
   }
-  function $del(el) {
-    el === null || el === void 0 ? void 0 : el.remove();
-  }
   function $delAll(path) {
-    var root = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : docBody;
-    root.querySelectorAll(path, root).forEach(function (el) {
+    var rootEl = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : docBody;
+    rootEl.querySelectorAll(path, rootEl).forEach(function (el) {
       return el.remove();
     });
   }
@@ -7886,10 +7883,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     el.remove();
   }
   function $css(text) {
-    if (nav.isSafari && !('flex' in docBody.style)) {
-      text = text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1');
-    }
-    return $bEnd(doc.head, "<style type=\"text/css\">".concat(text, "</style>"));
+    return $bEnd(doc.head, "<style type=\"text/css\">".concat(nav.isSafari && !('flex' in docBody.style) ? text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1') : text, "</style>"));
   }
   function $createDoc(html) {
     var myDoc = doc.implementation.createHTMLDocument('');
@@ -9520,7 +9514,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     handleEvent: function handleEvent(e) {
       var _this14 = this;
       return _asyncToGenerator( _regeneratorRuntime().mark(function _callee5() {
-        var _this14$_menu;
+        var _$q, _$q2, _this14$_menu;
         var el, post, _iterator3, _step3, _el2;
         return _regeneratorRuntime().wrap(function _callee5$(_context5) {
           while (1) {
@@ -9581,7 +9575,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 32:
                 el.classList.toggle('de-panel-button-active');
                 isExpImg = !isExpImg;
-                $del($q('.de-fullimg-center'));
+                (_$q = $q('.de-fullimg-center')) === null || _$q === void 0 ? void 0 : _$q.remove();
                 for (post = Thread.first.op; post; post = post.next) {
                   post.toggleImages(isExpImg, false);
                 }
@@ -9613,7 +9607,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 } else {
                   el.id = 'de-panel-audio-off';
                 }
-                $del($q('.de-menu'));
+                (_$q2 = $q('.de-menu')) === null || _$q2 === void 0 ? void 0 : _$q2.remove();
                 return _context5.abrupt("return");
               case 51:
                 return _context5.abrupt("return");
@@ -11983,7 +11977,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         if (typeof data === 'string') {
           p = encodeURIComponent(data) + '" target="_blank">' + Lng.frameSearch[lang];
         } else {
-          var _$q;
+          var _$q3;
           var link = data.nextSibling;
           var href = link.href;
           var origSrc = link.getAttribute('de-href') || href;
@@ -12010,7 +12004,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             dlLinks += getDlLnk(href, realName, Lng.origName[lang], false);
           }
           var webmTitle;
-          if (isFullImg && (webmTitle = (_$q = $q('.de-webm-title', link.parentNode)) === null || _$q === void 0 ? void 0 : _$q.textContent)) {
+          if (isFullImg && (webmTitle = (_$q3 = $q('.de-webm-title', link.parentNode)) === null || _$q3 === void 0 ? void 0 : _$q3.textContent)) {
             dlLinks += getDlLnk(href, webmTitle, Lng.metaName[lang], true);
           }
           dlLinks += getDlLnk(href, name, Lng.boardName[lang], false);
@@ -12692,7 +12686,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           } else if (imgData !== null && imgData !== void 0 && imgData.length) {
             tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
           } else {
-            $del(el);
+            el.remove();
           }
         });
       }, function () {
@@ -13261,7 +13255,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       value: function toggleFloatedThumb(linkEl, isOutEvent) {
         var el = $id('de-video-thumb-floated');
         if (isOutEvent) {
-          $del(el);
+          el.remove();
           return;
         }
         if (!el) {
@@ -16494,16 +16488,18 @@ this.disableSpells();
       key: "_toggleQuickReply",
       value: function _toggleQuickReply(tNum) {
         if (this.oeForm) {
-          $del($q('input[name="oek_parent"]', this.oeForm));
+          var _$q4;
+          (_$q4 = $q('input[name="oek_parent"]', this.oeForm)) === null || _$q4 === void 0 ? void 0 : _$q4.remove();
           if (tNum) {
             this.oeForm.insertAdjacentHTML('afterbegin', "<input type=\"hidden\" value=\"".concat(tNum, "\" name=\"oek_parent\">"));
           }
         }
         if (this.form) {
+          var _$q5;
           if (aib.changeReplyMode && tNum !== this.tNum) {
             aib.changeReplyMode(this.form, tNum);
           }
-          $del($q("input[name=\"".concat(aib.formParent, "\"]"), this.form));
+          (_$q5 = $q("input[name=\"".concat(aib.formParent, "\"]"), this.form)) === null || _$q5 === void 0 ? void 0 : _$q5.remove();
           if (tNum) {
             this.form.insertAdjacentHTML('afterbegin', "<input type=\"hidden\" name=\"".concat(aib.formParent, "\" value=\"").concat(tNum, "\">"));
           }
@@ -17405,8 +17401,7 @@ this.disableSpells();
       if (FileInput._isThumbMode) {
         this._initThumbs();
       } else {
-        this._input.before(this._txtWrap);
-        this._input.after(this._utils);
+        this._initUtils();
       }
     }
     _createClass(FileInput, [{
@@ -17499,6 +17494,7 @@ this.disableSpells();
     }, {
       key: "changeMode",
       value: function changeMode(showThumbs) {
+        var _$q6;
         $toggle(this._input, !Cfg.fileInputs);
         $toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs);
         $toggle(this._btnRen, Cfg.fileInputs && this.hasFile);
@@ -17509,16 +17505,15 @@ this.disableSpells();
           this._initThumbs();
           return;
         }
-        this._input.before(this._txtWrap);
-        this._input.after(this._utils);
-        $del($q('de-file-txt-area'));
+        this._initUtils();
         $show(this._parent.fileTr);
         $show(this._txtWrap);
         if (this._mediaEl) {
           deWindow.URL.revokeObjectURL(this._mediaEl.src);
         }
         this._toggleDragEvents(this._thumb, false);
-        $del(this._thumb);
+        (_$q6 = $q('.de-file-txt-area')) === null || _$q6 === void 0 ? void 0 : _$q6.remove();
+        this._thumb.remove();
         this._thumb = this._mediaEl = null;
       }
     }, {
@@ -17534,6 +17529,7 @@ this.disableSpells();
           }
         }
         if (this._btnDel) {
+          var _this$_rarMsg;
           this._toggleDelBtn(false);
           $hide(this._btnSpoil);
           if (this._spoilEl) {
@@ -17541,7 +17537,7 @@ this.disableSpells();
           }
           $hide(this._btnRar);
           $hide(this._txtAddBtn);
-          $del(this._rarMsg);
+          (_this$_rarMsg = this._rarMsg) === null || _this$_rarMsg === void 0 ? void 0 : _this$_rarMsg.remove();
           if (FileInput._isThumbMode) {
             $hide(this._txtWrap);
           }
@@ -17805,6 +17801,13 @@ this.disableSpells();
         }
       }
     }, {
+      key: "_initUtils",
+      value: function _initUtils() {
+        this._input.parentNode.classList.add('de-file-wrap');
+        this._input.before(this._txtWrap);
+        this._input.after(this._utils);
+      }
+    }, {
       key: "_onFileChange",
       value: function _onFileChange(hasImgFile) {
         this._txtInput.value = hasImgFile ? this.imgFile.name : this._input.files[0].name;
@@ -17836,7 +17839,8 @@ this.disableSpells();
         }
         this._parent.hideEmpty();
         if (!nav.isPresto && !aib._4chan && /^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile.type : this._input.files[0].type)) {
-          $del(this._rarMsg);
+          var _this$_rarMsg2;
+          (_this$_rarMsg2 = this._rarMsg) === null || _this$_rarMsg2 === void 0 ? void 0 : _this$_rarMsg2.remove();
           $show(this._btnRar);
         }
       }
@@ -19048,8 +19052,8 @@ Spells.addSpell(9, '', false);
           HotKeys.cPost = this;
           HotKeys.lastPageOffset = deWindow.pageYOffset;
         } else {
-          var _$q2;
-          (_$q2 = $q('.de-selected')) === null || _$q2 === void 0 ? void 0 : _$q2.unselect();
+          var _$q7;
+          (_$q7 = $q('.de-selected')) === null || _$q7 === void 0 ? void 0 : _$q7.unselect();
         }
         this.select();
       }
@@ -19682,13 +19686,13 @@ Spells.addSpell(9, '', false);
       key: "_buildPview",
       value: function () {
         var _buildPview2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee37(post) {
-          var _yield$readFavorites$, _yield$readFavorites$2;
+          var _this$el, _yield$readFavorites$, _yield$readFavorites$2;
           var num, pv, isMyPost, isOp, isFav, isCached, postsCountHtml, pText, btnsEl, link;
           return _regeneratorRuntime().wrap(function _callee37$(_context40) {
             while (1) {
               switch (_context40.prev = _context40.next) {
                 case 0:
-                  $del(this.el);
+                  (_this$el = this.el) === null || _this$el === void 0 ? void 0 : _this$el.remove();
                   num = this.num;
                   pv = this.el = post.el.cloneNode(true);
                   pByEl.set(pv, this);
@@ -19757,7 +19761,7 @@ Spells.addSpell(9, '', false);
                     processImgInfoLinks(this);
                   } else {
                     btnsEl = this.btns = $q('.de-post-btns', pv);
-                    $del($q('.de-post-counter', btnsEl));
+                    $q('.de-post-counter', btnsEl).remove();
                     if (post.isHidden) {
                       btnsEl.classList.add('de-post-hide');
                     }
@@ -22081,12 +22085,12 @@ Spells.addSpell(9, '', false);
         this._set["delete"](num);
         if (!this._set.size) {
           this.removeMap();
-        } else {
-          var el = this.getElByNum(num);
-          if (el) {
-            $del(el.nextSibling);
-            el.remove();
-          }
+          return;
+        }
+        var el = this.getElByNum(num);
+        if (el) {
+          el.nextSibling.remove();
+          el.remove();
         }
       }
     }, {
@@ -22575,7 +22579,7 @@ Spells.addSpell(9, '', false);
             bEl = _step35$value[2];
           var post = bNum ? pByNum.get(bNum) : this.op;
           if (post && post.banned !== banId) {
-            $del($q(aib.qBan, post.el));
+            $q(aib.qBan, post.el).remove();
             post.msg.append(bEl);
             post.banned = banId;
           }
@@ -22617,6 +22621,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "_loadFromBuilder",
       value: function _loadFromBuilder(last, smartScroll, pBuilder) {
+        var _$q8;
         var nextCoord;
         var maybeSpells = new Maybe(SpellsRunner);
         if (smartScroll) {
@@ -22628,7 +22633,7 @@ Spells.addSpell(9, '', false);
         }
         var op = this.op,
           thrEl = this.el;
-        $del($q(aib.qOmitted + ', .de-omitted', thrEl));
+        (_$q8 = $q(aib.qOmitted + ', .de-omitted', thrEl)) === null || _$q8 === void 0 ? void 0 : _$q8.remove();
         if (this.loadCount === 0) {
           if (op.trunc) {
             op.updateMsg(pBuilder.getOpMessage(), maybeSpells.value);
@@ -22854,7 +22859,8 @@ Spells.addSpell(9, '', false);
     }, {
       key: "_toggleReplies",
       value: function _toggleReplies() {
-        var _this88 = this;
+        var _this88 = this,
+          _$q9;
         var isHide = !this.last.isOmitted;
         var post = this.op;
         var i = 0;
@@ -22866,7 +22872,7 @@ Spells.addSpell(9, '', false);
         _toConsumableArray(this.btns.children).forEach(function (el) {
           return el !== _this88.btnReplies && $toggle(el, !isHide);
         });
-        $del($q(aib.qOmitted + ', .de-omitted', this.el));
+        (_$q9 = $q(aib.qOmitted + ', .de-omitted', this.el)) === null || _$q9 === void 0 ? void 0 : _$q9.remove();
         i = this.postsCount - 1 - (isHide ? 0 : i);
         if (i) {
           this.op.el.insertAdjacentHTML('afterend', "<span class=\"de-omitted\">".concat(i, "</span> "));
@@ -24322,7 +24328,7 @@ Spells.addSpell(9, '', false);
           var newForm = $bBegin(data, str);
           $hide(data);
           deWindow.addEventListener('load', function () {
-            return $del($id('de-dform-old'));
+            return $id('de-dform-old').remove();
           });
           return newForm;
         }
@@ -24344,8 +24350,7 @@ Spells.addSpell(9, '', false);
           if (m) {
             videos.push([isPost ? data : this.getPostOfEl(el), m, true]);
             el.remove();
-          }
-          if (Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
+          } else if (Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
             videos.push([isPost ? data : this.getPostOfEl(el), m, false]);
             el.remove();
           }
@@ -24491,7 +24496,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "removeFormButtons",
       value: function removeFormButtons(el) {
-        $del(el);
+        el === null || el === void 0 ? void 0 : el.remove();
       }
     }, {
       key: "isAjaxStatusOK",
@@ -24578,7 +24583,10 @@ Spells.addSpell(9, '', false);
         value: function init() {
           var el = $id('posttypeindicator');
           if (el) {
-            [el.previousSibling, el.nextSibling, el].forEach($del);
+            var _el$previousSibling, _el$nextSibling;
+            (_el$previousSibling = el.previousSibling) === null || _el$previousSibling === void 0 ? void 0 : _el$previousSibling.remove();
+            (_el$nextSibling = el.nextSibling) === null || _el$nextSibling === void 0 ? void 0 : _el$nextSibling.remove();
+            el.remove();
           }
           return false;
         }
@@ -24654,7 +24662,7 @@ Spells.addSpell(9, '', false);
                     postform.subm.value = Lng.reply[lang];
                     pageInp = $q('input[name="page"]', form);
                     if (tNum) {
-                      $del(pageInp);
+                      pageInp === null || pageInp === void 0 ? void 0 : pageInp.remove();
                     } else if (!pageInp) {
                       form.insertAdjacentHTML('beforeend', '<input name="page" value="1" type="hidden">');
                     }
@@ -24810,7 +24818,7 @@ Spells.addSpell(9, '', false);
           el.innerHTML = Array.from({
             length: 5
           }, function (val, i) {
-            return "<div".concat(i ? ' style="display: none;"' : '', ">") + "<input type=\"file\" name=\"file".concat(i ? i + 1 : '', "\"></div>");
+            return "<div class=\"de-file-wrap\"".concat(i ? ' style="display: none;"' : '', ">\n\t\t\t\t<input type=\"file\" name=\"file").concat(i ? i + 1 : '', "\"></div>");
           }).join('');
         }
       }, {
@@ -24821,6 +24829,7 @@ Spells.addSpell(9, '', false);
       }, {
         key: "init",
         value: function init() {
+          var _$id3;
           _get(_getPrototypeOf(Vichan.prototype), "init", this).call(this);
           if (locStorage.file_dragdrop !== 'false') {
             locStorage.file_dragdrop = false;
@@ -24829,12 +24838,10 @@ Spells.addSpell(9, '', false);
           }
           $script('highlightReply = Function.prototype;');
           setTimeout(function () {
-            return $del($id('updater'));
+            var _$id2;
+            return (_$id2 = $id('updater')) === null || _$id2 === void 0 ? void 0 : _$id2.remove();
           }, 0);
-          var textarea = $id('body');
-          if (textarea) {
-            textarea.removeAttribute('id');
-          }
+          (_$id3 = $id('body')) === null || _$id3 === void 0 ? void 0 : _$id3.removeAttribute('id');
           return false;
         }
       }]);
@@ -24976,9 +24983,9 @@ Spells.addSpell(9, '', false);
       }, {
         key: "fixFileInputs",
         value: function fixFileInputs(el) {
-          var str = '><input name="files" type="file"></div>';
-          var maxEl = $id('labelMaxFiles');
-          el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat((maxEl ? +maxEl.textContent : 3) - 1);
+          var _$id4;
+          var str = ' class="de-file-wrap"><input name="files" type="file"></div>';
+          el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat((+((_$id4 = $id('labelMaxFiles')) === null || _$id4 === void 0 ? void 0 : _$id4.textContent) || 3) - 1);
         }
       }, {
         key: "getCapParent",
@@ -25355,7 +25362,7 @@ Spells.addSpell(9, '', false);
       }, {
         key: "fixFileInputs",
         value: function fixFileInputs(el) {
-          var str = '><input type="file" name="file"></div>';
+          var str = ' class="de-file-wrap"><input type="file" name="file"></div>';
           el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
         }
       }, {
@@ -25476,8 +25483,8 @@ Spells.addSpell(9, '', false);
       }, {
         key: "postersCount",
         get: function get() {
-          var _$q3;
-          return ((_$q3 = $q('span[title="Постеры"]')) === null || _$q3 === void 0 ? void 0 : _$q3.innerHTML.match(/\d+$/)[0]) || '';
+          var _$q10;
+          return ((_$q10 = $q('span[title="Постеры"]')) === null || _$q10 === void 0 ? void 0 : _$q10.innerHTML.match(/\d+$/)[0]) || '';
         }
       }, {
         key: "reportForm",
@@ -25626,7 +25633,7 @@ Spells.addSpell(9, '', false);
           el.innerHTML = Array.from({
             length: 8
           }, function (val, i) {
-            return "<div".concat(i ? ' style="display: none;"' : '', "><input type=\"file\" name=\"file[]\"></div>");
+            return "<div class=\"de-file-wrap\"".concat(i ? ' style="display: none;"' : '', ">\n\t\t\t\t<input type=\"file\" name=\"file[]\"></div>");
           }).join('');
         }
       }, {
@@ -25768,7 +25775,7 @@ Spells.addSpell(9, '', false);
       }, {
         key: "removeFormButtons",
         value: function removeFormButtons(el) {
-          $del(el === null || el === void 0 ? void 0 : el.parentNode);
+          el === null || el === void 0 ? void 0 : el.parentNode.remove();
         }
       }]);
       return Makaba;
@@ -25837,7 +25844,7 @@ Spells.addSpell(9, '', false);
           el.innerHTML = Array.from({
             length: 4
           }, function (val, i) {
-            return "<div".concat(i ? ' style="display: none;"' : '', "><input type=\"file\" name=\"formimages[]\"></div>");
+            return "<div class=\"de-file-wrap\"".concat(i ? ' style="display: none;"' : '', ">\n\t\t\t\t<input type=\"file\" name=\"formimages[]\"></div>");
           }).join('');
         }
       }, {
@@ -25989,8 +25996,8 @@ Spells.addSpell(9, '', false);
       }, {
         key: "getSage",
         value: function getSage(post) {
-          var _$q4;
-          return !!((_$q4 = $q('.filetitle', post)) !== null && _$q4 !== void 0 && _$q4.textContent.includes("\u21E9"));
+          var _$q11;
+          return !!((_$q11 = $q('.filetitle', post)) !== null && _$q11 !== void 0 && _$q11.textContent.includes("\u21E9"));
         }
       }]);
       return _410chan;
@@ -26084,8 +26091,8 @@ Spells.addSpell(9, '', false);
       }, {
         key: "postersCount",
         get: function get() {
-          var _$q5;
-          var value = ((_$q5 = $q('span[class="ts-ips"]')) === null || _$q5 === void 0 ? void 0 : _$q5.innerHTML) || '';
+          var _$q12;
+          var value = ((_$q12 = $q('span[class="ts-ips"]')) === null || _$q12 === void 0 ? void 0 : _$q12.innerHTML) || '';
           if (!value) {
             $script("setTimeout(function() {\n\t\t\t\t\tdocument.getElementById(\"de-panel-info-posters\").textContent = window.unique_ips || \"\";\n\t\t\t\t}, 0)");
           }
@@ -26175,10 +26182,10 @@ Spells.addSpell(9, '', false);
       }, {
         key: "init",
         value: function init() {
-          var _$id2;
+          var _$id5;
           Cfg.findImgFile = 0;
           Cfg.txtBtnsLoc = 0;
-          (_$id2 = $id('styleSelector')) === null || _$id2 === void 0 ? void 0 : _$id2.setAttribute('onchange', 'setActiveStyleSheet(this.value);');
+          (_$id5 = $id('styleSelector')) === null || _$id5 === void 0 ? void 0 : _$id5.setAttribute('onchange', 'setActiveStyleSheet(this.value);');
           return false;
         }
       }]);
@@ -26406,7 +26413,10 @@ Spells.addSpell(9, '', false);
       }, {
         key: "deleteTruncMsg",
         value: function deleteTruncMsg(post, el, isInit) {
-          [el.previousSibling, el.nextSibling, el].forEach($del);
+          var _el$previousSibling2, _el$nextSibling2;
+          (_el$previousSibling2 = el.previousSibling) === null || _el$previousSibling2 === void 0 ? void 0 : _el$previousSibling2.remove();
+          (_el$nextSibling2 = el.nextSibling) === null || _el$nextSibling2 === void 0 ? void 0 : _el$nextSibling2.remove();
+          el.remove();
           if (isInit) {
             post.msg.firstElementChild.replaceWith($q('.alternate > div', post.el));
           } else {
@@ -26471,7 +26481,7 @@ Spells.addSpell(9, '', false);
       }, {
         key: "init",
         value: function init() {
-          var _$id3;
+          var _$id6;
           if (deWindow.location.pathname === '/settings') {
             $q('input[type="button"]').addEventListener('click', _asyncToGenerator( _regeneratorRuntime().mark(function _callee46() {
               return _regeneratorRuntime().wrap(function _callee46$(_context55) {
@@ -26493,7 +26503,7 @@ Spells.addSpell(9, '', false);
             return true;
           }
           $script('UploadProgress = Function.prototype;');
-          (_$id3 = $id('postform')) === null || _$id3 === void 0 ? void 0 : _$id3.append($q('.rules'));
+          (_$id6 = $id('postform')) === null || _$id6 === void 0 ? void 0 : _$id6.append($q('.rules'));
           return false;
         }
       }, {
@@ -26529,7 +26539,7 @@ Spells.addSpell(9, '', false);
       }, {
         key: "fixFileInputs",
         value: function fixFileInputs(el) {
-          var str = '><input type="file" name="file[]"></div>';
+          var str = ' class="de-file-wrap"><input type="file" name="file[]"></div>';
           el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
         }
       }, {
@@ -26569,11 +26579,11 @@ Spells.addSpell(9, '', false);
         value: function init() {
           _get(_getPrototypeOf(Endchan.prototype), "init", this).call(this);
           $Q('.imgLink > img[src^="/.youtube/"]').forEach(function (el) {
-            return $del(el.closest('figure'));
+            return el.closest('figure').remove();
           });
           $Q('.youtube_wrapper').forEach(function (el) {
             var src = $q('a', el).href;
-            $del($bBegin(el, "<a href=\"".concat(src, "\">").concat(src, "</a>")).nextSibling);
+            $bBegin(el, "<a href=\"".concat(src, "\">").concat(src, "</a>")).nextSibling.remove();
           });
           return false;
         }
@@ -26623,7 +26633,7 @@ Spells.addSpell(9, '', false);
       }, {
         key: "fixFileInputs",
         value: function fixFileInputs(el) {
-          var str = "><input name=\"file\" type=\"file\">\n\t\t\t\t<input type=\"hidden\" name=\"spoilered\" value=\"0\">\n\t\t\t\t<input type=\"checkbox\" name=\"spoilered\" value=\"1\"></div>";
+          var str = " class=\"de-file-wrap\"><input name=\"file\" type=\"file\">\n\t\t\t\t<input type=\"hidden\" name=\"spoilered\" value=\"0\">\n\t\t\t\t<input type=\"checkbox\" name=\"spoilered\" value=\"1\"></div>";
           el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
         }
       }, {
@@ -26780,7 +26790,7 @@ Spells.addSpell(9, '', false);
           var el = $q(this.qFormSpoiler);
           if (el) {
             $hide(el = el.parentNode);
-            $del(el.previousSibling);
+            el.previousSibling.remove();
           }
           return false;
         }
@@ -27570,7 +27580,7 @@ Spells.addSpell(9, '', false);
       Cfg.animation = 0;
     }
     var p = Math.max(Cfg.minImgSize || 0, 50);
-    x += "\n\t/* Full images */\n\t.de-img-embed, .de-fullimg { border: none; outline: none; cursor: pointer; image-orientation: from-image; }\n\t.de-img-embed { max-width: 200px; max-height: 200px; }\n\t.de-fullimg { display: block; }\n\t.de-fullimg, .de-fullimg-wrap-link { flex: 0 0 auto; transition: none !important; max-width: none; max-height: none; }\n\t.de-fullimg-after { clear: left; }\n\t.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-fullimg-info { position: absolute; bottom: -22px; left: 50%; padding: 1px 4px; transform: translateX(-50%); background-color: rgba(64,64,64,.8); white-space: nowrap; line-height: 17px; }\n\t.de-fullimg-info > .de-btn-img { color: #fff; }\n\t.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }\n\t.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }\n\t.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\n\t.de-fullimg-rotated { transform-origin: top left; width: auto !important; max-width: none !important; }\n\t.de-fullimg-scale { color: #fff; font: bold 12px tahoma; cursor: default; }\n\t.de-fullimg-video-hack { width: 100%; height: calc(100% - 40px); position: absolute; z-index: 1; cursor: pointer; }\n\t.de-fullimg-wrap { position: relative; margin-bottom: 24px; }\n\t.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: 100%; height: 100%; max-height: 100%; }\n\t.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }\n\t.de-fullimg-wrap-inpost { min-width: ".concat(p, "px; min-height: ").concat(p, "px; float: left; ").concat(aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ', " }\n\t.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }\n\t.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }\n\t.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }\n\t#de-img-btn-auto { right: 0; margin-top: 58px; }\n\t.de-img-btn-auto-on { color: #ffe100; }\n\t#de-img-btn-next { right: 0; margin-top: -18px; }\n\t.de-img-btn-none { display: none; }\n\t#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }\n\t#de-img-btn-rotate { right: 0; margin-top: 20px; }\n\t.de-webm-title { color: #ffe100 !important; font: bold 12px tahoma; }\n\n\t/* Embedders */\n\t").concat(contentIcon('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico'), "\n\t").concat(contentIcon('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico'), "\n\t").concat(contentIcon('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw=='), "\n\t").concat(contentIcon('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw=='), "\n\t.de-current::after { content: \" \u25CF\"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }\n\t#de-video-buttons > a:not(:hover) { color: inherit; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; color: inherit; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: \"\u2795\"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC\"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: \" [\" attr(de-time) \"]\"; color: red; }\n\t.de-video-title[de-time].de-current::after { content: \" [\" attr(de-time) \"] \u25CF\"; color: red; }\n\t.de-vocaroo { display: block; }\n\tvideo { background: black; }\n\n\t/* File inputs */\n\t.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ").concat(p = aib.multiFile ? 90 : 130, "px; width: ").concat(p, "px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }\n\t.de-file > .de-file-img > div { display: flex; justify-content: center; align-items: center; height: ").concat(p, "px; cursor: pointer; }\n\t.de-file > .de-file-utils { display: none; height: 18px; margin-top: -20px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; -moz-box-sizing: initial; box-sizing: initial; }\n\t.de-file > .de-file-utils > .de-file-rarmsg { display: block; position: absolute; bottom: 20px; width: 100%; margin: 0; background: rgba(64,64,64,.6); color: #fff; }\n\t#de-file-area { margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }\n\timg.de-file-img, video.de-file-img { max-width: ").concat(p, "px; max-height: ").concat(p, "px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-input + .de-file-utils { margin-left: 4px; }\n\t.de-file-off > .de-file-img > div::after { content: \"").concat(Lng.dropFileHere[lang], "\"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }\n\t.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { margin: 0 1px; cursor: pointer; }\n\t.de-file-btn-del > svg, .de-file-btn-rar > svg, .de-file-btn-ren > svg, .de-file-btn-txt > svg { width: 16px; height: 16px; }\n\t.de-file-spoil { margin: 0 3px; vertical-align: 1px; }\n\t.de-file-txt-add { margin-left: 2px; padding: 0 !important; width: 22px; font-weight: bold; }\n\t.de-file-txt-input { border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; width: 100%; }\n\t.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }\n\t.de-file-txt-wrap { display: flex; }\n\t.de-file-utils { display: inline-block; float: none; vertical-align: -3px; }\n\n\t/* Reply form */\n\t.de-parea { text-align: center; }\n\t.de-parea-btn-close::after { content: \"").concat(Lng.hideForm[lang], "\"; }\n\t.de-parea-btn-thr::after { content: \"").concat(Lng.makeThr[lang], "\"; }\n\t.de-parea-btn-reply::after { content: \"").concat(Lng.makeReply[lang], "\"; }\n\t#de-pform > form { padding: 0; margin: 0; border: none; }\n\t#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ").concat(nav.isPresto ? '-2px -10px' : '0 0 -2px -10px', "; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\n\t.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\n\t.de-win-inpost > .de-resizer { display: none; }\n\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\n\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\n\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\n\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\n\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\n\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\n\t#de-sagebtn { display: inline-block; margin: 3px 4px 0 4px !important; cursor: pointer; }\n\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }\n\n\t/* Thread navigation */\n\t#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px; }\n\t#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\n\t.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\n\t.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\n\t#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\n\t#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\n\t#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\n\t:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }\n\n\t/* Other */\n\t.de-abtn { text-decoration: none !important; outline: none; }\n\t.de-button { flex: none; padding: 0 ").concat(nav.isFirefox ? 2 : 4, "px !important; margin: 1px 2px; min-width: auto !iportant; height: 24px; font: 13px arial; }\n\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\n\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\n\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\n\tinput[type=\"text\"].de-input-selected { background: rgba(255,255,150,0.4) !important }\n\t.de-link-backref { text-decoration: none; }\n\t.de-link-parent { outline: 1px dotted !important; }\n\t.de-link-pview { font-weight: bold; }\n\t.de-list { padding-top: 4px; }\n\t.de-list::before { content: \"\u25CF\"; margin-right: 4px; }\n\t.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }\n\t.de-logo > svg { width: 112px; height: 112px; }\n\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }\n\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\n\t.de-menu-item:hover { background-color: #222; color: #fff; }\n\t.de-omitted { color: grey; }\n\t.de-omitted::before { content: \"").concat(Lng.postsOmitted[lang], "\"; }\n\t.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }\n\t.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }\n\t.de-popup-msg { display: inline-block; white-space: pre-wrap; }\n\t.de-popup-msg > hr { margin: 0 !important; }\n\t.de-post-hiddencontent { display: none !important; }\n\t.de-pview { position: absolute !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\n\t.de-pview-info { padding: 3px 6px !important; }\n\t.de-ref-del::after { content: \" (Del)\"; }\n\t.de-ref-op::after { content: \" (OP)\"; }\n\t.de-refcomma:last-child { display: none; }\n\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\n\t.de-refmap::before { content: \"").concat(Lng.replies[lang], " \"; }\n\t.de-replies-hide::after { content: \"").concat(Lng.hidePosts[lang], "\"; }\n\t.de-replies-show::after { content: \"").concat(Lng.showPosts[lang], "\"; }\n\t.de-thr-buttons { clear: left; margin-top: 5px; }\n\t").concat(aib.t ? '.de-thr-buttons > .de-btn-reply { display: none; }' : '', "\n\t.de-thr-collapse-link::after { content: \"").concat(Lng.collapseThr[lang], "\"; }\n\t.de-thr-hid { display: block; padding: 2px; }\n\t.de-thr-updater-link::after { content: \"").concat(Lng.getNewPosts[lang], "\"; }\n\t#de-updater-count::before { content: \": \"; }\n\t.de-viewed { color: #747488 !important; }\n\t.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }\n\t.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\n\t#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\n\t@keyframes de-wait-anim { to { transform: rotate(360deg); } }\n\tform > hr { clear: both }");
+    x += "\n\t/* Full images */\n\t.de-img-embed, .de-fullimg { border: none; outline: none; cursor: pointer; image-orientation: from-image; }\n\t.de-img-embed { max-width: 200px; max-height: 200px; }\n\t.de-fullimg { display: block; }\n\t.de-fullimg, .de-fullimg-wrap-link { flex: 0 0 auto; transition: none !important; max-width: none; max-height: none; }\n\t.de-fullimg-after { clear: left; }\n\t.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-fullimg-info { position: absolute; bottom: -22px; left: 50%; padding: 1px 4px; transform: translateX(-50%); background-color: rgba(64,64,64,.8); white-space: nowrap; line-height: 17px; }\n\t.de-fullimg-info > .de-btn-img { color: #fff; }\n\t.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }\n\t.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }\n\t.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\n\t.de-fullimg-rotated { transform-origin: top left; width: auto !important; max-width: none !important; }\n\t.de-fullimg-scale { color: #fff; font: bold 12px tahoma; cursor: default; }\n\t.de-fullimg-video-hack { width: 100%; height: calc(100% - 40px); position: absolute; z-index: 1; cursor: pointer; }\n\t.de-fullimg-wrap { position: relative; margin-bottom: 24px; }\n\t.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: 100%; height: 100%; max-height: 100%; }\n\t.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }\n\t.de-fullimg-wrap-inpost { min-width: ".concat(p, "px; min-height: ").concat(p, "px; float: left; ").concat(aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ', " }\n\t.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }\n\t.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }\n\t.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }\n\t#de-img-btn-auto { right: 0; margin-top: 58px; }\n\t.de-img-btn-auto-on { color: #ffe100; }\n\t#de-img-btn-next { right: 0; margin-top: -18px; }\n\t.de-img-btn-none { display: none; }\n\t#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }\n\t#de-img-btn-rotate { right: 0; margin-top: 20px; }\n\t.de-webm-title { color: #ffe100 !important; font: bold 12px tahoma; }\n\n\t/* Embedders */\n\t").concat(contentIcon('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico'), "\n\t").concat(contentIcon('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico'), "\n\t").concat(contentIcon('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw=='), "\n\t").concat(contentIcon('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw=='), "\n\t.de-current::after { content: \" \u25CF\"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }\n\t#de-video-buttons > a:not(:hover) { color: inherit; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; color: inherit; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: \"\u2795\"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC\"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: \" [\" attr(de-time) \"]\"; color: red; }\n\t.de-video-title[de-time].de-current::after { content: \" [\" attr(de-time) \"] \u25CF\"; color: red; }\n\t.de-vocaroo { display: block; }\n\tvideo { background: black; }\n\n\t/* File inputs */\n\t.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ").concat(p = aib.multiFile ? 90 : 130, "px; width: ").concat(p, "px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }\n\t.de-file > .de-file-img > div { display: flex; justify-content: center; align-items: center; height: ").concat(p, "px; cursor: pointer; }\n\t.de-file > .de-file-utils { display: none; height: 18px; margin-top: -20px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; -moz-box-sizing: initial; box-sizing: initial; }\n\t.de-file > .de-file-utils > .de-file-rarmsg { display: block; position: absolute; bottom: 20px; width: 100%; margin: 0; background: rgba(64,64,64,.6); color: #fff; }\n\t#de-file-area { margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }\n\timg.de-file-img, video.de-file-img { max-width: ").concat(p, "px; max-height: ").concat(p, "px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-input + .de-file-utils { margin-left: 4px; }\n\t.de-file-off > .de-file-img > div::after { content: \"").concat(Lng.dropFileHere[lang], "\"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }\n\t.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { margin: 0 1px; width: 16px; height: 16px; cursor: pointer; }\n\t.de-file-btn-del > svg, .de-file-btn-rar > svg, .de-file-btn-ren > svg, .de-file-btn-txt > svg { width: 16px; height: 16px; }\n\t.de-file-spoil { margin: 0 3px; vertical-align: 1px; }\n\t.de-file-txt-add { margin-left: 2px; padding: 0 !important; width: 22px; font-weight: bold; }\n\t.de-file-txt-input { flex-grow: 1; border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }\n\t.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }\n\t.de-file-txt-wrap { display: inline-flex; width: 100%; }\n\t.de-file-utils { display: inline-flex; float: none; align-items: center; }\n\t.de-file-wrap { display: flex; align-items: center; }\n\n\t/* Reply form */\n\t.de-parea { text-align: center; }\n\t.de-parea-btn-close::after { content: \"").concat(Lng.hideForm[lang], "\"; }\n\t.de-parea-btn-thr::after { content: \"").concat(Lng.makeThr[lang], "\"; }\n\t.de-parea-btn-reply::after { content: \"").concat(Lng.makeReply[lang], "\"; }\n\t#de-pform > form { padding: 0; margin: 0; border: none; }\n\t#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ").concat(nav.isPresto ? '-2px -10px' : '0 0 -2px -10px', "; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\n\t.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\n\t.de-win-inpost > .de-resizer { display: none; }\n\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\n\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\n\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\n\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\n\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\n\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\n\t#de-sagebtn { display: inline-block; margin: 3px 4px 0 4px !important; cursor: pointer; }\n\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }\n\n\t/* Thread navigation */\n\t#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px; }\n\t#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\n\t.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\n\t.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\n\t#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\n\t#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\n\t#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\n\t:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }\n\n\t/* Other */\n\t.de-abtn { text-decoration: none !important; outline: none; }\n\t.de-button { flex: none; padding: 0 ").concat(nav.isFirefox ? 2 : 4, "px !important; margin: 1px 2px; min-width: auto !iportant; height: 24px; font: 13px arial; }\n\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\n\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\n\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\n\tinput[type=\"text\"].de-input-selected { background: rgba(255,255,150,0.4) !important }\n\t.de-link-backref { text-decoration: none; }\n\t.de-link-parent { outline: 1px dotted !important; }\n\t.de-link-pview { font-weight: bold; }\n\t.de-list { padding-top: 4px; }\n\t.de-list::before { content: \"\u25CF\"; margin-right: 4px; }\n\t.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }\n\t.de-logo > svg { width: 112px; height: 112px; }\n\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }\n\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\n\t.de-menu-item:hover { background-color: #222; color: #fff; }\n\t.de-omitted { color: grey; }\n\t.de-omitted::before { content: \"").concat(Lng.postsOmitted[lang], "\"; }\n\t.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }\n\t.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }\n\t.de-popup-msg { display: inline-block; white-space: pre-wrap; }\n\t.de-popup-msg > hr { margin: 0 !important; }\n\t.de-post-hiddencontent { display: none !important; }\n\t.de-pview { position: absolute !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\n\t.de-pview-info { padding: 3px 6px !important; }\n\t.de-ref-del::after { content: \" (Del)\"; }\n\t.de-ref-op::after { content: \" (OP)\"; }\n\t.de-refcomma:last-child { display: none; }\n\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\n\t.de-refmap::before { content: \"").concat(Lng.replies[lang], " \"; }\n\t.de-replies-hide::after { content: \"").concat(Lng.hidePosts[lang], "\"; }\n\t.de-replies-show::after { content: \"").concat(Lng.showPosts[lang], "\"; }\n\t.de-thr-buttons { clear: left; margin-top: 5px; }\n\t").concat(aib.t ? '.de-thr-buttons > .de-btn-reply { display: none; }' : '', "\n\t.de-thr-collapse-link::after { content: \"").concat(Lng.collapseThr[lang], "\"; }\n\t.de-thr-hid { display: block; padding: 2px; }\n\t.de-thr-updater-link::after { content: \"").concat(Lng.getNewPosts[lang], "\"; }\n\t#de-updater-count::before { content: \": \"; }\n\t.de-viewed { color: #747488 !important; }\n\t.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }\n\t.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\n\t#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\n\t@keyframes de-wait-anim { to { transform: rotate(360deg); } }\n\tform > hr { clear: both }");
     $css(x).id = 'de-css';
     $css('').id = 'de-css-dynamic';
     $css('').id = 'de-css-user';

@@ -142,7 +142,7 @@ class Videos {
 	toggleFloatedThumb(linkEl, isOutEvent) {
 		let el = $id('de-video-thumb-floated');
 		if(isOutEvent) {
-			$del(el);
+			el.remove();
 			return;
 		}
 		if(!el) {

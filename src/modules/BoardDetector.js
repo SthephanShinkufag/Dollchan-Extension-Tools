@@ -42,7 +42,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			const el = $id('posttypeindicator');
 			if(el) {
-				[el.previousSibling, el.nextSibling, el].forEach($del);
+				el.previousSibling?.remove();
+				el.nextSibling?.remove();
+				el.remove();
 			}
 			return false;
 		}
@@ -99,7 +101,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				postform.subm.value = Lng.reply[lang];
 				const pageInp = $q('input[name="page"]', form);
 				if(tNum) {
-					$del(pageInp);
+					pageInp?.remove();
 				} else if(!pageInp) {
 					form.insertAdjacentHTML('beforeend', '<input name="page" value="1" type="hidden">');
 				}
@@ -207,8 +209,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 5 }, (val, i) =>
-				`<div${ i ? ' style="display: none;"' : '' }>` +
-				`<input type="file" name="file${ i ? i + 1 : '' }"></div>`
+				`<div class="de-file-wrap"${ i ? ' style="display: none;"' : '' }>
+				<input type="file" name="file${ i ? i + 1 : '' }"></div>`
 			).join('');
 		}
 		fixHTMLHelper(str) {
@@ -222,11 +224,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				return true;
 			}
 			$script('highlightReply = Function.prototype;');
-			setTimeout(() => $del($id('updater')), 0);
-			const textarea = $id('body');
-			if(textarea) {
-				textarea.removeAttribute('id');
-			}
+			setTimeout(() => $id('updater')?.remove(), 0);
+			$id('body')?.removeAttribute('id');
 			return false;
 		}
 	}
@@ -334,10 +333,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				action.replace('replyThread', 'newThread'));
 		}
 		fixFileInputs(el) {
-			const str = '><input name="files" type="file"></div>';
-			const maxEl = $id('labelMaxFiles');
+			const str = ' class="de-file-wrap"><input name="files" type="file"></div>';
 			el.innerHTML = '<div' + str +
-				('<div style="display: none;"' + str).repeat((maxEl ? +maxEl.textContent : 3) - 1);
+				('<div style="display: none;"' + str).repeat((+$id('labelMaxFiles')?.textContent || 3) - 1);
 		}
 		getCapParent() {
 			return $id('captchaDiv');
@@ -566,7 +564,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		fixFileInputs(el) {
-			const str = '><input type="file" name="file"></div>';
+			const str = ' class="de-file-wrap"><input type="file" name="file"></div>';
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 		}
 		fixVideo(isPost, data) {
@@ -814,7 +812,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 8 }, (val, i) =>
-				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="file[]"></div>`
+				`<div class="de-file-wrap"${ i ? ' style="display: none;"' : '' }>
+				<input type="file" name="file[]"></div>`
 			).join('');
 		}
 		getBanId(postEl) {
@@ -940,7 +939,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			posEl.nextSibling.appendChild(el);
 		}
 		removeFormButtons(el) {
-			$del(el?.parentNode);
+			el?.parentNode.remove();
 		}
 	}
 	ibDomains['2ch.hk'] = ibDomains['2ch.life'] = Makaba;
@@ -987,7 +986,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 4 }, (val, i) =>
-				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="formimages[]"></div>`
+				`<div class="de-file-wrap"${ i ? ' style="display: none;"' : '' }>
+				<input type="file" name="formimages[]"></div>`
 			).join('');
 		}
 		fixHTMLHelper(str) {
@@ -1425,7 +1425,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		deleteTruncMsg(post, el, isInit) {
-			[el.previousSibling, el.nextSibling, el].forEach($del);
+			el.previousSibling?.remove();
+			el.nextSibling?.remove();
+			el.remove();
 			if(isInit) {
 				post.msg.firstElementChild.replaceWith($q('.alternate > div', post.el));
 			} else {
@@ -1505,7 +1507,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		fixFileInputs(el) {
-			const str = '><input type="file" name="file[]"></div>';
+			const str = ' class="de-file-wrap"><input type="file" name="file[]"></div>';
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 		}
 		getImgRealName(wrap) {
@@ -1531,10 +1533,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$Q('.imgLink > img[src^="/.youtube/"]').forEach(el => $del(el.closest('figure')));
+			$Q('.imgLink > img[src^="/.youtube/"]').forEach(el => el.closest('figure').remove());
 			$Q('.youtube_wrapper').forEach(el => {
 				const src = $q('a', el).href;
-				$del($bBegin(el, `<a href="${ src }">${ src }</a>`).nextSibling);
+				$bBegin(el, `<a href="${ src }">${ src }</a>`).nextSibling.remove();
 			});
 			return false;
 		}
@@ -1573,7 +1575,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				#de-win-reply { float:left; margin-left:2em }`;
 		}
 		fixFileInputs(el) {
-			const str = `><input name="file" type="file">
+			const str = ` class="de-file-wrap"><input name="file" type="file">
 				<input type="hidden" name="spoilered" value="0">
 				<input type="checkbox" name="spoilered" value="1"></div>`;
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
@@ -1682,7 +1684,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			let el = $q(this.qFormSpoiler);
 			if(el) {
 				$hide(el = el.parentNode);
-				$del(el.previousSibling);
+				el.previousSibling.remove();
 			}
 			return false;
 		}

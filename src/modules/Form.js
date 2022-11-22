@@ -577,7 +577,7 @@ class PostForm {
 	}
 	_toggleQuickReply(tNum) {
 		if(this.oeForm) {
-			$del($q('input[name="oek_parent"]', this.oeForm));
+			$q('input[name="oek_parent"]', this.oeForm)?.remove();
 			if(tNum) {
 				this.oeForm.insertAdjacentHTML('afterbegin',
 					`<input type="hidden" value="${ tNum }" name="oek_parent">`);
@@ -587,7 +587,7 @@ class PostForm {
 			if(aib.changeReplyMode && tNum !== this.tNum) {
 				aib.changeReplyMode(this.form, tNum);
 			}
-			$del($q(`input[name="${ aib.formParent }"]`, this.form));
+			$q(`input[name="${ aib.formParent }"]`, this.form)?.remove();
 			if(tNum) {
 				this.form.insertAdjacentHTML('afterbegin',
 					`<input type="hidden" name="${ aib.formParent }" value="${ tNum }">`);

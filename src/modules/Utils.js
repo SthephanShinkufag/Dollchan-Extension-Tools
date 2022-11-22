@@ -6,33 +6,33 @@
 
 const $id = id => doc.getElementById(id);
 
-const $q = (path, root = docBody) => root.querySelector(path);
+const $q = (path, rootEl = docBody) => rootEl.querySelector(path);
 
-const $Q = (path, root = docBody) => root.querySelectorAll(path);
+const $Q = (path, rootEl = docBody) => rootEl.querySelectorAll(path);
 
-const $match = (parent, ...rules) =>
-	parent.split(', ').map(val => val + rules.join(', ' + val)).join(', ');
+const $match = (parentEl, ...rules) =>
+	parentEl.split(', ').map(val => val + rules.join(', ' + val)).join(', ');
 
 // DOM MODIFIERS
 
-function $bBegin(sibling, html) {
-	sibling.insertAdjacentHTML('beforebegin', html);
-	return sibling.previousSibling;
+function $bBegin(siblingEl, html) {
+	siblingEl.insertAdjacentHTML('beforebegin', html);
+	return siblingEl.previousSibling;
 }
 
-function $aBegin(parent, html) {
-	parent.insertAdjacentHTML('afterbegin', html);
-	return parent.firstChild;
+function $aBegin(parentEl, html) {
+	parentEl.insertAdjacentHTML('afterbegin', html);
+	return parentEl.firstChild;
 }
 
-function $bEnd(parent, html) {
-	parent.insertAdjacentHTML('beforeend', html);
-	return parent.lastChild;
+function $bEnd(parentEl, html) {
+	parentEl.insertAdjacentHTML('beforeend', html);
+	return parentEl.lastChild;
 }
 
-function $aEnd(sibling, html) {
-	sibling.insertAdjacentHTML('afterend', html);
-	return sibling.nextSibling;
+function $aEnd(siblingEl, html) {
+	siblingEl.insertAdjacentHTML('afterend', html);
+	return siblingEl.nextSibling;
 }
 
 function $replace(el, html) {
@@ -40,12 +40,8 @@ function $replace(el, html) {
 	el.remove();
 }
 
-function $del(el) {
-	el?.remove();
-}
-
-function $delAll(path, root = docBody) {
-	root.querySelectorAll(path, root).forEach(el => el.remove());
+function $delAll(path, rootEl = docBody) {
+	rootEl.querySelectorAll(path, rootEl).forEach(el => el.remove());
 }
 
 function $add(html) {
@@ -68,10 +64,10 @@ function $script(text) {
 }
 
 function $css(text) {
-	if(nav.isSafari && !('flex' in docBody.style)) {
-		text = text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1');
-	}
-	return $bEnd(doc.head, `<style type="text/css">${ text }</style>`);
+	return $bEnd(doc.head, `<style type="text/css">${
+		nav.isSafari && !('flex' in docBody.style) ?
+			text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1') : text
+	}</style>`);
 }
 
 function $createDoc(html) {

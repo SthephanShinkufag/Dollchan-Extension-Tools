@@ -145,12 +145,12 @@ class RefMap {
 		this._set.delete(num);
 		if(!this._set.size) {
 			this.removeMap();
-		} else {
-			const el = this.getElByNum(num);
-			if(el) {
-				$del(el.nextSibling);
-				el.remove();
-			}
+			return;
+		}
+		const el = this.getElByNum(num);
+		if(el) {
+			el.nextSibling.remove();
+			el.remove();
 		}
 	}
 	removeMap() {

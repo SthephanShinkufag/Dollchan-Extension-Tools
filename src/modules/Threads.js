@@ -270,7 +270,7 @@ class Thread {
 		for(const [banId, bNum, bEl] of pBuilder.bannedPostsData()) {
 			const post = bNum ? pByNum.get(bNum) : this.op;
 			if(post && post.banned !== banId) {
-				$del($q(aib.qBan, post.el));
+				$q(aib.qBan, post.el).remove();
 				post.msg.append(bEl);
 				post.banned = banId;
 			}
@@ -318,7 +318,7 @@ class Thread {
 			}
 		}
 		const { op, el: thrEl } = this;
-		$del($q(aib.qOmitted + ', .de-omitted', thrEl));
+		$q(aib.qOmitted + ', .de-omitted', thrEl)?.remove();
 		if(this.loadCount === 0) {
 			if(op.trunc) {
 				op.updateMsg(pBuilder.getOpMessage(), maybeSpells.value);
@@ -544,7 +544,7 @@ class Thread {
 		this.btnReplies.firstElementChild.className =
 			`${ isHide ? 'de-replies-show' : 'de-replies-hide' } de-abtn`;
 		[...this.btns.children].forEach(el => el !== this.btnReplies && $toggle(el, !isHide));
-		$del($q(aib.qOmitted + ', .de-omitted', this.el));
+		$q(aib.qOmitted + ', .de-omitted', this.el)?.remove();
 		i = this.postsCount - 1 - (isHide ? 0 : i);
 		if(i) {
 			this.op.el.insertAdjacentHTML('afterend', `<span class="de-omitted">${ i }</span> `);

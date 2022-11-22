@@ -46,7 +46,7 @@ const ContentLoader = {
 			} else if(imgData?.length) {
 				tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
 			} else {
-				$del(el);
+				el.remove();
 			}
 		}), () => {
 			const docName = `${ aib.domain }-${ delSymbols(aib.b) }-${ aib.t }`;

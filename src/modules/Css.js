@@ -300,14 +300,15 @@ function scriptCSS() {
 	.de-file-input + .de-file-utils { margin-left: 4px; }
 	.de-file-off > .de-file-img > div::after { content: "${ Lng.dropFileHere[lang] }"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }
 	.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }
-	.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { margin: 0 1px; cursor: pointer; }
+	.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { margin: 0 1px; width: 16px; height: 16px; cursor: pointer; }
 	.de-file-btn-del > svg, .de-file-btn-rar > svg, .de-file-btn-ren > svg, .de-file-btn-txt > svg { width: 16px; height: 16px; }
 	.de-file-spoil { margin: 0 3px; vertical-align: 1px; }
 	.de-file-txt-add { margin-left: 2px; padding: 0 !important; width: 22px; font-weight: bold; }
-	.de-file-txt-input { border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; width: 100%; }
+	.de-file-txt-input { flex-grow: 1; border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }
 	.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }
-	.de-file-txt-wrap { display: flex; }
-	.de-file-utils { display: inline-block; float: none; vertical-align: -3px; }
+	.de-file-txt-wrap { display: inline-flex; width: 100%; }
+	.de-file-utils { display: inline-flex; float: none; align-items: center; }
+	.de-file-wrap { display: flex; align-items: center; }
 
 	/* Reply form */
 	.de-parea { text-align: center; }

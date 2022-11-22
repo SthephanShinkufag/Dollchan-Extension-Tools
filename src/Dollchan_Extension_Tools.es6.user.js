@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.11.8.0';
-const commit = '75d3491';
+const commit = '0344e7e';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1732,33 +1732,33 @@ let topWinZ = 10;
 
 const $id = id => doc.getElementById(id);
 
-const $q = (path, root = docBody) => root.querySelector(path);
+const $q = (path, rootEl = docBody) => rootEl.querySelector(path);
 
-const $Q = (path, root = docBody) => root.querySelectorAll(path);
+const $Q = (path, rootEl = docBody) => rootEl.querySelectorAll(path);
 
-const $match = (parent, ...rules) =>
-	parent.split(', ').map(val => val + rules.join(', ' + val)).join(', ');
+const $match = (parentEl, ...rules) =>
+	parentEl.split(', ').map(val => val + rules.join(', ' + val)).join(', ');
 
 // DOM MODIFIERS
 
-function $bBegin(sibling, html) {
-	sibling.insertAdjacentHTML('beforebegin', html);
-	return sibling.previousSibling;
+function $bBegin(siblingEl, html) {
+	siblingEl.insertAdjacentHTML('beforebegin', html);
+	return siblingEl.previousSibling;
 }
 
-function $aBegin(parent, html) {
-	parent.insertAdjacentHTML('afterbegin', html);
-	return parent.firstChild;
+function $aBegin(parentEl, html) {
+	parentEl.insertAdjacentHTML('afterbegin', html);
+	return parentEl.firstChild;
 }
 
-function $bEnd(parent, html) {
-	parent.insertAdjacentHTML('beforeend', html);
-	return parent.lastChild;
+function $bEnd(parentEl, html) {
+	parentEl.insertAdjacentHTML('beforeend', html);
+	return parentEl.lastChild;
 }
 
-function $aEnd(sibling, html) {
-	sibling.insertAdjacentHTML('afterend', html);
-	return sibling.nextSibling;
+function $aEnd(siblingEl, html) {
+	siblingEl.insertAdjacentHTML('afterend', html);
+	return siblingEl.nextSibling;
 }
 
 function $replace(el, html) {
@@ -1766,12 +1766,8 @@ function $replace(el, html) {
 	el.remove();
 }
 
-function $del(el) {
-	el?.remove();
-}
-
-function $delAll(path, root = docBody) {
-	root.querySelectorAll(path, root).forEach(el => el.remove());
+function $delAll(path, rootEl = docBody) {
+	rootEl.querySelectorAll(path, rootEl).forEach(el => el.remove());
 }
 
 function $add(html) {
@@ -1794,10 +1790,10 @@ function $script(text) {
 }
 
 function $css(text) {
-	if(nav.isSafari && !('flex' in docBody.style)) {
-		text = text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1');
-	}
-	return $bEnd(doc.head, `<style type="text/css">${ text }</style>`);
+	return $bEnd(doc.head, `<style type="text/css">${
+		nav.isSafari && !('flex' in docBody.style) ?
+			text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1') : text
+	}</style>`);
 }
 
 function $createDoc(html) {
@@ -3147,7 +3143,7 @@ const Panel = Object.create({
 			case 'de-panel-expimg':
 				el.classList.toggle('de-panel-button-active');
 				isExpImg = !isExpImg;
-				$del($q('.de-fullimg-center'));
+				$q('.de-fullimg-center')?.remove();
 				for(let post = Thread.first.op; post; post = post.next) {
 					post.toggleImages(isExpImg, false);
 				}
@@ -3179,7 +3175,7 @@ const Panel = Object.create({
 				} else {
 					el.id = 'de-panel-audio-off';
 				}
-				$del($q('.de-menu'));
+				$q('.de-menu')?.remove();
 				return;
 			case 'de-panel-savethr': return;
 			case 'de-panel-enable':
@@ -6054,7 +6050,7 @@ const ContentLoader = {
 			} else if(imgData?.length) {
 				tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
 			} else {
-				$del(el);
+				el.remove();
 			}
 		}), () => {
 			const docName = `${ aib.domain }-${ delSymbols(aib.b) }-${ aib.t }`;
@@ -6582,7 +6578,7 @@ class Videos {
 	toggleFloatedThumb(linkEl, isOutEvent) {
 		let el = $id('de-video-thumb-floated');
 		if(isOutEvent) {
-			$del(el);
+			el.remove();
 			return;
 		}
 		if(!el) {
@@ -9210,7 +9206,7 @@ class PostForm {
 	}
 	_toggleQuickReply(tNum) {
 		if(this.oeForm) {
-			$del($q('input[name="oek_parent"]', this.oeForm));
+			$q('input[name="oek_parent"]', this.oeForm)?.remove();
 			if(tNum) {
 				this.oeForm.insertAdjacentHTML('afterbegin',
 					`<input type="hidden" value="${ tNum }" name="oek_parent">`);
@@ -9220,7 +9216,7 @@ class PostForm {
 			if(aib.changeReplyMode && tNum !== this.tNum) {
 				aib.changeReplyMode(this.form, tNum);
 			}
-			$del($q(`input[name="${ aib.formParent }"]`, this.form));
+			$q(`input[name="${ aib.formParent }"]`, this.form)?.remove();
 			if(tNum) {
 				this.form.insertAdjacentHTML('afterbegin',
 					`<input type="hidden" name="${ aib.formParent }" value="${ tNum }">`);
@@ -9782,8 +9778,7 @@ class FileInput {
 		if(FileInput._isThumbMode) {
 			this._initThumbs();
 		} else {
-			this._input.before(this._txtWrap);
-			this._input.after(this._utils);
+			this._initUtils();
 		}
 	}
 	async addUrlFile(url, file = null) {
@@ -9840,16 +9835,15 @@ class FileInput {
 			this._initThumbs();
 			return;
 		}
-		this._input.before(this._txtWrap);
-		this._input.after(this._utils);
-		$del($q('de-file-txt-area'));
+		this._initUtils();
 		$show(this._parent.fileTr);
 		$show(this._txtWrap);
 		if(this._mediaEl) {
 			deWindow.URL.revokeObjectURL(this._mediaEl.src);
 		}
 		this._toggleDragEvents(this._thumb, false);
-		$del(this._thumb);
+		$q('.de-file-txt-area')?.remove();
+		this._thumb.remove();
 		this._thumb = this._mediaEl = null;
 	}
 	clearInp() {
@@ -9870,7 +9864,7 @@ class FileInput {
 			}
 			$hide(this._btnRar);
 			$hide(this._txtAddBtn);
-			$del(this._rarMsg);
+			this._rarMsg?.remove();
 			if(FileInput._isThumbMode) {
 				$hide(this._txtWrap);
 			}
@@ -10112,6 +10106,11 @@ class FileInput {
 			this._showFileThumb();
 		}
 	}
+	_initUtils() {
+		this._input.parentNode.classList.add('de-file-wrap');
+		this._input.before(this._txtWrap);
+		this._input.after(this._utils);
+	}
 	_onFileChange(hasImgFile) {
 		this._txtInput.value = hasImgFile ? this.imgFile.name : this._input.files[0].name;
 		if(!hasImgFile) {
@@ -10144,7 +10143,7 @@ class FileInput {
 		if(!nav.isPresto && !aib._4chan &&
 			/^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile.type : this._input.files[0].type)
 		) {
-			$del(this._rarMsg);
+			this._rarMsg?.remove();
 			$show(this._btnRar);
 		}
 	}
@@ -11676,7 +11675,7 @@ class Pview extends AbstractPost {
 			el => el.textContent.startsWith('>>' + num) && el.classList.add('de-link-pview'));
 	}
 	async _buildPview(post) {
-		$del(this.el);
+		this.el?.remove();
 		const { num } = this;
 		const pv = this.el = post.el.cloneNode(true);
 		pByEl.set(pv, this);
@@ -11716,7 +11715,7 @@ class Pview extends AbstractPost {
 			processImgInfoLinks(this);
 		} else {
 			const btnsEl = this.btns = $q('.de-post-btns', pv);
-			$del($q('.de-post-counter', btnsEl));
+			$q('.de-post-counter', btnsEl).remove();
 			if(post.isHidden) {
 				btnsEl.classList.add('de-post-hide');
 			}
@@ -13670,12 +13669,12 @@ class RefMap {
 		this._set.delete(num);
 		if(!this._set.size) {
 			this.removeMap();
-		} else {
-			const el = this.getElByNum(num);
-			if(el) {
-				$del(el.nextSibling);
-				el.remove();
-			}
+			return;
+		}
+		const el = this.getElByNum(num);
+		if(el) {
+			el.nextSibling.remove();
+			el.remove();
 		}
 	}
 	removeMap() {
@@ -14009,7 +14008,7 @@ class Thread {
 		for(const [banId, bNum, bEl] of pBuilder.bannedPostsData()) {
 			const post = bNum ? pByNum.get(bNum) : this.op;
 			if(post && post.banned !== banId) {
-				$del($q(aib.qBan, post.el));
+				$q(aib.qBan, post.el).remove();
 				post.msg.append(bEl);
 				post.banned = banId;
 			}
@@ -14057,7 +14056,7 @@ class Thread {
 			}
 		}
 		const { op, el: thrEl } = this;
-		$del($q(aib.qOmitted + ', .de-omitted', thrEl));
+		$q(aib.qOmitted + ', .de-omitted', thrEl)?.remove();
 		if(this.loadCount === 0) {
 			if(op.trunc) {
 				op.updateMsg(pBuilder.getOpMessage(), maybeSpells.value);
@@ -14283,7 +14282,7 @@ class Thread {
 		this.btnReplies.firstElementChild.className =
 			`${ isHide ? 'de-replies-show' : 'de-replies-hide' } de-abtn`;
 		[...this.btns.children].forEach(el => el !== this.btnReplies && $toggle(el, !isHide));
-		$del($q(aib.qOmitted + ', .de-omitted', this.el));
+		$q(aib.qOmitted + ', .de-omitted', this.el)?.remove();
 		i = this.postsCount - 1 - (isHide ? 0 : i);
 		if(i) {
 			this.op.el.insertAdjacentHTML('afterend', `<span class="de-omitted">${ i }</span> `);
@@ -15568,7 +15567,7 @@ class BaseBoard {
 		if(isForm) {
 			const newForm = $bBegin(data, str);
 			$hide(data);
-			deWindow.addEventListener('load', () => $del($id('de-dform-old')));
+			deWindow.addEventListener('load', () => $id('de-dform-old').remove());
 			return newForm;
 		}
 		data.innerHTML = str;
@@ -15587,8 +15586,7 @@ class BaseBoard {
 			if(m) {
 				videos.push([isPost ? data : this.getPostOfEl(el), m, true]);
 				el.remove();
-			}
-			if(Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
+			} else if(Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
 				videos.push([isPost ? data : this.getPostOfEl(el), m, false]);
 				el.remove();
 			}
@@ -15690,7 +15688,7 @@ class BaseBoard {
 		(Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm).after(el);
 	}
 	removeFormButtons(el) {
-		$del(el);
+		el?.remove();
 	}
 	isAjaxStatusOK(status) {
 		return status === 200 || status === 206;
@@ -15763,7 +15761,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			const el = $id('posttypeindicator');
 			if(el) {
-				[el.previousSibling, el.nextSibling, el].forEach($del);
+				el.previousSibling?.remove();
+				el.nextSibling?.remove();
+				el.remove();
 			}
 			return false;
 		}
@@ -15820,7 +15820,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				postform.subm.value = Lng.reply[lang];
 				const pageInp = $q('input[name="page"]', form);
 				if(tNum) {
-					$del(pageInp);
+					pageInp?.remove();
 				} else if(!pageInp) {
 					form.insertAdjacentHTML('beforeend', '<input name="page" value="1" type="hidden">');
 				}
@@ -15928,8 +15928,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 5 }, (val, i) =>
-				`<div${ i ? ' style="display: none;"' : '' }>` +
-				`<input type="file" name="file${ i ? i + 1 : '' }"></div>`
+				`<div class="de-file-wrap"${ i ? ' style="display: none;"' : '' }>
+				<input type="file" name="file${ i ? i + 1 : '' }"></div>`
 			).join('');
 		}
 		fixHTMLHelper(str) {
@@ -15943,11 +15943,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				return true;
 			}
 			$script('highlightReply = Function.prototype;');
-			setTimeout(() => $del($id('updater')), 0);
-			const textarea = $id('body');
-			if(textarea) {
-				textarea.removeAttribute('id');
-			}
+			setTimeout(() => $id('updater')?.remove(), 0);
+			$id('body')?.removeAttribute('id');
 			return false;
 		}
 	}
@@ -16055,10 +16052,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				action.replace('replyThread', 'newThread'));
 		}
 		fixFileInputs(el) {
-			const str = '><input name="files" type="file"></div>';
-			const maxEl = $id('labelMaxFiles');
+			const str = ' class="de-file-wrap"><input name="files" type="file"></div>';
 			el.innerHTML = '<div' + str +
-				('<div style="display: none;"' + str).repeat((maxEl ? +maxEl.textContent : 3) - 1);
+				('<div style="display: none;"' + str).repeat((+$id('labelMaxFiles')?.textContent || 3) - 1);
 		}
 		getCapParent() {
 			return $id('captchaDiv');
@@ -16287,7 +16283,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		fixFileInputs(el) {
-			const str = '><input type="file" name="file"></div>';
+			const str = ' class="de-file-wrap"><input type="file" name="file"></div>';
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 		}
 		fixVideo(isPost, data) {
@@ -16535,7 +16531,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 8 }, (val, i) =>
-				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="file[]"></div>`
+				`<div class="de-file-wrap"${ i ? ' style="display: none;"' : '' }>
+				<input type="file" name="file[]"></div>`
 			).join('');
 		}
 		getBanId(postEl) {
@@ -16661,7 +16658,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			posEl.nextSibling.appendChild(el);
 		}
 		removeFormButtons(el) {
-			$del(el?.parentNode);
+			el?.parentNode.remove();
 		}
 	}
 	ibDomains['2ch.hk'] = ibDomains['2ch.life'] = Makaba;
@@ -16708,7 +16705,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 4 }, (val, i) =>
-				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="formimages[]"></div>`
+				`<div class="de-file-wrap"${ i ? ' style="display: none;"' : '' }>
+				<input type="file" name="formimages[]"></div>`
 			).join('');
 		}
 		fixHTMLHelper(str) {
@@ -17146,7 +17144,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		deleteTruncMsg(post, el, isInit) {
-			[el.previousSibling, el.nextSibling, el].forEach($del);
+			el.previousSibling?.remove();
+			el.nextSibling?.remove();
+			el.remove();
 			if(isInit) {
 				post.msg.firstElementChild.replaceWith($q('.alternate > div', post.el));
 			} else {
@@ -17226,7 +17226,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		fixFileInputs(el) {
-			const str = '><input type="file" name="file[]"></div>';
+			const str = ' class="de-file-wrap"><input type="file" name="file[]"></div>';
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 		}
 		getImgRealName(wrap) {
@@ -17252,10 +17252,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$Q('.imgLink > img[src^="/.youtube/"]').forEach(el => $del(el.closest('figure')));
+			$Q('.imgLink > img[src^="/.youtube/"]').forEach(el => el.closest('figure').remove());
 			$Q('.youtube_wrapper').forEach(el => {
 				const src = $q('a', el).href;
-				$del($bBegin(el, `<a href="${ src }">${ src }</a>`).nextSibling);
+				$bBegin(el, `<a href="${ src }">${ src }</a>`).nextSibling.remove();
 			});
 			return false;
 		}
@@ -17294,7 +17294,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				#de-win-reply { float:left; margin-left:2em }`;
 		}
 		fixFileInputs(el) {
-			const str = `><input name="file" type="file">
+			const str = ` class="de-file-wrap"><input name="file" type="file">
 				<input type="hidden" name="spoilered" value="0">
 				<input type="checkbox" name="spoilered" value="1"></div>`;
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
@@ -17403,7 +17403,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			let el = $q(this.qFormSpoiler);
 			if(el) {
 				$hide(el = el.parentNode);
-				$del(el.previousSibling);
+				el.previousSibling.remove();
 			}
 			return false;
 		}
@@ -18525,14 +18525,15 @@ function scriptCSS() {
 	.de-file-input + .de-file-utils { margin-left: 4px; }
 	.de-file-off > .de-file-img > div::after { content: "${ Lng.dropFileHere[lang] }"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }
 	.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }
-	.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { margin: 0 1px; cursor: pointer; }
+	.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { margin: 0 1px; width: 16px; height: 16px; cursor: pointer; }
 	.de-file-btn-del > svg, .de-file-btn-rar > svg, .de-file-btn-ren > svg, .de-file-btn-txt > svg { width: 16px; height: 16px; }
 	.de-file-spoil { margin: 0 3px; vertical-align: 1px; }
 	.de-file-txt-add { margin-left: 2px; padding: 0 !important; width: 22px; font-weight: bold; }
-	.de-file-txt-input { border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; width: 100%; }
+	.de-file-txt-input { flex-grow: 1; border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }
 	.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }
-	.de-file-txt-wrap { display: flex; }
-	.de-file-utils { display: inline-block; float: none; vertical-align: -3px; }
+	.de-file-txt-wrap { display: inline-flex; width: 100%; }
+	.de-file-utils { display: inline-flex; float: none; align-items: center; }
+	.de-file-wrap { display: flex; align-items: center; }
 
 	/* Reply form */
 	.de-parea { text-align: center; }

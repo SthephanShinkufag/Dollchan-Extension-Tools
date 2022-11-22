@@ -225,7 +225,7 @@ class Pview extends AbstractPost {
 			el => el.textContent.startsWith('>>' + num) && el.classList.add('de-link-pview'));
 	}
 	async _buildPview(post) {
-		$del(this.el);
+		this.el?.remove();
 		const { num } = this;
 		const pv = this.el = post.el.cloneNode(true);
 		pByEl.set(pv, this);
@@ -265,7 +265,7 @@ class Pview extends AbstractPost {
 			processImgInfoLinks(this);
 		} else {
 			const btnsEl = this.btns = $q('.de-post-btns', pv);
-			$del($q('.de-post-counter', btnsEl));
+			$q('.de-post-counter', btnsEl).remove();
 			if(post.isHidden) {
 				btnsEl.classList.add('de-post-hide');
 			}

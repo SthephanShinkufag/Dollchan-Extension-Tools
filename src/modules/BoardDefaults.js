@@ -242,7 +242,7 @@ class BaseBoard {
 		if(isForm) {
 			const newForm = $bBegin(data, str);
 			$hide(data);
-			deWindow.addEventListener('load', () => $del($id('de-dform-old')));
+			deWindow.addEventListener('load', () => $id('de-dform-old').remove());
 			return newForm;
 		}
 		data.innerHTML = str;
@@ -261,8 +261,7 @@ class BaseBoard {
 			if(m) {
 				videos.push([isPost ? data : this.getPostOfEl(el), m, true]);
 				el.remove();
-			}
-			if(Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
+			} else if(Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
 				videos.push([isPost ? data : this.getPostOfEl(el), m, false]);
 				el.remove();
 			}
@@ -364,7 +363,7 @@ class BaseBoard {
 		(Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm).after(el);
 	}
 	removeFormButtons(el) {
-		$del(el);
+		el?.remove();
 	}
 	isAjaxStatusOK(status) {
 		return status === 200 || status === 206;

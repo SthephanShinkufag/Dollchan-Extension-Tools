@@ -111,8 +111,7 @@ class FileInput {
 		if(FileInput._isThumbMode) {
 			this._initThumbs();
 		} else {
-			this._input.before(this._txtWrap);
-			this._input.after(this._utils);
+			this._initUtils();
 		}
 	}
 	async addUrlFile(url, file = null) {
@@ -169,16 +168,15 @@ class FileInput {
 			this._initThumbs();
 			return;
 		}
-		this._input.before(this._txtWrap);
-		this._input.after(this._utils);
-		$del($q('de-file-txt-area'));
+		this._initUtils();
 		$show(this._parent.fileTr);
 		$show(this._txtWrap);
 		if(this._mediaEl) {
 			deWindow.URL.revokeObjectURL(this._mediaEl.src);
 		}
 		this._toggleDragEvents(this._thumb, false);
-		$del(this._thumb);
+		$q('.de-file-txt-area')?.remove();
+		this._thumb.remove();
 		this._thumb = this._mediaEl = null;
 	}
 	clearInp() {
@@ -199,7 +197,7 @@ class FileInput {
 			}
 			$hide(this._btnRar);
 			$hide(this._txtAddBtn);
-			$del(this._rarMsg);
+			this._rarMsg?.remove();
 			if(FileInput._isThumbMode) {
 				$hide(this._txtWrap);
 			}
@@ -441,6 +439,11 @@ class FileInput {
 			this._showFileThumb();
 		}
 	}
+	_initUtils() {
+		this._input.parentNode.classList.add('de-file-wrap');
+		this._input.before(this._txtWrap);
+		this._input.after(this._utils);
+	}
 	_onFileChange(hasImgFile) {
 		this._txtInput.value = hasImgFile ? this.imgFile.name : this._input.files[0].name;
 		if(!hasImgFile) {
@@ -473,7 +476,7 @@ class FileInput {
 		if(!nav.isPresto && !aib._4chan &&
 			/^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile.type : this._input.files[0].type)
 		) {
-			$del(this._rarMsg);
+			this._rarMsg?.remove();
 			$show(this._btnRar);
 		}
 	}
