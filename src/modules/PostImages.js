@@ -206,7 +206,7 @@ class ImagesViewer {
 	}
 	toggleVideoLoop() {
 		if(this.data.isVideo) {
-			$toggleAttr($q('video', this._fullEl), 'loop', '', !this.isAutoPlay);
+			$q('video', this._fullEl).toggleAttribute('loop', !this.isAutoPlay);
 		}
 	}
 	updateImgViewer(data, showButtons, e) {
@@ -1076,8 +1076,8 @@ function processPostImgInfoLinks(post, addSrc, imgNames) {
 			link.setAttribute('de-href', link.href);
 		}
 		if(imgNames) {
-			let ext;
-			if(!(ext = link.getAttribute('de-img-ext'))) {
+			let ext = link.getAttribute('de-img-ext');
+			if(!ext) {
 				ext = getFileExt(name) || getFileExt(getFileName(link.href));
 				link.setAttribute('de-img-ext', ext);
 				link.setAttribute('de-img-name-old', link.textContent);

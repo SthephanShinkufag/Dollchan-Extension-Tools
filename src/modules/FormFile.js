@@ -159,7 +159,7 @@ class FileInput {
 	}
 	changeMode(showThumbs) {
 		$toggle(this._input, !Cfg.fileInputs);
-		$toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs);
+		this._input.toggleAttribute('multiple', aib.multiFile && Cfg.fileInputs);
 		$toggle(this._btnRen, Cfg.fileInputs && this.hasFile);
 		if(!(showThumbs ^ !!this._thumb)) {
 			return;

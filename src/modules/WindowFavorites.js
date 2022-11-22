@@ -138,7 +138,11 @@ async function refreshFavorites(needClear404) {
 				try {
 					await $ajax(url, null, true);
 					iconEl.setAttribute('class', oldClassName);
-					$toggleAttr(titleEl, 'title', oldTitle, oldTitle);
+					if(oldTitle) {
+						titleEl.title = oldTitle;
+					} else {
+						titleEl.removeAttribute('title');
+					}
 					isLast404 = false;
 				} catch(err) {
 					if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
@@ -363,8 +367,8 @@ function showFavoritesWindow(body, favObj) {
 					parentEl.getAttribute('de-board') + (parentEl.getAttribute('de-num') || ''));
 				break;
 			case 'de-fav-del-btn': {
-				const wasChecked = el.getAttribute('de-checked') === '';
-				const toggleFn = btnEl => $toggleAttr(btnEl, 'de-checked', '', !wasChecked);
+				const wasChecked = el.hasAttribute('de-checked');
+				const toggleFn = btnEl => btnEl.toggleAttribute('de-checked', !wasChecked);
 				toggleFn(el);
 				if(parentEl.className === 'de-fav-header') {
 					// Select/unselect all checkboxes in board block
@@ -437,7 +441,11 @@ function showFavoritesWindow(body, favObj) {
 			let infoLoaded = 0;
 			const updateInf = (inf, page) => {
 				inf.iconEl.setAttribute('class', inf.iconClass);
-				$toggleAttr(inf.titleEl, 'title', inf.iconTitle, inf.iconTitle);
+				if(inf.iconTitle) {
+					inf.titleEl.title = inf.iconTitle;
+				} else {
+					inf.titleEl.removeAttribute('title');
+				}
 				inf.pageEl.textContent = '@' + page;
 			};
 			for(let page = 0; page < endPage; ++page) {

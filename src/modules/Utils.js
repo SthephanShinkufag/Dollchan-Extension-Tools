@@ -94,14 +94,6 @@ function $toggle(el, needToShow = el.style.display) {
 	}
 }
 
-function $toggleAttr(el, name, value, isAdd) {
-	if(isAdd) {
-		el.setAttribute(name, value);
-	} else {
-		el.removeAttribute(name);
-	}
-}
-
 function $animate(el, cName, isRemove = false) {
 	el.addEventListener('animationend', function aEvent() {
 		el.removeEventListener('animationend', aEvent);

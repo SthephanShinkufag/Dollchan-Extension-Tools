@@ -572,7 +572,11 @@ class PostForm {
 	_setPlaceholder(val) {
 		const el = val === 'cap' ? this.cap.textEl : this[val];
 		if(el) {
-			$toggleAttr(el, 'placeholder', Lng[val][lang], aib.multiFile || Cfg.fileInputs !== 2);
+			if(aib.multiFile || Cfg.fileInputs !== 2) {
+				el.placeholder = Lng[val][lang];
+			} else {
+				el.removeAttribute('placeholder');
+			}
 		}
 	}
 	_toggleQuickReply(tNum) {

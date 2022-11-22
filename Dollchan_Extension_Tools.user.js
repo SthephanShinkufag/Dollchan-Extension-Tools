@@ -7198,7 +7198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.11.8.0';
-  var commit = '0344e7e';
+  var commit = '1fb8115';
 
 
   var defaultCfg = {
@@ -7904,13 +7904,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       el.style.removeProperty('display');
     } else {
       el.style.display = 'none';
-    }
-  }
-  function $toggleAttr(el, name, value, isAdd) {
-    if (isAdd) {
-      el.setAttribute(name, value);
-    } else {
-      el.removeAttribute(name);
     }
   }
   function $animate(el, cName) {
@@ -10492,7 +10485,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               return $ajax(url, null, true);
             case 30:
               iconEl.setAttribute('class', oldClassName);
-              $toggleAttr(titleEl, 'title', oldTitle, oldTitle);
+              if (oldTitle) {
+                titleEl.title = oldTitle;
+              } else {
+                titleEl.removeAttribute('title');
+              }
               isLast404 = false;
               _context62.next = 48;
               break;
@@ -10746,9 +10743,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             break;
           case 'de-fav-del-btn':
             {
-              var wasChecked = el.getAttribute('de-checked') === '';
+              var wasChecked = el.hasAttribute('de-checked');
               var toggleFn = function toggleFn(btnEl) {
-                return $toggleAttr(btnEl, 'de-checked', '', !wasChecked);
+                return btnEl.toggleAttribute('de-checked', !wasChecked);
               };
               toggleFn(el);
               if (parentEl.className === 'de-fav-header') {
@@ -10827,7 +10824,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               infoLoaded = 0;
               updateInf = function updateInf(inf, page) {
                 inf.iconEl.setAttribute('class', inf.iconClass);
-                $toggleAttr(inf.titleEl, 'title', inf.iconTitle, inf.iconTitle);
+                if (inf.iconTitle) {
+                  inf.titleEl.title = inf.iconTitle;
+                } else {
+                  inf.titleEl.removeAttribute('title');
+                }
                 inf.pageEl.textContent = '@' + page;
               };
               page = 0;
@@ -16481,7 +16482,11 @@ this.disableSpells();
       value: function _setPlaceholder(val) {
         var el = val === 'cap' ? this.cap.textEl : this[val];
         if (el) {
-          $toggleAttr(el, 'placeholder', Lng[val][lang], aib.multiFile || Cfg.fileInputs !== 2);
+          if (aib.multiFile || Cfg.fileInputs !== 2) {
+            el.placeholder = Lng[val][lang];
+          } else {
+            el.removeAttribute('placeholder');
+          }
         }
       }
     }, {
@@ -17496,7 +17501,7 @@ this.disableSpells();
       value: function changeMode(showThumbs) {
         var _$q6;
         $toggle(this._input, !Cfg.fileInputs);
-        $toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs);
+        this._input.toggleAttribute('multiple', aib.multiFile && Cfg.fileInputs);
         $toggle(this._btnRen, Cfg.fileInputs && this.hasFile);
         if (!(showThumbs ^ !!this._thumb)) {
           return;
@@ -19687,7 +19692,7 @@ Spells.addSpell(9, '', false);
       value: function () {
         var _buildPview2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee37(post) {
           var _this$el, _yield$readFavorites$, _yield$readFavorites$2;
-          var num, pv, isMyPost, isOp, isFav, isCached, postsCountHtml, pText, btnsEl, link;
+          var num, pv, isMyPost, isOp, isFav, isCached, postsCountHtml, pText, _$q8, btnsEl, link;
           return _regeneratorRuntime().wrap(function _callee37$(_context40) {
             while (1) {
               switch (_context40.prev = _context40.next) {
@@ -19761,7 +19766,7 @@ Spells.addSpell(9, '', false);
                     processImgInfoLinks(this);
                   } else {
                     btnsEl = this.btns = $q('.de-post-btns', pv);
-                    $q('.de-post-counter', btnsEl).remove();
+                    (_$q8 = $q('.de-post-counter', btnsEl)) === null || _$q8 === void 0 ? void 0 : _$q8.remove();
                     if (post.isHidden) {
                       btnsEl.classList.add('de-post-hide');
                     }
@@ -20366,7 +20371,7 @@ Spells.addSpell(9, '', false);
       key: "toggleVideoLoop",
       value: function toggleVideoLoop() {
         if (this.data.isVideo) {
-          $toggleAttr($q('video', this._fullEl), 'loop', '', !this.isAutoPlay);
+          $q('video', this._fullEl).toggleAttribute('loop', !this.isAutoPlay);
         }
       }
     }, {
@@ -21433,8 +21438,8 @@ Spells.addSpell(9, '', false);
         link.setAttribute('de-href', link.href);
       }
       if (imgNames) {
-        var ext = void 0;
-        if (!(ext = link.getAttribute('de-img-ext'))) {
+        var ext = link.getAttribute('de-img-ext');
+        if (!ext) {
           ext = getFileExt(name) || getFileExt(getFileName(link.href));
           link.setAttribute('de-img-ext', ext);
           link.setAttribute('de-img-name-old', link.textContent);
@@ -22621,7 +22626,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "_loadFromBuilder",
       value: function _loadFromBuilder(last, smartScroll, pBuilder) {
-        var _$q8;
+        var _$q9;
         var nextCoord;
         var maybeSpells = new Maybe(SpellsRunner);
         if (smartScroll) {
@@ -22633,7 +22638,7 @@ Spells.addSpell(9, '', false);
         }
         var op = this.op,
           thrEl = this.el;
-        (_$q8 = $q(aib.qOmitted + ', .de-omitted', thrEl)) === null || _$q8 === void 0 ? void 0 : _$q8.remove();
+        (_$q9 = $q(aib.qOmitted + ', .de-omitted', thrEl)) === null || _$q9 === void 0 ? void 0 : _$q9.remove();
         if (this.loadCount === 0) {
           if (op.trunc) {
             op.updateMsg(pBuilder.getOpMessage(), maybeSpells.value);
@@ -22860,7 +22865,7 @@ Spells.addSpell(9, '', false);
       key: "_toggleReplies",
       value: function _toggleReplies() {
         var _this88 = this,
-          _$q9;
+          _$q10;
         var isHide = !this.last.isOmitted;
         var post = this.op;
         var i = 0;
@@ -22872,7 +22877,7 @@ Spells.addSpell(9, '', false);
         _toConsumableArray(this.btns.children).forEach(function (el) {
           return el !== _this88.btnReplies && $toggle(el, !isHide);
         });
-        (_$q9 = $q(aib.qOmitted + ', .de-omitted', this.el)) === null || _$q9 === void 0 ? void 0 : _$q9.remove();
+        (_$q10 = $q(aib.qOmitted + ', .de-omitted', this.el)) === null || _$q10 === void 0 ? void 0 : _$q10.remove();
         i = this.postsCount - 1 - (isHide ? 0 : i);
         if (i) {
           this.op.el.insertAdjacentHTML('afterend', "<span class=\"de-omitted\">".concat(i, "</span> "));
@@ -25483,8 +25488,8 @@ Spells.addSpell(9, '', false);
       }, {
         key: "postersCount",
         get: function get() {
-          var _$q10;
-          return ((_$q10 = $q('span[title="Постеры"]')) === null || _$q10 === void 0 ? void 0 : _$q10.innerHTML.match(/\d+$/)[0]) || '';
+          var _$q11;
+          return ((_$q11 = $q('span[title="Постеры"]')) === null || _$q11 === void 0 ? void 0 : _$q11.innerHTML.match(/\d+$/)[0]) || '';
         }
       }, {
         key: "reportForm",
@@ -25996,8 +26001,8 @@ Spells.addSpell(9, '', false);
       }, {
         key: "getSage",
         value: function getSage(post) {
-          var _$q11;
-          return !!((_$q11 = $q('.filetitle', post)) !== null && _$q11 !== void 0 && _$q11.textContent.includes("\u21E9"));
+          var _$q12;
+          return !!((_$q12 = $q('.filetitle', post)) !== null && _$q12 !== void 0 && _$q12.textContent.includes("\u21E9"));
         }
       }]);
       return _410chan;
@@ -26091,8 +26096,8 @@ Spells.addSpell(9, '', false);
       }, {
         key: "postersCount",
         get: function get() {
-          var _$q12;
-          var value = ((_$q12 = $q('span[class="ts-ips"]')) === null || _$q12 === void 0 ? void 0 : _$q12.innerHTML) || '';
+          var _$q13;
+          var value = ((_$q13 = $q('span[class="ts-ips"]')) === null || _$q13 === void 0 ? void 0 : _$q13.innerHTML) || '';
           if (!value) {
             $script("setTimeout(function() {\n\t\t\t\t\tdocument.getElementById(\"de-panel-info-posters\").textContent = window.unique_ips || \"\";\n\t\t\t\t}, 0)");
           }

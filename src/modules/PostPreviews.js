@@ -265,7 +265,7 @@ class Pview extends AbstractPost {
 			processImgInfoLinks(this);
 		} else {
 			const btnsEl = this.btns = $q('.de-post-btns', pv);
-			$q('.de-post-counter', btnsEl).remove();
+			$q('.de-post-counter', btnsEl)?.remove();
 			if(post.isHidden) {
 				btnsEl.classList.add('de-post-hide');
 			}

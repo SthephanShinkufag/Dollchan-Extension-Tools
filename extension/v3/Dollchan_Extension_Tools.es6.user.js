@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.11.8.0';
-const commit = '0344e7e';
+const commit = '1fb8115';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1817,14 +1817,6 @@ function $toggle(el, needToShow = el.style.display) {
 		el.style.removeProperty('display');
 	} else {
 		el.style.display = 'none';
-	}
-}
-
-function $toggleAttr(el, name, value, isAdd) {
-	if(isAdd) {
-		el.setAttribute(name, value);
-	} else {
-		el.removeAttribute(name);
 	}
 }
 
@@ -3884,7 +3876,11 @@ async function refreshFavorites(needClear404) {
 				try {
 					await $ajax(url, null, true);
 					iconEl.setAttribute('class', oldClassName);
-					$toggleAttr(titleEl, 'title', oldTitle, oldTitle);
+					if(oldTitle) {
+						titleEl.title = oldTitle;
+					} else {
+						titleEl.removeAttribute('title');
+					}
 					isLast404 = false;
 				} catch(err) {
 					if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
@@ -4109,8 +4105,8 @@ function showFavoritesWindow(body, favObj) {
 					parentEl.getAttribute('de-board') + (parentEl.getAttribute('de-num') || ''));
 				break;
 			case 'de-fav-del-btn': {
-				const wasChecked = el.getAttribute('de-checked') === '';
-				const toggleFn = btnEl => $toggleAttr(btnEl, 'de-checked', '', !wasChecked);
+				const wasChecked = el.hasAttribute('de-checked');
+				const toggleFn = btnEl => btnEl.toggleAttribute('de-checked', !wasChecked);
 				toggleFn(el);
 				if(parentEl.className === 'de-fav-header') {
 					// Select/unselect all checkboxes in board block
@@ -4183,7 +4179,11 @@ function showFavoritesWindow(body, favObj) {
 			let infoLoaded = 0;
 			const updateInf = (inf, page) => {
 				inf.iconEl.setAttribute('class', inf.iconClass);
-				$toggleAttr(inf.titleEl, 'title', inf.iconTitle, inf.iconTitle);
+				if(inf.iconTitle) {
+					inf.titleEl.title = inf.iconTitle;
+				} else {
+					inf.titleEl.removeAttribute('title');
+				}
 				inf.pageEl.textContent = '@' + page;
 			};
 			for(let page = 0; page < endPage; ++page) {
@@ -9150,7 +9150,11 @@ class PostForm {
 	_setPlaceholder(val) {
 		const el = val === 'cap' ? this.cap.textEl : this[val];
 		if(el) {
-			$toggleAttr(el, 'placeholder', Lng[val][lang], aib.multiFile || Cfg.fileInputs !== 2);
+			if(aib.multiFile || Cfg.fileInputs !== 2) {
+				el.placeholder = Lng[val][lang];
+			} else {
+				el.removeAttribute('placeholder');
+			}
 		}
 	}
 	_toggleQuickReply(tNum) {
@@ -9775,7 +9779,7 @@ class FileInput {
 	}
 	changeMode(showThumbs) {
 		$toggle(this._input, !Cfg.fileInputs);
-		$toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs);
+		this._input.toggleAttribute('multiple', aib.multiFile && Cfg.fileInputs);
 		$toggle(this._btnRen, Cfg.fileInputs && this.hasFile);
 		if(!(showThumbs ^ !!this._thumb)) {
 			return;
@@ -11657,7 +11661,7 @@ class Pview extends AbstractPost {
 			processImgInfoLinks(this);
 		} else {
 			const btnsEl = this.btns = $q('.de-post-btns', pv);
-			$q('.de-post-counter', btnsEl).remove();
+			$q('.de-post-counter', btnsEl)?.remove();
 			if(post.isHidden) {
 				btnsEl.classList.add('de-post-hide');
 			}
@@ -12072,7 +12076,7 @@ class ImagesViewer {
 	}
 	toggleVideoLoop() {
 		if(this.data.isVideo) {
-			$toggleAttr($q('video', this._fullEl), 'loop', '', !this.isAutoPlay);
+			$q('video', this._fullEl).toggleAttribute('loop', !this.isAutoPlay);
 		}
 	}
 	updateImgViewer(data, showButtons, e) {
@@ -12942,8 +12946,8 @@ function processPostImgInfoLinks(post, addSrc, imgNames) {
 			link.setAttribute('de-href', link.href);
 		}
 		if(imgNames) {
-			let ext;
-			if(!(ext = link.getAttribute('de-img-ext'))) {
+			let ext = link.getAttribute('de-img-ext');
+			if(!ext) {
 				ext = getFileExt(name) || getFileExt(getFileName(link.href));
 				link.setAttribute('de-img-ext', ext);
 				link.setAttribute('de-img-name-old', link.textContent);
