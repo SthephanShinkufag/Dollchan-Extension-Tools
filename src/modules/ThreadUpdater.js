@@ -383,6 +383,7 @@ function initThreadUpdater(title, enableUpdate) {
 					this._makeStep();
 				}
 				lastECode = eCode;
+				// Updating Favorites: failed thread loading
 				updateFavorites(aib.t, getErrorMessage(err), 'error');
 				return;
 			}
@@ -512,6 +513,11 @@ function initThreadUpdater(title, enableUpdate) {
 					forceLoadPosts();
 				}
 			}, 200);
+			if(aib.t) {
+				const thr = Thread.first;
+				// Updating Favorites: visiting a previously inactive page
+				updateFavorites(thr.op.num, [thr.postsCount, 0, 0, thr.last.num], 'update');
+			}
 		} else if(Thread.first) {
 			Post.clearMarks();
 		}
@@ -522,6 +528,12 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	return {
+		get getRepliesToYou() {
+			return repliesToYou.size;
+		},
+		addReplyToYou(pNum) {
+			repliesToYou.add(pNum);
+		},
 		continueUpdater(needSleep = false) {
 			if(enabled && paused) {
 				updMachine.start(needSleep);
@@ -553,11 +565,6 @@ function initThreadUpdater(title, enableUpdate) {
 			if(enabled && !paused) {
 				updMachine.stopUpdater();
 				paused = true;
-			}
-		},
-		refToYou(pNum) {
-			if(doc.hidden) {
-				repliesToYou.add(pNum);
 			}
 		},
 		toggle() {

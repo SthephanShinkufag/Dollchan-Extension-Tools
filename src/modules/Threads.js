@@ -216,6 +216,7 @@ class Thread {
 			} else {
 				removeFavEntry(favObj, host, board, num);
 			}
+			// Updating Favorites: add or remove a thread
 			sendStorageEvent('__de-favorites', [host, board, num, favObj, isEnable ? 'add' : 'delete']);
 			saveRenewFavorites(favObj);
 		});
@@ -524,7 +525,9 @@ class Thread {
 			DollchanAPI.notify('newpost', res[4]);
 			this.postsCount = len + 1;
 		}
-		updateFavorites(this.op.num, [this.postsCount, this.last.num], 'update');
+		// Updating Favorites: successed thread loading
+		updateFavorites(this.op.num,
+			[this.postsCount, newPosts, updater.getRepliesToYou, this.last.num], 'update');
 		if(maybeVParser.hasValue) {
 			maybeVParser.value.endParser();
 		}

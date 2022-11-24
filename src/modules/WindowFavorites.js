@@ -2,11 +2,13 @@
                                               WINDOW: FAVORITES
 =========================================================================================================== */
 
+// Saving favorites and renewing the Favorites window if it is open
 function saveRenewFavorites(favObj) {
 	saveFavorites(favObj);
 	toggleWindow('fav', true, favObj);
 }
 
+// Removing an entry from hte favorites object
 function removeFavEntry(favObj, host, board, num) {
 	const entry = favObj[host]?.[board];
 	if(entry?.[num]) {
@@ -20,6 +22,7 @@ function removeFavEntry(favObj, host, board, num) {
 	}
 }
 
+// Toggling a favorites button in thread if it is available on page
 function toggleThrFavBtn(host, board, num, isEnable) {
 	if(host === aib.host && board === aib.b && pByNum.has(num)) {
 		const post = pByNum.get(num);
@@ -28,6 +31,7 @@ function toggleThrFavBtn(host, board, num, isEnable) {
 	}
 }
 
+// Updating Favorites on successed/failed thread loading, or on visiting a previously inactive page
 function updateFavorites(num, value, mode) {
 	readFavorites().then(favObj => {
 		const entry = favObj[aib.host]?.[aib.b]?.[num];
@@ -38,17 +42,21 @@ function updateFavorites(num, value, mode) {
 		switch(mode) {
 		case 'error':
 			if(entry.err !== value) {
+				entry.err = value;
 				isUpdate = true;
 			}
-			entry.err = value;
 			break;
 		case 'update':
-			if(entry.cnt !== value[0]) {
+			if(entry.last !== aib.anchor + value[3]) {
+				if(doc.hidden) {
+					value[1] += entry.new;
+				} else {
+					value[1] = value[2] = 0;
+					entry.last = aib.anchor + value[3];
+				}
+				[entry.cnt, entry.new, entry.you] = value;
 				isUpdate = true;
 			}
-			entry.cnt = value[0];
-			entry.new = entry.you = 0;
-			entry.last = aib.anchor + value[1];
 		}
 		if(isUpdate) {
 			const data = [aib.host, aib.b, num, value, mode];
@@ -59,6 +67,7 @@ function updateFavorites(num, value, mode) {
 	});
 }
 
+// Updating the Favorites window if it is open
 function updateFavWindow(host, board, num, value, mode) {
 	if(mode === 'add' || mode === 'delete') {
 		toggleThrFavBtn(host, board, num, mode === 'add');
@@ -75,20 +84,20 @@ function updateFavWindow(host, board, num, value, mode) {
 		return;
 	}
 	const [iconEl, youEl, newEl, oldEl] = [...el.children];
-	$hide(youEl);
-	$hide(newEl);
+	$toggle(youEl, value[2]);
+	$toggle(newEl, value[1]);
 	if(mode === 'error') {
 		iconEl.firstElementChild.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 		iconEl.title = value;
 		return;
 	}
-	youEl.textContent = 0;
-	newEl.textContent = 0;
 	oldEl.textContent = value[0];
+	newEl.textContent = value[1];
+	youEl.textContent = value[2];
 }
 
-// Delete previously marked entries from Favorites
-async function clear404Favorites(favObj) {
+// Removing previously marked entries from Favorites
+async function remove404Favorites(favObj) {
 	const els = $Q('.de-entry[de-removed]');
 	const len = els.length;
 	if(!len) {
@@ -108,11 +117,23 @@ async function clear404Favorites(favObj) {
 	saveRenewFavorites(favObj);
 }
 
+// Checking if post contains reply links to my posts
+function isPostRefToYou(post) {
+	const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
+	for(let a = 0, linksLen = links.length; a < linksLen; ++a) {
+		const tc = links[a].textContent;
+		if(tc[0] === '>' && tc[1] === '>' && MyPosts.has(tc.substr(2))) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// Checking threads for availability and new posts
 async function refreshFavorites(needClear404) {
 	let isUpdate = false;
 	let isLast404 = false;
 	const favObj = await readFavorites();
-	const myPosts = JSON.parse(locStorage['de-myposts'] || '{}');
 	const parentEl = $q('.de-fav-table');
 	const entryEls = $Q('.de-entry');
 	for(let i = 0, len = entryEls.length; i < len; ++i) {
@@ -215,7 +236,6 @@ async function refreshFavorites(needClear404) {
 		let newCount = 0;
 		let youCount = 0;
 		const lastNum = entry.last.match(/\d+$/)?.[0] || 0;
-		const hasMyPosts = myPosts?.[board];
 		const posts = $Q(aib.qPost, formEl);
 		const postsLen = posts.length;
 		for(let j = 0; j < postsLen; ++j) {
@@ -224,18 +244,12 @@ async function refreshFavorites(needClear404) {
 				continue;
 			}
 			newCount++;
-			if(!hasMyPosts) {
-				continue;
+			if(isPostRefToYou(post)) {
+				youCount++;
 			}
-			// Check for replies to my posts
-			const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
-			for(let a = 0, linksLen = links.length; a < linksLen; ++a) {
-				const tc = links[a].textContent;
-				if(tc[0] === '>' && tc[1] === '>' && myPosts[board][tc.substr(2)]) {
-					youCount++;
-					break;
-				}
-			}
+		}
+		if(newCount !== entry.new || entry.cnt !== postsLen + 1) {
+			isUpdate = true;
 		}
 		totalEl.textContent = entry.cnt = postsLen + 1;
 		if(newCount) {
@@ -245,7 +259,6 @@ async function refreshFavorites(needClear404) {
 				youEl.textContent = entry.you = youCount;
 				$show(youEl);
 			}
-			isUpdate = true;
 		} else {
 			$hide(newEl);
 			$hide(youEl);
@@ -254,7 +267,7 @@ async function refreshFavorites(needClear404) {
 	AjaxCache.clearCache();
 	if(needClear404) {
 		if(isUpdate) {
-			clear404Favorites(favObj);
+			remove404Favorites(favObj);
 		}
 		parentEl.classList.remove('de-fav-table-unfold');
 	} else if(isUpdate) {
@@ -406,7 +419,7 @@ function showFavoritesWindow(body, favObj) {
 		// "Refresh" button. Updates counters of new posts for each thread entry.
 		$button(Lng.refresh[lang], Lng.refreshCounters[lang], () => refreshFavorites(false)),
 
-		// "Clear" button. Allows to clear 404'd threads.
+		// "Clear" button. Updates counters of new posts and clears 404 threads.
 		$button(Lng.clear[lang], Lng.refreshClear404[lang], () => refreshFavorites(true)),
 
 		// "Page" button. Shows on which page every thread is existed.
@@ -483,13 +496,13 @@ function showFavoritesWindow(body, favObj) {
 		})
 	);
 
-	// Deletion confirm/cancel buttons
+	// Deletion of confirm/cancel buttons
 	const delBtns = $bEnd(body, '<div id="de-fav-del-confirm" style="display: none;"></div>');
 	delBtns.append(
 		$button(Lng.remove[lang], Lng.delEntries[lang], () => {
 			$Q('.de-entry > .de-fav-del-btn[de-checked]', body).forEach(
 				el => el.parentNode.setAttribute('de-removed', ''));
-			clear404Favorites(); // Delete marked entries
+			remove404Favorites();
 			$show(btns);
 			$hide(delBtns);
 		}),

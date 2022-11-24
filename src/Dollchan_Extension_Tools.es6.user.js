@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.11.8.0';
-const commit = 'c83d7e8';
+const commit = '298ff6e';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2650,7 +2650,7 @@ async function readCfg() {
 function readPostsData(firstPost, favObj) {
 	let sVis = null;
 	try {
-		// Get hidden posts and threads that cached in current session
+		// Get hidden posts and threads from current session
 		const str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
 		if(str) {
 			const json = JSON.parse(str);
@@ -2666,38 +2666,12 @@ function readPostsData(firstPost, favObj) {
 	if(!firstPost) {
 		return;
 	}
-	let updateFav = null;
-	const favBoardObj = favObj[aib.host]?.[aib.b] || {};
+
+	// Search existed posts in hidden posts data and apply spells
 	const spellsHide = Cfg.hideBySpell;
 	const maybeSpells = new Maybe(SpellsRunner);
-
-	// Search existed posts in stored data
 	for(let post = firstPost; post; post = post.next) {
 		const { num } = post;
-		// Mark favorite threads, update favorites data
-		if(post.isOp && (num in favBoardObj)) {
-			const entry = favBoardObj[num];
-			const { thr } = post;
-			post.toggleFavBtn(true);
-			post.thr.isFav = true;
-			if(aib.t) {
-				entry.cnt = thr.postsCount;
-				entry.new = entry.you = 0;
-				if(Cfg.markNewPosts && entry.last) {
-					let lastPost = pByNum.get(+entry.last.match(/\d+/));
-					if(lastPost) {
-						// Mark all new posts after last viewed post
-						while((lastPost = lastPost.next)) {
-							Post.addMark(lastPost.el, true);
-						}
-					}
-				}
-				entry.last = aib.anchor + thr.last.num;
-			} else {
-				entry.new = thr.postsCount - entry.cnt;
-			}
-			updateFav = [aib.host, aib.b, aib.t, [thr.postsCount, thr.last.num], 'update'];
-		}
 		if(HiddenPosts.has(num)) {
 			HiddenPosts.hideHidden(post, num);
 			continue;
@@ -2730,10 +2704,46 @@ function readPostsData(firstPost, favObj) {
 	if(aib.t && Cfg.panelCounter === 2) {
 		$id('de-panel-info-posts').textContent = Thread.first.postsCount - Thread.first.hiddenCount;
 	}
-	if(updateFav) {
+
+	// Mark favorite threads, update favorites data
+	const favBoardObj = favObj[aib.host]?.[aib.b] || {};
+	if(firstPost.num in favBoardObj) {
+		const entry = favBoardObj[firstPost.num];
+		const { thr } = firstPost;
+		firstPost.toggleFavBtn(true);
+		thr.isFav = true;
+		if(aib.t) {
+			let newCount = 0;
+			let youCount = 0;
+			entry.cnt = thr.postsCount;
+			if(Cfg.markNewPosts && entry.last) {
+				let lastPost = pByNum.get(+entry.last.match(/\d+/));
+				if(lastPost) {
+					while((lastPost = lastPost.next)) {
+						Post.addMark(lastPost.el, true);
+						if(doc.hidden) {
+							newCount++;
+							if(isPostRefToYou(lastPost.el)) {
+								youCount++;
+							}
+						}
+					}
+				}
+			}
+			entry.new = newCount;
+			entry.you = youCount;
+			if(!doc.hidden) {
+				entry.last = aib.anchor + thr.last.num;
+			}
+		} else {
+			entry.new = thr.postsCount - entry.cnt;
+		}
 		saveFavorites(favObj);
-		sendStorageEvent('__de-favorites', updateFav);
+		// Updating Favorites: page is loaded
+		sendStorageEvent('__de-favorites', [aib.host, aib.b, aib.t,
+			[thr.postsCount, entry.new, entry.you, thr.last.num], 'update']);
 	}
+
 	// After following a link from Favorites, we need to open Favorites again.
 	const hasFavWinKey = sesStorage['de-fav-win'] === '1';
 	if(hasFavWinKey || Cfg.favWinOn) {
@@ -2743,7 +2753,7 @@ function readPostsData(firstPost, favObj) {
 		}
 	}
 	let data = sesStorage['de-fav-newthr'];
-	if(data) { // Detecting the created new thread and adding it to Favorites.
+	if(data) { // Detecting the new created thread and adding it to Favorites.
 		data = JSON.parse(data);
 		const isTimeOut = !data.num && (Date.now() - data.date > 2e4);
 		if(data.num === firstPost.num || !firstPost.next && !isTimeOut) {
@@ -2754,8 +2764,7 @@ function readPostsData(firstPost, favObj) {
 		}
 	}
 	if(Cfg.nextPageThr && DelForm.first === DelForm.last) {
-		const hidThrEls = $Q('.de-thr-hid', firstPost.thr.form.el);
-		const hidThrLen = hidThrEls.length;
+		const hidThrLen = $Q('.de-thr-hid', firstPost.thr.form.el).length;
 		if(hidThrLen) {
 			Pages.addPage(hidThrLen);
 		}
@@ -2971,6 +2980,7 @@ function initStorageEvent() {
 			} catch(err) {
 				return;
 			}
+			// Updating Favorites: keep in sync with other tab
 			updateFavWindow(...data);
 			return;
 		}
@@ -3791,11 +3801,13 @@ function showHiddenWindow(body) {
                                               WINDOW: FAVORITES
 =========================================================================================================== */
 
+// Saving favorites and renewing the Favorites window if it is open
 function saveRenewFavorites(favObj) {
 	saveFavorites(favObj);
 	toggleWindow('fav', true, favObj);
 }
 
+// Removing an entry from hte favorites object
 function removeFavEntry(favObj, host, board, num) {
 	const entry = favObj[host]?.[board];
 	if(entry?.[num]) {
@@ -3809,6 +3821,7 @@ function removeFavEntry(favObj, host, board, num) {
 	}
 }
 
+// Toggling a favorites button in thread if it is available on page
 function toggleThrFavBtn(host, board, num, isEnable) {
 	if(host === aib.host && board === aib.b && pByNum.has(num)) {
 		const post = pByNum.get(num);
@@ -3817,6 +3830,7 @@ function toggleThrFavBtn(host, board, num, isEnable) {
 	}
 }
 
+// Updating Favorites on successed/failed thread loading, or on visiting a previously inactive page
 function updateFavorites(num, value, mode) {
 	readFavorites().then(favObj => {
 		const entry = favObj[aib.host]?.[aib.b]?.[num];
@@ -3827,17 +3841,21 @@ function updateFavorites(num, value, mode) {
 		switch(mode) {
 		case 'error':
 			if(entry.err !== value) {
+				entry.err = value;
 				isUpdate = true;
 			}
-			entry.err = value;
 			break;
 		case 'update':
-			if(entry.cnt !== value[0]) {
+			if(entry.last !== aib.anchor + value[3]) {
+				if(doc.hidden) {
+					value[1] += entry.new;
+				} else {
+					value[1] = value[2] = 0;
+					entry.last = aib.anchor + value[3];
+				}
+				[entry.cnt, entry.new, entry.you] = value;
 				isUpdate = true;
 			}
-			entry.cnt = value[0];
-			entry.new = entry.you = 0;
-			entry.last = aib.anchor + value[1];
 		}
 		if(isUpdate) {
 			const data = [aib.host, aib.b, num, value, mode];
@@ -3848,6 +3866,7 @@ function updateFavorites(num, value, mode) {
 	});
 }
 
+// Updating the Favorites window if it is open
 function updateFavWindow(host, board, num, value, mode) {
 	if(mode === 'add' || mode === 'delete') {
 		toggleThrFavBtn(host, board, num, mode === 'add');
@@ -3864,20 +3883,20 @@ function updateFavWindow(host, board, num, value, mode) {
 		return;
 	}
 	const [iconEl, youEl, newEl, oldEl] = [...el.children];
-	$hide(youEl);
-	$hide(newEl);
+	$toggle(youEl, value[2]);
+	$toggle(newEl, value[1]);
 	if(mode === 'error') {
 		iconEl.firstElementChild.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 		iconEl.title = value;
 		return;
 	}
-	youEl.textContent = 0;
-	newEl.textContent = 0;
 	oldEl.textContent = value[0];
+	newEl.textContent = value[1];
+	youEl.textContent = value[2];
 }
 
-// Delete previously marked entries from Favorites
-async function clear404Favorites(favObj) {
+// Removing previously marked entries from Favorites
+async function remove404Favorites(favObj) {
 	const els = $Q('.de-entry[de-removed]');
 	const len = els.length;
 	if(!len) {
@@ -3897,11 +3916,23 @@ async function clear404Favorites(favObj) {
 	saveRenewFavorites(favObj);
 }
 
+// Checking if post contains reply links to my posts
+function isPostRefToYou(post) {
+	const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
+	for(let a = 0, linksLen = links.length; a < linksLen; ++a) {
+		const tc = links[a].textContent;
+		if(tc[0] === '>' && tc[1] === '>' && MyPosts.has(tc.substr(2))) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// Checking threads for availability and new posts
 async function refreshFavorites(needClear404) {
 	let isUpdate = false;
 	let isLast404 = false;
 	const favObj = await readFavorites();
-	const myPosts = JSON.parse(locStorage['de-myposts'] || '{}');
 	const parentEl = $q('.de-fav-table');
 	const entryEls = $Q('.de-entry');
 	for(let i = 0, len = entryEls.length; i < len; ++i) {
@@ -4004,7 +4035,6 @@ async function refreshFavorites(needClear404) {
 		let newCount = 0;
 		let youCount = 0;
 		const lastNum = entry.last.match(/\d+$/)?.[0] || 0;
-		const hasMyPosts = myPosts?.[board];
 		const posts = $Q(aib.qPost, formEl);
 		const postsLen = posts.length;
 		for(let j = 0; j < postsLen; ++j) {
@@ -4013,18 +4043,12 @@ async function refreshFavorites(needClear404) {
 				continue;
 			}
 			newCount++;
-			if(!hasMyPosts) {
-				continue;
+			if(isPostRefToYou(post)) {
+				youCount++;
 			}
-			// Check for replies to my posts
-			const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
-			for(let a = 0, linksLen = links.length; a < linksLen; ++a) {
-				const tc = links[a].textContent;
-				if(tc[0] === '>' && tc[1] === '>' && myPosts[board][tc.substr(2)]) {
-					youCount++;
-					break;
-				}
-			}
+		}
+		if(newCount !== entry.new || entry.cnt !== postsLen + 1) {
+			isUpdate = true;
 		}
 		totalEl.textContent = entry.cnt = postsLen + 1;
 		if(newCount) {
@@ -4034,7 +4058,6 @@ async function refreshFavorites(needClear404) {
 				youEl.textContent = entry.you = youCount;
 				$show(youEl);
 			}
-			isUpdate = true;
 		} else {
 			$hide(newEl);
 			$hide(youEl);
@@ -4043,7 +4066,7 @@ async function refreshFavorites(needClear404) {
 	AjaxCache.clearCache();
 	if(needClear404) {
 		if(isUpdate) {
-			clear404Favorites(favObj);
+			remove404Favorites(favObj);
 		}
 		parentEl.classList.remove('de-fav-table-unfold');
 	} else if(isUpdate) {
@@ -4195,7 +4218,7 @@ function showFavoritesWindow(body, favObj) {
 		// "Refresh" button. Updates counters of new posts for each thread entry.
 		$button(Lng.refresh[lang], Lng.refreshCounters[lang], () => refreshFavorites(false)),
 
-		// "Clear" button. Allows to clear 404'd threads.
+		// "Clear" button. Updates counters of new posts and clears 404 threads.
 		$button(Lng.clear[lang], Lng.refreshClear404[lang], () => refreshFavorites(true)),
 
 		// "Page" button. Shows on which page every thread is existed.
@@ -4272,13 +4295,13 @@ function showFavoritesWindow(body, favObj) {
 		})
 	);
 
-	// Deletion confirm/cancel buttons
+	// Deletion of confirm/cancel buttons
 	const delBtns = $bEnd(body, '<div id="de-fav-del-confirm" style="display: none;"></div>');
 	delBtns.append(
 		$button(Lng.remove[lang], Lng.delEntries[lang], () => {
 			$Q('.de-entry > .de-fav-del-btn[de-checked]', body).forEach(
 				el => el.parentNode.setAttribute('de-removed', ''));
-			clear404Favorites(); // Delete marked entries
+			remove404Favorites();
 			$show(btns);
 			$hide(delBtns);
 		}),
@@ -13592,7 +13615,9 @@ class RefMap {
 					const postClass = post.el.classList;
 					if(!postClass.contains('de-mypost-reply')) {
 						postClass.add('de-mypost-reply');
-						updater.refToYou(pNum);
+						if(doc.hidden) {
+							updater.addReplyToYou(pNum);
+						}
 					}
 				}
 			}
@@ -13958,6 +13983,7 @@ class Thread {
 			} else {
 				removeFavEntry(favObj, host, board, num);
 			}
+			// Updating Favorites: add or remove a thread
 			sendStorageEvent('__de-favorites', [host, board, num, favObj, isEnable ? 'add' : 'delete']);
 			saveRenewFavorites(favObj);
 		});
@@ -14266,7 +14292,9 @@ class Thread {
 			DollchanAPI.notify('newpost', res[4]);
 			this.postsCount = len + 1;
 		}
-		updateFavorites(this.op.num, [this.postsCount, this.last.num], 'update');
+		// Updating Favorites: successed thread loading
+		updateFavorites(this.op.num,
+			[this.postsCount, newPosts, updater.getRepliesToYou, this.last.num], 'update');
 		if(maybeVParser.hasValue) {
 			maybeVParser.value.endParser();
 		}
@@ -14782,6 +14810,7 @@ function initThreadUpdater(title, enableUpdate) {
 					this._makeStep();
 				}
 				lastECode = eCode;
+				// Updating Favorites: failed thread loading
 				updateFavorites(aib.t, getErrorMessage(err), 'error');
 				return;
 			}
@@ -14911,6 +14940,11 @@ function initThreadUpdater(title, enableUpdate) {
 					forceLoadPosts();
 				}
 			}, 200);
+			if(aib.t) {
+				const thr = Thread.first;
+				// Updating Favorites: visiting a previously inactive page
+				updateFavorites(thr.op.num, [thr.postsCount, 0, 0, thr.last.num], 'update');
+			}
 		} else if(Thread.first) {
 			Post.clearMarks();
 		}
@@ -14921,6 +14955,12 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	return {
+		get getRepliesToYou() {
+			return repliesToYou.size;
+		},
+		addReplyToYou(pNum) {
+			repliesToYou.add(pNum);
+		},
 		continueUpdater(needSleep = false) {
 			if(enabled && paused) {
 				updMachine.start(needSleep);
@@ -14952,11 +14992,6 @@ function initThreadUpdater(title, enableUpdate) {
 			if(enabled && !paused) {
 				updMachine.stopUpdater();
 				paused = true;
-			}
-		},
-		refToYou(pNum) {
-			if(doc.hidden) {
-				repliesToYou.add(pNum);
 			}
 		},
 		toggle() {

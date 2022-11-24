@@ -64,7 +64,9 @@ class RefMap {
 					const postClass = post.el.classList;
 					if(!postClass.contains('de-mypost-reply')) {
 						postClass.add('de-mypost-reply');
-						updater.refToYou(pNum);
+						if(doc.hidden) {
+							updater.addReplyToYou(pNum);
+						}
 					}
 				}
 			}

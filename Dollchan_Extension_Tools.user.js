@@ -7198,7 +7198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.11.8.0';
-  var commit = 'c83d7e8';
+  var commit = '298ff6e';
 
 
   var defaultCfg = {
@@ -9016,37 +9016,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     if (!firstPost) {
       return;
     }
-    var updateFav = null;
-    var favBoardObj = ((_favObj$aib$host = favObj[aib.host]) === null || _favObj$aib$host === void 0 ? void 0 : _favObj$aib$host[aib.b]) || {};
+
     var spellsHide = Cfg.hideBySpell;
     var maybeSpells = new Maybe(SpellsRunner);
-
     for (var post = firstPost; post; post = post.next) {
       var _post = post,
         num = _post.num;
-      if (post.isOp && num in favBoardObj) {
-        var entry = favBoardObj[num];
-        var _post2 = post,
-          thr = _post2.thr;
-        post.toggleFavBtn(true);
-        post.thr.isFav = true;
-        if (aib.t) {
-          entry.cnt = thr.postsCount;
-          entry["new"] = entry.you = 0;
-          if (Cfg.markNewPosts && entry.last) {
-            var lastPost = pByNum.get(+entry.last.match(/\d+/));
-            if (lastPost) {
-              while (lastPost = lastPost.next) {
-                Post.addMark(lastPost.el, true);
-              }
-            }
-          }
-          entry.last = aib.anchor + thr.last.num;
-        } else {
-          entry["new"] = thr.postsCount - entry.cnt;
-        }
-        updateFav = [aib.host, aib.b, aib.t, [thr.postsCount, thr.last.num], 'update'];
-      }
       if (HiddenPosts.has(num)) {
         HiddenPosts.hideHidden(post, num);
         continue;
@@ -9081,10 +9056,43 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     if (aib.t && Cfg.panelCounter === 2) {
       $id('de-panel-info-posts').textContent = Thread.first.postsCount - Thread.first.hiddenCount;
     }
-    if (updateFav) {
+
+    var favBoardObj = ((_favObj$aib$host = favObj[aib.host]) === null || _favObj$aib$host === void 0 ? void 0 : _favObj$aib$host[aib.b]) || {};
+    if (firstPost.num in favBoardObj) {
+      var entry = favBoardObj[firstPost.num];
+      var thr = firstPost.thr;
+      firstPost.toggleFavBtn(true);
+      thr.isFav = true;
+      if (aib.t) {
+        var newCount = 0;
+        var youCount = 0;
+        entry.cnt = thr.postsCount;
+        if (Cfg.markNewPosts && entry.last) {
+          var lastPost = pByNum.get(+entry.last.match(/\d+/));
+          if (lastPost) {
+            while (lastPost = lastPost.next) {
+              Post.addMark(lastPost.el, true);
+              if (doc.hidden) {
+                newCount++;
+                if (isPostRefToYou(lastPost.el)) {
+                  youCount++;
+                }
+              }
+            }
+          }
+        }
+        entry["new"] = newCount;
+        entry.you = youCount;
+        if (!doc.hidden) {
+          entry.last = aib.anchor + thr.last.num;
+        }
+      } else {
+        entry["new"] = thr.postsCount - entry.cnt;
+      }
       saveFavorites(favObj);
-      sendStorageEvent('__de-favorites', updateFav);
+      sendStorageEvent('__de-favorites', [aib.host, aib.b, aib.t, [thr.postsCount, entry["new"], entry.you, thr.last.num], 'update']);
     }
+
     var hasFavWinKey = sesStorage['de-fav-win'] === '1';
     if (hasFavWinKey || Cfg.favWinOn) {
       toggleWindow('fav', !!$q('#de-win-fav.de-win-active'), null, true);
@@ -9104,8 +9112,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     }
     if (Cfg.nextPageThr && DelForm.first === DelForm.last) {
-      var hidThrEls = $Q('.de-thr-hid', firstPost.thr.form.el);
-      var hidThrLen = hidThrEls.length;
+      var hidThrLen = $Q('.de-thr-hid', firstPost.thr.form.el).length;
       if (hidThrLen) {
         Pages.addPage(hidThrLen);
       }
@@ -10301,6 +10308,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     saveFavorites(favObj);
     toggleWindow('fav', true, favObj);
   }
+
   function removeFavEntry(favObj, host, board, num) {
     var _favObj$host;
     var entry = (_favObj$host = favObj[host]) === null || _favObj$host === void 0 ? void 0 : _favObj$host[board];
@@ -10314,6 +10322,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     }
   }
+
   function toggleThrFavBtn(host, board, num, isEnable) {
     if (host === aib.host && board === aib.b && pByNum.has(num)) {
       var post = pByNum.get(num);
@@ -10321,6 +10330,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       post.thr.isFav = isEnable;
     }
   }
+
   function updateFavorites(num, value, mode) {
     readFavorites().then(function (favObj) {
       var _favObj$aib$host2, _favObj$aib$host2$aib;
@@ -10332,17 +10342,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       switch (mode) {
         case 'error':
           if (entry.err !== value) {
+            entry.err = value;
             isUpdate = true;
           }
-          entry.err = value;
           break;
         case 'update':
-          if (entry.cnt !== value[0]) {
+          if (entry.last !== aib.anchor + value[3]) {
+            if (doc.hidden) {
+              value[1] += entry["new"];
+            } else {
+              value[1] = value[2] = 0;
+              entry.last = aib.anchor + value[3];
+            }
+            var _value = _slicedToArray(value, 3);
+            entry.cnt = _value[0];
+            entry["new"] = _value[1];
+            entry.you = _value[2];
             isUpdate = true;
           }
-          entry.cnt = value[0];
-          entry["new"] = entry.you = 0;
-          entry.last = aib.anchor + value[1];
       }
       if (isUpdate) {
         var data = [aib.host, aib.b, num, value, mode];
@@ -10352,6 +10369,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     });
   }
+
   function updateFavWindow(host, board, num, value, mode) {
     if (mode === 'add' || mode === 'delete') {
       toggleThrFavBtn(host, board, num, mode === 'add');
@@ -10371,23 +10389,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       youEl = _ref4[1],
       newEl = _ref4[2],
       oldEl = _ref4[3];
-    $hide(youEl);
-    $hide(newEl);
+    $toggle(youEl, value[2]);
+    $toggle(newEl, value[1]);
     if (mode === 'error') {
       iconEl.firstElementChild.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
       iconEl.title = value;
       return;
     }
-    youEl.textContent = 0;
-    newEl.textContent = 0;
     oldEl.textContent = value[0];
+    newEl.textContent = value[1];
+    youEl.textContent = value[2];
   }
 
-  function clear404Favorites(_x8) {
-    return _clear404Favorites.apply(this, arguments);
-  }
-  function _clear404Favorites() {
-    _clear404Favorites = _asyncToGenerator( _regeneratorRuntime().mark(function _callee52(favObj) {
+  function remove404Favorites(_x8) {
+    return _remove404Favorites.apply(this, arguments);
+  } 
+  function _remove404Favorites() {
+    _remove404Favorites = _asyncToGenerator( _regeneratorRuntime().mark(function _callee52(favObj) {
       var els, len, i, el, host, board, num;
       return _regeneratorRuntime().wrap(function _callee52$(_context61) {
         while (1) {
@@ -10426,14 +10444,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       }, _callee52);
     }));
-    return _clear404Favorites.apply(this, arguments);
+    return _remove404Favorites.apply(this, arguments);
   }
+  function isPostRefToYou(post) {
+    var links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
+    for (var a = 0, linksLen = links.length; a < linksLen; ++a) {
+      var tc = links[a].textContent;
+      if (tc[0] === '>' && tc[1] === '>' && MyPosts.has(tc.substr(2))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   function refreshFavorites(_x9) {
     return _refreshFavorites.apply(this, arguments);
   }
   function _refreshFavorites() {
     _refreshFavorites = _asyncToGenerator( _regeneratorRuntime().mark(function _callee53(needClear404) {
-      var isUpdate, isLast404, favObj, myPosts, parentEl, entryEls, i, len, _entry$last$match, entryEl, _ref62, titleEl, youEl, newEl, totalEl, iconEl, host, board, num, url, entry, oldClassName, oldTitle, formEl, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, newCount, youCount, lastNum, hasMyPosts, posts, postsLen, j, post, links, a, linksLen, tc;
+      var isUpdate, isLast404, favObj, parentEl, entryEls, i, len, _entry$last$match, entryEl, _ref62, titleEl, youEl, newEl, totalEl, iconEl, host, board, num, url, entry, oldClassName, oldTitle, formEl, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, newCount, youCount, lastNum, posts, postsLen, j, post;
       return _regeneratorRuntime().wrap(function _callee53$(_context62) {
         while (1) {
           switch (_context62.prev = _context62.next) {
@@ -10444,13 +10473,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               return readFavorites();
             case 4:
               favObj = _context62.sent;
-              myPosts = JSON.parse(locStorage['de-myposts'] || '{}');
               parentEl = $q('.de-fav-table');
               entryEls = $Q('.de-entry');
               i = 0, len = entryEls.length;
-            case 9:
+            case 8:
               if (!(i < len)) {
-                _context62.next = 117;
+                _context62.next = 105;
                 break;
               }
               entryEl = entryEls[i];
@@ -10462,17 +10490,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               url = entryEl.getAttribute('de-url');
               entry = favObj[host][board][num];
               if (!(entry.err === 'Archived')) {
-                _context62.next = 20;
+                _context62.next = 19;
                 break;
               }
-              return _context62.abrupt("continue", 114);
-            case 20:
+              return _context62.abrupt("continue", 102);
+            case 19:
               if (!(host !== aib.host || entry.err === 'Closed')) {
-                _context62.next = 49;
+                _context62.next = 48;
                 break;
               }
               if (!needClear404) {
-                _context62.next = 48;
+                _context62.next = 47;
                 break;
               }
               parentEl.classList.add('de-fav-table-unfold');
@@ -10480,10 +10508,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               oldTitle = titleEl.title; 
               iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
               titleEl.title = Lng.updating[lang];
-              _context62.prev = 27;
-              _context62.next = 30;
+              _context62.prev = 26;
+              _context62.next = 29;
               return $ajax(url, null, true);
-            case 30:
+            case 29:
               iconEl.setAttribute('class', oldClassName);
               if (oldTitle) {
                 titleEl.title = oldTitle;
@@ -10491,76 +10519,76 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 titleEl.removeAttribute('title');
               }
               isLast404 = false;
-              _context62.next = 48;
+              _context62.next = 47;
               break;
-            case 35:
-              _context62.prev = 35;
-              _context62.t0 = _context62["catch"](27);
+            case 34:
+              _context62.prev = 34;
+              _context62.t0 = _context62["catch"](26);
               if (!(_context62.t0 instanceof AjaxError && _context62.t0.code === 404)) {
-                _context62.next = 43;
+                _context62.next = 42;
                 break;
               }
               if (isLast404) {
-                _context62.next = 42;
+                _context62.next = 41;
                 break;
               }
               isLast404 = true;
               --i; 
-              return _context62.abrupt("continue", 114);
-            case 42:
+              return _context62.abrupt("continue", 102);
+            case 41:
               Thread.removeSavedData(board, num); 
-            case 43:
+            case 42:
               entryEl.setAttribute('de-removed', ''); 
               iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
               titleEl.title = entry.err = getErrorMessage(_context62.t0);
               isLast404 = false;
               isUpdate = true;
+            case 47:
+              return _context62.abrupt("continue", 102);
             case 48:
-              return _context62.abrupt("continue", 114);
-            case 49:
               formEl = void 0, isArchived = void 0;
               iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
               titleEl.title = Lng.updating[lang];
-              _context62.prev = 52;
+              _context62.prev = 51;
               if (!aib.hasArchive) {
-                _context62.next = 62;
+                _context62.next = 61;
                 break;
               }
-              _context62.next = 56;
+              _context62.next = 55;
               return ajaxLoad(url, true, false, true);
-            case 56:
+            case 55:
               _yield$ajaxLoad = _context62.sent;
               _yield$ajaxLoad2 = _slicedToArray(_yield$ajaxLoad, 2);
               formEl = _yield$ajaxLoad2[0];
               isArchived = _yield$ajaxLoad2[1];
-              _context62.next = 65;
-              break;
-            case 62:
               _context62.next = 64;
-              return ajaxLoad(url);
-            case 64:
-              formEl = _context62.sent;
-            case 65:
-              isLast404 = false;
-              _context62.next = 84;
               break;
-            case 68:
-              _context62.prev = 68;
-              _context62.t1 = _context62["catch"](52);
+            case 61:
+              _context62.next = 63;
+              return ajaxLoad(url);
+            case 63:
+              formEl = _context62.sent;
+            case 64:
+              isLast404 = false;
+              _context62.next = 83;
+              break;
+            case 67:
+              _context62.prev = 67;
+              _context62.t1 = _context62["catch"](51);
               if (!(_context62.t1 instanceof AjaxError && _context62.t1.code === 404)) {
-                _context62.next = 76;
+                _context62.next = 75;
                 break;
               }
               if (isLast404) {
-                _context62.next = 75;
+                _context62.next = 74;
                 break;
               }
               isLast404 = true;
               --i;
-              return _context62.abrupt("continue", 114);
-            case 75:
+              return _context62.abrupt("continue", 102);
+            case 74:
               Thread.removeSavedData(board, num);
-            case 76:
+            case 75:
               $hide(newEl);
               $hide(youEl);
               entryEl.setAttribute('de-removed', '');
@@ -10568,8 +10596,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               titleEl.title = entry.err = getErrorMessage(_context62.t1);
               isLast404 = false;
               isUpdate = true;
-              return _context62.abrupt("continue", 114);
-            case 84:
+              return _context62.abrupt("continue", 102);
+            case 83:
               if (aib.qClosed && $q(aib.qClosed, formEl)) {
                 iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
                 titleEl.title = Lng.thrClosed[lang];
@@ -10591,52 +10619,33 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               newCount = 0;
               youCount = 0;
               lastNum = ((_entry$last$match = entry.last.match(/\d+$/)) === null || _entry$last$match === void 0 ? void 0 : _entry$last$match[0]) || 0;
-              hasMyPosts = myPosts === null || myPosts === void 0 ? void 0 : myPosts[board];
               posts = $Q(aib.qPost, formEl);
               postsLen = posts.length;
               j = 0;
-            case 92:
+            case 90:
               if (!(j < postsLen)) {
-                _context62.next = 112;
+                _context62.next = 99;
                 break;
               }
               post = posts[j];
               if (!(lastNum >= aib.getPNum(post))) {
-                _context62.next = 96;
+                _context62.next = 94;
                 break;
               }
-              return _context62.abrupt("continue", 109);
-            case 96:
+              return _context62.abrupt("continue", 96);
+            case 94:
               newCount++;
-              if (hasMyPosts) {
-                _context62.next = 99;
-                break;
+              if (isPostRefToYou(post)) {
+                youCount++;
               }
-              return _context62.abrupt("continue", 109);
-            case 99:
-              links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
-              a = 0, linksLen = links.length;
-            case 101:
-              if (!(a < linksLen)) {
-                _context62.next = 109;
-                break;
-              }
-              tc = links[a].textContent;
-              if (!(tc[0] === '>' && tc[1] === '>' && myPosts[board][tc.substr(2)])) {
-                _context62.next = 106;
-                break;
-              }
-              youCount++;
-              return _context62.abrupt("break", 109);
-            case 106:
-              ++a;
-              _context62.next = 101;
-              break;
-            case 109:
+            case 96:
               ++j;
-              _context62.next = 92;
+              _context62.next = 90;
               break;
-            case 112:
+            case 99:
+              if (newCount !== entry["new"] || entry.cnt !== postsLen + 1) {
+                isUpdate = true;
+              }
               totalEl.textContent = entry.cnt = postsLen + 1;
               if (newCount) {
                 newEl.textContent = entry["new"] = newCount;
@@ -10645,31 +10654,30 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   youEl.textContent = entry.you = youCount;
                   $show(youEl);
                 }
-                isUpdate = true;
               } else {
                 $hide(newEl);
                 $hide(youEl);
               }
-            case 114:
+            case 102:
               ++i;
-              _context62.next = 9;
+              _context62.next = 8;
               break;
-            case 117:
+            case 105:
               AjaxCache.clearCache();
               if (needClear404) {
                 if (isUpdate) {
-                  clear404Favorites(favObj);
+                  remove404Favorites(favObj);
                 }
                 parentEl.classList.remove('de-fav-table-unfold');
               } else if (isUpdate) {
                 saveFavorites(favObj);
               }
-            case 119:
+            case 107:
             case "end":
               return _context62.stop();
           }
         }
-      }, _callee53, null, [[27, 35], [52, 68]]);
+      }, _callee53, null, [[26, 34], [51, 67]]);
     }));
     return _refreshFavorites.apply(this, arguments);
   }
@@ -10892,7 +10900,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       $Q('.de-entry > .de-fav-del-btn[de-checked]', body).forEach(function (el) {
         return el.parentNode.setAttribute('de-removed', '');
       });
-      clear404Favorites(); 
+      remove404Favorites();
       $show(btns);
       $hide(delBtns);
     }), $button(Lng.cancel[lang], '', function () {
@@ -11190,7 +11198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     handleEvent: function handleEvent(e) {
       var _this19 = this;
       return _asyncToGenerator( _regeneratorRuntime().mark(function _callee15() {
-        var type, el, tag, classList, info, _info, isHide, post, _iterator4, _step4, _el3, _info2, _post3, img, _iterator5, _step5, _el4, perf, arr, i, len, _info3, isCheck, val;
+        var type, el, tag, classList, info, _info, isHide, post, _iterator4, _step4, _el3, _info2, _post2, img, _iterator5, _step5, _el4, perf, arr, i, len, _info3, isCheck, val;
         return _regeneratorRuntime().wrap(function _callee15$(_context16) {
           while (1) {
             switch (_context16.prev = _context16.next) {
@@ -11328,11 +11336,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 67:
                 return _context16.abrupt("break", 116);
               case 68:
-                for (_post3 = Thread.first.op; _post3; _post3 = _post3.next) {
+                for (_post2 = Thread.first.op; _post2; _post2 = _post2.next) {
                   if (!Cfg.hideRefPsts) {
-                    _post3.ref.unhideRef();
-                  } else if (_post3.isHidden) {
-                    _post3.ref.hideRef();
+                    _post2.ref.unhideRef();
+                  } else if (_post2.isHidden) {
+                    _post2.ref.hideRef();
                   }
                 }
                 return _context16.abrupt("break", 116);
@@ -18906,8 +18914,8 @@ Spells.addSpell(9, '', false);
       key: "nextNotDeleted",
       get: function get() {
         var post = this.nextInThread;
-        while ((_post4 = post) !== null && _post4 !== void 0 && _post4.isDeleted) {
-          var _post4;
+        while ((_post3 = post) !== null && _post3 !== void 0 && _post3.isDeleted) {
+          var _post3;
           post = post.nextInThread;
         }
         return post;
@@ -22236,7 +22244,9 @@ Spells.addSpell(9, '', false);
               var postClass = post.el.classList;
               if (!postClass.contains('de-mypost-reply')) {
                 postClass.add('de-mypost-reply');
-                updater.refToYou(pNum);
+                if (doc.hidden) {
+                  updater.addReplyToYou(pNum);
+                }
               }
             }
           }
@@ -22786,16 +22796,16 @@ Spells.addSpell(9, '', false);
         var len = pBuilder.length;
         var maybeSpells = new Maybe(SpellsRunner);
         var maybeVParser = new Maybe(Cfg.embedYTube ? VideosParser : null);
-        var _post5 = post,
-          count = _post5.count;
+        var _post4 = post,
+          count = _post4.count;
         if (count !== 0 && (aib.dobrochan || count > len || pBuilder.getPNum(count - 1) !== post.num)) {
           post = this.op.nextNotDeleted;
           var i = post.count - 1;
           var firstChangedPost = null;
           for (; i < len && post;) {
-            var _post6 = post,
-              num = _post6.num,
-              prev = _post6.prev;
+            var _post5 = post,
+              num = _post5.num,
+              prev = _post5.prev;
             var iNum = pBuilder.getPNum(i);
             if (num === iNum) {
               i++;
@@ -22852,7 +22862,7 @@ Spells.addSpell(9, '', false);
           DollchanAPI.notify('newpost', _res[4]);
           this.postsCount = len + 1;
         }
-        updateFavorites(this.op.num, [this.postsCount, this.last.num], 'update');
+        updateFavorites(this.op.num, [this.postsCount, newPosts, updater.getRepliesToYou, this.last.num], 'update');
         if (maybeVParser.hasValue) {
           maybeVParser.value.endParser();
         }
@@ -23569,6 +23579,10 @@ Spells.addSpell(9, '', false);
             forceLoadPosts();
           }
         }, 200);
+        if (aib.t) {
+          var thr = Thread.first;
+          updateFavorites(thr.op.num, [thr.postsCount, 0, 0, thr.last.num], 'update');
+        }
       } else if (Thread.first) {
         Post.clearMarks();
       }
@@ -23578,6 +23592,12 @@ Spells.addSpell(9, '', false);
       updMachine.start(true);
     }
     return {
+      get getRepliesToYou() {
+        return repliesToYou.size;
+      },
+      addReplyToYou: function addReplyToYou(pNum) {
+        repliesToYou.add(pNum);
+      },
       continueUpdater: function continueUpdater() {
         var needSleep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
         if (enabled && paused) {
@@ -23610,11 +23630,6 @@ Spells.addSpell(9, '', false);
         if (enabled && !paused) {
           updMachine.stopUpdater();
           paused = true;
-        }
-      },
-      refToYou: function refToYou(pNum) {
-        if (doc.hidden) {
-          repliesToYou.add(pNum);
         }
       },
       toggle: function toggle() {

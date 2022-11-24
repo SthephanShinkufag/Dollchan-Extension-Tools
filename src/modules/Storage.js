@@ -229,7 +229,7 @@ async function readCfg() {
 function readPostsData(firstPost, favObj) {
 	let sVis = null;
 	try {
-		// Get hidden posts and threads that cached in current session
+		// Get hidden posts and threads from current session
 		const str = aib.t ? sesStorage['de-hidden-' + aib.b + aib.t] : null;
 		if(str) {
 			const json = JSON.parse(str);
@@ -245,38 +245,12 @@ function readPostsData(firstPost, favObj) {
 	if(!firstPost) {
 		return;
 	}
-	let updateFav = null;
-	const favBoardObj = favObj[aib.host]?.[aib.b] || {};
+
+	// Search existed posts in hidden posts data and apply spells
 	const spellsHide = Cfg.hideBySpell;
 	const maybeSpells = new Maybe(SpellsRunner);
-
-	// Search existed posts in stored data
 	for(let post = firstPost; post; post = post.next) {
 		const { num } = post;
-		// Mark favorite threads, update favorites data
-		if(post.isOp && (num in favBoardObj)) {
-			const entry = favBoardObj[num];
-			const { thr } = post;
-			post.toggleFavBtn(true);
-			post.thr.isFav = true;
-			if(aib.t) {
-				entry.cnt = thr.postsCount;
-				entry.new = entry.you = 0;
-				if(Cfg.markNewPosts && entry.last) {
-					let lastPost = pByNum.get(+entry.last.match(/\d+/));
-					if(lastPost) {
-						// Mark all new posts after last viewed post
-						while((lastPost = lastPost.next)) {
-							Post.addMark(lastPost.el, true);
-						}
-					}
-				}
-				entry.last = aib.anchor + thr.last.num;
-			} else {
-				entry.new = thr.postsCount - entry.cnt;
-			}
-			updateFav = [aib.host, aib.b, aib.t, [thr.postsCount, thr.last.num], 'update'];
-		}
 		if(HiddenPosts.has(num)) {
 			HiddenPosts.hideHidden(post, num);
 			continue;
@@ -309,10 +283,46 @@ function readPostsData(firstPost, favObj) {
 	if(aib.t && Cfg.panelCounter === 2) {
 		$id('de-panel-info-posts').textContent = Thread.first.postsCount - Thread.first.hiddenCount;
 	}
-	if(updateFav) {
+
+	// Mark favorite threads, update favorites data
+	const favBoardObj = favObj[aib.host]?.[aib.b] || {};
+	if(firstPost.num in favBoardObj) {
+		const entry = favBoardObj[firstPost.num];
+		const { thr } = firstPost;
+		firstPost.toggleFavBtn(true);
+		thr.isFav = true;
+		if(aib.t) {
+			let newCount = 0;
+			let youCount = 0;
+			entry.cnt = thr.postsCount;
+			if(Cfg.markNewPosts && entry.last) {
+				let lastPost = pByNum.get(+entry.last.match(/\d+/));
+				if(lastPost) {
+					while((lastPost = lastPost.next)) {
+						Post.addMark(lastPost.el, true);
+						if(doc.hidden) {
+							newCount++;
+							if(isPostRefToYou(lastPost.el)) {
+								youCount++;
+							}
+						}
+					}
+				}
+			}
+			entry.new = newCount;
+			entry.you = youCount;
+			if(!doc.hidden) {
+				entry.last = aib.anchor + thr.last.num;
+			}
+		} else {
+			entry.new = thr.postsCount - entry.cnt;
+		}
 		saveFavorites(favObj);
-		sendStorageEvent('__de-favorites', updateFav);
+		// Updating Favorites: page is loaded
+		sendStorageEvent('__de-favorites', [aib.host, aib.b, aib.t,
+			[thr.postsCount, entry.new, entry.you, thr.last.num], 'update']);
 	}
+
 	// After following a link from Favorites, we need to open Favorites again.
 	const hasFavWinKey = sesStorage['de-fav-win'] === '1';
 	if(hasFavWinKey || Cfg.favWinOn) {
@@ -322,7 +332,7 @@ function readPostsData(firstPost, favObj) {
 		}
 	}
 	let data = sesStorage['de-fav-newthr'];
-	if(data) { // Detecting the created new thread and adding it to Favorites.
+	if(data) { // Detecting the new created thread and adding it to Favorites.
 		data = JSON.parse(data);
 		const isTimeOut = !data.num && (Date.now() - data.date > 2e4);
 		if(data.num === firstPost.num || !firstPost.next && !isTimeOut) {
@@ -333,8 +343,7 @@ function readPostsData(firstPost, favObj) {
 		}
 	}
 	if(Cfg.nextPageThr && DelForm.first === DelForm.last) {
-		const hidThrEls = $Q('.de-thr-hid', firstPost.thr.form.el);
-		const hidThrLen = hidThrEls.length;
+		const hidThrLen = $Q('.de-thr-hid', firstPost.thr.form.el).length;
 		if(hidThrLen) {
 			Pages.addPage(hidThrLen);
 		}
@@ -550,6 +559,7 @@ function initStorageEvent() {
 			} catch(err) {
 				return;
 			}
+			// Updating Favorites: keep in sync with other tab
 			updateFavWindow(...data);
 			return;
 		}
