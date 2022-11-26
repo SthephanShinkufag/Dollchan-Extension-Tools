@@ -540,14 +540,14 @@ class Post extends AbstractPost {
 		el.addEventListener('mouseover', this, true);
 	}
 	static addMark(postEl, forced) {
-		if(!doc.hidden && !forced) {
-			Post.clearMarks();
-		} else {
+		if(doc.hidden || forced) {
 			if(!Post.hasNew) {
 				Post.hasNew = true;
 				doc.addEventListener('click', Post.clearMarks, true);
 			}
 			postEl.classList.add('de-new-post');
+		} else {
+			Post.clearMarks();
 		}
 	}
 	static clearMarks() {

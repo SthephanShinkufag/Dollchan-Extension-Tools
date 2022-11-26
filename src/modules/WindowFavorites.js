@@ -119,11 +119,13 @@ async function remove404Favorites(favObj) {
 
 // Checking if post contains reply links to my posts
 function isPostRefToYou(post) {
-	const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
-	for(let a = 0, linksLen = links.length; a < linksLen; ++a) {
-		const tc = links[a].textContent;
-		if(tc[0] === '>' && tc[1] === '>' && MyPosts.has(tc.substr(2))) {
-			return true;
+	if(Cfg.markMyPosts) {
+		const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
+		for(let a = 0, linksLen = links.length; a < linksLen; ++a) {
+			const tc = links[a].textContent;
+			if(tc[0] === '>' && tc[1] === '>' && MyPosts.has(+tc.substr(2))) {
+				return true;
+			}
 		}
 	}
 	return false;

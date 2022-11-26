@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.11.8.0';
-const commit = '298ff6e';
+const commit = '53e6285';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2667,11 +2667,48 @@ function readPostsData(firstPost, favObj) {
 		return;
 	}
 
-	// Search existed posts in hidden posts data and apply spells
+	let updatedFav = null;
+	const favBoardObj = favObj[aib.host]?.[aib.b] || {};
 	const spellsHide = Cfg.hideBySpell;
 	const maybeSpells = new Maybe(SpellsRunner);
 	for(let post = firstPost; post; post = post.next) {
 		const { num } = post;
+		// Mark favorite threads, update favorites data
+		if(post.isOp && (num in favBoardObj)) {
+			let newCount = 0;
+			let youCount = 0;
+			post.toggleFavBtn(true);
+			const { thr } = post;
+			thr.isFav = true;
+			const isThrActive = aib.t && !doc.hidden;
+			const entry = favBoardObj[num];
+			if(entry.last) {
+				let lastPost = pByNum.get(+entry.last.match(/\d+/));
+				if(lastPost) {
+					while((lastPost = lastPost.nextInThread)) {
+						if(Cfg.markNewPosts) {
+							Post.addMark(lastPost.el, true);
+						}
+						if(!isThrActive) {
+							newCount++;
+							if(isPostRefToYou(lastPost.el)) {
+								youCount++;
+							}
+						}
+					}
+				}
+			}
+			if(isThrActive) {
+				entry.last = aib.anchor + thr.last.num;
+			}
+			updatedFav = [aib.host, aib.b, aib.t, [
+				entry.cnt = thr.postsCount,
+				entry.new = newCount,
+				entry.you = youCount,
+				thr.last.num
+			], 'update'];
+		}
+		// Search existed posts in hidden posts data and apply spells
 		if(HiddenPosts.has(num)) {
 			HiddenPosts.hideHidden(post, num);
 			continue;
@@ -2689,7 +2726,7 @@ function readPostsData(firstPost, favObj) {
 			continue;
 		}
 		if(!hideData) {
-			maybeSpells.value.runSpells(post); // Apply spells if posts not hidden
+			maybeSpells.value.runSpells(post);
 		} else if(hideData[0]) {
 			if(post.isHidden) {
 				post.spellHidden = true;
@@ -2704,44 +2741,10 @@ function readPostsData(firstPost, favObj) {
 	if(aib.t && Cfg.panelCounter === 2) {
 		$id('de-panel-info-posts').textContent = Thread.first.postsCount - Thread.first.hiddenCount;
 	}
-
-	// Mark favorite threads, update favorites data
-	const favBoardObj = favObj[aib.host]?.[aib.b] || {};
-	if(firstPost.num in favBoardObj) {
-		const entry = favBoardObj[firstPost.num];
-		const { thr } = firstPost;
-		firstPost.toggleFavBtn(true);
-		thr.isFav = true;
-		if(aib.t) {
-			let newCount = 0;
-			let youCount = 0;
-			entry.cnt = thr.postsCount;
-			if(Cfg.markNewPosts && entry.last) {
-				let lastPost = pByNum.get(+entry.last.match(/\d+/));
-				if(lastPost) {
-					while((lastPost = lastPost.next)) {
-						Post.addMark(lastPost.el, true);
-						if(doc.hidden) {
-							newCount++;
-							if(isPostRefToYou(lastPost.el)) {
-								youCount++;
-							}
-						}
-					}
-				}
-			}
-			entry.new = newCount;
-			entry.you = youCount;
-			if(!doc.hidden) {
-				entry.last = aib.anchor + thr.last.num;
-			}
-		} else {
-			entry.new = thr.postsCount - entry.cnt;
-		}
+	if(updatedFav) {
 		saveFavorites(favObj);
 		// Updating Favorites: page is loaded
-		sendStorageEvent('__de-favorites', [aib.host, aib.b, aib.t,
-			[thr.postsCount, entry.new, entry.you, thr.last.num], 'update']);
+		sendStorageEvent('__de-favorites', updatedFav);
 	}
 
 	// After following a link from Favorites, we need to open Favorites again.
@@ -3867,11 +3870,13 @@ async function remove404Favorites(favObj) {
 
 // Checking if post contains reply links to my posts
 function isPostRefToYou(post) {
-	const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
-	for(let a = 0, linksLen = links.length; a < linksLen; ++a) {
-		const tc = links[a].textContent;
-		if(tc[0] === '>' && tc[1] === '>' && MyPosts.has(tc.substr(2))) {
-			return true;
+	if(Cfg.markMyPosts) {
+		const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
+		for(let a = 0, linksLen = links.length; a < linksLen; ++a) {
+			const tc = links[a].textContent;
+			if(tc[0] === '>' && tc[1] === '>' && MyPosts.has(+tc.substr(2))) {
+				return true;
+			}
 		}
 	}
 	return false;
@@ -10917,14 +10922,14 @@ class Post extends AbstractPost {
 		el.addEventListener('mouseover', this, true);
 	}
 	static addMark(postEl, forced) {
-		if(!doc.hidden && !forced) {
-			Post.clearMarks();
-		} else {
+		if(doc.hidden || forced) {
 			if(!Post.hasNew) {
 				Post.hasNew = true;
 				doc.addEventListener('click', Post.clearMarks, true);
 			}
 			postEl.classList.add('de-new-post');
+		} else {
+			Post.clearMarks();
 		}
 	}
 	static clearMarks() {
