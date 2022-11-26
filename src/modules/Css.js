@@ -158,7 +158,7 @@ function scriptCSS() {
 	.de-fav-inf-icon { margin-bottom: -3px; }
 	.de-fav-inf-new { color: #424f79; }
 	.de-fav-inf-new::after { content: " +"; }
-	.de-fav-inf-old { color: #4f7942; }
+	.de-fav-inf-total { color: #4f7942; }
 	.de-fav-inf-you { padding: 0 4px; margin-right: 4px; border-radius: 3px; color: #fff; background-color: #424f79; opacity: 0.65; }
 	.de-fav-link { flex: none; margin-left: 2px; text-decoration: none; border: none; }
 	.de-fav-table-unfold > .de-fold-block > .de-fav-entries { display: initial !important; }

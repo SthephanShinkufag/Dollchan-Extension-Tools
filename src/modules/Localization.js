@@ -1181,10 +1181,10 @@ const Lng = {
 		'Проверить положение тредов (до 10-й страницы)',
 		'Check for threads position (up to 10th page)',
 		'Перевірити актуальність тредів (до 10 сторінки)'],
-	oldPosts: [
-		'Постов при последнем посещении',
-		'Posts at the last visit',
-		'Постів під час останнього відвідування'],
+	totalPosts: [
+		'Всего постов в треде',
+		'Total posts in thread',
+		'Всього постів в треді'],
 	newPosts: [
 		'Количество новых постов',
 		'Number of new posts',

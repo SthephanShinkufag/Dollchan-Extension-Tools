@@ -338,7 +338,7 @@ function showFavoritesWindow(body, favObj) {
 							${ entry.you || 0 }</span>
 						<span class="de-fav-inf-new" title="${ Lng.newPosts[lang] }"${ favInfNewDisp }>
 							${ entry.new || 0 }</span>
-						<span class="de-fav-inf-old" title="${ Lng.oldPosts[lang] }">${ entry.cnt }</span>
+						<span class="de-fav-inf-total" title="${ Lng.totalPosts[lang] }">${ entry.cnt }</span>
 						<span class="de-fav-inf-page" title="${ Lng.thrPage[lang] }"></span>
 					</div>
 				</div>`;

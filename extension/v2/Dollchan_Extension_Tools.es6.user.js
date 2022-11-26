@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.11.8.0';
-const commit = '53e6285';
+const commit = '8ead1af';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1364,10 +1364,10 @@ const Lng = {
 		'Проверить положение тредов (до 10-й страницы)',
 		'Check for threads position (up to 10th page)',
 		'Перевірити актуальність тредів (до 10 сторінки)'],
-	oldPosts: [
-		'Постов при последнем посещении',
-		'Posts at the last visit',
-		'Постів під час останнього відвідування'],
+	totalPosts: [
+		'Всего постов в треде',
+		'Total posts in thread',
+		'Всього постів в треді'],
 	newPosts: [
 		'Количество новых постов',
 		'Number of new posts',
@@ -4089,7 +4089,7 @@ function showFavoritesWindow(body, favObj) {
 							${ entry.you || 0 }</span>
 						<span class="de-fav-inf-new" title="${ Lng.newPosts[lang] }"${ favInfNewDisp }>
 							${ entry.new || 0 }</span>
-						<span class="de-fav-inf-old" title="${ Lng.oldPosts[lang] }">${ entry.cnt }</span>
+						<span class="de-fav-inf-total" title="${ Lng.totalPosts[lang] }">${ entry.cnt }</span>
 						<span class="de-fav-inf-page" title="${ Lng.thrPage[lang] }"></span>
 					</div>
 				</div>`;
@@ -18375,7 +18375,7 @@ function scriptCSS() {
 	.de-fav-inf-icon { margin-bottom: -3px; }
 	.de-fav-inf-new { color: #424f79; }
 	.de-fav-inf-new::after { content: " +"; }
-	.de-fav-inf-old { color: #4f7942; }
+	.de-fav-inf-total { color: #4f7942; }
 	.de-fav-inf-you { padding: 0 4px; margin-right: 4px; border-radius: 3px; color: #fff; background-color: #424f79; opacity: 0.65; }
 	.de-fav-link { flex: none; margin-left: 2px; text-decoration: none; border: none; }
 	.de-fav-table-unfold > .de-fold-block > .de-fav-entries { display: initial !important; }
