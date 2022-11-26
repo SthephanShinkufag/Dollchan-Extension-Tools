@@ -525,25 +525,24 @@ class ExpandableImage {
 			origImgTop = e.target.getBoundingClientRect().top;
 		}
 		this.expanded = true;
-		const { el } = this;
-		(aib.hasPicWrap ? this._getImageParent : el.parentNode).insertAdjacentHTML('afterend',
+		(aib.hasPicWrap ? this._getImageParent : this.el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-fullimg-after"></div>');
-		this._fullEl = this.getFullImg(true, null, null);
-		this._fullEl.addEventListener('click', e => this.collapseImg(e), true);
+		const fullEl = this._fullEl = this.getFullImg(true, null, null);
+		fullEl.addEventListener('click', e => this.collapseImg(e), true);
 		this.srcBtnEvents(this);
-		const parent = el.parentNode;
+		const parent = this.el.parentNode;
 		$hide(parent);
-		parent.after(this._fullEl);
-		this.checkForRedirect(this._fullEl);
+		parent.after(fullEl);
+		this.checkForRedirect(fullEl);
 		if(e) {
-			const fullImgTop = this._fullEl.getBoundingClientRect().top;
+			const fullImgTop = fullEl.getBoundingClientRect().top;
 			if(fullImgTop < 0 || origImgTop < 0) {
 				scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + fullImgTop);
 			}
 		}
 		if(aib.kohlchan) {
 			if(!this.isVideo) {
-				$q('.de-fullimg', this._fullEl).classList.add('imgExpanded');
+				$q('.de-fullimg', fullEl).classList.add('imgExpanded');
 			}
 			const containerEl = $q('.contentOverflow', this.post.el);
 			if(containerEl) {
@@ -611,10 +610,9 @@ class ExpandableImage {
 					}
 					return;
 				}
-				const { naturalWidth: newW, naturalHeight: newH } = img;
+				const { naturalWidth: newW, naturalHeight: newH, scrollWidth } = img;
 				const ar = this._size ? this._size[1] / this._size[0] : newH / newW;
-				const isRotated = !img.scrollWidth ? false :
-					img.scrollHeight / img.scrollWidth > 1 ? ar < 1 : ar > 1;
+				const isRotated = scrollWidth ? img.scrollHeight / scrollWidth > 1 ? ar < 1 : ar > 1 : false;
 				if(!this._size || isRotated) {
 					this._size = isRotated ? [newH, newW] : [newW, newH];
 				}

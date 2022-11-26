@@ -7198,7 +7198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.11.8.0';
-  var commit = 'eafe412';
+  var commit = 'a01992c';
 
 
   var defaultCfg = {
@@ -7969,8 +7969,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   function insertText(el, txt) {
     var scrollTop = el.scrollTop,
-      start = el.selectionStart;
-    el.value = el.value.substr(0, start) + txt + el.value.substr(el.selectionEnd);
+      start = el.selectionStart,
+      value = el.value;
+    el.value = value.substr(0, start) + txt + value.substr(el.selectionEnd);
     el.setSelectionRange(start + txt.length, start + txt.length);
     el.focus();
     el.scrollTop = scrollTop;
@@ -10446,13 +10447,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     return _remove404Favorites.apply(this, arguments);
   }
   function isPostRefToYou(post, myPosts) {
-    if (Cfg.markMyPosts) {
-      var links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
+    if (Cfg.markMyPosts && myPosts) {
       var isMatch = myPosts instanceof Set ? function (num) {
         return myPosts.has(num);
       } : function (num) {
         return myPosts[num];
       };
+      var links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
       for (var a = 0, linksLen = links.length; a < linksLen; ++a) {
         var tc = links[a].textContent;
         if (tc[0] === '>' && tc[1] === '>' && isMatch(parseInt(tc.substr(2), 10))) {
@@ -16048,10 +16049,11 @@ this.disableSpells();
           insertText(txtaEl, quote + (start === end ? quotedText : txtaEl.value.substring(start, end)).replace(/^[\r\n]|[\r\n]+$/g, '').replace(/\n/gm, '\n' + quote) + (quotedText ? '\n' : ''));
           quotedText = '';
         } else {
-          var scrtop = txtaEl.scrtop;
-          var val = PostForm._wrapText(el.getAttribute('de-tag'), txtaEl.value.substring(start, end));
+          var scrtop = txtaEl.scrtop,
+            value = txtaEl.value;
+          var val = PostForm._wrapText(el.getAttribute('de-tag'), value.substring(start, end));
           var len = start + val[0];
-          txtaEl.value = txtaEl.value.substr(0, start) + val[1] + txtaEl.value.substr(end);
+          txtaEl.value = value.substr(0, start) + val[1] + value.substr(end);
           txtaEl.setSelectionRange(len, len);
           txtaEl.focus();
           txtaEl.scrollTop = scrtop;
@@ -19707,13 +19709,13 @@ Spells.addSpell(9, '', false);
       value: function () {
         var _buildPview2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee37(post) {
           var _this$el, _yield$readFavorites$, _yield$readFavorites$2;
-          var num, pv, isMyPost, isOp, isFav, isCached, postsCountHtml, pText, _$q8, btnsEl, link;
+          var isOp, num, pv, isMyPost, isFav, isCached, postsCountHtml, pText, _$q8, btnsEl, link;
           return _regeneratorRuntime().wrap(function _callee37$(_context40) {
             while (1) {
               switch (_context40.prev = _context40.next) {
                 case 0:
                   (_this$el = this.el) === null || _this$el === void 0 ? void 0 : _this$el.remove();
-                  num = this.num;
+                  isOp = this.isOp, num = this.num;
                   pv = this.el = post.el.cloneNode(true);
                   pByEl.set(pv, this);
                   isMyPost = MyPosts.has(num);
@@ -19727,43 +19729,42 @@ Spells.addSpell(9, '', false);
                   }
                   this._pref = $q(aib.qPostRef, pv);
                   this._link.classList.add('de-link-parent');
-                  isOp = this.isOp;
                   _context40.t0 = isOp;
                   if (!_context40.t0) {
-                    _context40.next = 30;
+                    _context40.next = 29;
                     break;
                   }
                   _context40.t1 = post.thr.isFav;
                   if (_context40.t1) {
-                    _context40.next = 29;
+                    _context40.next = 28;
                     break;
                   }
-                  _context40.next = 18;
+                  _context40.next = 17;
                   return readFavorites();
-                case 18:
+                case 17:
                   _context40.t3 = aib.host;
                   _context40.t4 = _yield$readFavorites$ = _context40.sent[_context40.t3];
                   _context40.t2 = _context40.t4 === null;
                   if (_context40.t2) {
-                    _context40.next = 23;
+                    _context40.next = 22;
                     break;
                   }
                   _context40.t2 = _yield$readFavorites$ === void 0;
-                case 23:
+                case 22:
                   if (!_context40.t2) {
-                    _context40.next = 27;
+                    _context40.next = 26;
                     break;
                   }
                   _context40.t5 = void 0;
-                  _context40.next = 28;
+                  _context40.next = 27;
                   break;
-                case 27:
+                case 26:
                   _context40.t5 = (_yield$readFavorites$2 = _yield$readFavorites$[this.board]) === null || _yield$readFavorites$2 === void 0 ? void 0 : _yield$readFavorites$2[num];
-                case 28:
+                case 27:
                   _context40.t1 = _context40.t5;
-                case 29:
+                case 28:
                   _context40.t0 = _context40.t1;
-                case 30:
+                case 29:
                   isFav = _context40.t0;
                   isCached = post instanceof CacheItem;
                   postsCountHtml = (post.isDeleted ? " de-post-counter-deleted\">".concat(Lng.deleted[lang], "</span>") : "\">".concat(isOp ? '(OP)' : post.count + +!(aib.JsonBuilder && isCached), "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '');
@@ -19819,7 +19820,7 @@ Spells.addSpell(9, '', false);
                   }
                   pv.addEventListener('click', this, true);
                   this._showPview(pv);
-                case 37:
+                case 36:
                 case "end":
                   return _context40.stop();
               }
@@ -20765,26 +20766,25 @@ Spells.addSpell(9, '', false);
           origImgTop = e.target.getBoundingClientRect().top;
         }
         this.expanded = true;
-        var el = this.el;
-        (aib.hasPicWrap ? this._getImageParent : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-fullimg-after"></div>');
-        this._fullEl = this.getFullImg(true, null, null);
-        this._fullEl.addEventListener('click', function (e) {
+        (aib.hasPicWrap ? this._getImageParent : this.el.parentNode).insertAdjacentHTML('afterend', '<div class="de-fullimg-after"></div>');
+        var fullEl = this._fullEl = this.getFullImg(true, null, null);
+        fullEl.addEventListener('click', function (e) {
           return _this81.collapseImg(e);
         }, true);
         this.srcBtnEvents(this);
-        var parent = el.parentNode;
+        var parent = this.el.parentNode;
         $hide(parent);
-        parent.after(this._fullEl);
-        this.checkForRedirect(this._fullEl);
+        parent.after(fullEl);
+        this.checkForRedirect(fullEl);
         if (e) {
-          var fullImgTop = this._fullEl.getBoundingClientRect().top;
+          var fullImgTop = fullEl.getBoundingClientRect().top;
           if (fullImgTop < 0 || origImgTop < 0) {
             scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + fullImgTop);
           }
         }
         if (aib.kohlchan) {
           if (!this.isVideo) {
-            $q('.de-fullimg', this._fullEl).classList.add('imgExpanded');
+            $q('.de-fullimg', fullEl).classList.add('imgExpanded');
           }
           var containerEl = $q('.contentOverflow', this.post.el);
           if (containerEl) {
@@ -20848,9 +20848,10 @@ Spells.addSpell(9, '', false);
               return;
             }
             var newW = img.naturalWidth,
-              newH = img.naturalHeight;
+              newH = img.naturalHeight,
+              scrollWidth = img.scrollWidth;
             var ar = _this82._size ? _this82._size[1] / _this82._size[0] : newH / newW;
-            var isRotated = !img.scrollWidth ? false : img.scrollHeight / img.scrollWidth > 1 ? ar < 1 : ar > 1;
+            var isRotated = scrollWidth ? img.scrollHeight / scrollWidth > 1 ? ar < 1 : ar > 1 : false;
             if (!_this82._size || isRotated) {
               _this82._size = isRotated ? [newH, newW] : [newW, newH];
             }
@@ -21909,27 +21910,28 @@ Spells.addSpell(9, '', false);
     }, {
       key: "getPostHTML",
       value: function getPostHTML(i) {
-        var _data$files;
         var data = this._posts[i + 1];
-        var num = data.num;
+        var files = data.files,
+          num = data.num;
         var board = this._board;
         var _switch = function _switch(val, obj) {
           return val in obj ? obj[val] : obj['@@default'];
         };
 
         var filesHTML = '';
-        if ((_data$files = data.files) !== null && _data$files !== void 0 && _data$files.length) {
-          filesHTML = "<div class=\"post__images post__images_type_".concat(data.files.length === 1 ? 'single' : 'multi', "\">");
-          for (var _iterator28 = _createForOfIteratorHelperLoose(data.files), _step28; !(_step28 = _iterator28()).done;) {
+        if (files !== null && files !== void 0 && files.length) {
+          filesHTML = "<div class=\"post__images post__images_type_".concat(files.length === 1 ? 'single' : 'multi', "\">");
+          for (var _iterator28 = _createForOfIteratorHelperLoose(files), _step28; !(_step28 = _iterator28()).done;) {
             var file = _step28.value;
             var imgId = num + '-' + file.md5;
             var _file$fullname = file.fullname,
               fullname = _file$fullname === void 0 ? file.name : _file$fullname,
               _file$displayname = file.displayname,
-              dispName = _file$displayname === void 0 ? file.name : _file$displayname;
-            var isVideo = file.type === 6 || file.type === 10;
+              dispName = _file$displayname === void 0 ? file.name : _file$displayname,
+              type = file.type;
+            var isVideo = type === 6 || type === 10;
             var imgClass = "post__file-preview".concat(isVideo ? ' post__file-webm' : '').concat(data.nsfw ? ' post__file-nsfw' : '');
-            filesHTML += "<figure class=\"post__image\">\n\t\t\t\t\t<figcaption class=\"post__file-attr\">\n\t\t\t\t\t\t<a id=\"title-".concat(imgId, "\" class=\"desktop\" target=\"_blank\" href=\"") + "".concat(file.type === 100  ? file.install : file.path, "\"") + "".concat(dispName === fullname ? '' : " title=\"".concat(fullname, "\""), ">").concat(dispName, "</a>\n\t\t\t\t\t\t<span class=\"post__filezise\">(").concat(file.size, "\u041A\u0431, ") + "".concat(file.width, "x").concat(file.height).concat(isVideo ? ', ' + file.duration : '', ")</span>\n\t\t\t\t\t</figcaption>\n\t\t\t\t\t<div id=\"exlink-").concat(imgId, "\">\n\t\t\t\t\t\t<a class=\"post__image-link\" href=\"").concat(file.path, "\">\n\t\t\t\t\t\t\t<img class=\"").concat(imgClass, "\" src=\"").concat(file.thumbnail, "\" alt=\"").concat(file.width, "x") + "".concat(file.height, "\" width=\"").concat(file.tn_width, "\" height=\"").concat(file.tn_height, "\">\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</div>\n\t\t\t\t</figure>");
+            filesHTML += "<figure class=\"post__image\">\n\t\t\t\t\t<figcaption class=\"post__file-attr\">\n\t\t\t\t\t\t<a id=\"title-".concat(imgId, "\" class=\"desktop\" target=\"_blank\" href=\"") + "".concat(type === 100  ? file.install : file.path, "\"") + "".concat(dispName === fullname ? '' : " title=\"".concat(fullname, "\""), ">").concat(dispName, "</a>\n\t\t\t\t\t\t<span class=\"post__filezise\">(").concat(file.size, "\u041A\u0431, ") + "".concat(file.width, "x").concat(file.height).concat(isVideo ? ', ' + file.duration : '', ")</span>\n\t\t\t\t\t</figcaption>\n\t\t\t\t\t<div id=\"exlink-").concat(imgId, "\">\n\t\t\t\t\t\t<a class=\"post__image-link\" href=\"").concat(file.path, "\">\n\t\t\t\t\t\t\t<img class=\"").concat(imgClass, "\" src=\"").concat(file.thumbnail, "\" alt=\"").concat(file.width, "x") + "".concat(file.height, "\" width=\"").concat(file.tn_width, "\" height=\"").concat(file.tn_height, "\">\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</div>\n\t\t\t\t</figure>");
           }
           filesHTML += '</div>';
         }

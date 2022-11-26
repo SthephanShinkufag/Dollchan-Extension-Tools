@@ -373,25 +373,25 @@ class MakabaPostsBuilder {
 	}
 	getPostHTML(i) {
 		const data = this._posts[i + 1];
-		const { num } = data;
+		const { files, num } = data;
 		const board = this._board;
 		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
 
 		// --- FILE ---
 		let filesHTML = '';
-		if(data.files?.length) {
+		if(files?.length) {
 			filesHTML = `<div class="post__images post__images_type_${
-				data.files.length === 1 ? 'single' : 'multi' }">`;
-			for(const file of data.files) {
+				files.length === 1 ? 'single' : 'multi' }">`;
+			for(const file of files) {
 				const imgId = num + '-' + file.md5;
-				const { fullname = file.name, displayname: dispName = file.name } = file;
-				const isVideo = file.type === 6 || file.type === 10;
+				const { fullname = file.name, displayname: dispName = file.name, type } = file;
+				const isVideo = type === 6 || type === 10;
 				const imgClass = `post__file-preview${ isVideo ? ' post__file-webm' : '' }${
 					data.nsfw ? ' post__file-nsfw' : '' }`;
 				filesHTML += `<figure class="post__image">
 					<figcaption class="post__file-attr">
 						<a id="title-${ imgId }" class="desktop" target="_blank" href="` +
-							`${ file.type === 100 /* is sticker */ ? file.install : file.path }"` +
+							`${ type === 100 /* is sticker */ ? file.install : file.path }"` +
 							`${ dispName === fullname ? '' : ` title="${ fullname }"` }>${ dispName }</a>
 						<span class="post__filezise">(${ file.size }Кб, ` +
 							`${ file.width }x${ file.height }${ isVideo ? ', ' + file.duration : '' })</span>

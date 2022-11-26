@@ -226,7 +226,7 @@ class Pview extends AbstractPost {
 	}
 	async _buildPview(post) {
 		this.el?.remove();
-		const { num } = this;
+		const { isOp, num } = this;
 		const pv = this.el = post.el.cloneNode(true);
 		pByEl.set(pv, this);
 		const isMyPost = MyPosts.has(num);
@@ -240,7 +240,6 @@ class Pview extends AbstractPost {
 		}
 		this._pref = $q(aib.qPostRef, pv);
 		this._link.classList.add('de-link-parent');
-		const { isOp } = this;
 		const isFav = isOp && (post.thr.isFav || (await readFavorites())[aib.host]?.[this.board]?.[num]);
 		const isCached = post instanceof CacheItem;
 		const postsCountHtml = (post.isDeleted ? ` de-post-counter-deleted">${ Lng.deleted[lang] }</span>` :

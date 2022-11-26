@@ -154,8 +154,8 @@ const prettifySize = val =>
 
 // Inserts the text at the cursor into an input field
 function insertText(el, txt) {
-	const { scrollTop, selectionStart: start } = el;
-	el.value = el.value.substr(0, start) + txt + el.value.substr(el.selectionEnd);
+	const { scrollTop, selectionStart: start, value } = el;
+	el.value = value.substr(0, start) + txt + value.substr(el.selectionEnd);
 	el.setSelectionRange(start + txt.length, start + txt.length);
 	el.focus();
 	el.scrollTop = scrollTop;

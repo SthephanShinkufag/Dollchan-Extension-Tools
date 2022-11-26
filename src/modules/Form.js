@@ -216,10 +216,10 @@ class PostForm {
 				.replace(/^[\r\n]|[\r\n]+$/g, '').replace(/\n/gm, '\n' + quote) + (quotedText ? '\n' : ''));
 			quotedText = '';
 		} else {
-			const { scrtop } = txtaEl;
-			const val = PostForm._wrapText(el.getAttribute('de-tag'), txtaEl.value.substring(start, end));
+			const { scrtop, value } = txtaEl;
+			const val = PostForm._wrapText(el.getAttribute('de-tag'), value.substring(start, end));
 			const len = start + val[0];
-			txtaEl.value = txtaEl.value.substr(0, start) + val[1] + txtaEl.value.substr(end);
+			txtaEl.value = value.substr(0, start) + val[1] + value.substr(end);
 			txtaEl.setSelectionRange(len, len);
 			txtaEl.focus();
 			txtaEl.scrollTop = scrtop;

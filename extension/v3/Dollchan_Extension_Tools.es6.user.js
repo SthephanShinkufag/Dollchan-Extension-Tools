@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.11.8.0';
-const commit = 'eafe412';
+const commit = 'a01992c';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1880,8 +1880,8 @@ const prettifySize = val =>
 
 // Inserts the text at the cursor into an input field
 function insertText(el, txt) {
-	const { scrollTop, selectionStart: start } = el;
-	el.value = el.value.substr(0, start) + txt + el.value.substr(el.selectionEnd);
+	const { scrollTop, selectionStart: start, value } = el;
+	el.value = value.substr(0, start) + txt + value.substr(el.selectionEnd);
 	el.setSelectionRange(start + txt.length, start + txt.length);
 	el.focus();
 	el.scrollTop = scrollTop;
@@ -3870,9 +3870,9 @@ async function remove404Favorites(favObj) {
 
 // Checking if post contains reply links to my posts
 function isPostRefToYou(post, myPosts) {
-	if(Cfg.markMyPosts) {
-		const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
+	if(Cfg.markMyPosts && myPosts) {
 		const isMatch = myPosts instanceof Set ? num => myPosts.has(num) : num => myPosts[num];
+		const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
 		for(let a = 0, linksLen = links.length; a < linksLen; ++a) {
 			const tc = links[a].textContent;
 			if(tc[0] === '>' && tc[1] === '>' && isMatch(parseInt(tc.substr(2), 10))) {
@@ -8824,10 +8824,10 @@ class PostForm {
 				.replace(/^[\r\n]|[\r\n]+$/g, '').replace(/\n/gm, '\n' + quote) + (quotedText ? '\n' : ''));
 			quotedText = '';
 		} else {
-			const { scrtop } = txtaEl;
-			const val = PostForm._wrapText(el.getAttribute('de-tag'), txtaEl.value.substring(start, end));
+			const { scrtop, value } = txtaEl;
+			const val = PostForm._wrapText(el.getAttribute('de-tag'), value.substring(start, end));
 			const len = start + val[0];
-			txtaEl.value = txtaEl.value.substr(0, start) + val[1] + txtaEl.value.substr(end);
+			txtaEl.value = value.substr(0, start) + val[1] + value.substr(end);
 			txtaEl.setSelectionRange(len, len);
 			txtaEl.focus();
 			txtaEl.scrollTop = scrtop;
@@ -11652,7 +11652,7 @@ class Pview extends AbstractPost {
 	}
 	async _buildPview(post) {
 		this.el?.remove();
-		const { num } = this;
+		const { isOp, num } = this;
 		const pv = this.el = post.el.cloneNode(true);
 		pByEl.set(pv, this);
 		const isMyPost = MyPosts.has(num);
@@ -11666,7 +11666,6 @@ class Pview extends AbstractPost {
 		}
 		this._pref = $q(aib.qPostRef, pv);
 		this._link.classList.add('de-link-parent');
-		const { isOp } = this;
 		const isFav = isOp && (post.thr.isFav || (await readFavorites())[aib.host]?.[this.board]?.[num]);
 		const isCached = post instanceof CacheItem;
 		const postsCountHtml = (post.isDeleted ? ` de-post-counter-deleted">${ Lng.deleted[lang] }</span>` :
@@ -12425,25 +12424,24 @@ class ExpandableImage {
 			origImgTop = e.target.getBoundingClientRect().top;
 		}
 		this.expanded = true;
-		const { el } = this;
-		(aib.hasPicWrap ? this._getImageParent : el.parentNode).insertAdjacentHTML('afterend',
+		(aib.hasPicWrap ? this._getImageParent : this.el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-fullimg-after"></div>');
-		this._fullEl = this.getFullImg(true, null, null);
-		this._fullEl.addEventListener('click', e => this.collapseImg(e), true);
+		const fullEl = this._fullEl = this.getFullImg(true, null, null);
+		fullEl.addEventListener('click', e => this.collapseImg(e), true);
 		this.srcBtnEvents(this);
-		const parent = el.parentNode;
+		const parent = this.el.parentNode;
 		$hide(parent);
-		parent.after(this._fullEl);
-		this.checkForRedirect(this._fullEl);
+		parent.after(fullEl);
+		this.checkForRedirect(fullEl);
 		if(e) {
-			const fullImgTop = this._fullEl.getBoundingClientRect().top;
+			const fullImgTop = fullEl.getBoundingClientRect().top;
 			if(fullImgTop < 0 || origImgTop < 0) {
 				scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + fullImgTop);
 			}
 		}
 		if(aib.kohlchan) {
 			if(!this.isVideo) {
-				$q('.de-fullimg', this._fullEl).classList.add('imgExpanded');
+				$q('.de-fullimg', fullEl).classList.add('imgExpanded');
 			}
 			const containerEl = $q('.contentOverflow', this.post.el);
 			if(containerEl) {
@@ -12511,10 +12509,9 @@ class ExpandableImage {
 					}
 					return;
 				}
-				const { naturalWidth: newW, naturalHeight: newH } = img;
+				const { naturalWidth: newW, naturalHeight: newH, scrollWidth } = img;
 				const ar = this._size ? this._size[1] / this._size[0] : newH / newW;
-				const isRotated = !img.scrollWidth ? false :
-					img.scrollHeight / img.scrollWidth > 1 ? ar < 1 : ar > 1;
+				const isRotated = scrollWidth ? img.scrollHeight / scrollWidth > 1 ? ar < 1 : ar > 1 : false;
 				if(!this._size || isRotated) {
 					this._size = isRotated ? [newH, newW] : [newW, newH];
 				}
@@ -13382,25 +13379,25 @@ class MakabaPostsBuilder {
 	}
 	getPostHTML(i) {
 		const data = this._posts[i + 1];
-		const { num } = data;
+		const { files, num } = data;
 		const board = this._board;
 		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
 
 		// --- FILE ---
 		let filesHTML = '';
-		if(data.files?.length) {
+		if(files?.length) {
 			filesHTML = `<div class="post__images post__images_type_${
-				data.files.length === 1 ? 'single' : 'multi' }">`;
-			for(const file of data.files) {
+				files.length === 1 ? 'single' : 'multi' }">`;
+			for(const file of files) {
 				const imgId = num + '-' + file.md5;
-				const { fullname = file.name, displayname: dispName = file.name } = file;
-				const isVideo = file.type === 6 || file.type === 10;
+				const { fullname = file.name, displayname: dispName = file.name, type } = file;
+				const isVideo = type === 6 || type === 10;
 				const imgClass = `post__file-preview${ isVideo ? ' post__file-webm' : '' }${
 					data.nsfw ? ' post__file-nsfw' : '' }`;
 				filesHTML += `<figure class="post__image">
 					<figcaption class="post__file-attr">
 						<a id="title-${ imgId }" class="desktop" target="_blank" href="` +
-							`${ file.type === 100 /* is sticker */ ? file.install : file.path }"` +
+							`${ type === 100 /* is sticker */ ? file.install : file.path }"` +
 							`${ dispName === fullname ? '' : ` title="${ fullname }"` }>${ dispName }</a>
 						<span class="post__filezise">(${ file.size }Кб, ` +
 							`${ file.width }x${ file.height }${ isVideo ? ', ' + file.duration : '' })</span>
