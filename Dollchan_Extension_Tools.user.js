@@ -7198,7 +7198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.11.8.0';
-  var commit = '8ead1af';
+  var commit = 'eafe412';
 
 
   var defaultCfg = {
@@ -9041,7 +9041,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
               if (!isThrActive) {
                 newCount++;
-                if (isPostRefToYou(lastPost.el)) {
+                if (isPostRefToYou(lastPost.el, MyPosts)) {
                   youCount++;
                 }
               }
@@ -10445,12 +10445,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }));
     return _remove404Favorites.apply(this, arguments);
   }
-  function isPostRefToYou(post) {
+  function isPostRefToYou(post, myPosts) {
     if (Cfg.markMyPosts) {
       var links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
+      var isMatch = myPosts instanceof Set ? function (num) {
+        return myPosts.has(num);
+      } : function (num) {
+        return myPosts[num];
+      };
       for (var a = 0, linksLen = links.length; a < linksLen; ++a) {
         var tc = links[a].textContent;
-        if (tc[0] === '>' && tc[1] === '>' && MyPosts.has(+tc.substr(2))) {
+        if (tc[0] === '>' && tc[1] === '>' && isMatch(parseInt(tc.substr(2), 10))) {
           return true;
         }
       }
@@ -10463,7 +10468,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   }
   function _refreshFavorites() {
     _refreshFavorites = _asyncToGenerator( _regeneratorRuntime().mark(function _callee53(needClear404) {
-      var isUpdate, isLast404, favObj, parentEl, entryEls, i, len, _entry$last$match, entryEl, _ref62, titleEl, youEl, newEl, totalEl, iconEl, host, board, num, url, entry, oldClassName, oldTitle, formEl, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, newCount, youCount, lastNum, posts, postsLen, j, post;
+      var isUpdate, isLast404, favObj, myPosts, parentEl, entryEls, i, len, _entry$last$match, entryEl, _ref62, titleEl, youEl, newEl, totalEl, iconEl, host, board, num, url, entry, oldClassName, oldTitle, formEl, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, newCount, youCount, lastNum, posts, postsLen, j, post;
       return _regeneratorRuntime().wrap(function _callee53$(_context62) {
         while (1) {
           switch (_context62.prev = _context62.next) {
@@ -10474,12 +10479,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               return readFavorites();
             case 4:
               favObj = _context62.sent;
+              myPosts = JSON.parse(locStorage['de-myposts'] || '{}');
               parentEl = $q('.de-fav-table');
               entryEls = $Q('.de-entry');
               i = 0, len = entryEls.length;
-            case 8:
+            case 9:
               if (!(i < len)) {
-                _context62.next = 105;
+                _context62.next = 106;
                 break;
               }
               entryEl = entryEls[i];
@@ -10491,17 +10497,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               url = entryEl.getAttribute('de-url');
               entry = favObj[host][board][num];
               if (!(entry.err === 'Archived')) {
-                _context62.next = 19;
+                _context62.next = 20;
                 break;
               }
-              return _context62.abrupt("continue", 102);
-            case 19:
+              return _context62.abrupt("continue", 103);
+            case 20:
               if (!(host !== aib.host || entry.err === 'Closed')) {
-                _context62.next = 48;
+                _context62.next = 49;
                 break;
               }
               if (!needClear404) {
-                _context62.next = 47;
+                _context62.next = 48;
                 break;
               }
               parentEl.classList.add('de-fav-table-unfold');
@@ -10509,10 +10515,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               oldTitle = titleEl.title; 
               iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
               titleEl.title = Lng.updating[lang];
-              _context62.prev = 26;
-              _context62.next = 29;
+              _context62.prev = 27;
+              _context62.next = 30;
               return $ajax(url, null, true);
-            case 29:
+            case 30:
               iconEl.setAttribute('class', oldClassName);
               if (oldTitle) {
                 titleEl.title = oldTitle;
@@ -10520,76 +10526,76 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 titleEl.removeAttribute('title');
               }
               isLast404 = false;
-              _context62.next = 47;
+              _context62.next = 48;
               break;
-            case 34:
-              _context62.prev = 34;
-              _context62.t0 = _context62["catch"](26);
+            case 35:
+              _context62.prev = 35;
+              _context62.t0 = _context62["catch"](27);
               if (!(_context62.t0 instanceof AjaxError && _context62.t0.code === 404)) {
-                _context62.next = 42;
+                _context62.next = 43;
                 break;
               }
               if (isLast404) {
-                _context62.next = 41;
+                _context62.next = 42;
                 break;
               }
               isLast404 = true;
               --i; 
-              return _context62.abrupt("continue", 102);
-            case 41:
-              Thread.removeSavedData(board, num); 
+              return _context62.abrupt("continue", 103);
             case 42:
+              Thread.removeSavedData(board, num); 
+            case 43:
               entryEl.setAttribute('de-removed', ''); 
               iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
               titleEl.title = entry.err = getErrorMessage(_context62.t0);
               isLast404 = false;
               isUpdate = true;
-            case 47:
-              return _context62.abrupt("continue", 102);
             case 48:
+              return _context62.abrupt("continue", 103);
+            case 49:
               formEl = void 0, isArchived = void 0;
               iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
               titleEl.title = Lng.updating[lang];
-              _context62.prev = 51;
+              _context62.prev = 52;
               if (!aib.hasArchive) {
-                _context62.next = 61;
+                _context62.next = 62;
                 break;
               }
-              _context62.next = 55;
+              _context62.next = 56;
               return ajaxLoad(url, true, false, true);
-            case 55:
+            case 56:
               _yield$ajaxLoad = _context62.sent;
               _yield$ajaxLoad2 = _slicedToArray(_yield$ajaxLoad, 2);
               formEl = _yield$ajaxLoad2[0];
               isArchived = _yield$ajaxLoad2[1];
+              _context62.next = 65;
+              break;
+            case 62:
               _context62.next = 64;
-              break;
-            case 61:
-              _context62.next = 63;
               return ajaxLoad(url);
-            case 63:
-              formEl = _context62.sent;
             case 64:
+              formEl = _context62.sent;
+            case 65:
               isLast404 = false;
-              _context62.next = 83;
+              _context62.next = 84;
               break;
-            case 67:
-              _context62.prev = 67;
-              _context62.t1 = _context62["catch"](51);
+            case 68:
+              _context62.prev = 68;
+              _context62.t1 = _context62["catch"](52);
               if (!(_context62.t1 instanceof AjaxError && _context62.t1.code === 404)) {
-                _context62.next = 75;
+                _context62.next = 76;
                 break;
               }
               if (isLast404) {
-                _context62.next = 74;
+                _context62.next = 75;
                 break;
               }
               isLast404 = true;
               --i;
-              return _context62.abrupt("continue", 102);
-            case 74:
-              Thread.removeSavedData(board, num);
+              return _context62.abrupt("continue", 103);
             case 75:
+              Thread.removeSavedData(board, num);
+            case 76:
               $hide(newEl);
               $hide(youEl);
               entryEl.setAttribute('de-removed', '');
@@ -10597,8 +10603,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               titleEl.title = entry.err = getErrorMessage(_context62.t1);
               isLast404 = false;
               isUpdate = true;
-              return _context62.abrupt("continue", 102);
-            case 83:
+              return _context62.abrupt("continue", 103);
+            case 84:
               if (aib.qClosed && $q(aib.qClosed, formEl)) {
                 iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
                 titleEl.title = Lng.thrClosed[lang];
@@ -10623,27 +10629,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               posts = $Q(aib.qPost, formEl);
               postsLen = posts.length;
               j = 0;
-            case 90:
+            case 91:
               if (!(j < postsLen)) {
-                _context62.next = 99;
+                _context62.next = 100;
                 break;
               }
               post = posts[j];
               if (!(lastNum >= aib.getPNum(post))) {
-                _context62.next = 94;
+                _context62.next = 95;
                 break;
               }
-              return _context62.abrupt("continue", 96);
-            case 94:
+              return _context62.abrupt("continue", 97);
+            case 95:
               newCount++;
-              if (isPostRefToYou(post)) {
+              if (isPostRefToYou(post, myPosts[board])) {
                 youCount++;
               }
-            case 96:
+            case 97:
               ++j;
-              _context62.next = 90;
+              _context62.next = 91;
               break;
-            case 99:
+            case 100:
               if (newCount !== entry["new"] || entry.cnt !== postsLen + 1) {
                 isUpdate = true;
               }
@@ -10659,11 +10665,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 $hide(newEl);
                 $hide(youEl);
               }
-            case 102:
+            case 103:
               ++i;
-              _context62.next = 8;
+              _context62.next = 9;
               break;
-            case 105:
+            case 106:
               AjaxCache.clearCache();
               if (needClear404) {
                 if (isUpdate) {
@@ -10673,12 +10679,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               } else if (isUpdate) {
                 saveFavorites(favObj);
               }
-            case 107:
+            case 108:
             case "end":
               return _context62.stop();
           }
         }
-      }, _callee53, null, [[26, 34], [51, 67]]);
+      }, _callee53, null, [[27, 35], [52, 68]]);
     }));
     return _refreshFavorites.apply(this, arguments);
   }
@@ -12732,7 +12738,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         $Q('a', dc).forEach(function (el) {
           var num;
           var tc = el.textContent;
-          if (tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
+          if (tc[0] === '>' && tc[1] === '>' && (num = parseInt(tc.substr(2), 10)) && pByNum.has(num)) {
             el.href = aib.anchor + num;
             if (!el.classList.contains('de-link-postref')) {
               el.className = 'de-link-postref ' + el.className;

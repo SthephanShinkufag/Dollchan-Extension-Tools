@@ -270,7 +270,7 @@ function readPostsData(firstPost, favObj) {
 						}
 						if(!isThrActive) {
 							newCount++;
-							if(isPostRefToYou(lastPost.el)) {
+							if(isPostRefToYou(lastPost.el, MyPosts)) {
 								youCount++;
 							}
 						}

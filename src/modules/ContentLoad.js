@@ -86,7 +86,7 @@ const ContentLoader = {
 			$Q('a', dc).forEach(el => {
 				let num;
 				const tc = el.textContent;
-				if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
+				if(tc[0] === '>' && tc[1] === '>' && (num = parseInt(tc.substr(2), 10)) && pByNum.has(num)) {
 					el.href = aib.anchor + num;
 					if(!el.classList.contains('de-link-postref')) {
 						el.className = 'de-link-postref ' + el.className;

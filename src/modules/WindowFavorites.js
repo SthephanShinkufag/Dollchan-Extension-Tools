@@ -118,12 +118,13 @@ async function remove404Favorites(favObj) {
 }
 
 // Checking if post contains reply links to my posts
-function isPostRefToYou(post) {
+function isPostRefToYou(post, myPosts) {
 	if(Cfg.markMyPosts) {
 		const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
+		const isMatch = myPosts instanceof Set ? num => myPosts.has(num) : num => myPosts[num];
 		for(let a = 0, linksLen = links.length; a < linksLen; ++a) {
 			const tc = links[a].textContent;
-			if(tc[0] === '>' && tc[1] === '>' && MyPosts.has(+tc.substr(2))) {
+			if(tc[0] === '>' && tc[1] === '>' && isMatch(parseInt(tc.substr(2), 10))) {
 				return true;
 			}
 		}
@@ -136,6 +137,7 @@ async function refreshFavorites(needClear404) {
 	let isUpdate = false;
 	let isLast404 = false;
 	const favObj = await readFavorites();
+	const myPosts = JSON.parse(locStorage['de-myposts'] || '{}');
 	const parentEl = $q('.de-fav-table');
 	const entryEls = $Q('.de-entry');
 	for(let i = 0, len = entryEls.length; i < len; ++i) {
@@ -246,7 +248,7 @@ async function refreshFavorites(needClear404) {
 				continue;
 			}
 			newCount++;
-			if(isPostRefToYou(post)) {
+			if(isPostRefToYou(post, myPosts[board])) {
 				youCount++;
 			}
 		}
