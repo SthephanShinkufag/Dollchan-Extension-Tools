@@ -36,7 +36,8 @@ const ContentLoader = {
 						`<br>${ Lng.willSavePview[lang] }`;
 					$popup('err-files', Lng.loadErrors[lang] + warnings);
 					if(imgOnly) {
-						return this.getDataFromImg(el).then(data => tar.addFile(thumbName, data), emptyFn);
+						return this.getDataFromImg(el).then(data =>
+							tar.addFile(thumbName, data), Function.prototype);
 					}
 				}
 				return imgOnly ? null : this.getDataFromImg(el).then(data => {

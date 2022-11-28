@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.11.8.0';
-const commit = 'a01992c';
+const commit = '193e493';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1713,15 +1713,11 @@ const Lng = {
 /* ==[ GlobalVars.js ]== */
 
 const doc = deWindow.document;
-const emptyFn = Function.prototype;
-const aProto = Array.prototype;
 const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
 const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
-let aib, Cfg, docBody, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum,
-	postform, sesStorage, updater;
-let quotedText = '';
-let visPosts = 2;
+let aib, Cfg, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum, postform,
+	sesStorage, updater;
 let topWinZ = 10;
 
 /* ==[ Utils.js ]=============================================================================================
@@ -1730,14 +1726,21 @@ let topWinZ = 10;
 
 // DOM SEARCH
 
-const $id = id => doc.getElementById(id);
+function $id(id) {
+	return doc.getElementById(id);
+}
 
-const $q = (path, rootEl = docBody) => rootEl.querySelector(path);
+function $q(path, rootEl = doc.body) {
+	return rootEl.querySelector(path);
+}
 
-const $Q = (path, rootEl = docBody) => rootEl.querySelectorAll(path);
+function $Q(path, rootEl = doc.body) {
+	return rootEl.querySelectorAll(path);
+}
 
-const $match = (parentEl, ...rules) =>
-	parentEl.split(', ').map(val => val + rules.join(', ' + val)).join(', ');
+function $match(parentEl, ...rules) {
+	return parentEl.split(', ').map(val => val + rules.join(', ' + val)).join(', ');
+}
 
 // DOM MODIFIERS
 
@@ -1766,7 +1769,7 @@ function $replace(el, html) {
 	el.remove();
 }
 
-function $delAll(path, rootEl = docBody) {
+function $delAll(path, rootEl = doc.body) {
 	rootEl.querySelectorAll(path, rootEl).forEach(el => el.remove());
 }
 
@@ -1791,7 +1794,7 @@ function $script(text) {
 
 function $css(text) {
 	return $bEnd(doc.head, `<style type="text/css">${
-		nav.isSafari && !('flex' in docBody.style) ?
+		nav.isSafari && !('flex' in doc.body.style) ?
 			text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1') : text
 	}</style>`);
 }
@@ -1834,7 +1837,9 @@ function $animate(el, cName, isRemove = false) {
 
 // OBJECT
 
-const $hasProp = (obj, i) => Object.prototype.hasOwnProperty.call(obj, i);
+function $hasProp(obj, i) {
+	return Object.prototype.hasOwnProperty.call(obj, i);
+}
 
 function $isEmpty(obj) {
 	for(const i in obj) {
@@ -1848,7 +1853,9 @@ function $isEmpty(obj) {
 // REGEXP
 
 // Prepares a string to be used as a new RegExp argument
-const escapeRegExp = str => (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+function escapeRegExp(str) {
+	return (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+}
 
 // Converts a string into regular expression
 function strToRegExp(str, notGlobal) {
@@ -1859,24 +1866,37 @@ function strToRegExp(str, notGlobal) {
 
 // OTHER UTILS
 
-const pad2 = i => i < 10 ? '0' + i : i;
+function pad2(i) {
+	return i < 10 ? '0' + i : i;
+}
 
-const arrTags = (arr, start, end) => start + arr.join(end + start) + end;
+function arrTags(arr, start, end) {
+	return start + arr.join(end + start) + end;
+}
 
-const fixBoardName = board => '/' + (board ? board + '/' : '');
+function fixBoardName(board) {
+	return '/' + (board ? board + '/' : '');
+}
 
-const getFileName = url => url.substring(url.lastIndexOf('/') + 1);
+function getFileName(url) {
+	return url.substring(url.lastIndexOf('/') + 1);
+}
 
-const getFileExt = url => url.substring(url.lastIndexOf('.') + 1);
+function getFileExt(url) {
+	return url.substring(url.lastIndexOf('.') + 1);
+}
 
-const cutFileExt = fileName => fileName.substring(0, fileName.lastIndexOf('.'));
+function cutFileExt(fileName) {
+	return fileName.substring(0, fileName.lastIndexOf('.'));
+}
 
 // Converts bytes into KB/MB/GB
-const prettifySize = val =>
-	val > 512 * 1024 * 1024 ? (val / (1024 ** 3)).toFixed(2) + Lng.sizeGByte[lang] :
-	val > 512 * 1024 ? (val / (1024 ** 2)).toFixed(2) + Lng.sizeMByte[lang] :
-	val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] :
-	val.toFixed(2) + Lng.sizeByte[lang];
+function prettifySize(val) {
+	return val > 512 * 1024 * 1024 ? (val / (1024 ** 3)).toFixed(2) + Lng.sizeGByte[lang] :
+		val > 512 * 1024 ? (val / (1024 ** 2)).toFixed(2) + Lng.sizeMByte[lang] :
+		val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] :
+		val.toFixed(2) + Lng.sizeByte[lang];
+}
 
 // Inserts the text at the cursor into an input field
 function insertText(el, txt) {
@@ -1938,7 +1958,7 @@ function getFileMime(url) {
 // Uploads files stored in a Blob
 function downloadBlob(blob, name) {
 	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : deWindow.URL.createObjectURL(blob);
-	const link = $bEnd(docBody, `<a href="${ url }" download="${ name }"></a>`);
+	const link = $bEnd(doc.body, `<a href="${ url }" download="${ name }"></a>`);
 	link.click();
 	setTimeout(() => {
 		deWindow.URL.revokeObjectURL(url);
@@ -2459,10 +2479,10 @@ function setStored(id, value) {
 			chrome.storage.sync.set(obj, () => {
 				if(chrome.runtime.lastError) {
 					// Store into storage.local if the storage.sync limit is exceeded
-					chrome.storage.local.set(obj, emptyFn);
-					chrome.storage.sync.remove(id, emptyFn);
+					chrome.storage.local.set(obj, Function.prototype);
+					chrome.storage.sync.remove(id, Function.prototype);
 				} else {
-					chrome.storage.local.remove(id, emptyFn);
+					chrome.storage.local.remove(id, Function.prototype);
 				}
 				resolve();
 			});
@@ -2483,7 +2503,7 @@ function delStored(id) {
 	} else if(nav.hasOldGM) {
 		GM_deleteValue(id);
 	} else if(nav.hasWebStorage) {
-		chrome.storage.sync.remove(id, emptyFn);
+		chrome.storage.sync.remove(id, Function.prototype);
 	} else if(nav.hasPrestoStorage) {
 		prestoStorage.removeItem(id);
 	} else {
@@ -2640,7 +2660,7 @@ async function readCfg() {
 			} else {
 				$popup('updavail', html);
 			}
-		}, emptyFn);
+		}, Function.prototype);
 	}
 }
 
@@ -3032,7 +3052,7 @@ function initStorageEvent() {
 			if(temp) {
 				temp.checked = data.hide;
 			}
-			$hide(docBody);
+			$hide(doc.body);
 			if(data.data) {
 				await Spells.setSpells(data.data, false);
 				Cfg.spells = JSON.stringify(data.data);
@@ -3048,7 +3068,7 @@ function initStorageEvent() {
 					temp.value = '';
 				}
 			}
-			$show(docBody);
+			$show(doc.body);
 		})();
 		}
 	}, false);
@@ -3144,7 +3164,7 @@ const Panel = Object.create({
 				return;
 			case 'de-panel-refresh': deWindow.location.reload(); return;
 			case 'de-panel-goup': scrollTo(0, 0); return;
-			case 'de-panel-godown': scrollTo(0, docBody.scrollHeight || docBody.offsetHeight); return;
+			case 'de-panel-godown': scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight); return;
 			case 'de-panel-expimg':
 				el.classList.toggle('de-panel-button-active');
 				isExpImg = !isExpImg;
@@ -3347,7 +3367,7 @@ function makeDraggable(name, win, head) {
 				if(this._Z < topWinZ) {
 					this._Z = this._wStyle.zIndex = ++topWinZ;
 				}
-				['mouseleave', 'mousemove', 'mouseup'].forEach(e => docBody.addEventListener(e, this));
+				['mouseleave', 'mousemove', 'mouseup'].forEach(e => doc.body.addEventListener(e, this));
 				e.preventDefault();
 				return;
 			case 'mousemove': {
@@ -3371,7 +3391,7 @@ function makeDraggable(name, win, head) {
 			}
 			case 'mouseleave':
 			case 'mouseup':
-				['mouseleave', 'mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
+				['mouseleave', 'mousemove', 'mouseup'].forEach(e => doc.body.removeEventListener(e, this));
 				await CfgSaver.save(name + 'WinX', this._X, name + 'WinY', this._Y);
 			}
 		}
@@ -3411,7 +3431,7 @@ class WinResizer {
 			case 'right': val = `left: ${ cr.left }px; ${ y + z }`;
 			}
 			this.win.setAttribute('style', val);
-			['mousemove', 'mouseup'].forEach(e => docBody.addEventListener(e, this));
+			['mousemove', 'mouseup'].forEach(e => doc.body.addEventListener(e, this));
 			e.preventDefault();
 			return;
 		case 'mousemove':
@@ -3430,7 +3450,7 @@ class WinResizer {
 			}
 			return;
 		default: // mouseup
-			['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
+			['mousemove', 'mouseup'].forEach(e => doc.body.removeEventListener(e, this));
 			await CfgSaver.save(this.cfgName,
 				parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
 			if(this.win.classList.contains('de-win-fixed')) {
@@ -3481,7 +3501,7 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 			winBody.className = 'de-win-body ' + aib.cReply;
 		} else {
 			setTimeout(() => {
-				const backColor = getComputedStyle(docBody).getPropertyValue('background-color');
+				const backColor = getComputedStyle(doc.body).getPropertyValue('background-color');
 				winBody.style.backgroundColor = backColor !== 'transparent' ? backColor : '#EEE';
 			}, 100);
 		}
@@ -4751,7 +4771,7 @@ const CfgWindow = {
 				$popup('updavail', Lng.loading[lang], true);
 				getStoredObj('DESU_Config')
 					.then(data => checkForUpdates(true, data.lastUpd))
-					.then(html => $popup('updavail', html), emptyFn);
+					.then(html => $popup('updavail', html), Function.prototype);
 				break;
 			case 'de-cfg-button-donate': showDonateMsg(); break;
 			case 'de-cfg-button-debug': {
@@ -5079,7 +5099,7 @@ const CfgWindow = {
 			${ this._getSel('scriptStyle') }<br>
 			${ this._getBox('userCSS') }
 			<a href="${ gitWiki }css-tricks" class="de-abtn" target="_blank">[?]</a><br>
-			${ 'animation' in docBody.style ? this._getBox('animation') + '<br>' : '' }
+			${ 'animation' in doc.body.style ? this._getBox('animation') + '<br>' : '' }
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-depend">${ this._getInp('loadPages') }</div>
@@ -5294,7 +5314,7 @@ class Menu {
 		this.onover = null;
 		this.onremove = null;
 		this._closeTO = 0;
-		const el = $bEnd(docBody, `<div class="${ aib.cReply } de-menu" style="position: ${
+		const el = $bEnd(doc.body, `<div class="${ aib.cReply } de-menu" style="position: ${
 			isFixed ? 'fixed' : 'absolute' }; left: 0px; top: 0px; visibility: hidden;">${ html }</div>`);
 		const cr = parentEl.getBoundingClientRect();
 		const { style, offsetWidth: w, offsetHeight: h } = el;
@@ -5424,7 +5444,7 @@ function addMenu(el) {
 			(Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : '')));
 	case 'de-panel-refresh':
 		return new Menu(el, fn(Lng.selAjaxPages[lang]),
-			el => Pages.loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1));
+			el => Pages.loadPages(Array.prototype.indexOf.call(el.parentNode.children, el) + 1));
 	case 'de-panel-savethr':
 		return new Menu(el, fn($q(aib.qPostImg, DelForm.first.el) ?
 			Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]),
@@ -5432,7 +5452,7 @@ function addMenu(el) {
 			if($id('de-popup-savethr')) {
 				return;
 			}
-			const imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
+			const imgOnly = !!Array.prototype.indexOf.call(el.parentNode.children, el);
 			if(ContentLoader.isLoading) {
 				$popup('savethr', Lng.loading[lang], true);
 				ContentLoader.afterFn = () => ContentLoader.downloadThread(imgOnly);
@@ -5444,7 +5464,8 @@ function addMenu(el) {
 	case 'de-panel-audio-off':
 		return new Menu(el, fn(Lng.selAudioNotif[lang]), el => {
 			updater.enableUpdater();
-			updater.toggleAudio([3e4, 6e4, 12e4, 3e5][aProto.indexOf.call(el.parentNode.children, el)]);
+			updater.toggleAudio(
+				[3e4, 6e4, 12e4, 3e5][Array.prototype.indexOf.call(el.parentNode.children, el)]);
 			$id('de-panel-audio-off').id = 'de-panel-audio-on';
 		});
 	}
@@ -5676,7 +5697,7 @@ const HotKeys = {
 					if(post) {
 						if(post.thr.loadCount !== 0 && post.thr.op.next.count === 1) {
 							const nextThr = post.thr.nextNotHidden;
-							post.thr.loadPosts(visPosts, !!nextThr);
+							post.thr.loadPosts(Thread.visPosts, !!nextThr);
 							post = (nextThr || post.thr).op;
 						} else {
 							post.thr.loadPosts('all');
@@ -6070,7 +6091,8 @@ const ContentLoader = {
 						`<br>${ Lng.willSavePview[lang] }`;
 					$popup('err-files', Lng.loadErrors[lang] + warnings);
 					if(imgOnly) {
-						return this.getDataFromImg(el).then(data => tar.addFile(thumbName, data), emptyFn);
+						return this.getDataFromImg(el).then(data =>
+							tar.addFile(thumbName, data), Function.prototype);
 					}
 				}
 				return imgOnly ? null : this.getDataFromImg(el).then(data => {
@@ -6612,7 +6634,7 @@ class Videos {
 			return;
 		}
 		if(!el) {
-			el = $bEnd(docBody, `<img id="de-video-thumb-floated" src="https://i.ytimg.com/vi/${
+			el = $bEnd(doc.body, `<img id="de-video-thumb-floated" src="https://i.ytimg.com/vi/${
 				linkEl.videoInfo[1] }/0.jpg">`);
 		}
 		const cr = linkEl.getBoundingClientRect();
@@ -6743,7 +6765,7 @@ class Videos {
 			'<img class="de-video-thumb de-vimeo" src=""></a>';
 		$ajax(`${ aib.protocol }//vimeo.com/api/v2/video/${ m[1] }.json`, null, true).then(xhr => {
 			el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
-		}).catch(emptyFn);
+		}).catch(Function.prototype);
 	}
 }
 Videos.ytReg =
@@ -6938,7 +6960,7 @@ function $ajax(url, params = null, isCORS = false) {
 		}
 		if(nav.hasNewGM) {
 			GM.xmlHttpRequest(newParams);
-			cancelFn = emptyFn; // GreaseMonkey 4 cannot cancel xhr's
+			cancelFn = Function.prototype; // GreaseMonkey 4 cannot cancel xhr's
 		} else {
 			gmxhr = GM_xmlhttpRequest(newParams);
 			cancelFn = () => {
@@ -8671,6 +8693,7 @@ class PostForm {
 		this.pArea = [];
 		this.pForm = null;
 		this.qArea = null;
+		this.quotedText = '';
 		this._pBtn = [];
 		const qOeForm = 'form[name="oeform"], form[action*="paint"]';
 		this.oeForm = oeForm || $q(qOeForm);
@@ -8841,6 +8864,9 @@ class PostForm {
 			this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 		}
 	}
+	getSelectedText() {
+		this.quotedText = deWindow.getSelection().toString();
+	}
 	handleEvent(e) {
 		let el = e.target;
 		if(el.tagName.toLowerCase() !== 'div') {
@@ -8852,7 +8878,7 @@ class PostForm {
 		}
 		if(e.type === 'mouseover') {
 			if(id === 'de-btn-quote') {
-				quotedText = deWindow.getSelection().toString();
+				this.getSelectedText();
 			}
 			let key = -1;
 			if(HotKeys.enabled) {
@@ -8871,9 +8897,10 @@ class PostForm {
 		const { selectionStart: start, selectionEnd: end } = txtaEl;
 		const quote = Cfg.spacedQuote ? '> ' : '>';
 		if(id === 'de-btn-quote') {
-			insertText(txtaEl, quote + (start === end ? quotedText : txtaEl.value.substring(start, end))
-				.replace(/^[\r\n]|[\r\n]+$/g, '').replace(/\n/gm, '\n' + quote) + (quotedText ? '\n' : ''));
-			quotedText = '';
+			insertText(txtaEl, quote + (start === end ? this.quotedText : txtaEl.value.substring(start, end))
+				.replace(/^[\r\n]|[\r\n]+$/g, '')
+				.replace(/\n/gm, '\n' + quote) + (this.quotedText ? '\n' : ''));
+			this.quotedText = '';
 		} else {
 			const { scrtop, value } = txtaEl;
 			const val = PostForm._wrapText(el.getAttribute('de-tag'), value.substring(start, end));
@@ -8939,7 +8966,7 @@ class PostForm {
 			this.setReply(true, false);
 			$q('a', this._pBtn[+this.isBottom]).className =
 				`de-abtn de-parea-btn-${ aib.t ? 'reply' : 'thr' }`;
-		} else if(isCloseReply && !quotedText && post.wrap.nextElementSibling === this.qArea) {
+		} else if(isCloseReply && !this.quotedText && post.wrap.nextElementSibling === this.qArea) {
 			this.closeReply();
 			return;
 		}
@@ -8965,8 +8992,8 @@ class PostForm {
 			isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` :
 			(isOnNewLine ? '' : '\n') +
 				(this.lastQuickPNum === pNum && txt.includes('>>' + pNum) ? '' : `>>${ pNum }\n`);
-		const quote = !quotedText ? '' : `${ quotedText.replace(/^[\r\n]|[\r\n]+$/g, '')
-			.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n`;
+		const quote = this.quotedText ? `${ this.quotedText.replace(/^[\r\n]|[\r\n]+$/g, '')
+			.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n` : '';
 		insertText(this.txta, link + quote);
 		const winTitle = post.thr.op.title.trim();
 		$q('.de-win-title', this.qArea).textContent =
@@ -9152,7 +9179,7 @@ class PostForm {
 			handleEvent(e) {
 				switch(e.type) {
 				case 'mousedown':
-					['mousemove', 'mouseup'].forEach(e => docBody.addEventListener(e, this));
+					['mousemove', 'mouseup'].forEach(e => doc.body.addEventListener(e, this));
 					e.preventDefault();
 					return;
 				case 'mousemove': {
@@ -9162,7 +9189,7 @@ class PostForm {
 					return;
 				}
 				default: // mouseup
-					['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
+					['mousemove', 'mouseup'].forEach(e => doc.body.removeEventListener(e, this));
 					/* await */ CfgSaver.save('textaWidth', parseInt(this._elStyle.width, 10),
 						'textaHeight', parseInt(this._elStyle.height, 10));
 				}
@@ -9719,7 +9746,7 @@ class Files {
 		this.hideEmpty();
 	}
 	get rarInput() {
-		const value = $bEnd(docBody, '<input type="file" style="display: none;">');
+		const value = $bEnd(doc.body, '<input type="file" style="display: none;">');
 		Object.defineProperty(this, 'rarInput', { value });
 		return value;
 	}
@@ -10548,10 +10575,10 @@ class AbstractPost {
 						e.preventDefault();
 						e.stopPropagation();
 						if(!Cfg.showRepBtn) {
-							quotedText = deWindow.getSelection().toString();
+							postform.getSelectedText();
 							postform.showQuickReply(isPview ? Pview.topParent : this,
 								this.num, !isPview, false);
-							quotedText = '';
+							postform.quotedText = '';
 						} else if(postform.isQuick || aib.t && postform.isHidden) {
 							postform.showQuickReply(isPview ? Pview.topParent : this, this.num, false, true);
 						} else if(aib.t) {
@@ -10634,12 +10661,12 @@ class AbstractPost {
 			case 'de-btn-unhide':
 			case 'de-btn-unhide-user': this.setUserVisib(!this.isHidden); return;
 			case 'de-btn-img':
-				quotedText = aib.getImgRealName(aib.getImgWrap(el));
+				postform.quotedText = aib.getImgRealName(aib.getImgWrap(el));
 				postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				return;
 			case 'de-btn-reply':
 				postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
-				quotedText = '';
+				postform.quotedText = '';
 				return;
 			case 'de-btn-sage': /* await */ Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.toggleSticky(true); return;
@@ -10690,7 +10717,7 @@ class AbstractPost {
 			const title = this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang];
 			if(Cfg.showRepBtn === 1) {
 				if(!isOutEvent) {
-					quotedText = deWindow.getSelection().toString();
+					postform.getSelectedText();
 				}
 				this._addMenu(el, isOutEvent,
 					`<span class="de-menu-item" info="post-reply">${ title }</span>` +
@@ -10890,7 +10917,7 @@ class AbstractPost {
 		case 'post-reply': {
 			const isPview = this instanceof Pview;
 			postform.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
-			quotedText = '';
+			postform.quotedText = '';
 			return;
 		}
 		case 'post-report': aib.reportForm(num, this.thr.num); return;
@@ -10930,7 +10957,7 @@ class AbstractPost {
 			if(maybeSpells.hasValue) {
 				maybeSpells.value.endSpells();
 			}
-		}, emptyFn);
+		}, Function.prototype);
 	}
 	_showMenu(el, html) {
 		if(this._menu) {
@@ -11963,7 +11990,7 @@ PviewsCache.purgeSecs = 3e5;
 // Navigation buttons for expanding of images/videos by center
 class ImagesNavigBtns {
 	constructor(viewerObj) {
-		const btns = $bEnd(docBody, `<div style="display: none;">
+		const btns = $bEnd(doc.body, `<div style="display: none;">
 			<div id="de-img-btn-prev" class="de-img-btn" de-title="${ Lng.prevImg[lang] }">
 				<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>
 			<div id="de-img-btn-next" class="de-img-btn" de-title="${ Lng.nextImg[lang] }">
@@ -12078,7 +12105,7 @@ class ImagesViewer {
 			}
 			this._oldX = e.clientX;
 			this._oldY = e.clientY;
-			['mousemove', 'mouseup'].forEach(e => docBody.addEventListener(e, this, true));
+			['mousemove', 'mouseup'].forEach(e => doc.body.addEventListener(e, this, true));
 			break;
 		case 'mousemove': {
 			const { clientX: curX, clientY: curY } = e;
@@ -12094,7 +12121,7 @@ class ImagesViewer {
 			return;
 		}
 		case 'mouseup':
-			['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this, true));
+			['mousemove', 'mouseup'].forEach(e => doc.body.removeEventListener(e, this, true));
 			return;
 		case 'click': {
 			const el = e.target;
@@ -12710,7 +12737,7 @@ class ExpandableImage {
 			const menuHtml = !this.isVideo ? Menu.getMenuImg(srcBtnEl) :
 				Menu.getMenuImg(srcBtnEl, true) + `<span class="de-menu-item de-menu-getframe">${
 					Lng.getFrameLinks[lang] }</span>`;
-			new Menu(srcBtnEl, menuHtml, !this.isVideo ? emptyFn : optiontEl => {
+			new Menu(srcBtnEl, menuHtml, !this.isVideo ? Function.prototype : optiontEl => {
 				if(!optiontEl.classList.contains('de-menu-getframe')) {
 					return;
 				}
@@ -12737,7 +12764,7 @@ class ExpandableImage {
 						} catch(err) {}
 						$popup('upload', (hostUrl || errMsg) + frameLinkHtml);
 					}, () => $popup('upload', Lng.errSaucenao[lang] + frameLinkHtml));
-				}, emptyFn);
+				}, Function.prototype);
 			});
 		}, Cfg.linksOver)));
 		srcBtnEl.addEventListener('mouseout', e => clearTimeout(e.target.odelay));
@@ -12919,7 +12946,7 @@ const ImagesHashStorage = Object.create({
 		return value;
 	},
 	get _workers() {
-		const value = new WorkerPool(4, this._genImgHash, emptyFn);
+		const value = new WorkerPool(4, this._genImgHash, Function.prototype);
 		Object.defineProperty(this, '_workers', { value, configurable: true });
 		return value;
 	},
@@ -13801,7 +13828,7 @@ class Thread {
 		}
 		this.last = lastPost;
 		el.setAttribute('de-thread', null);
-		visPosts = Math.max(visPosts, len);
+		Thread.visPosts = Math.max(Thread.visPosts, len);
 		if(localData) {
 			return;
 		}
@@ -13898,7 +13925,7 @@ class Thread {
 				this._toggleReplies();
 				break;
 			case 'de-thr-collapse':
-			case 'de-thr-collapse-link': this.loadPosts(visPosts, true); break;
+			case 'de-thr-collapse-link': this.loadPosts(Thread.visPosts, true); break;
 			case 'de-thr-updater':
 			case 'de-thr-updater-link':
 				if(aib.t) {
@@ -13914,7 +13941,7 @@ class Thread {
 			switch(el.classList[0]) {
 			case 'de-btn-reply':
 				this.btns.title = Lng.replyToThr[lang];
-				quotedText = deWindow.getSelection().toString();
+				postform.getSelectedText();
 				return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
@@ -14175,7 +14202,7 @@ class Thread {
 				`<span class="de-thr-collapse"> [<a class="de-thr-collapse-link de-abtn" href="${
 					aib.getThrUrl(aib.b, this.num) }"></a>]</span>`);
 		}
-		if(needToShow > visPosts) {
+		if(needToShow > Thread.visPosts) {
 			thrNavPanel.addThr(this);
 			btns.lastChild.style.display = 'initial';
 		} else {
@@ -14325,6 +14352,7 @@ class Thread {
 		}
 	}
 }
+Thread.visPosts = 2;
 
 const thrNavPanel = {
 	addThr(thr) {
@@ -14345,7 +14373,7 @@ const thrNavPanel = {
 		}
 	},
 	initThrNav() {
-		const el = $bEnd(docBody, `
+		const el = $bEnd(doc.body, `
 		<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">
 			<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-thr-nav-arrow"/></svg>
 			<div id="de-thr-navup">
@@ -15321,13 +15349,13 @@ function initNavFuncs() {
 		},
 		get viewportHeight() {
 			const value = doc.compatMode && doc.compatMode === 'CSS1Compat' ?
-				() => doc.documentElement.clientHeight : () => docBody.clientHeight;
+				() => doc.documentElement.clientHeight : () => doc.body.clientHeight;
 			Object.defineProperty(this, 'viewportHeight', { value });
 			return value;
 		},
 		get viewportWidth() {
 			const value = doc.compatMode && doc.compatMode === 'CSS1Compat' ?
-				() => doc.documentElement.clientWidth : () => docBody.clientWidth;
+				() => doc.documentElement.clientWidth : () => doc.body.clientWidth;
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
 		},
@@ -15517,7 +15545,7 @@ class BaseBoard {
 	}
 	get lastPage() {
 		const el = $q(this.qPages);
-		let value = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
+		let value = el && +Array.prototype.pop.call(el.textContent.match(/\d+/g) || []) || 0;
 		if(this.page === value + 1) {
 			value++;
 		}
@@ -16288,7 +16316,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			defaultCfg.ajaxUpdThr = 0;
 			const el = $q('.search_box');
 			if(el) {
-				docBody.append(el);
+				doc.body.append(el);
 			}
 			return false;
 		}
@@ -17406,7 +17434,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		stormWallFixCaptcha(url, img) {
 			img.onload = img.onerror = () => {
 				if(!(img.naturalHeight + img.naturalWidth)) {
-					this.stormWallHelper(url, null, emptyFn, () => {
+					this.stormWallHelper(url, null, Function.prototype, () => {
 						img.src = '';
 						img.src = url;
 					});
@@ -18018,7 +18046,7 @@ function scrollPage() {
 /* eslint-disable max-len */
 
 function addSVGIcons() {
-	docBody.insertAdjacentHTML('beforeend', `
+	doc.body.insertAdjacentHTML('beforeend', `
 	<div id="de-svg-icons">
 	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<defs>
@@ -18470,7 +18498,7 @@ function scriptCSS() {
 	#de-txt-panel > div > button { margin-right: 2px; min-width: 23px; }
 	#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 1px; }\r\n`;
 
-	if('animation' in docBody.style) {
+	if('animation' in doc.body.style) {
 		x += `
 		/* Show/hide animation */
 		@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }
@@ -18792,7 +18820,7 @@ function runFrames() {
 
 async function runMain(checkDomains, dataPromise) {
 	Logger.initLogger();
-	if(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true))) {
+	if(!doc.body || !aib && !(aib = getImageBoard(checkDomains, true))) {
 		return;
 	}
 	let formEl = $q(aib.qDelForm + ', [de-form]');
@@ -18800,7 +18828,7 @@ async function runMain(checkDomains, dataPromise) {
 		runFrames();
 		return;
 	}
-	if(docBody.classList.contains('de-runned') ||
+	if(doc.body.classList.contains('de-runned') ||
 		aib.observeContent && !aib.observeContent(checkDomains, dataPromise)
 	) {
 		return;
@@ -18813,10 +18841,10 @@ async function runMain(checkDomains, dataPromise) {
 		initNavFuncs();
 	}
 	const [favObj] = await (dataPromise || Promise.all([readFavorites(), readCfg()]));
-	if(!Cfg.disabled && aib.init?.() || !localData && docBody.classList.contains('de-mode-local')) {
+	if(!Cfg.disabled && aib.init?.() || !localData && doc.body.classList.contains('de-mode-local')) {
 		return;
 	}
-	docBody.classList.add('de-runned');
+	doc.body.classList.add('de-runned');
 	Logger.log('Storage loading');
 	addSVGIcons();
 	if(Cfg.disabled) {
@@ -18824,8 +18852,8 @@ async function runMain(checkDomains, dataPromise) {
 		scriptCSS();
 		return;
 	}
-	if('toJSON' in aProto) {
-		delete aProto.toJSON;
+	if('toJSON' in Array.prototype) {
+		delete Array.prototype.toJSON;
 	}
 	initStorageEvent();
 	DollchanAPI.initAPI();
@@ -18851,7 +18879,7 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	MyPosts.readStorage();
 	Logger.log('Read my posts');
-	$hide(docBody);
+	$hide(doc.body);
 	dummy = doc.createElement('div');
 	formEl = aib.fixHTML(formEl, true);
 	Logger.log('Replace delform');
@@ -18864,7 +18892,7 @@ async function runMain(checkDomains, dataPromise) {
 		}
 	} catch(err) {
 		console.error('Delform parsing error:', getErrorMessage(err));
-		$show(docBody);
+		$show(doc.body);
 		return;
 	}
 	Logger.log('Parse delform');
@@ -18891,7 +18919,7 @@ async function runMain(checkDomains, dataPromise) {
 	readViewedPosts();
 	scriptCSS();
 	Logger.log('Apply CSS');
-	$show(docBody);
+	$show(doc.body);
 	Logger.log('Display page');
 	toggleInfinityScroll();
 	Logger.log('Infinity scroll');

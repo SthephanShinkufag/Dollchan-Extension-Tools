@@ -76,7 +76,7 @@ class Menu {
 		this.onover = null;
 		this.onremove = null;
 		this._closeTO = 0;
-		const el = $bEnd(docBody, `<div class="${ aib.cReply } de-menu" style="position: ${
+		const el = $bEnd(doc.body, `<div class="${ aib.cReply } de-menu" style="position: ${
 			isFixed ? 'fixed' : 'absolute' }; left: 0px; top: 0px; visibility: hidden;">${ html }</div>`);
 		const cr = parentEl.getBoundingClientRect();
 		const { style, offsetWidth: w, offsetHeight: h } = el;
@@ -206,7 +206,7 @@ function addMenu(el) {
 			(Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : '')));
 	case 'de-panel-refresh':
 		return new Menu(el, fn(Lng.selAjaxPages[lang]),
-			el => Pages.loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1));
+			el => Pages.loadPages(Array.prototype.indexOf.call(el.parentNode.children, el) + 1));
 	case 'de-panel-savethr':
 		return new Menu(el, fn($q(aib.qPostImg, DelForm.first.el) ?
 			Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]),
@@ -214,7 +214,7 @@ function addMenu(el) {
 			if($id('de-popup-savethr')) {
 				return;
 			}
-			const imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
+			const imgOnly = !!Array.prototype.indexOf.call(el.parentNode.children, el);
 			if(ContentLoader.isLoading) {
 				$popup('savethr', Lng.loading[lang], true);
 				ContentLoader.afterFn = () => ContentLoader.downloadThread(imgOnly);
@@ -226,7 +226,8 @@ function addMenu(el) {
 	case 'de-panel-audio-off':
 		return new Menu(el, fn(Lng.selAudioNotif[lang]), el => {
 			updater.enableUpdater();
-			updater.toggleAudio([3e4, 6e4, 12e4, 3e5][aProto.indexOf.call(el.parentNode.children, el)]);
+			updater.toggleAudio(
+				[3e4, 6e4, 12e4, 3e5][Array.prototype.indexOf.call(el.parentNode.children, el)]);
 			$id('de-panel-audio-off').id = 'de-panel-audio-on';
 		});
 	}

@@ -526,7 +526,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			defaultCfg.ajaxUpdThr = 0;
 			const el = $q('.search_box');
 			if(el) {
-				docBody.append(el);
+				doc.body.append(el);
 			}
 			return false;
 		}
@@ -1644,7 +1644,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		stormWallFixCaptcha(url, img) {
 			img.onload = img.onerror = () => {
 				if(!(img.naturalHeight + img.naturalWidth)) {
-					this.stormWallHelper(url, null, emptyFn, () => {
+					this.stormWallHelper(url, null, Function.prototype, () => {
 						img.src = '';
 						img.src = url;
 					});

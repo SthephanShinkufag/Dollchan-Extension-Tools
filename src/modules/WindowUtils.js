@@ -31,7 +31,7 @@ function makeDraggable(name, win, head) {
 				if(this._Z < topWinZ) {
 					this._Z = this._wStyle.zIndex = ++topWinZ;
 				}
-				['mouseleave', 'mousemove', 'mouseup'].forEach(e => docBody.addEventListener(e, this));
+				['mouseleave', 'mousemove', 'mouseup'].forEach(e => doc.body.addEventListener(e, this));
 				e.preventDefault();
 				return;
 			case 'mousemove': {
@@ -55,7 +55,7 @@ function makeDraggable(name, win, head) {
 			}
 			case 'mouseleave':
 			case 'mouseup':
-				['mouseleave', 'mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
+				['mouseleave', 'mousemove', 'mouseup'].forEach(e => doc.body.removeEventListener(e, this));
 				await CfgSaver.save(name + 'WinX', this._X, name + 'WinY', this._Y);
 			}
 		}
@@ -95,7 +95,7 @@ class WinResizer {
 			case 'right': val = `left: ${ cr.left }px; ${ y + z }`;
 			}
 			this.win.setAttribute('style', val);
-			['mousemove', 'mouseup'].forEach(e => docBody.addEventListener(e, this));
+			['mousemove', 'mouseup'].forEach(e => doc.body.addEventListener(e, this));
 			e.preventDefault();
 			return;
 		case 'mousemove':
@@ -114,7 +114,7 @@ class WinResizer {
 			}
 			return;
 		default: // mouseup
-			['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
+			['mousemove', 'mouseup'].forEach(e => doc.body.removeEventListener(e, this));
 			await CfgSaver.save(this.cfgName,
 				parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
 			if(this.win.classList.contains('de-win-fixed')) {
@@ -165,7 +165,7 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 			winBody.className = 'de-win-body ' + aib.cReply;
 		} else {
 			setTimeout(() => {
-				const backColor = getComputedStyle(docBody).getPropertyValue('background-color');
+				const backColor = getComputedStyle(doc.body).getPropertyValue('background-color');
 				winBody.style.backgroundColor = backColor !== 'transparent' ? backColor : '#EEE';
 			}, 100);
 		}

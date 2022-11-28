@@ -49,7 +49,7 @@ function runFrames() {
 
 async function runMain(checkDomains, dataPromise) {
 	Logger.initLogger();
-	if(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true))) {
+	if(!doc.body || !aib && !(aib = getImageBoard(checkDomains, true))) {
 		return;
 	}
 	let formEl = $q(aib.qDelForm + ', [de-form]');
@@ -57,7 +57,7 @@ async function runMain(checkDomains, dataPromise) {
 		runFrames();
 		return;
 	}
-	if(docBody.classList.contains('de-runned') ||
+	if(doc.body.classList.contains('de-runned') ||
 		aib.observeContent && !aib.observeContent(checkDomains, dataPromise)
 	) {
 		return;
@@ -70,10 +70,10 @@ async function runMain(checkDomains, dataPromise) {
 		initNavFuncs();
 	}
 	const [favObj] = await (dataPromise || Promise.all([readFavorites(), readCfg()]));
-	if(!Cfg.disabled && aib.init?.() || !localData && docBody.classList.contains('de-mode-local')) {
+	if(!Cfg.disabled && aib.init?.() || !localData && doc.body.classList.contains('de-mode-local')) {
 		return;
 	}
-	docBody.classList.add('de-runned');
+	doc.body.classList.add('de-runned');
 	Logger.log('Storage loading');
 	addSVGIcons();
 	if(Cfg.disabled) {
@@ -81,8 +81,8 @@ async function runMain(checkDomains, dataPromise) {
 		scriptCSS();
 		return;
 	}
-	if('toJSON' in aProto) {
-		delete aProto.toJSON;
+	if('toJSON' in Array.prototype) {
+		delete Array.prototype.toJSON;
 	}
 	initStorageEvent();
 	DollchanAPI.initAPI();
@@ -108,7 +108,7 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	MyPosts.readStorage();
 	Logger.log('Read my posts');
-	$hide(docBody);
+	$hide(doc.body);
 	dummy = doc.createElement('div');
 	formEl = aib.fixHTML(formEl, true);
 	Logger.log('Replace delform');
@@ -121,7 +121,7 @@ async function runMain(checkDomains, dataPromise) {
 		}
 	} catch(err) {
 		console.error('Delform parsing error:', getErrorMessage(err));
-		$show(docBody);
+		$show(doc.body);
 		return;
 	}
 	Logger.log('Parse delform');
@@ -148,7 +148,7 @@ async function runMain(checkDomains, dataPromise) {
 	readViewedPosts();
 	scriptCSS();
 	Logger.log('Apply CSS');
-	$show(docBody);
+	$show(doc.body);
 	Logger.log('Display page');
 	toggleInfinityScroll();
 	Logger.log('Infinity scroll');

@@ -30,7 +30,7 @@ class Thread {
 		}
 		this.last = lastPost;
 		el.setAttribute('de-thread', null);
-		visPosts = Math.max(visPosts, len);
+		Thread.visPosts = Math.max(Thread.visPosts, len);
 		if(localData) {
 			return;
 		}
@@ -127,7 +127,7 @@ class Thread {
 				this._toggleReplies();
 				break;
 			case 'de-thr-collapse':
-			case 'de-thr-collapse-link': this.loadPosts(visPosts, true); break;
+			case 'de-thr-collapse-link': this.loadPosts(Thread.visPosts, true); break;
 			case 'de-thr-updater':
 			case 'de-thr-updater-link':
 				if(aib.t) {
@@ -143,7 +143,7 @@ class Thread {
 			switch(el.classList[0]) {
 			case 'de-btn-reply':
 				this.btns.title = Lng.replyToThr[lang];
-				quotedText = deWindow.getSelection().toString();
+				postform.getSelectedText();
 				return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
@@ -404,7 +404,7 @@ class Thread {
 				`<span class="de-thr-collapse"> [<a class="de-thr-collapse-link de-abtn" href="${
 					aib.getThrUrl(aib.b, this.num) }"></a>]</span>`);
 		}
-		if(needToShow > visPosts) {
+		if(needToShow > Thread.visPosts) {
 			thrNavPanel.addThr(this);
 			btns.lastChild.style.display = 'initial';
 		} else {
@@ -554,6 +554,7 @@ class Thread {
 		}
 	}
 }
+Thread.visPosts = 2;
 
 const thrNavPanel = {
 	addThr(thr) {
@@ -574,7 +575,7 @@ const thrNavPanel = {
 		}
 	},
 	initThrNav() {
-		const el = $bEnd(docBody, `
+		const el = $bEnd(doc.body, `
 		<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">
 			<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-thr-nav-arrow"/></svg>
 			<div id="de-thr-navup">

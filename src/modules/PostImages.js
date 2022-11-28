@@ -6,7 +6,7 @@
 // Navigation buttons for expanding of images/videos by center
 class ImagesNavigBtns {
 	constructor(viewerObj) {
-		const btns = $bEnd(docBody, `<div style="display: none;">
+		const btns = $bEnd(doc.body, `<div style="display: none;">
 			<div id="de-img-btn-prev" class="de-img-btn" de-title="${ Lng.prevImg[lang] }">
 				<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>
 			<div id="de-img-btn-next" class="de-img-btn" de-title="${ Lng.nextImg[lang] }">
@@ -121,7 +121,7 @@ class ImagesViewer {
 			}
 			this._oldX = e.clientX;
 			this._oldY = e.clientY;
-			['mousemove', 'mouseup'].forEach(e => docBody.addEventListener(e, this, true));
+			['mousemove', 'mouseup'].forEach(e => doc.body.addEventListener(e, this, true));
 			break;
 		case 'mousemove': {
 			const { clientX: curX, clientY: curY } = e;
@@ -137,7 +137,7 @@ class ImagesViewer {
 			return;
 		}
 		case 'mouseup':
-			['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this, true));
+			['mousemove', 'mouseup'].forEach(e => doc.body.removeEventListener(e, this, true));
 			return;
 		case 'click': {
 			const el = e.target;
@@ -753,7 +753,7 @@ class ExpandableImage {
 			const menuHtml = !this.isVideo ? Menu.getMenuImg(srcBtnEl) :
 				Menu.getMenuImg(srcBtnEl, true) + `<span class="de-menu-item de-menu-getframe">${
 					Lng.getFrameLinks[lang] }</span>`;
-			new Menu(srcBtnEl, menuHtml, !this.isVideo ? emptyFn : optiontEl => {
+			new Menu(srcBtnEl, menuHtml, !this.isVideo ? Function.prototype : optiontEl => {
 				if(!optiontEl.classList.contains('de-menu-getframe')) {
 					return;
 				}
@@ -780,7 +780,7 @@ class ExpandableImage {
 						} catch(err) {}
 						$popup('upload', (hostUrl || errMsg) + frameLinkHtml);
 					}, () => $popup('upload', Lng.errSaucenao[lang] + frameLinkHtml));
-				}, emptyFn);
+				}, Function.prototype);
 			});
 		}, Cfg.linksOver)));
 		srcBtnEl.addEventListener('mouseout', e => clearTimeout(e.target.odelay));
@@ -962,7 +962,7 @@ const ImagesHashStorage = Object.create({
 		return value;
 	},
 	get _workers() {
-		const value = new WorkerPool(4, this._genImgHash, emptyFn);
+		const value = new WorkerPool(4, this._genImgHash, Function.prototype);
 		Object.defineProperty(this, '_workers', { value, configurable: true });
 		return value;
 	},

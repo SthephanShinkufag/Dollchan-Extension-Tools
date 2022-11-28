@@ -196,7 +196,7 @@ function scriptCSS() {
 	#de-txt-panel > div > button { margin-right: 2px; min-width: 23px; }
 	#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 1px; }\r\n`;
 
-	if('animation' in docBody.style) {
+	if('animation' in doc.body.style) {
 		x += `
 		/* Show/hide animation */
 		@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }

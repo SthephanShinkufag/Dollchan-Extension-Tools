@@ -12,6 +12,7 @@ class PostForm {
 		this.pArea = [];
 		this.pForm = null;
 		this.qArea = null;
+		this.quotedText = '';
 		this._pBtn = [];
 		const qOeForm = 'form[name="oeform"], form[action*="paint"]';
 		this.oeForm = oeForm || $q(qOeForm);
@@ -182,6 +183,9 @@ class PostForm {
 			this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 		}
 	}
+	getSelectedText() {
+		this.quotedText = deWindow.getSelection().toString();
+	}
 	handleEvent(e) {
 		let el = e.target;
 		if(el.tagName.toLowerCase() !== 'div') {
@@ -193,7 +197,7 @@ class PostForm {
 		}
 		if(e.type === 'mouseover') {
 			if(id === 'de-btn-quote') {
-				quotedText = deWindow.getSelection().toString();
+				this.getSelectedText();
 			}
 			let key = -1;
 			if(HotKeys.enabled) {
@@ -212,9 +216,10 @@ class PostForm {
 		const { selectionStart: start, selectionEnd: end } = txtaEl;
 		const quote = Cfg.spacedQuote ? '> ' : '>';
 		if(id === 'de-btn-quote') {
-			insertText(txtaEl, quote + (start === end ? quotedText : txtaEl.value.substring(start, end))
-				.replace(/^[\r\n]|[\r\n]+$/g, '').replace(/\n/gm, '\n' + quote) + (quotedText ? '\n' : ''));
-			quotedText = '';
+			insertText(txtaEl, quote + (start === end ? this.quotedText : txtaEl.value.substring(start, end))
+				.replace(/^[\r\n]|[\r\n]+$/g, '')
+				.replace(/\n/gm, '\n' + quote) + (this.quotedText ? '\n' : ''));
+			this.quotedText = '';
 		} else {
 			const { scrtop, value } = txtaEl;
 			const val = PostForm._wrapText(el.getAttribute('de-tag'), value.substring(start, end));
@@ -280,7 +285,7 @@ class PostForm {
 			this.setReply(true, false);
 			$q('a', this._pBtn[+this.isBottom]).className =
 				`de-abtn de-parea-btn-${ aib.t ? 'reply' : 'thr' }`;
-		} else if(isCloseReply && !quotedText && post.wrap.nextElementSibling === this.qArea) {
+		} else if(isCloseReply && !this.quotedText && post.wrap.nextElementSibling === this.qArea) {
 			this.closeReply();
 			return;
 		}
@@ -306,8 +311,8 @@ class PostForm {
 			isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` :
 			(isOnNewLine ? '' : '\n') +
 				(this.lastQuickPNum === pNum && txt.includes('>>' + pNum) ? '' : `>>${ pNum }\n`);
-		const quote = !quotedText ? '' : `${ quotedText.replace(/^[\r\n]|[\r\n]+$/g, '')
-			.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n`;
+		const quote = this.quotedText ? `${ this.quotedText.replace(/^[\r\n]|[\r\n]+$/g, '')
+			.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n` : '';
 		insertText(this.txta, link + quote);
 		const winTitle = post.thr.op.title.trim();
 		$q('.de-win-title', this.qArea).textContent =
@@ -493,7 +498,7 @@ class PostForm {
 			handleEvent(e) {
 				switch(e.type) {
 				case 'mousedown':
-					['mousemove', 'mouseup'].forEach(e => docBody.addEventListener(e, this));
+					['mousemove', 'mouseup'].forEach(e => doc.body.addEventListener(e, this));
 					e.preventDefault();
 					return;
 				case 'mousemove': {
@@ -503,7 +508,7 @@ class PostForm {
 					return;
 				}
 				default: // mouseup
-					['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
+					['mousemove', 'mouseup'].forEach(e => doc.body.removeEventListener(e, this));
 					/* await */ CfgSaver.save('textaWidth', parseInt(this._elStyle.width, 10),
 						'textaHeight', parseInt(this._elStyle.height, 10));
 				}

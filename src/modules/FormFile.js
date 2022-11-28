@@ -18,7 +18,7 @@ class Files {
 		this.hideEmpty();
 	}
 	get rarInput() {
-		const value = $bEnd(docBody, '<input type="file" style="display: none;">');
+		const value = $bEnd(doc.body, '<input type="file" style="display: none;">');
 		Object.defineProperty(this, 'rarInput', { value });
 		return value;
 	}

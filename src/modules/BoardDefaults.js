@@ -149,7 +149,7 @@ class BaseBoard {
 	}
 	get lastPage() {
 		const el = $q(this.qPages);
-		let value = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
+		let value = el && +Array.prototype.pop.call(el.textContent.match(/\d+/g) || []) || 0;
 		if(this.page === value + 1) {
 			value++;
 		}

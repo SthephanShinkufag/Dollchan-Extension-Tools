@@ -139,13 +139,13 @@ function initNavFuncs() {
 		},
 		get viewportHeight() {
 			const value = doc.compatMode && doc.compatMode === 'CSS1Compat' ?
-				() => doc.documentElement.clientHeight : () => docBody.clientHeight;
+				() => doc.documentElement.clientHeight : () => doc.body.clientHeight;
 			Object.defineProperty(this, 'viewportHeight', { value });
 			return value;
 		},
 		get viewportWidth() {
 			const value = doc.compatMode && doc.compatMode === 'CSS1Compat' ?
-				() => doc.documentElement.clientWidth : () => docBody.clientWidth;
+				() => doc.documentElement.clientWidth : () => doc.body.clientWidth;
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
 		},

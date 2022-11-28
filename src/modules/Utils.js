@@ -4,14 +4,21 @@
 
 // DOM SEARCH
 
-const $id = id => doc.getElementById(id);
+function $id(id) {
+	return doc.getElementById(id);
+}
 
-const $q = (path, rootEl = docBody) => rootEl.querySelector(path);
+function $q(path, rootEl = doc.body) {
+	return rootEl.querySelector(path);
+}
 
-const $Q = (path, rootEl = docBody) => rootEl.querySelectorAll(path);
+function $Q(path, rootEl = doc.body) {
+	return rootEl.querySelectorAll(path);
+}
 
-const $match = (parentEl, ...rules) =>
-	parentEl.split(', ').map(val => val + rules.join(', ' + val)).join(', ');
+function $match(parentEl, ...rules) {
+	return parentEl.split(', ').map(val => val + rules.join(', ' + val)).join(', ');
+}
 
 // DOM MODIFIERS
 
@@ -40,7 +47,7 @@ function $replace(el, html) {
 	el.remove();
 }
 
-function $delAll(path, rootEl = docBody) {
+function $delAll(path, rootEl = doc.body) {
 	rootEl.querySelectorAll(path, rootEl).forEach(el => el.remove());
 }
 
@@ -65,7 +72,7 @@ function $script(text) {
 
 function $css(text) {
 	return $bEnd(doc.head, `<style type="text/css">${
-		nav.isSafari && !('flex' in docBody.style) ?
+		nav.isSafari && !('flex' in doc.body.style) ?
 			text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1') : text
 	}</style>`);
 }
@@ -108,7 +115,9 @@ function $animate(el, cName, isRemove = false) {
 
 // OBJECT
 
-const $hasProp = (obj, i) => Object.prototype.hasOwnProperty.call(obj, i);
+function $hasProp(obj, i) {
+	return Object.prototype.hasOwnProperty.call(obj, i);
+}
 
 function $isEmpty(obj) {
 	for(const i in obj) {
@@ -122,7 +131,9 @@ function $isEmpty(obj) {
 // REGEXP
 
 // Prepares a string to be used as a new RegExp argument
-const escapeRegExp = str => (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+function escapeRegExp(str) {
+	return (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+}
 
 // Converts a string into regular expression
 function strToRegExp(str, notGlobal) {
@@ -133,24 +144,37 @@ function strToRegExp(str, notGlobal) {
 
 // OTHER UTILS
 
-const pad2 = i => i < 10 ? '0' + i : i;
+function pad2(i) {
+	return i < 10 ? '0' + i : i;
+}
 
-const arrTags = (arr, start, end) => start + arr.join(end + start) + end;
+function arrTags(arr, start, end) {
+	return start + arr.join(end + start) + end;
+}
 
-const fixBoardName = board => '/' + (board ? board + '/' : '');
+function fixBoardName(board) {
+	return '/' + (board ? board + '/' : '');
+}
 
-const getFileName = url => url.substring(url.lastIndexOf('/') + 1);
+function getFileName(url) {
+	return url.substring(url.lastIndexOf('/') + 1);
+}
 
-const getFileExt = url => url.substring(url.lastIndexOf('.') + 1);
+function getFileExt(url) {
+	return url.substring(url.lastIndexOf('.') + 1);
+}
 
-const cutFileExt = fileName => fileName.substring(0, fileName.lastIndexOf('.'));
+function cutFileExt(fileName) {
+	return fileName.substring(0, fileName.lastIndexOf('.'));
+}
 
 // Converts bytes into KB/MB/GB
-const prettifySize = val =>
-	val > 512 * 1024 * 1024 ? (val / (1024 ** 3)).toFixed(2) + Lng.sizeGByte[lang] :
-	val > 512 * 1024 ? (val / (1024 ** 2)).toFixed(2) + Lng.sizeMByte[lang] :
-	val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] :
-	val.toFixed(2) + Lng.sizeByte[lang];
+function prettifySize(val) {
+	return val > 512 * 1024 * 1024 ? (val / (1024 ** 3)).toFixed(2) + Lng.sizeGByte[lang] :
+		val > 512 * 1024 ? (val / (1024 ** 2)).toFixed(2) + Lng.sizeMByte[lang] :
+		val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] :
+		val.toFixed(2) + Lng.sizeByte[lang];
+}
 
 // Inserts the text at the cursor into an input field
 function insertText(el, txt) {
@@ -212,7 +236,7 @@ function getFileMime(url) {
 // Uploads files stored in a Blob
 function downloadBlob(blob, name) {
 	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : deWindow.URL.createObjectURL(blob);
-	const link = $bEnd(docBody, `<a href="${ url }" download="${ name }"></a>`);
+	const link = $bEnd(doc.body, `<a href="${ url }" download="${ name }"></a>`);
 	link.click();
 	setTimeout(() => {
 		deWindow.URL.revokeObjectURL(url);

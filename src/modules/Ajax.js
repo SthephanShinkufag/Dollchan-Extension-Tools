@@ -90,7 +90,7 @@ function $ajax(url, params = null, isCORS = false) {
 		}
 		if(nav.hasNewGM) {
 			GM.xmlHttpRequest(newParams);
-			cancelFn = emptyFn; // GreaseMonkey 4 cannot cancel xhr's
+			cancelFn = Function.prototype; // GreaseMonkey 4 cannot cancel xhr's
 		} else {
 			gmxhr = GM_xmlhttpRequest(newParams);
 			cancelFn = () => {

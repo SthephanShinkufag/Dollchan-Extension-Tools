@@ -429,7 +429,7 @@ const CfgWindow = {
 				$popup('updavail', Lng.loading[lang], true);
 				getStoredObj('DESU_Config')
 					.then(data => checkForUpdates(true, data.lastUpd))
-					.then(html => $popup('updavail', html), emptyFn);
+					.then(html => $popup('updavail', html), Function.prototype);
 				break;
 			case 'de-cfg-button-donate': showDonateMsg(); break;
 			case 'de-cfg-button-debug': {
@@ -757,7 +757,7 @@ const CfgWindow = {
 			${ this._getSel('scriptStyle') }<br>
 			${ this._getBox('userCSS') }
 			<a href="${ gitWiki }css-tricks" class="de-abtn" target="_blank">[?]</a><br>
-			${ 'animation' in docBody.style ? this._getBox('animation') + '<br>' : '' }
+			${ 'animation' in doc.body.style ? this._getBox('animation') + '<br>' : '' }
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-depend">${ this._getInp('loadPages') }</div>

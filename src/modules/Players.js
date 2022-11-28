@@ -146,7 +146,7 @@ class Videos {
 			return;
 		}
 		if(!el) {
-			el = $bEnd(docBody, `<img id="de-video-thumb-floated" src="https://i.ytimg.com/vi/${
+			el = $bEnd(doc.body, `<img id="de-video-thumb-floated" src="https://i.ytimg.com/vi/${
 				linkEl.videoInfo[1] }/0.jpg">`);
 		}
 		const cr = linkEl.getBoundingClientRect();
@@ -277,7 +277,7 @@ class Videos {
 			'<img class="de-video-thumb de-vimeo" src=""></a>';
 		$ajax(`${ aib.protocol }//vimeo.com/api/v2/video/${ m[1] }.json`, null, true).then(xhr => {
 			el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
-		}).catch(emptyFn);
+		}).catch(Function.prototype);
 	}
 }
 Videos.ytReg =

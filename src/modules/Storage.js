@@ -38,10 +38,10 @@ function setStored(id, value) {
 			chrome.storage.sync.set(obj, () => {
 				if(chrome.runtime.lastError) {
 					// Store into storage.local if the storage.sync limit is exceeded
-					chrome.storage.local.set(obj, emptyFn);
-					chrome.storage.sync.remove(id, emptyFn);
+					chrome.storage.local.set(obj, Function.prototype);
+					chrome.storage.sync.remove(id, Function.prototype);
 				} else {
-					chrome.storage.local.remove(id, emptyFn);
+					chrome.storage.local.remove(id, Function.prototype);
 				}
 				resolve();
 			});
@@ -62,7 +62,7 @@ function delStored(id) {
 	} else if(nav.hasOldGM) {
 		GM_deleteValue(id);
 	} else if(nav.hasWebStorage) {
-		chrome.storage.sync.remove(id, emptyFn);
+		chrome.storage.sync.remove(id, Function.prototype);
 	} else if(nav.hasPrestoStorage) {
 		prestoStorage.removeItem(id);
 	} else {
@@ -219,7 +219,7 @@ async function readCfg() {
 			} else {
 				$popup('updavail', html);
 			}
-		}, emptyFn);
+		}, Function.prototype);
 	}
 }
 
@@ -611,7 +611,7 @@ function initStorageEvent() {
 			if(temp) {
 				temp.checked = data.hide;
 			}
-			$hide(docBody);
+			$hide(doc.body);
 			if(data.data) {
 				await Spells.setSpells(data.data, false);
 				Cfg.spells = JSON.stringify(data.data);
@@ -627,7 +627,7 @@ function initStorageEvent() {
 					temp.value = '';
 				}
 			}
-			$show(docBody);
+			$show(doc.body);
 		})();
 		}
 	}, false);

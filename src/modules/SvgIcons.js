@@ -5,7 +5,7 @@
 /* eslint-disable max-len */
 
 function addSVGIcons() {
-	docBody.insertAdjacentHTML('beforeend', `
+	doc.body.insertAdjacentHTML('beforeend', `
 	<div id="de-svg-icons">
 	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<defs>

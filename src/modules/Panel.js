@@ -88,7 +88,7 @@ const Panel = Object.create({
 				return;
 			case 'de-panel-refresh': deWindow.location.reload(); return;
 			case 'de-panel-goup': scrollTo(0, 0); return;
-			case 'de-panel-godown': scrollTo(0, docBody.scrollHeight || docBody.offsetHeight); return;
+			case 'de-panel-godown': scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight); return;
 			case 'de-panel-expimg':
 				el.classList.toggle('de-panel-button-active');
 				isExpImg = !isExpImg;

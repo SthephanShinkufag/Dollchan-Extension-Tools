@@ -224,7 +224,7 @@ const HotKeys = {
 					if(post) {
 						if(post.thr.loadCount !== 0 && post.thr.op.next.count === 1) {
 							const nextThr = post.thr.nextNotHidden;
-							post.thr.loadPosts(visPosts, !!nextThr);
+							post.thr.loadPosts(Thread.visPosts, !!nextThr);
 							post = (nextThr || post.thr).op;
 						} else {
 							post.thr.loadPosts('all');

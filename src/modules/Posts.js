@@ -106,10 +106,10 @@ class AbstractPost {
 						e.preventDefault();
 						e.stopPropagation();
 						if(!Cfg.showRepBtn) {
-							quotedText = deWindow.getSelection().toString();
+							postform.getSelectedText();
 							postform.showQuickReply(isPview ? Pview.topParent : this,
 								this.num, !isPview, false);
-							quotedText = '';
+							postform.quotedText = '';
 						} else if(postform.isQuick || aib.t && postform.isHidden) {
 							postform.showQuickReply(isPview ? Pview.topParent : this, this.num, false, true);
 						} else if(aib.t) {
@@ -192,12 +192,12 @@ class AbstractPost {
 			case 'de-btn-unhide':
 			case 'de-btn-unhide-user': this.setUserVisib(!this.isHidden); return;
 			case 'de-btn-img':
-				quotedText = aib.getImgRealName(aib.getImgWrap(el));
+				postform.quotedText = aib.getImgRealName(aib.getImgWrap(el));
 				postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				return;
 			case 'de-btn-reply':
 				postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
-				quotedText = '';
+				postform.quotedText = '';
 				return;
 			case 'de-btn-sage': /* await */ Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.toggleSticky(true); return;
@@ -248,7 +248,7 @@ class AbstractPost {
 			const title = this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang];
 			if(Cfg.showRepBtn === 1) {
 				if(!isOutEvent) {
-					quotedText = deWindow.getSelection().toString();
+					postform.getSelectedText();
 				}
 				this._addMenu(el, isOutEvent,
 					`<span class="de-menu-item" info="post-reply">${ title }</span>` +
@@ -448,7 +448,7 @@ class AbstractPost {
 		case 'post-reply': {
 			const isPview = this instanceof Pview;
 			postform.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
-			quotedText = '';
+			postform.quotedText = '';
 			return;
 		}
 		case 'post-report': aib.reportForm(num, this.thr.num); return;
@@ -488,7 +488,7 @@ class AbstractPost {
 			if(maybeSpells.hasValue) {
 				maybeSpells.value.endSpells();
 			}
-		}, emptyFn);
+		}, Function.prototype);
 	}
 	_showMenu(el, html) {
 		if(this._menu) {

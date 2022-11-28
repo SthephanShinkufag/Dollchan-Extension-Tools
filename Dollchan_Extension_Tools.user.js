@@ -7198,7 +7198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.11.8.0';
-  var commit = 'a01992c';
+  var commit = '193e493';
 
 
   var defaultCfg = {
@@ -7807,36 +7807,32 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
   var doc = deWindow.document;
-  var emptyFn = Function.prototype;
-  var aProto = Array.prototype;
   var gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
   var gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
-  var aib, Cfg, docBody, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum, postform, sesStorage, updater;
-  var quotedText = '';
-  var visPosts = 2;
+  var aib, Cfg, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum, postform, sesStorage, updater;
   var topWinZ = 10;
 
 
 
-  var $id = function $id(id) {
+  function $id(id) {
     return doc.getElementById(id);
-  };
-  var $q = function $q(path) {
-    var rootEl = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : docBody;
+  }
+  function $q(path) {
+    var rootEl = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : doc.body;
     return rootEl.querySelector(path);
-  };
-  var $Q = function $Q(path) {
-    var rootEl = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : docBody;
+  }
+  function $Q(path) {
+    var rootEl = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : doc.body;
     return rootEl.querySelectorAll(path);
-  };
-  var $match = function $match(parentEl) {
+  }
+  function $match(parentEl) {
     for (var _len = arguments.length, rules = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
       rules[_key - 1] = arguments[_key];
     }
     return parentEl.split(', ').map(function (val) {
       return val + rules.join(', ' + val);
     }).join(', ');
-  };
+  }
 
 
   function $bBegin(siblingEl, html) {
@@ -7860,7 +7856,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     el.remove();
   }
   function $delAll(path) {
-    var rootEl = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : docBody;
+    var rootEl = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : doc.body;
     rootEl.querySelectorAll(path, rootEl).forEach(function (el) {
       return el.remove();
     });
@@ -7883,7 +7879,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     el.remove();
   }
   function $css(text) {
-    return $bEnd(doc.head, "<style type=\"text/css\">".concat(nav.isSafari && !('flex' in docBody.style) ? text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1') : text, "</style>"));
+    return $bEnd(doc.head, "<style type=\"text/css\">".concat(nav.isSafari && !('flex' in doc.body.style) ? text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1') : text, "</style>"));
   }
   function $createDoc(html) {
     var myDoc = doc.implementation.createHTMLDocument('');
@@ -7920,9 +7916,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   }
 
 
-  var $hasProp = function $hasProp(obj, i) {
+  function $hasProp(obj, i) {
     return Object.prototype.hasOwnProperty.call(obj, i);
-  };
+  }
   function $isEmpty(obj) {
     for (var i in obj) {
       if ($hasProp(obj, i)) {
@@ -7933,9 +7929,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   }
 
 
-  var escapeRegExp = function escapeRegExp(str) {
+  function escapeRegExp(str) {
     return (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
-  };
+  }
 
   function strToRegExp(str, notGlobal) {
     var l = str.lastIndexOf('/');
@@ -7944,28 +7940,28 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   }
 
 
-  var pad2 = function pad2(i) {
+  function pad2(i) {
     return i < 10 ? '0' + i : i;
-  };
-  var arrTags = function arrTags(arr, start, end) {
+  }
+  function arrTags(arr, start, end) {
     return start + arr.join(end + start) + end;
-  };
-  var fixBoardName = function fixBoardName(board) {
+  }
+  function fixBoardName(board) {
     return '/' + (board ? board + '/' : '');
-  };
-  var getFileName = function getFileName(url) {
+  }
+  function getFileName(url) {
     return url.substring(url.lastIndexOf('/') + 1);
-  };
-  var getFileExt = function getFileExt(url) {
+  }
+  function getFileExt(url) {
     return url.substring(url.lastIndexOf('.') + 1);
-  };
-  var cutFileExt = function cutFileExt(fileName) {
+  }
+  function cutFileExt(fileName) {
     return fileName.substring(0, fileName.lastIndexOf('.'));
-  };
+  }
 
-  var prettifySize = function prettifySize(val) {
+  function prettifySize(val) {
     return val > 512 * 1024 * 1024 ? (val / Math.pow(1024, 3)).toFixed(2) + Lng.sizeGByte[lang] : val > 512 * 1024 ? (val / Math.pow(1024, 2)).toFixed(2) + Lng.sizeMByte[lang] : val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] : val.toFixed(2) + Lng.sizeByte[lang];
-  };
+  }
 
   function insertText(el, txt) {
     var scrollTop = el.scrollTop,
@@ -8049,7 +8045,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   function downloadBlob(blob, name) {
     var url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : deWindow.URL.createObjectURL(blob);
-    var link = $bEnd(docBody, "<a href=\"".concat(url, "\" download=\"").concat(name, "\"></a>"));
+    var link = $bEnd(doc.body, "<a href=\"".concat(url, "\" download=\"").concat(name, "\"></a>"));
     link.click();
     setTimeout(function () {
       deWindow.URL.revokeObjectURL(url);
@@ -8674,10 +8670,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         obj[id] = value;
         chrome.storage.sync.set(obj, function () {
           if (chrome.runtime.lastError) {
-            chrome.storage.local.set(obj, emptyFn);
-            chrome.storage.sync.remove(id, emptyFn);
+            chrome.storage.local.set(obj, Function.prototype);
+            chrome.storage.sync.remove(id, Function.prototype);
           } else {
-            chrome.storage.local.remove(id, emptyFn);
+            chrome.storage.local.remove(id, Function.prototype);
           }
           resolve();
         });
@@ -8696,7 +8692,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     } else if (nav.hasOldGM) {
       GM_deleteValue(id);
     } else if (nav.hasWebStorage) {
-      chrome.storage.sync.remove(id, emptyFn);
+      chrome.storage.sync.remove(id, Function.prototype);
     } else if (nav.hasPrestoStorage) {
       prestoStorage.removeItem(id);
     } else {
@@ -8988,7 +8984,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   } else {
                     $popup('updavail', html);
                   }
-                }, emptyFn);
+                }, Function.prototype);
               }
             case 24:
             case "end":
@@ -9447,7 +9443,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     if (temp) {
                       temp.checked = data.hide;
                     }
-                    $hide(docBody);
+                    $hide(doc.body);
                     if (!data.data) {
                       _context4.next = 19;
                       break;
@@ -9472,7 +9468,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       temp.value = '';
                     }
                   case 24:
-                    $show(docBody);
+                    $show(doc.body);
                   case 25:
                   case "end":
                     return _context4.stop();
@@ -9570,7 +9566,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 scrollTo(0, 0);
                 return _context5.abrupt("return");
               case 30:
-                scrollTo(0, docBody.scrollHeight || docBody.offsetHeight);
+                scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight);
                 return _context5.abrupt("return");
               case 32:
                 el.classList.toggle('de-panel-button-active');
@@ -9820,7 +9816,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     _this16._Z = _this16._wStyle.zIndex = ++topWinZ;
                   }
                   ['mouseleave', 'mousemove', 'mouseup'].forEach(function (e) {
-                    return docBody.addEventListener(e, _this16);
+                    return doc.body.addEventListener(e, _this16);
                   });
                   e.preventDefault();
                   return _context6.abrupt("return");
@@ -9839,7 +9835,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   return _context6.abrupt("return");
                 case 26:
                   ['mouseleave', 'mousemove', 'mouseup'].forEach(function (e) {
-                    return docBody.removeEventListener(e, _this16);
+                    return doc.body.removeEventListener(e, _this16);
                   });
                   _context6.next = 29;
                   return CfgSaver.save(name + 'WinX', _this16._X, name + 'WinY', _this16._Y);
@@ -9907,7 +9903,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 case 18:
                   this.win.setAttribute('style', val);
                   ['mousemove', 'mouseup'].forEach(function (e) {
-                    return docBody.addEventListener(e, _this17);
+                    return doc.body.addEventListener(e, _this17);
                   });
                   e.preventDefault();
                   return _context7.abrupt("return");
@@ -9922,7 +9918,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   return _context7.abrupt("return");
                 case 24:
                   ['mousemove', 'mouseup'].forEach(function (e) {
-                    return docBody.removeEventListener(e, _this17);
+                    return doc.body.removeEventListener(e, _this17);
                   });
                   _context7.next = 27;
                   return CfgSaver.save(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
@@ -9979,7 +9975,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         winBody.className = 'de-win-body ' + aib.cReply;
       } else {
         setTimeout(function () {
-          var backColor = getComputedStyle(docBody).getPropertyValue('background-color');
+          var backColor = getComputedStyle(doc.body).getPropertyValue('background-color');
           winBody.style.backgroundColor = backColor !== 'transparent' ? backColor : '#EEE';
         }, 100);
       }
@@ -11488,7 +11484,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   return checkForUpdates(true, data.lastUpd);
                 }).then(function (html) {
                   return $popup('updavail', html);
-                }, emptyFn);
+                }, Function.prototype);
                 return _context16.abrupt("break", 139);
               case 133:
                 showDonateMsg();
@@ -11757,7 +11753,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return "<div id=\"de-cfg-form\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getBox('ajaxPosting', true), "<br>\n\t\t\t").concat(postform.form ? "<div class=\"de-depend\">\n\t\t\t\t".concat(this._getBox('postSameImg'), "<br>\n\t\t\t\t").concat(this._getBox('removeEXIF'), "<br>\n\t\t\t\t").concat(this._getSel('removeFName'), "<br>\n\t\t\t\t").concat(this._getBox('sendErrNotif'), "<br>\n\t\t\t\t").concat(this._getBox('scrAfterRep'), "<br>\n\t\t\t\t").concat(postform.files && !nav.isPresto ? this._getSel('fileInputs') : '', "\n\t\t\t</div>") : '', "\n\t\t\t").concat(postform.form ? this._getSel('addPostForm') + '<br>' : '', "\n\t\t\t").concat(postform.txta ? this._getBox('spacedQuote') + '<br>' : '', "\n\t\t\t").concat(this._getBox('favOnReply'), "<br>\n\t\t\t").concat(postform.subj ? this._getBox('warnSubjTrip') + '<br>' : '', "\n\t\t\t").concat(postform.mail ? "".concat(this._getBox('addSageBtn'), "\n\t\t\t\t").concat(this._getBox('saveSage'), "<br>") : '', "\n\t\t\t").concat(postform.cap ? "".concat(aib.hasAltCaptcha ? "".concat(this._getBox('altCaptcha'), "<br>") : '', "\n\t\t\t\t").concat(!aib.makaba ? "".concat(this._getInp('capUpdTime'), "<br>") : '', "\n\t\t\t\t").concat(this._getSel('captchaLang'), "<br>") : '', "\n\t\t\t").concat(postform.txta ? "".concat(this._getSel('addTextBtns'), "\n\t\t\t\t").concat(!aib._4chan ? this._getBox('txtBtnsLoc') : '', "<br>") : '', "\n\t\t\t").concat(postform.passw ? "".concat(this._getInp('passwValue', false, 9), "\n\t\t\t\t").concat(this._getBox('userPassw'), "<input type=\"button\"") + " id=\"de-cfg-button-pass\" class=\"de-cfg-button\" value=\"".concat(Lng.change[lang], "\"><br>") : '', "\n\t\t\t").concat(postform.name ? "".concat(this._getInp('nameValue', false, 9), "\n\t\t\t\t").concat(this._getBox('userName'), "<br>") : '', "\n\t\t\t").concat(postform.rules || postform.passw || postform.name ? Lng.hide[lang] + (postform.rules ? this._getBox('noBoardRule') : '') + (postform.passw ? this._getBox('noPassword') : '') + (postform.name ? this._getBox('noName') : '') + (postform.subj ? this._getBox('noSubj') : '') : '', "\n\t\t</div>");
     },
     _getCfgCommon: function _getCfgCommon() {
-      return "<div id=\"de-cfg-common\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getSel('scriptStyle'), "<br>\n\t\t\t").concat(this._getBox('userCSS'), "\n\t\t\t<a href=\"").concat(gitWiki, "css-tricks\" class=\"de-abtn\" target=\"_blank\">[?]</a><br>\n\t\t\t").concat('animation' in docBody.style ? this._getBox('animation') + '<br>' : '', "\n\t\t\t").concat(this._getBox('hotKeys'), "\n\t\t\t<input type=\"button\" id=\"de-cfg-button-keys\" class=\"de-cfg-button\" value=\"").concat(Lng.edit[lang], "\">\n\t\t\t<div class=\"de-depend\">").concat(this._getInp('loadPages'), "</div>\n\t\t\t").concat(this._getSel('panelCounter'), "<br>\n\t\t\t").concat(this._getBox('rePageTitle', true), "<br>\n\t\t\t").concat(!localData ? "".concat(this._getBox('inftyScroll'), "<br>\n\t\t\t\t").concat(this._getBox('hideReplies', true), "<br>\n\t\t\t\t").concat(this._getBox('scrollToTop'), "<br>") : '', "\n\t\t\t").concat(this._getBox('saveScroll'), "<br>\n\t\t\t").concat(this._getBox('favFolders'), "<br>\n\t\t\t").concat(this._getSel('favThrOrder'), "<br>\n\t\t\t").concat(this._getBox('favWinOn'), "<br>\n\t\t\t").concat(this._getBox('closePopups'), "\n\t\t</div>");
+      return "<div id=\"de-cfg-common\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getSel('scriptStyle'), "<br>\n\t\t\t").concat(this._getBox('userCSS'), "\n\t\t\t<a href=\"").concat(gitWiki, "css-tricks\" class=\"de-abtn\" target=\"_blank\">[?]</a><br>\n\t\t\t").concat('animation' in doc.body.style ? this._getBox('animation') + '<br>' : '', "\n\t\t\t").concat(this._getBox('hotKeys'), "\n\t\t\t<input type=\"button\" id=\"de-cfg-button-keys\" class=\"de-cfg-button\" value=\"").concat(Lng.edit[lang], "\">\n\t\t\t<div class=\"de-depend\">").concat(this._getInp('loadPages'), "</div>\n\t\t\t").concat(this._getSel('panelCounter'), "<br>\n\t\t\t").concat(this._getBox('rePageTitle', true), "<br>\n\t\t\t").concat(!localData ? "".concat(this._getBox('inftyScroll'), "<br>\n\t\t\t\t").concat(this._getBox('hideReplies', true), "<br>\n\t\t\t\t").concat(this._getBox('scrollToTop'), "<br>") : '', "\n\t\t\t").concat(this._getBox('saveScroll'), "<br>\n\t\t\t").concat(this._getBox('favFolders'), "<br>\n\t\t\t").concat(this._getSel('favThrOrder'), "<br>\n\t\t\t").concat(this._getBox('favWinOn'), "<br>\n\t\t\t").concat(this._getBox('closePopups'), "\n\t\t</div>");
     },
     _getCfgInfo: function _getCfgInfo() {
       var statsTable = this._getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], HiddenThreads.getCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false);
@@ -11910,7 +11906,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.onover = null;
       this.onremove = null;
       this._closeTO = 0;
-      var el = $bEnd(docBody, "<div class=\"".concat(aib.cReply, " de-menu\" style=\"position: ").concat(isFixed ? 'fixed' : 'absolute', "; left: 0px; top: 0px; visibility: hidden;\">").concat(html, "</div>"));
+      var el = $bEnd(doc.body, "<div class=\"".concat(aib.cReply, " de-menu\" style=\"position: ").concat(isFixed ? 'fixed' : 'absolute', "; left: 0px; top: 0px; visibility: hidden;\">").concat(html, "</div>"));
       var cr = parentEl.getBoundingClientRect();
       var style = el.style,
         w = el.offsetWidth,
@@ -12046,14 +12042,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         });
       case 'de-panel-refresh':
         return new Menu(el, fn(Lng.selAjaxPages[lang]), function (el) {
-          return Pages.loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1);
+          return Pages.loadPages(Array.prototype.indexOf.call(el.parentNode.children, el) + 1);
         });
       case 'de-panel-savethr':
         return new Menu(el, fn($q(aib.qPostImg, DelForm.first.el) ? Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]), function (el) {
           if ($id('de-popup-savethr')) {
             return;
           }
-          var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
+          var imgOnly = !!Array.prototype.indexOf.call(el.parentNode.children, el);
           if (ContentLoader.isLoading) {
             $popup('savethr', Lng.loading[lang], true);
             ContentLoader.afterFn = function () {
@@ -12067,7 +12063,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       case 'de-panel-audio-off':
         return new Menu(el, fn(Lng.selAudioNotif[lang]), function (el) {
           updater.enableUpdater();
-          updater.toggleAudio([3e4, 6e4, 12e4, 3e5][aProto.indexOf.call(el.parentNode.children, el)]);
+          updater.toggleAudio([3e4, 6e4, 12e4, 3e5][Array.prototype.indexOf.call(el.parentNode.children, el)]);
           $id('de-panel-audio-off').id = 'de-panel-audio-on';
         });
     }
@@ -12274,7 +12270,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               if (post) {
                 if (post.thr.loadCount !== 0 && post.thr.op.next.count === 1) {
                   var nextThr = post.thr.nextNotHidden;
-                  post.thr.loadPosts(visPosts, !!nextThr);
+                  post.thr.loadPosts(Thread.visPosts, !!nextThr);
                   post = (nextThr || post.thr).op;
                 } else {
                   post.thr.loadPosts('all');
@@ -12691,7 +12687,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               if (imgOnly) {
                 return _this25.getDataFromImg(el).then(function (data) {
                   return tar.addFile(thumbName, data);
-                }, emptyFn);
+                }, Function.prototype);
               }
             }
             return imgOnly ? null : _this25.getDataFromImg(el).then(function (data) {
@@ -13276,7 +13272,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return;
         }
         if (!el) {
-          el = $bEnd(docBody, "<img id=\"de-video-thumb-floated\" src=\"https://i.ytimg.com/vi/".concat(linkEl.videoInfo[1], "/0.jpg\">"));
+          el = $bEnd(doc.body, "<img id=\"de-video-thumb-floated\" src=\"https://i.ytimg.com/vi/".concat(linkEl.videoInfo[1], "/0.jpg\">"));
         }
         var cr = linkEl.getBoundingClientRect();
         var pvHeight = Cfg.YTubeHeigh;
@@ -13325,7 +13321,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         el.innerHTML = "".concat(str, "//vimeo.com/").concat(m[1], "\" target=\"_blank\">") + '<img class="de-video-thumb de-vimeo" src=""></a>';
         $ajax("".concat(aib.protocol, "//vimeo.com/api/v2/video/").concat(m[1], ".json"), null, true).then(function (xhr) {
           el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
-        })["catch"](emptyFn);
+        })["catch"](Function.prototype);
       }
     }], [{
       key: "addPlayer",
@@ -13678,7 +13674,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
       if (nav.hasNewGM) {
         GM.xmlHttpRequest(newParams);
-        cancelFn = emptyFn; 
+        cancelFn = Function.prototype; 
       } else {
         gmxhr = GM_xmlhttpRequest(newParams);
         cancelFn = function cancelFn() {
@@ -15835,6 +15831,7 @@ this.disableSpells();
       this.pArea = [];
       this.pForm = null;
       this.qArea = null;
+      this.quotedText = '';
       this._pBtn = [];
       var qOeForm = 'form[name="oeform"], form[action*="paint"]';
       this.oeForm = oeForm || $q(qOeForm);
@@ -16004,6 +16001,11 @@ this.disableSpells();
         }
       }
     }, {
+      key: "getSelectedText",
+      value: function getSelectedText() {
+        this.quotedText = deWindow.getSelection().toString();
+      }
+    }, {
       key: "handleEvent",
       value: function handleEvent(e) {
         var el = e.target;
@@ -16017,7 +16019,7 @@ this.disableSpells();
         }
         if (e.type === 'mouseover') {
           if (id === 'de-btn-quote') {
-            quotedText = deWindow.getSelection().toString();
+            this.getSelectedText();
           }
           var key = -1;
           if (HotKeys.enabled) {
@@ -16046,8 +16048,8 @@ this.disableSpells();
           end = txtaEl.selectionEnd;
         var quote = Cfg.spacedQuote ? '> ' : '>';
         if (id === 'de-btn-quote') {
-          insertText(txtaEl, quote + (start === end ? quotedText : txtaEl.value.substring(start, end)).replace(/^[\r\n]|[\r\n]+$/g, '').replace(/\n/gm, '\n' + quote) + (quotedText ? '\n' : ''));
-          quotedText = '';
+          insertText(txtaEl, quote + (start === end ? this.quotedText : txtaEl.value.substring(start, end)).replace(/^[\r\n]|[\r\n]+$/g, '').replace(/\n/gm, '\n' + quote) + (this.quotedText ? '\n' : ''));
+          this.quotedText = '';
         } else {
           var scrtop = txtaEl.scrtop,
             value = txtaEl.value;
@@ -16125,7 +16127,7 @@ this.disableSpells();
           this.isQuick = true;
           this.setReply(true, false);
           $q('a', this._pBtn[+this.isBottom]).className = "de-abtn de-parea-btn-".concat(aib.t ? 'reply' : 'thr');
-        } else if (isCloseReply && !quotedText && post.wrap.nextElementSibling === this.qArea) {
+        } else if (isCloseReply && !this.quotedText && post.wrap.nextElementSibling === this.qArea) {
           this.closeReply();
           return;
         }
@@ -16148,7 +16150,7 @@ this.disableSpells();
         var txt = this.txta.value;
         var isOnNewLine = txt === '' || txt.slice(-1) === '\n';
         var link = isNoLink || post.isOp && !Cfg.addOPLink && !aib.t && !isNumClick ? '' : isNumClick ? ">>".concat(pNum).concat(isOnNewLine ? '\n' : '') : (isOnNewLine ? '' : '\n') + (this.lastQuickPNum === pNum && txt.includes('>>' + pNum) ? '' : ">>".concat(pNum, "\n"));
-        var quote = !quotedText ? '' : "".concat(quotedText.replace(/^[\r\n]|[\r\n]+$/g, '').replace(/(^|\n)(.)/gm, "$1>".concat(Cfg.spacedQuote ? ' ' : '', "$2")), "\n");
+        var quote = this.quotedText ? "".concat(this.quotedText.replace(/^[\r\n]|[\r\n]+$/g, '').replace(/(^|\n)(.)/gm, "$1>".concat(Cfg.spacedQuote ? ' ' : '', "$2")), "\n") : '';
         insertText(this.txta, link + quote);
         var winTitle = post.thr.op.title.trim();
         $q('.de-win-title', this.qArea).textContent = (winTitle.length < 28 ? winTitle : "".concat(winTitle.substr(0, 30), "\u2026")) || "#".concat(pNum);
@@ -16386,7 +16388,7 @@ this.disableSpells();
             switch (e.type) {
               case 'mousedown':
                 ['mousemove', 'mouseup'].forEach(function (e) {
-                  return docBody.addEventListener(e, _this47);
+                  return doc.body.addEventListener(e, _this47);
                 });
                 e.preventDefault();
                 return;
@@ -16399,7 +16401,7 @@ this.disableSpells();
                 }
               default:
                 ['mousemove', 'mouseup'].forEach(function (e) {
-                  return docBody.removeEventListener(e, _this47);
+                  return doc.body.removeEventListener(e, _this47);
                 });
                 CfgSaver.save('textaWidth', parseInt(this._elStyle.width, 10), 'textaHeight', parseInt(this._elStyle.height, 10));
             }
@@ -17321,7 +17323,7 @@ this.disableSpells();
     _createClass(Files, [{
       key: "rarInput",
       get: function get() {
-        var value = $bEnd(docBody, '<input type="file" style="display: none;">');
+        var value = $bEnd(doc.body, '<input type="file" style="display: none;">');
         Object.defineProperty(this, 'rarInput', {
           value: value
         });
@@ -18365,9 +18367,9 @@ this.disableSpells();
                   e.preventDefault();
                   e.stopPropagation();
                   if (!Cfg.showRepBtn) {
-                    quotedText = deWindow.getSelection().toString();
+                    postform.getSelectedText();
                     postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
-                    quotedText = '';
+                    postform.quotedText = '';
                   } else if (postform.isQuick || aib.t && postform.isHidden) {
                     postform.showQuickReply(isPview ? Pview.topParent : this, this.num, false, true);
                   } else if (aib.t) {
@@ -18446,12 +18448,12 @@ this.disableSpells();
               this.setUserVisib(!this.isHidden);
               return;
             case 'de-btn-img':
-              quotedText = aib.getImgRealName(aib.getImgWrap(el));
+              postform.quotedText = aib.getImgRealName(aib.getImgWrap(el));
               postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
               return;
             case 'de-btn-reply':
               postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
-              quotedText = '';
+              postform.quotedText = '';
               return;
             case 'de-btn-sage':
 Spells.addSpell(9, '', false);
@@ -18507,7 +18509,7 @@ Spells.addSpell(9, '', false);
               var title = this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang];
               if (Cfg.showRepBtn === 1) {
                 if (!isOutEvent) {
-                  quotedText = deWindow.getSelection().toString();
+                  postform.getSelectedText();
                 }
                 this._addMenu(el, isOutEvent, "<span class=\"de-menu-item\" info=\"post-reply\">".concat(title, "</span>") + (aib.reportForm ? "<span class=\"de-menu-item\" info=\"post-report\">".concat(this.num === this.thr.num ? Lng.reportThr[lang] : Lng.reportPost[lang], "</span>") : '') + (Cfg.markMyPosts || Cfg.markMyLinks ? "<span class=\"de-menu-item\" info=\"post-markmy\">".concat(MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang], "</span>") : ''));
               }
@@ -18776,7 +18778,7 @@ Spells.addSpell(9, '', false);
                 case 75:
                   isPview = this instanceof Pview;
                   postform.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
-                  quotedText = '';
+                  postform.quotedText = '';
                   return _context39.abrupt("return");
                 case 79:
                   aib.reportForm(num, this.thr.num);
@@ -18829,7 +18831,7 @@ Spells.addSpell(9, '', false);
           if (maybeSpells.hasValue) {
             maybeSpells.value.endSpells();
           }
-        }, emptyFn);
+        }, Function.prototype);
       }
     }, {
       key: "_showMenu",
@@ -20157,7 +20159,7 @@ Spells.addSpell(9, '', false);
   var ImagesNavigBtns = function () {
     function ImagesNavigBtns(viewerObj) {
       _classCallCheck(this, ImagesNavigBtns);
-      var btns = $bEnd(docBody, "<div style=\"display: none;\">\n\t\t\t<div id=\"de-img-btn-prev\" class=\"de-img-btn\" de-title=\"".concat(Lng.prevImg[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-arrow\"/></svg></div>\n\t\t\t<div id=\"de-img-btn-next\" class=\"de-img-btn\" de-title=\"").concat(Lng.nextImg[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-arrow\"/></svg></div>\n\t\t\t<div id=\"de-img-btn-auto\" class=\"de-img-btn de-img-btn-none\" title=\"").concat(Lng.autoPlayOn[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-auto\"/></svg></div>\n\t\t\t<div id=\"de-img-btn-rotate\" class=\"de-img-btn\" title=\"").concat(Lng.rotateImg[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-rotate\"/></svg></div></div>"));
+      var btns = $bEnd(doc.body, "<div style=\"display: none;\">\n\t\t\t<div id=\"de-img-btn-prev\" class=\"de-img-btn\" de-title=\"".concat(Lng.prevImg[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-arrow\"/></svg></div>\n\t\t\t<div id=\"de-img-btn-next\" class=\"de-img-btn\" de-title=\"").concat(Lng.nextImg[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-arrow\"/></svg></div>\n\t\t\t<div id=\"de-img-btn-auto\" class=\"de-img-btn de-img-btn-none\" title=\"").concat(Lng.autoPlayOn[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-auto\"/></svg></div>\n\t\t\t<div id=\"de-img-btn-rotate\" class=\"de-img-btn\" title=\"").concat(Lng.rotateImg[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-rotate\"/></svg></div></div>"));
       var _ref39 = _toConsumableArray(btns.children);
       this.prevBtn = _ref39[0];
       this.nextBtn = _ref39[1];
@@ -20300,7 +20302,7 @@ Spells.addSpell(9, '', false);
             this._oldX = e.clientX;
             this._oldY = e.clientY;
             ['mousemove', 'mouseup'].forEach(function (e) {
-              return docBody.addEventListener(e, _this78, true);
+              return doc.body.addEventListener(e, _this78, true);
             });
             break;
           case 'mousemove':
@@ -20320,7 +20322,7 @@ Spells.addSpell(9, '', false);
             }
           case 'mouseup':
             ['mousemove', 'mouseup'].forEach(function (e) {
-              return docBody.removeEventListener(e, _this78, true);
+              return doc.body.removeEventListener(e, _this78, true);
             });
             return;
           case 'click':
@@ -21008,7 +21010,7 @@ Spells.addSpell(9, '', false);
         srcBtnEl.addEventListener('mouseover', function () {
           return srcBtnEl.odelay = setTimeout(function () {
             var menuHtml = !_this83.isVideo ? Menu.getMenuImg(srcBtnEl) : Menu.getMenuImg(srcBtnEl, true) + "<span class=\"de-menu-item de-menu-getframe\">".concat(Lng.getFrameLinks[lang], "</span>");
-            new Menu(srcBtnEl, menuHtml, !_this83.isVideo ? emptyFn : function (optiontEl) {
+            new Menu(srcBtnEl, menuHtml, !_this83.isVideo ? Function.prototype : function (optiontEl) {
               if (!optiontEl.classList.contains('de-menu-getframe')) {
                 return;
               }
@@ -21043,7 +21045,7 @@ Spells.addSpell(9, '', false);
                 }, function () {
                   return $popup('upload', Lng.errSaucenao[lang] + frameLinkHtml);
                 });
-              }, emptyFn);
+              }, Function.prototype);
             });
           }, Cfg.linksOver);
         });
@@ -21301,7 +21303,7 @@ Spells.addSpell(9, '', false);
       return value;
     },
     get _workers() {
-      var value = new WorkerPool(4, this._genImgHash, emptyFn);
+      var value = new WorkerPool(4, this._genImgHash, Function.prototype);
       Object.defineProperty(this, '_workers', {
         value: value,
         configurable: true
@@ -22313,7 +22315,7 @@ Spells.addSpell(9, '', false);
       }
       this.last = lastPost;
       el.setAttribute('de-thread', null);
-      visPosts = Math.max(visPosts, len);
+      Thread.visPosts = Math.max(Thread.visPosts, len);
       if (localData) {
         return;
       }
@@ -22433,7 +22435,7 @@ Spells.addSpell(9, '', false);
               break;
             case 'de-thr-collapse':
             case 'de-thr-collapse-link':
-              this.loadPosts(visPosts, true);
+              this.loadPosts(Thread.visPosts, true);
               break;
             case 'de-thr-updater':
             case 'de-thr-updater-link':
@@ -22450,7 +22452,7 @@ Spells.addSpell(9, '', false);
           switch (el.classList[0]) {
             case 'de-btn-reply':
               this.btns.title = Lng.replyToThr[lang];
-              quotedText = deWindow.getSelection().toString();
+              postform.getSelectedText();
               return;
             case 'de-btn-hide':
             case 'de-btn-hide-user':
@@ -22739,7 +22741,7 @@ Spells.addSpell(9, '', false);
         if (!$q('.de-thr-collapse', btns)) {
           btns.insertAdjacentHTML('beforeend', "<span class=\"de-thr-collapse\"> [<a class=\"de-thr-collapse-link de-abtn\" href=\"".concat(aib.getThrUrl(aib.b, this.num), "\"></a>]</span>"));
         }
-        if (needToShow > visPosts) {
+        if (needToShow > Thread.visPosts) {
           thrNavPanel.addThr(this);
           btns.lastChild.style.display = 'initial';
         } else {
@@ -22919,6 +22921,7 @@ Spells.addSpell(9, '', false);
     }]);
     return Thread;
   }();
+  Thread.visPosts = 2;
   var thrNavPanel = {
     addThr: function addThr(thr) {
       this._thrs.add(thr.el);
@@ -22950,7 +22953,7 @@ Spells.addSpell(9, '', false);
     },
     initThrNav: function initThrNav() {
       var _this90 = this;
-      var el = $bEnd(docBody, "\n\t\t<div id=\"de-thr-navpanel\" class=\"de-thr-navpanel-hidden\" style=\"display: none;\">\n\t\t\t<svg id=\"de-thr-navarrow\"><use xlink:href=\"#de-symbol-thr-nav-arrow\"/></svg>\n\t\t\t<div id=\"de-thr-navup\">\n\t\t\t\t<svg viewBox=\"0 0 24 24\"><use xlink:href=\"#de-symbol-thr-nav-up\"/></svg>\n\t\t\t</div>\n\t\t\t<div id=\"de-thr-navdown\">\n\t\t\t\t<svg viewBox=\"0 0 24 24\"><use xlink:href=\"#de-symbol-thr-nav-down\"/></svg>\n\t\t\t</div>\n\t\t</div>");
+      var el = $bEnd(doc.body, "\n\t\t<div id=\"de-thr-navpanel\" class=\"de-thr-navpanel-hidden\" style=\"display: none;\">\n\t\t\t<svg id=\"de-thr-navarrow\"><use xlink:href=\"#de-symbol-thr-nav-arrow\"/></svg>\n\t\t\t<div id=\"de-thr-navup\">\n\t\t\t\t<svg viewBox=\"0 0 24 24\"><use xlink:href=\"#de-symbol-thr-nav-up\"/></svg>\n\t\t\t</div>\n\t\t\t<div id=\"de-thr-navdown\">\n\t\t\t\t<svg viewBox=\"0 0 24 24\"><use xlink:href=\"#de-symbol-thr-nav-down\"/></svg>\n\t\t\t</div>\n\t\t</div>");
       ['mouseover', 'mouseout', 'click'].forEach(function (e) {
         return el.addEventListener(e, _this90, true);
       });
@@ -23989,7 +23992,7 @@ Spells.addSpell(9, '', false);
         var value = doc.compatMode && doc.compatMode === 'CSS1Compat' ? function () {
           return doc.documentElement.clientHeight;
         } : function () {
-          return docBody.clientHeight;
+          return doc.body.clientHeight;
         };
         Object.defineProperty(this, 'viewportHeight', {
           value: value
@@ -24000,7 +24003,7 @@ Spells.addSpell(9, '', false);
         var value = doc.compatMode && doc.compatMode === 'CSS1Compat' ? function () {
           return doc.documentElement.clientWidth;
         } : function () {
-          return docBody.clientWidth;
+          return doc.body.clientWidth;
         };
         Object.defineProperty(this, 'viewportWidth', {
           value: value
@@ -24235,7 +24238,7 @@ Spells.addSpell(9, '', false);
       key: "lastPage",
       get: function get() {
         var el = $q(this.qPages);
-        var value = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
+        var value = el && +Array.prototype.pop.call(el.textContent.match(/\d+/g) || []) || 0;
         if (this.page === value + 1) {
           value++;
         }
@@ -25337,7 +25340,7 @@ Spells.addSpell(9, '', false);
           defaultCfg.ajaxUpdThr = 0;
           var el = $q('.search_box');
           if (el) {
-            docBody.append(el);
+            doc.body.append(el);
           }
           return false;
         }
@@ -26768,7 +26771,7 @@ Spells.addSpell(9, '', false);
           var _this129 = this;
           img.onload = img.onerror = function () {
             if (!(img.naturalHeight + img.naturalWidth)) {
-              _this129.stormWallHelper(url, null, emptyFn, function () {
+              _this129.stormWallHelper(url, null, Function.prototype, function () {
                 img.src = '';
                 img.src = url;
               });
@@ -27591,7 +27594,7 @@ Spells.addSpell(9, '', false);
 
 
   function addSVGIcons() {
-    docBody.insertAdjacentHTML('beforeend', "\n\t<div id=\"de-svg-icons\">\n\t<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n\t<defs>\n\t\t<linearGradient id=\"de-btn-back-gradient\" x1=\"50%\" y1=\"0%\" y2=\"100%\" x2=\"50%\">\n\t\t\t<stop offset=\"0%\" stop-color=\"#A0A0A0\"/>\n\t\t\t<stop offset=\"50%\" stop-color=\"#505050\"/>\n\t\t\t<stop offset=\"100%\" stop-color=\"#A0A0A0\"/>\n\t\t</linearGradient>\n\t\t<linearGradient id=\"de-file-del-gradient\" x1=\"50%\" y1=\"10%\" x2=\"50%\" y2=\"90%\">\n\t\t\t<stop offset=\"0\" stop-color=\"#fbd\"/>\n\t\t\t<stop offset=\"50%\" stop-color=\"#f30\"/>\n\t\t</linearGradient>\n\t</defs>\n\n\t<!-- POST ICONS -->\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-post-back\">\n\t\t<path class=\"de-post-btns-back\" d=\"M4 1Q1 1 1 4v8q0 3 3 3h8q3 0 3-3V4q0-3-3-3z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-post-hide\">\n\t\t<use class=\"de-post-btns-back\" xlink:href=\"#de-symbol-post-back\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2.5\" d=\"M4.5 11.5l7-7M11.5 11.5l-7-7\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-post-unhide\">\n\t\t<use class=\"de-post-btns-back\" xlink:href=\"#de-symbol-post-back\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2\" d=\"M8 4v8M4 8h8\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-post-reply\">\n\t\t<use class=\"de-post-btns-back\" xlink:href=\"#de-symbol-post-back\"/>\n\t\t<path class=\"de-svg-fill\" d=\"M5 11c0 .8.6 1.2 1.3.7l5-3c.6-.4.6-1 0-1.5l-5-3C5.6 4 5 4.3 5 5v6z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-post-expthr\">\n\t\t<use class=\"de-post-btns-back\" xlink:href=\"#de-symbol-post-back\"/>\n\t\t<path class=\"de-svg-fill\" d=\"M4.5 6L8 3l3.5 3H9.25v4h2.25L8 13l-3.5-3h2.25V6z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-post-fav\">\n\t\t<use class=\"de-post-btns-back\" xlink:href=\"#de-symbol-post-back\"/>\n\t\t<path class=\"de-svg-fill\" d=\"M8 3l1.5 3 3.5.5-2.5 2.2 1 3.8-3.5-2-3.5 2 1-3.8L3 6.5 6.5 6 8 3z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-post-stick\">\n\t\t<use class=\"de-post-btns-back\" xlink:href=\"#de-symbol-post-back\"/>\n\t\t<path class=\"de-svg-fill\" d=\"M5 5h6v6H5z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-post-sage\">\n\t\t<use class=\"de-post-btns-back\" xlink:href=\"#de-symbol-post-back\"/>\n\t\t<path class=\"de-svg-fill\" d=\"M4 9h8l-4 4.5zm2-6h4v1H6zm0 2h4v1H6zm0 2h4v1H6z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-post-img\">\n\t\t<use class=\"de-post-btns-back\" xlink:href=\"#de-symbol-post-back\"/>\n\t\t<circle class=\"de-svg-stroke\" stroke-width=\"2\" cx=\"7\" cy=\"7\" r=\"2.5\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2\" d=\"M9 9l3 3\"/>\n\t</symbol>\n\n\t<!-- FILE ICONS -->\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-file-del\">\n\t\t<path fill=\"url(#de-file-del-gradient)\" stroke=\"#ca2900\" d=\"M4 1.3l4 4 4-4L14.8 4l-4 4 4 4-2.8 2.8-4-4-4 4L1.3 12l4-4-4-4L4 1.3z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" width=\"16\" height=\"16\" id=\"de-symbol-file-rar\">\n\t\t<path stroke=\"#07ac07\" stroke-width=\"2\" d=\"M3 13h13\"/>\n\t\t<path stroke=\"#03043f\" stroke-width=\"4\" d=\"M3 10h13\"/>\n\t\t<path stroke=\"#cc5dc1\" stroke-width=\"2\" d=\"M3 7h13\"/>\n\t\t<path fill=\"#ccd0db\" d=\"M3 14l-3-3V3l3 3v8z\"/>\n\t\t<path fill=\"#666\" d=\"M3 5L0 2v1l3 3V5zm0 3L0 5v1l3 3V8zm0 3L0 8v1l3 3v-1zm0 3l-3-3v1l3 3v-1z\"/>\n\t\t<path stroke=\"#103cef\" stroke-width=\"2\" d=\"M3 10h13\"/>\n\t\t<path stroke=\"#294f1d\" d=\"M3 14.5h13\"/>\n\t\t<path fill=\"#994a95\" d=\"M13 2H0l3 3h13l-3-3z\"/>\n\t\t<path stroke=\"#7C467a\" d=\"M3 5.5h13\"/>\n\t\t<path stroke=\"#513400\" stroke-width=\"2\" d=\"M9.5 15V5\"/>\n\t\t<path fill=\"#513400\" d=\"M10.5 5l-3-3h-2l3 3h2z\"/>\n\t\t<path stroke=\"#ceab00\" stroke-width=\"4\" d=\"M7 10h5\"/>\n\t\t<path fill=\"none\" stroke=\"#222\" d=\"M8.5 9v1.5h2V9\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-file-ren\">\n\t\t<circle fill=\"#ffe888\" stroke=\"#333\" stroke-width=\".75\" cx=\"6\" cy=\"14\" r=\"1.5\"/>\n\t\t<circle fill=\"#ffe888\" stroke=\"#333\" stroke-width=\".75\" cx=\"10\" cy=\"14\" r=\"1.5\"/>\n\t\t<circle fill=\"#ffe888\" stroke=\"#333\" stroke-width=\".75\" cx=\"14\" cy=\"14\" r=\"1.5\"/>\n\t\t<path fill=\"#fcb45e\" stroke=\"#3a2200\" stroke-width=\".75\" d=\"M2 8L9.5.5l1.8 1.8-7.5 7.5L2 8z\"/>\n\t\t<path fill=\"#ff8a33\" stroke=\"#3a2200\" stroke-width=\".75\" d=\"M3.8 9.8l7.5-7.5L13 4l-7.5 7.5-1.7-1.7z\"/>\n\t\t<path fill=\"#ffe888\" stroke=\"#333\" stroke-width=\".75\" d=\"M2 8l-.5.5L1 9v3.5h3.5l1-1-1.7-1.7L2 8z\"/>\n\t\t<path stroke=\"#333\" d=\"M1 12.5L2.5 11\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-file-txt\">\n\t\t<circle fill=\"#2cabe1\" cx=\"8\" cy=\"8\" r=\"7.5\"/>\n\t\t<line stroke=\"#fff\" stroke-width=\"2\" x1=\"8\" y1=\"3\" x2=\"8\" y2=\"13\"/>\n\t\t<line stroke=\"#fff\" stroke-width=\"2\" x1=\"3\" y1=\"8\" x2=\"13\" y2=\"8\"/>\n\t</symbol>\n\n\t<!-- WINDOW ICONS -->\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-win-arrow\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"3.5\" d=\"M8 13V6\"/>\n\t\t<path class=\"de-svg-fill\"  d=\"M3.5 7h9L8 2.5 3.5 7z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-win-close\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2.5\" d=\"M3.5 3.5l9 9m-9 0l9-9\"/>\n\t</symbol>\n\n\t<!-- THREAD NAVIGATION ICONS -->\n\t<symbol viewBox=\"0 0 7 7\" id=\"de-symbol-thr-nav-arrow\">\n\t\t<path class=\"de-svg-fill\" d=\"M6 3.5L2 0v7z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 24 24\" id=\"de-symbol-thr-nav-up\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"3\" d=\"M3 22.5l9-9 9 9M3 13.5l9-9 9 9\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 24 24\" id=\"de-symbol-thr-nav-down\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"3\" d=\"M3 11.5l9 9 9-9M3 2.5l9 9 9-9\"/>\n\t</symbol>\n\n\t<!-- IMAGE BUTTON ICONS -->\n\t<symbol viewBox=\"0 0 32 32\" id=\"de-symbol-img-btn-arrow\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"8\" d=\"M0 16h20\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"9\" d=\"M13 3l16 16M13 29l16-16\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 32 32\" id=\"de-symbol-img-btn-auto\">\n\t\t<path class=\"de-svg-fill\" d=\"M13.2 26.6c-3.1 2.4-5.9.5-5.9-3.3V8.7c0-3.8 2.8-5.6 6.1-3.3l12.5 7.1c3.1 1.9 3.1 5.2 0 7.1 0-.1-12.7 7-12.7 7z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 32 32\" id=\"de-symbol-img-btn-rotate\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"7\" d=\"M16 4c6.6 0 12 5.4 12 12s-5.4 12-12 12S4 22.6 4 16\"/>\n\t\t<path class=\"de-svg-fill\" d=\"M13.5 19.2L0 27V11.4z\"/>\n\t</symbol>\n\n\t<!-- MAIN PANEL -->\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-logo\">\n\t\t<path class=\"de-svg-fill\" d=\"M22 5h-10v16h4v-14h6z\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"3\" d=\"M22 20.5H12c-2.8 0-5.7 0-5.7-4s2.8-4 5.7-4H21\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-cfg\">\n\t\t<circle class=\"de-svg-stroke\" stroke-width=\"3\" cx=\"12.5\" cy=\"12.5\" r=\"6\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"3\" d=\"M12.5 6.5v-3M18.5 12.5h3M12.5 18.5v3M6.5 12.5h-3M16.7 8.3L19 6M16.7 16.7L19 19M8.3 16.7L6 19M8.3 8.3L6 6\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-hid\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"4\" d=\"M6 19L19 6M6 6l13 13\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-fav\">\n\t\t<path class=\"de-svg-fill\" d=\"M12.5 3.5l2.5 6 6.5.5-5 4.2 2 6.8-6-4-6 4 2-6.8-5-4.2 6.5-.5 2.5-6z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-vid\">\n\t\t<path class=\"de-svg-fill\" d=\"M12.5 4a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zm-1 13c-1.3 1-2.5.2-2.5-1.4V9.4C9 7.8 10.2 7 11.6 8l5.3 3c1.3.8 1.3 2.2 0 3l-5.4 3z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-refresh\">\n\t\t<path class=\"de-svg-fill\" d=\"M14 4v4.3a4.5 4.5 0 1 1-3 0V4a8.5 8.5 0 1 0 3 0z\"/>\n\t\t<path class=\"de-svg-fill\" d=\"M13 11V4h7\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-arrow\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"5\" d=\"M4 12.5h12\"/>\n\t\t<path class=\"de-svg-fill\" d=\"M14 19V6l7 6.5\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-expimg\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2\" d=\"M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z\"/>\n\t\t<path stroke-width=\"3\" d=\"M8 12.5h9\"/>\n\t\t<path d=\"M10 8v9l-5-4.5M15 17V8l5 4.5\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-maskimg\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2\" d=\"M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z\"/>\n\t\t<path d=\"M5 20L20 5M5 15.5L15.5 5M5 11l6-6M20 9.5L9.5 20M20 14l-6 6\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-preimg\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2\" d=\"M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z\"/>\n\t\t<path stroke-width=\"3\" d=\"M12.5 17V9\"/>\n\t\t<path d=\"M8 15h9l-4.5 5\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-savethr\">\n\t\t<path class=\"de-svg-fill\" d=\"M18 4h-1v6H8V4H6C5 4 4 5 4 6v13c0 1 1 2 2 2h13c1 0 2-1 2-2V7l-3-3zM6 20v-8h13v8H6z\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"3\" d=\"M13.5 9V4\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-upd\">\n\t\t<circle cx=\"12.5\" cy=\"10.8\" r=\"4\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2\" stroke-linejoin=\"round\" d=\"M4.5 12q8-10,16 0q-8 10,-16 0z\"/>\n\t\t<path class=\"de-svg-stroke\" d=\"M11 7L9.8 5M14 7l1.2-2M11 17l-1.2 2m4.2-2l1.2 2M7 8.5L5.3 6.8M7 15.5l-1.7 1.7M18 8.5l1.7-1.7M18 15.5l1.7 1.7\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-audio-off\">\n\t\t<path class=\"de-svg-fill\" d=\"M13 21V4L8 9H4v7h4l5 5z\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2\" d=\"M15 9.5l6 6m0-6l-6 6\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-audio-on\">\n\t\t<path class=\"de-svg-fill\" d=\"M13 21V4L8 9H4v7h4z\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2\" d=\"M15.5 7.5c1.7 3.3 1.7 6.7 0 10m3-12.5c3 5 3 10 0 15\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-catalog\">\n\t\t<path class=\"de-svg-fill\" d=\"M5 5h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zM9 5h3v3H9zM5 9h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zM9 9h3v3H9zm-4 4h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zm-4 0h3v3H9zm-4 4h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zm-4 0h3v3H9z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-enable\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"3\" d=\"M12.5 4v8\"/>\n\t\t<path class=\"de-svg-fill\" d=\"M16 4.8v4a5 5 0 0 1-3.5 8.7A5 5 0 0 1 9 9V4.7a8.5 8.5 0 1 0 7 0z\"/>\n\t</symbol>\n\n\t<!-- MARKUP BUTTONS -->\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-back\">\n\t\t<path class=\"de-markup-back\" stroke-width=\"2\" d=\"M6 1q-5 0,-5 5v10q0 5,5 5h11q5 0,5 -5v-10q0 -5,-5-5z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-bold\">\n\t\t<use xlink:href=\"#de-symbol-markup-back\"/>\n\t\t<text x=\"5.5\" y=\"17\" style=\"font-family: sans-serif; font-size: 17px; font-weight: 800;\">B</text>\n\t</symbol>\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-italic\">\n\t\t<use xlink:href=\"#de-symbol-markup-back\"/>\n\t\t<text x=\"8\" y=\"17\" style=\"font-family: sans-serif; font-size: 17px; font-weight: 600; font-style: italic;\">i</text>\n\t</symbol>\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-under\">\n\t\t<use xlink:href=\"#de-symbol-markup-back\"/>\n\t\t<text x=\"6\" y=\"15\" width=\"20\" style=\"font-family: sans-serif; font-size: 17px; font-weight: 600;\">u</text>\n\t\t<path stroke=\"#444\" stroke-width=\"1.5\" d=\"M6 17H17.5\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-strike\">\n\t\t<use xlink:href=\"#de-symbol-markup-back\"/>\n\t\t<text x=\"4\" y=\"17\" style=\"font-family: sans-serif; font-size: 22px; font-weight: 600; font-style: italic;\">s</text>\n\t\t<path stroke=\"#444\" d=\"M4 11H19\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-spoil\">\n\t\t<use xlink:href=\"#de-symbol-markup-back\"/>\n\t\t<path stroke=\"#666\" stroke-width=\"10\" d=\"M4 11H19\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-code\">\n\t\t<use xlink:href=\"#de-symbol-markup-back\"/>\n\t\t<text x=\"5\" y=\"17\" style=\"font-family: 'Lucida Console', monospace; font-size: 18px; font-weight: 600;\">C</text>\n\t</symbol>\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-sup\">\n\t\t<use xlink:href=\"#de-symbol-markup-back\"/>\n\t\t<text x=\"4\" y=\"15\" style=\"font-family: sans-serif; font-size: 16px; font-weight: 600;\">x</text>\n\t\t<text x=\"14\" y=\"10\" style=\"font-family: sans-serif; font-size: 8px; font-weight: 600;\">2</text>\n\t</symbol>\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-sub\">\n\t\t<use xlink:href=\"#de-symbol-markup-back\"/>\n\t\t<text x=\"4\" y=\"15\" style=\"font-family: sans-serif; font-size: 16px; font-weight: 600;\">x</text>\n\t\t<text x=\"14\" y=\"17\" style=\"font-family: sans-serif; font-size: 8px; font-weight: 600;\">2</text>\n\t</symbol>\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-quote\">\n\t\t<use xlink:href=\"#de-symbol-markup-back\"/>\n\t\t<text x=\"6\" y=\"18\" style=\"font-family: sans-serif; font-size: 20px; font-weight: 600;\">&gt;</text>\n\t</symbol>\n\n\t<!-- OTHER -->\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-wait\">\n\t\t<circle fill=\"#929087\" cx=\"8\" cy=\"2\" r=\"2\"/>\n\t\t<circle fill=\"#C5C2BA\" cx=\"8\" cy=\"14\" r=\"2\"/>\n\t\t<circle fill=\"#ACAAA0\" cx=\"2\" cy=\"8\" r=\"2\"/>\n\t\t<circle fill=\"#79766C\" cx=\"14\" cy=\"8\" r=\"2\"/>\n\t\t<circle fill=\"#D2CFC6\" cx=\"12.25\" cy=\"12.25\" r=\"2\"/>\n\t\t<circle fill=\"#9F9C93\" cx=\"3.75\" cy=\"3.75\" r=\"2\"/>\n\t\t<circle fill=\"#B9B6AE\" cx=\"3.75\" cy=\"12.25\" r=\"2\"/>\n\t\t<circle fill=\"#868379\" cx=\"12.25\" cy=\"3.75\" r=\"2\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-closed\">\n\t\t<image display=\"inline\" width=\"16\" height=\"16\" xlink:href=\"data:image/gif;base64,R0lGODlhEAAQAKIAAP3rqPPOd+y6V+WmN+Dg4M7OzmZmZv///yH5BAEAAAcALAAAAAAQABAAAANCeLrWvZARUqqJkjiLj9FMcWHf6IldGZqM4zqRAcw0zXpAoO/6LfeNnS8XcAhjAIHSoFwim0wockCtUodWq+/1UiQAADs=\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-unavail\">\n\t\t<circle class=\"de-svg-stroke\" fill=\"none\" stroke-width=\"2\" cx=\"8\" cy=\"8\" r=\"5\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2\" d=\"M4 4l8 8\"/>\n\t</symbol>\n\t</svg>\n\t</div>");
+    doc.body.insertAdjacentHTML('beforeend', "\n\t<div id=\"de-svg-icons\">\n\t<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n\t<defs>\n\t\t<linearGradient id=\"de-btn-back-gradient\" x1=\"50%\" y1=\"0%\" y2=\"100%\" x2=\"50%\">\n\t\t\t<stop offset=\"0%\" stop-color=\"#A0A0A0\"/>\n\t\t\t<stop offset=\"50%\" stop-color=\"#505050\"/>\n\t\t\t<stop offset=\"100%\" stop-color=\"#A0A0A0\"/>\n\t\t</linearGradient>\n\t\t<linearGradient id=\"de-file-del-gradient\" x1=\"50%\" y1=\"10%\" x2=\"50%\" y2=\"90%\">\n\t\t\t<stop offset=\"0\" stop-color=\"#fbd\"/>\n\t\t\t<stop offset=\"50%\" stop-color=\"#f30\"/>\n\t\t</linearGradient>\n\t</defs>\n\n\t<!-- POST ICONS -->\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-post-back\">\n\t\t<path class=\"de-post-btns-back\" d=\"M4 1Q1 1 1 4v8q0 3 3 3h8q3 0 3-3V4q0-3-3-3z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-post-hide\">\n\t\t<use class=\"de-post-btns-back\" xlink:href=\"#de-symbol-post-back\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2.5\" d=\"M4.5 11.5l7-7M11.5 11.5l-7-7\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-post-unhide\">\n\t\t<use class=\"de-post-btns-back\" xlink:href=\"#de-symbol-post-back\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2\" d=\"M8 4v8M4 8h8\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-post-reply\">\n\t\t<use class=\"de-post-btns-back\" xlink:href=\"#de-symbol-post-back\"/>\n\t\t<path class=\"de-svg-fill\" d=\"M5 11c0 .8.6 1.2 1.3.7l5-3c.6-.4.6-1 0-1.5l-5-3C5.6 4 5 4.3 5 5v6z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-post-expthr\">\n\t\t<use class=\"de-post-btns-back\" xlink:href=\"#de-symbol-post-back\"/>\n\t\t<path class=\"de-svg-fill\" d=\"M4.5 6L8 3l3.5 3H9.25v4h2.25L8 13l-3.5-3h2.25V6z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-post-fav\">\n\t\t<use class=\"de-post-btns-back\" xlink:href=\"#de-symbol-post-back\"/>\n\t\t<path class=\"de-svg-fill\" d=\"M8 3l1.5 3 3.5.5-2.5 2.2 1 3.8-3.5-2-3.5 2 1-3.8L3 6.5 6.5 6 8 3z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-post-stick\">\n\t\t<use class=\"de-post-btns-back\" xlink:href=\"#de-symbol-post-back\"/>\n\t\t<path class=\"de-svg-fill\" d=\"M5 5h6v6H5z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-post-sage\">\n\t\t<use class=\"de-post-btns-back\" xlink:href=\"#de-symbol-post-back\"/>\n\t\t<path class=\"de-svg-fill\" d=\"M4 9h8l-4 4.5zm2-6h4v1H6zm0 2h4v1H6zm0 2h4v1H6z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-post-img\">\n\t\t<use class=\"de-post-btns-back\" xlink:href=\"#de-symbol-post-back\"/>\n\t\t<circle class=\"de-svg-stroke\" stroke-width=\"2\" cx=\"7\" cy=\"7\" r=\"2.5\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2\" d=\"M9 9l3 3\"/>\n\t</symbol>\n\n\t<!-- FILE ICONS -->\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-file-del\">\n\t\t<path fill=\"url(#de-file-del-gradient)\" stroke=\"#ca2900\" d=\"M4 1.3l4 4 4-4L14.8 4l-4 4 4 4-2.8 2.8-4-4-4 4L1.3 12l4-4-4-4L4 1.3z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" width=\"16\" height=\"16\" id=\"de-symbol-file-rar\">\n\t\t<path stroke=\"#07ac07\" stroke-width=\"2\" d=\"M3 13h13\"/>\n\t\t<path stroke=\"#03043f\" stroke-width=\"4\" d=\"M3 10h13\"/>\n\t\t<path stroke=\"#cc5dc1\" stroke-width=\"2\" d=\"M3 7h13\"/>\n\t\t<path fill=\"#ccd0db\" d=\"M3 14l-3-3V3l3 3v8z\"/>\n\t\t<path fill=\"#666\" d=\"M3 5L0 2v1l3 3V5zm0 3L0 5v1l3 3V8zm0 3L0 8v1l3 3v-1zm0 3l-3-3v1l3 3v-1z\"/>\n\t\t<path stroke=\"#103cef\" stroke-width=\"2\" d=\"M3 10h13\"/>\n\t\t<path stroke=\"#294f1d\" d=\"M3 14.5h13\"/>\n\t\t<path fill=\"#994a95\" d=\"M13 2H0l3 3h13l-3-3z\"/>\n\t\t<path stroke=\"#7C467a\" d=\"M3 5.5h13\"/>\n\t\t<path stroke=\"#513400\" stroke-width=\"2\" d=\"M9.5 15V5\"/>\n\t\t<path fill=\"#513400\" d=\"M10.5 5l-3-3h-2l3 3h2z\"/>\n\t\t<path stroke=\"#ceab00\" stroke-width=\"4\" d=\"M7 10h5\"/>\n\t\t<path fill=\"none\" stroke=\"#222\" d=\"M8.5 9v1.5h2V9\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-file-ren\">\n\t\t<circle fill=\"#ffe888\" stroke=\"#333\" stroke-width=\".75\" cx=\"6\" cy=\"14\" r=\"1.5\"/>\n\t\t<circle fill=\"#ffe888\" stroke=\"#333\" stroke-width=\".75\" cx=\"10\" cy=\"14\" r=\"1.5\"/>\n\t\t<circle fill=\"#ffe888\" stroke=\"#333\" stroke-width=\".75\" cx=\"14\" cy=\"14\" r=\"1.5\"/>\n\t\t<path fill=\"#fcb45e\" stroke=\"#3a2200\" stroke-width=\".75\" d=\"M2 8L9.5.5l1.8 1.8-7.5 7.5L2 8z\"/>\n\t\t<path fill=\"#ff8a33\" stroke=\"#3a2200\" stroke-width=\".75\" d=\"M3.8 9.8l7.5-7.5L13 4l-7.5 7.5-1.7-1.7z\"/>\n\t\t<path fill=\"#ffe888\" stroke=\"#333\" stroke-width=\".75\" d=\"M2 8l-.5.5L1 9v3.5h3.5l1-1-1.7-1.7L2 8z\"/>\n\t\t<path stroke=\"#333\" d=\"M1 12.5L2.5 11\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-file-txt\">\n\t\t<circle fill=\"#2cabe1\" cx=\"8\" cy=\"8\" r=\"7.5\"/>\n\t\t<line stroke=\"#fff\" stroke-width=\"2\" x1=\"8\" y1=\"3\" x2=\"8\" y2=\"13\"/>\n\t\t<line stroke=\"#fff\" stroke-width=\"2\" x1=\"3\" y1=\"8\" x2=\"13\" y2=\"8\"/>\n\t</symbol>\n\n\t<!-- WINDOW ICONS -->\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-win-arrow\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"3.5\" d=\"M8 13V6\"/>\n\t\t<path class=\"de-svg-fill\"  d=\"M3.5 7h9L8 2.5 3.5 7z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-win-close\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2.5\" d=\"M3.5 3.5l9 9m-9 0l9-9\"/>\n\t</symbol>\n\n\t<!-- THREAD NAVIGATION ICONS -->\n\t<symbol viewBox=\"0 0 7 7\" id=\"de-symbol-thr-nav-arrow\">\n\t\t<path class=\"de-svg-fill\" d=\"M6 3.5L2 0v7z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 24 24\" id=\"de-symbol-thr-nav-up\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"3\" d=\"M3 22.5l9-9 9 9M3 13.5l9-9 9 9\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 24 24\" id=\"de-symbol-thr-nav-down\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"3\" d=\"M3 11.5l9 9 9-9M3 2.5l9 9 9-9\"/>\n\t</symbol>\n\n\t<!-- IMAGE BUTTON ICONS -->\n\t<symbol viewBox=\"0 0 32 32\" id=\"de-symbol-img-btn-arrow\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"8\" d=\"M0 16h20\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"9\" d=\"M13 3l16 16M13 29l16-16\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 32 32\" id=\"de-symbol-img-btn-auto\">\n\t\t<path class=\"de-svg-fill\" d=\"M13.2 26.6c-3.1 2.4-5.9.5-5.9-3.3V8.7c0-3.8 2.8-5.6 6.1-3.3l12.5 7.1c3.1 1.9 3.1 5.2 0 7.1 0-.1-12.7 7-12.7 7z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 32 32\" id=\"de-symbol-img-btn-rotate\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"7\" d=\"M16 4c6.6 0 12 5.4 12 12s-5.4 12-12 12S4 22.6 4 16\"/>\n\t\t<path class=\"de-svg-fill\" d=\"M13.5 19.2L0 27V11.4z\"/>\n\t</symbol>\n\n\t<!-- MAIN PANEL -->\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-logo\">\n\t\t<path class=\"de-svg-fill\" d=\"M22 5h-10v16h4v-14h6z\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"3\" d=\"M22 20.5H12c-2.8 0-5.7 0-5.7-4s2.8-4 5.7-4H21\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-cfg\">\n\t\t<circle class=\"de-svg-stroke\" stroke-width=\"3\" cx=\"12.5\" cy=\"12.5\" r=\"6\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"3\" d=\"M12.5 6.5v-3M18.5 12.5h3M12.5 18.5v3M6.5 12.5h-3M16.7 8.3L19 6M16.7 16.7L19 19M8.3 16.7L6 19M8.3 8.3L6 6\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-hid\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"4\" d=\"M6 19L19 6M6 6l13 13\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-fav\">\n\t\t<path class=\"de-svg-fill\" d=\"M12.5 3.5l2.5 6 6.5.5-5 4.2 2 6.8-6-4-6 4 2-6.8-5-4.2 6.5-.5 2.5-6z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-vid\">\n\t\t<path class=\"de-svg-fill\" d=\"M12.5 4a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zm-1 13c-1.3 1-2.5.2-2.5-1.4V9.4C9 7.8 10.2 7 11.6 8l5.3 3c1.3.8 1.3 2.2 0 3l-5.4 3z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-refresh\">\n\t\t<path class=\"de-svg-fill\" d=\"M14 4v4.3a4.5 4.5 0 1 1-3 0V4a8.5 8.5 0 1 0 3 0z\"/>\n\t\t<path class=\"de-svg-fill\" d=\"M13 11V4h7\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-arrow\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"5\" d=\"M4 12.5h12\"/>\n\t\t<path class=\"de-svg-fill\" d=\"M14 19V6l7 6.5\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-expimg\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2\" d=\"M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z\"/>\n\t\t<path stroke-width=\"3\" d=\"M8 12.5h9\"/>\n\t\t<path d=\"M10 8v9l-5-4.5M15 17V8l5 4.5\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-maskimg\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2\" d=\"M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z\"/>\n\t\t<path d=\"M5 20L20 5M5 15.5L15.5 5M5 11l6-6M20 9.5L9.5 20M20 14l-6 6\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-preimg\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2\" d=\"M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z\"/>\n\t\t<path stroke-width=\"3\" d=\"M12.5 17V9\"/>\n\t\t<path d=\"M8 15h9l-4.5 5\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-savethr\">\n\t\t<path class=\"de-svg-fill\" d=\"M18 4h-1v6H8V4H6C5 4 4 5 4 6v13c0 1 1 2 2 2h13c1 0 2-1 2-2V7l-3-3zM6 20v-8h13v8H6z\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"3\" d=\"M13.5 9V4\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-upd\">\n\t\t<circle cx=\"12.5\" cy=\"10.8\" r=\"4\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2\" stroke-linejoin=\"round\" d=\"M4.5 12q8-10,16 0q-8 10,-16 0z\"/>\n\t\t<path class=\"de-svg-stroke\" d=\"M11 7L9.8 5M14 7l1.2-2M11 17l-1.2 2m4.2-2l1.2 2M7 8.5L5.3 6.8M7 15.5l-1.7 1.7M18 8.5l1.7-1.7M18 15.5l1.7 1.7\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-audio-off\">\n\t\t<path class=\"de-svg-fill\" d=\"M13 21V4L8 9H4v7h4l5 5z\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2\" d=\"M15 9.5l6 6m0-6l-6 6\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-audio-on\">\n\t\t<path class=\"de-svg-fill\" d=\"M13 21V4L8 9H4v7h4z\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2\" d=\"M15.5 7.5c1.7 3.3 1.7 6.7 0 10m3-12.5c3 5 3 10 0 15\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-catalog\">\n\t\t<path class=\"de-svg-fill\" d=\"M5 5h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zM9 5h3v3H9zM5 9h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zM9 9h3v3H9zm-4 4h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zm-4 0h3v3H9zm-4 4h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zm-4 0h3v3H9z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 25 25\" id=\"de-symbol-panel-enable\">\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"3\" d=\"M12.5 4v8\"/>\n\t\t<path class=\"de-svg-fill\" d=\"M16 4.8v4a5 5 0 0 1-3.5 8.7A5 5 0 0 1 9 9V4.7a8.5 8.5 0 1 0 7 0z\"/>\n\t</symbol>\n\n\t<!-- MARKUP BUTTONS -->\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-back\">\n\t\t<path class=\"de-markup-back\" stroke-width=\"2\" d=\"M6 1q-5 0,-5 5v10q0 5,5 5h11q5 0,5 -5v-10q0 -5,-5-5z\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-bold\">\n\t\t<use xlink:href=\"#de-symbol-markup-back\"/>\n\t\t<text x=\"5.5\" y=\"17\" style=\"font-family: sans-serif; font-size: 17px; font-weight: 800;\">B</text>\n\t</symbol>\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-italic\">\n\t\t<use xlink:href=\"#de-symbol-markup-back\"/>\n\t\t<text x=\"8\" y=\"17\" style=\"font-family: sans-serif; font-size: 17px; font-weight: 600; font-style: italic;\">i</text>\n\t</symbol>\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-under\">\n\t\t<use xlink:href=\"#de-symbol-markup-back\"/>\n\t\t<text x=\"6\" y=\"15\" width=\"20\" style=\"font-family: sans-serif; font-size: 17px; font-weight: 600;\">u</text>\n\t\t<path stroke=\"#444\" stroke-width=\"1.5\" d=\"M6 17H17.5\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-strike\">\n\t\t<use xlink:href=\"#de-symbol-markup-back\"/>\n\t\t<text x=\"4\" y=\"17\" style=\"font-family: sans-serif; font-size: 22px; font-weight: 600; font-style: italic;\">s</text>\n\t\t<path stroke=\"#444\" d=\"M4 11H19\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-spoil\">\n\t\t<use xlink:href=\"#de-symbol-markup-back\"/>\n\t\t<path stroke=\"#666\" stroke-width=\"10\" d=\"M4 11H19\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-code\">\n\t\t<use xlink:href=\"#de-symbol-markup-back\"/>\n\t\t<text x=\"5\" y=\"17\" style=\"font-family: 'Lucida Console', monospace; font-size: 18px; font-weight: 600;\">C</text>\n\t</symbol>\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-sup\">\n\t\t<use xlink:href=\"#de-symbol-markup-back\"/>\n\t\t<text x=\"4\" y=\"15\" style=\"font-family: sans-serif; font-size: 16px; font-weight: 600;\">x</text>\n\t\t<text x=\"14\" y=\"10\" style=\"font-family: sans-serif; font-size: 8px; font-weight: 600;\">2</text>\n\t</symbol>\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-sub\">\n\t\t<use xlink:href=\"#de-symbol-markup-back\"/>\n\t\t<text x=\"4\" y=\"15\" style=\"font-family: sans-serif; font-size: 16px; font-weight: 600;\">x</text>\n\t\t<text x=\"14\" y=\"17\" style=\"font-family: sans-serif; font-size: 8px; font-weight: 600;\">2</text>\n\t</symbol>\n\t<symbol viewBox=\"0 0 23 22\" id=\"de-symbol-markup-quote\">\n\t\t<use xlink:href=\"#de-symbol-markup-back\"/>\n\t\t<text x=\"6\" y=\"18\" style=\"font-family: sans-serif; font-size: 20px; font-weight: 600;\">&gt;</text>\n\t</symbol>\n\n\t<!-- OTHER -->\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-wait\">\n\t\t<circle fill=\"#929087\" cx=\"8\" cy=\"2\" r=\"2\"/>\n\t\t<circle fill=\"#C5C2BA\" cx=\"8\" cy=\"14\" r=\"2\"/>\n\t\t<circle fill=\"#ACAAA0\" cx=\"2\" cy=\"8\" r=\"2\"/>\n\t\t<circle fill=\"#79766C\" cx=\"14\" cy=\"8\" r=\"2\"/>\n\t\t<circle fill=\"#D2CFC6\" cx=\"12.25\" cy=\"12.25\" r=\"2\"/>\n\t\t<circle fill=\"#9F9C93\" cx=\"3.75\" cy=\"3.75\" r=\"2\"/>\n\t\t<circle fill=\"#B9B6AE\" cx=\"3.75\" cy=\"12.25\" r=\"2\"/>\n\t\t<circle fill=\"#868379\" cx=\"12.25\" cy=\"3.75\" r=\"2\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-closed\">\n\t\t<image display=\"inline\" width=\"16\" height=\"16\" xlink:href=\"data:image/gif;base64,R0lGODlhEAAQAKIAAP3rqPPOd+y6V+WmN+Dg4M7OzmZmZv///yH5BAEAAAcALAAAAAAQABAAAANCeLrWvZARUqqJkjiLj9FMcWHf6IldGZqM4zqRAcw0zXpAoO/6LfeNnS8XcAhjAIHSoFwim0wockCtUodWq+/1UiQAADs=\"/>\n\t</symbol>\n\t<symbol viewBox=\"0 0 16 16\" id=\"de-symbol-unavail\">\n\t\t<circle class=\"de-svg-stroke\" fill=\"none\" stroke-width=\"2\" cx=\"8\" cy=\"8\" r=\"5\"/>\n\t\t<path class=\"de-svg-stroke\" stroke-width=\"2\" d=\"M4 4l8 8\"/>\n\t</symbol>\n\t</svg>\n\t</div>");
   }
 
 
@@ -27609,7 +27612,7 @@ Spells.addSpell(9, '', false);
       return;
     }
     x += "\n\t/* Windows */\n\t.de-win .de-win-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\n\t.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }\n\t.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); color: ".concat(Cfg.scriptStyle === 1 || Cfg.scriptStyle === 5 ? '#fffeb4' : '#d0e7ff', "; }\n\t.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); color: inherit; }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0 !important; margin: 0 !important; border: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 6px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }\n\n\t/* Settings window */\n\t.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 354px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ").concat(nav.isFirefox ? '2' : '4', "px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ").concat(nav.isPresto ? '' : 'vertical-align: -1px !important; ', "margin: 2px 1px !important; }\n\t#de-cfg-info { display: flex; flex-direction: column; }\n\tinput[type=\"text\"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; border-width: 1px; }\n\t.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-needreload::after  { content: \"* \"; color: red; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; float: none; appearance: auto; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::").concat(nav.isFirefox ? '-moz-' : '', "selection { background: transparent; }\n\t.de-cfg-unvis { display: none !important; }\n\t.de-depend { padding-left: 17px; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; flex: 1 0 auto; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 256px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ").concat(nav.isPresto ? '' : 'resize: none !important; ', "}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\n\t#de-win-cfg.de-win-fixed { z-index: 10001 !important; }\n\n\t/* Settings window theme */\n\t").concat(["#de-cfg-bar { background-color: #1f2740; }\n\t\t.de-cfg-tab { border-color: #121421 !important; }", "#de-cfg-bar { background-color: #325f9e; }\n\t\t.de-cfg-tab { border-color: #183d77 !important; }", "#de-cfg-bar, #de-spell-rowmeter { background-color: #777; }\n\t\t.de-cfg-body, #de-cfg-buttons { border-color: #444; }", "#de-cfg-bar { background-color: rgba(0,20,80,.72); }\n\t\t.de-cfg-tab { border-color: #001450 !important; }", "#de-cfg-bar { background-color: #222; }\n\t\t.de-cfg-body, #de-cfg-buttons, { border-color: #666; }\n\t\t#de-spell-rowmeter { background-color: #555; }", "#de-cfg-bar { background-color: #832da2; }\n\t\t.de-cfg-body, #de-cfg-buttons { border-color: #c125a1 !important; }\n\t\t.de-cfg-tab { border-color: #832da2 !important; }\n\t\t#de-spell-rowmeter { background-color: #844b83; }"][Cfg.scriptStyle], "\n\n\t/* Favorites window */\n\t.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 1px 0 !important; min-width: 0 !important; border: none !important; font-size: 13px; overflow: hidden !important; white-space: nowrap; }\n\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n\t#de-fav-buttons, #de-hid-buttons, #de-fav-del-confirm { padding-top: 6px; }\n\t.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }\n\t.de-fav-entries-hide, .de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }\n\t.de-fav-del-btn { margin-left: 2px; cursor: pointer; }\n\t.de-fav-del-btn > svg { width: 12px; height: 12px; opacity: 0.65; vertical-align: -2px; }\n\t.de-fav-del-btn[de-checked] > svg { color: red; background-color: rgba(255,0,0,.2); border-radius: 7px; opacity: 1; }\n\t.de-fav-header { display: flex; cursor: pointer; font-size: 13px; }\n\t.de-fav-header-btn { flex: 1 0 auto; margin-right: 2px; font-size: 11px; color: inherit; text-align: right; opacity: 0.65; }\n\t.de-fav-header-link { margin-left: 2px; color: inherit; font-weight: bold; text-decoration: none; outline: none; }\n\t.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }\n\t.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }\n\t.de-fav-inf-icon { margin-bottom: -3px; }\n\t.de-fav-inf-new { color: #424f79; }\n\t.de-fav-inf-new::after { content: \" +\"; }\n\t.de-fav-inf-total { color: #4f7942; }\n\t.de-fav-inf-you { padding: 0 4px; margin-right: 4px; border-radius: 3px; color: #fff; background-color: #424f79; opacity: 0.65; }\n\t.de-fav-link { flex: none; margin-left: 2px; text-decoration: none; border: none; }\n\t.de-fav-table-unfold > .de-fold-block > .de-fav-entries { display: initial !important; }\n\t.de-fav-unavail { color: #cf4436; }\n\t.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }\n\t.de-fold-block:not(:first-child) { border-top: none; }\n\n\t/* Post panel */\n\t.de-btn-hide > .de-btn-unhide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\n\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user, .de-win-btn-clear, .de-win-btn-close, .de-win-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }").concat(!postform.form && !postform.oeForm ? '.de-btn-reply { display: none; }' : '', "\n\t.de-btn-img { vertical-align: top; }\n\t.de-post-btns { margin-left: 4px; }\n\t.de-post-btns-back { fill: inherit; stroke: none; }\n\t.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\n\t.de-thread-note { font-style: italic; }\n\n\t/* Sauce buttons */\n\t").concat(contentIcon('.de-src-google', 'data:image/gif;base64,R0lGODlhEAAQAMQAAIy0+tHh/gJc8Qlh8UyM9H2r9/3///7//x+OfACSJy+mTZHQos3Te////f///v3HAP+uAPzWjvWTWeUTAPSdl/79/f////39/f///wAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABgALAAAAAAQABAAAAVuICaKh2Eax6hih+W+bqoaLjXdE+UaY2vhwInrInLhdBYbDEOL3GBQS4X2gEiiUBoEAhMIBl6CpaHlvrxocaO1XUQBgsLYxUgkot7AGONS2N0WCwgCYhZFfXaJCQguDiMvC34JCoCOKlgvK49QKyEAOw=='), "\n\t").concat(contentIcon('.de-src-yandex', 'data:image/gif;base64,R0lGODlhEAAQAMQAAP////v7+/r5+fb29vHx8eLi4tnZ2dTU1NDQ0MvLy8fHx8TExPzJv/immvlXRvq0re4UEdeGhtbFxcnJyby8vKampm5ubv///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABcALAAAAAAQABAAAAVx4CWOZCkOQKqq5uoCQhnMQuPcc2CQuc3YuQBJQHQ8BA8HkUgYDZ6Qx+ABeVoVIoL2RmhAtODmpUD23iDkdEFkaBsiEAfE3a6IDngJJALH4ycjCIJyCXCCgiQJhXuLigl2IwqSk5QUJRQLmZqaFiaeniEAOw=='), "\n\t").concat(contentIcon('.de-src-tineye', 'data:image/gif;base64,R0lGODlhEAAQAMQAAP///wAAAAwOEhg4UDZ7skGNxkuf3Vycxx4nLerw9DlSX2FnanO21Epxg4LO62KOnpXj+ZGcmb7CvbZ6RfxmAIxBCzsGAP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABcALAAAAAAQABAAAAWlYGIUZGGc6HgkxzSRozIgdHMUx0NR5hH8v8VjeFsoDAyFpcKcQByMnIGgYDAikmxkOLQWqNAGQhAQLBC/BgSXC0QivwgAgFbjHLQ5XDKXBBRrBA80WAABRgkJPwxfDw2HCYYBfHABDSQMDgoIEgs/ZgoPDmuYEFEHmQ6jT5ckBKirEE8HCgEWJQe5ZwJjQBYRBwQMsk8RFgJkP04sVrHGNAEVEAAhADs='), "\n\t").concat(contentIcon('.de-src-saucenao', 'data:image/gif;base64,R0lGODlhEAAQAIAAAP///wAAACwAAAAAEAAQAAACJ4yPacDtvpQCkU1KT0P75i49mbSAZACd6HN2pmbBI7pe9K1+4q5KBQA7'), "\n\t").concat(contentIcon('.de-src-iqdb', 'data:image/gif;base64,R0lGODlhEAAQAMQAAP//////AP8A//8AAAD//wD/AAAA/wAAANx/hV1ISW9YWvLOd/u0T+WlTNaqcKdtMv/r1mxML7OCVoxtUbmmlfPRuKKGeHpcTvK3nEEvKGpRTCcbGU48OYVua3tkYv///yH5BAEAAB8ALAAAAAAQABAAAAW4INV5ZDcmibM0iVJRnukpmnJJDdNwnDWSk4vCNMnpGJXfwqHReDQJTuTxmEhmqoTFEtRsNhltRTFZTBKUl2IzAmeE2csFA8kcKADLl5NgSDgaGRYAFVYQABkRgAxnGhcdEJEVhxYSDhwNEQkaEhSRGBgIGBUOGBwXERkcExyeFaGjr4E8qgcHDpKgkQpRGhwZYA4Vw6CvPBOpwD0ODlMSoxcJOQ8ZyhccBxkSkRRFDw4SD1/jF5MQIQA7'), "\n\t").concat(contentIcon('.de-src-tracemoe', 'data:image/gif;base64,R0lGODlhEAAPALMAAAAAAP///9fY18HBwTg4ODw1No6PjoFnZhoBAXNGRf/V1KmRkf///wAAAAAAAAAAACH5BAEAAAwALAAAAAAQAA8AAAQ5EMhJq7046w0I9hMhBAIoiSQ4BiS1tgQrg7EceIM8UDm7S4aBwRIcYgoFjmSxQHASCkWCc6gelJkIADs='), "\n\n\t/* Posts counter */\n\t.de-post-counter { margin: 0 4px 0 2px; vertical-align: 1px; font: bold 11px tahoma; color: #4f7942; cursor: default; }\n\t.de-post-counter-deleted { color: #727579; }\n\t.de-post-counter-you { vertical-align: 1px; font: bold 11px tahoma; color: #505a7a; cursor: default; }\n\n\t/* Text markup buttons */\n\t.de-markup-back { fill: #f0f0f0; stroke: #808080; }\n\t#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }\n\t#de-txt-panel > div { display: inline-block; }\n\t#de-txt-panel > div > button { margin-right: 2px; min-width: 23px; }\n\t#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 1px; }\r\n");
-    if ('animation' in docBody.style) {
+    if ('animation' in doc.body.style) {
       x += "\n\t\t/* Show/hide animation */\n\t\t@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }\n\t\t@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }\n\t\t@keyframes de-blink {\n\t\t\t0%, 100% { transform: translateX(0); }\n\t\t\t10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\n\t\t\t20%, 40%, 60%, 80% { transform: translateX(10px); }\n\t\t}\n\t\t@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-open-br { from { transform: translate(50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-tl { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\n\t\t@keyframes de-win-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\n\t\t@keyframes de-win-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\n\t\t.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\n\t\t.de-open { animation: de-open .15s ease-out both; }\n\t\t.de-close { animation: de-close .15s ease-in both; }\n\t\t.de-blink { animation: de-blink .7s ease-in-out both; }\n\t\t.de-post-new { animation: de-post-new .2s ease-out both; }\n\t\t.de-win-open { animation: de-win-open .2s ease-out backwards; }\n\t\t.de-win-close { animation: de-win-close .2s ease-in both; }\r\n";
     } else {
       Cfg.animation = 0;
@@ -27689,7 +27692,7 @@ Spells.addSpell(9, '', false);
           switch (_context67.prev = _context67.next) {
             case 0:
               Logger.initLogger();
-              if (!(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true)))) {
+              if (!(!doc.body || !aib && !(aib = getImageBoard(checkDomains, true)))) {
                 _context67.next = 3;
                 break;
               }
@@ -27703,7 +27706,7 @@ Spells.addSpell(9, '', false);
               runFrames();
               return _context67.abrupt("return");
             case 7:
-              if (!(docBody.classList.contains('de-runned') || aib.observeContent && !aib.observeContent(checkDomains, dataPromise))) {
+              if (!(doc.body.classList.contains('de-runned') || aib.observeContent && !aib.observeContent(checkDomains, dataPromise))) {
                 _context67.next = 9;
                 break;
               }
@@ -27728,13 +27731,13 @@ Spells.addSpell(9, '', false);
               _yield = _context67.sent;
               _yield2 = _slicedToArray(_yield, 1);
               favObj = _yield2[0];
-              if (!(!Cfg.disabled && (_aib$init = (_aib4 = aib).init) !== null && _aib$init !== void 0 && _aib$init.call(_aib4) || !localData && docBody.classList.contains('de-mode-local'))) {
+              if (!(!Cfg.disabled && (_aib$init = (_aib4 = aib).init) !== null && _aib$init !== void 0 && _aib$init.call(_aib4) || !localData && doc.body.classList.contains('de-mode-local'))) {
                 _context67.next = 21;
                 break;
               }
               return _context67.abrupt("return");
             case 21:
-              docBody.classList.add('de-runned');
+              doc.body.classList.add('de-runned');
               Logger.log('Storage loading');
               addSVGIcons();
               if (!Cfg.disabled) {
@@ -27745,8 +27748,8 @@ Spells.addSpell(9, '', false);
               scriptCSS();
               return _context67.abrupt("return");
             case 28:
-              if ('toJSON' in aProto) {
-                delete aProto.toJSON;
+              if ('toJSON' in Array.prototype) {
+                delete Array.prototype.toJSON;
               }
               initStorageEvent();
               DollchanAPI.initAPI();
@@ -27773,7 +27776,7 @@ Spells.addSpell(9, '', false);
               }
               MyPosts.readStorage();
               Logger.log('Read my posts');
-              $hide(docBody);
+              $hide(doc.body);
               dummy = doc.createElement('div');
               formEl = aib.fixHTML(formEl, true);
               Logger.log('Replace delform');
@@ -27790,7 +27793,7 @@ Spells.addSpell(9, '', false);
               _context67.prev = 48;
               _context67.t0 = _context67["catch"](43);
               console.error('Delform parsing error:', getErrorMessage(_context67.t0));
-              $show(docBody);
+              $show(doc.body);
               return _context67.abrupt("return");
             case 53:
               Logger.log('Parse delform');
@@ -27817,7 +27820,7 @@ Spells.addSpell(9, '', false);
               readViewedPosts();
               scriptCSS();
               Logger.log('Apply CSS');
-              $show(docBody);
+              $show(doc.body);
               Logger.log('Display page');
               toggleInfinityScroll();
               Logger.log('Infinity scroll');
