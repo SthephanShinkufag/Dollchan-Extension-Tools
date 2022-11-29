@@ -162,6 +162,9 @@ class BaseBoard {
 	get observeContent() {
 		return null;
 	}
+	get handlePostClick() {
+		return null;
+	}
 	get postersCount() {
 		return '';
 	}

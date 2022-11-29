@@ -75,16 +75,22 @@ class AbstractPost {
 		const isOutEvent = type === 'mouseout';
 		const isPview = this instanceof Pview;
 		if(type === 'click') {
+			if(aib.handlePostClick) {
+				aib.handlePostClick(this, el, e);
+			}
+			// Skip the click by wheel button
 			switch(e.button) {
 			case 0: break;
-			case 1: e.stopPropagation(); // Skip the click on wheel button
+			case 1: e.stopPropagation();
 				/* falls through */
 			default: return;
 			}
-			if(this._menu) { // Hide the dropdown menu after the click on its option
+			// Hide the dropdown menu after the click on its option
+			if(this._menu) {
 				this._menu.removeMenu();
 				this._menu = null;
 			}
+			// Handle click on links/images/videos
 			switch(el.tagName.toLowerCase()) {
 			case 'a':
 				// Click on YouTube link - show/hide player or thumbnail
@@ -149,38 +155,6 @@ class AbstractPost {
 					this._clickImage(el, e);
 				}
 				return;
-			}
-			if(aib.makaba) {
-				// Makaba: Click on like/dislike elements
-				let c = el.classList;
-				if(c.contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div' ||
-					(temp = el.parentNode) && (
-						(c = temp.classList).contains('post__rate') ||
-						c[0] === 'like-div' ||
-						c[0] === 'dislike-div') ||
-					(temp = temp.parentNode) && (
-						(c = temp.className) === 'like-div' ||
-						c === 'dislike-div')
-				) {
-					const task = temp.id.split('-')[0];
-					const num = +temp.id.match(/\d+/);
-					$ajax(`/api/${ task }?board=${ aib.b }&num=${ num }`).then(xhr => {
-						const obj = JSON.parse(xhr.responseText);
-						if(obj.result !== 1) {
-							$popup('err-2chlike', Lng.error[lang] + ': ' + obj.error.message);
-							return;
-						}
-						temp.classList.add(`${ task }-div-checked`, `post__rate_${ task }d`);
-						const countEl = $q(`.${ task }-count, #${ task }-count${ num }`, temp);
-						countEl.textContent = +countEl.textContent + 1;
-					}, () => $popup('err-2chlike', Lng.noConnect[lang]));
-				}
-				// Makaba: Click on "truncated message" link
-				if(el.classList.contains('expand-large-comment')) {
-					this._getFullMsg(el, false);
-					e.preventDefault();
-					e.stopPropagation();
-				}
 			}
 			// Click on post buttons
 			switch(el.classList[0]) {
@@ -422,19 +396,7 @@ class AbstractPost {
 			this.setUserVisib(isHide);
 			return;
 		case 'hide-refsonly': await Spells.addSpell(0 /* #words */, '>>' + num, false); return;
-		case 'img-load': {
-			e.preventDefault();
-			$popup('file-loading', Lng.loading[lang], true);
-			const url = el.href;
-			const data = await ContentLoader.loadImgData(url, false);
-			if(!data) {
-				$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
-				return;
-			}
-			closePopup('file-loading');
-			downloadBlob(new Blob([data], { type: getFileMime(url) }), el.getAttribute('download'));
-			return;
-		}
+		case 'img-load': this._downloadImageByLink(el, e); return;
 		case 'post-markmy': {
 			const isAdd = !MyPosts.has(num);
 			if(isAdd) {
@@ -457,6 +419,18 @@ class AbstractPost {
 			this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
 		}
 		}
+	}
+	async _downloadImageByLink(el, e) {
+		e.preventDefault();
+		$popup('file-loading', Lng.loading[lang], true);
+		const url = el.href;
+		const data = await ContentLoader.loadImgData(url, false);
+		if(!data) {
+			$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
+			return;
+		}
+		closePopup('file-loading');
+		downloadBlob(new Blob([data], { type: getFileMime(url) }), el.getAttribute('download'));
 	}
 	_getFullMsg(truncEl, isInit) {
 		if(aib.deleteTruncMsg) {

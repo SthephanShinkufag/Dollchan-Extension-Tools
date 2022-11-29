@@ -854,6 +854,39 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return { error, postNum };
 		}
+		handlePostClick(post, el, e) {
+			// Click on like/dislike elements
+			let temp;
+			let c = el.classList;
+			if(c.contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div' ||
+				(temp = el.parentNode) && (
+					(c = temp.classList).contains('post__rate') ||
+					c[0] === 'like-div' ||
+					c[0] === 'dislike-div') ||
+				(temp = temp.parentNode) && (
+					(c = temp.className) === 'like-div' ||
+					c === 'dislike-div')
+			) {
+				const task = temp.id.split('-')[0];
+				const num = +temp.id.match(/\d+/);
+				$ajax(`/api/${ task }?board=${ aib.b }&num=${ num }`).then(xhr => {
+					const obj = JSON.parse(xhr.responseText);
+					if(obj.result !== 1) {
+						$popup('err-2chlike', Lng.error[lang] + ': ' + obj.error.message);
+						return;
+					}
+					temp.classList.add(`${ task }-div-checked`, `post__rate_${ task }d`);
+					const countEl = $q(`.${ task }-count, #${ task }-count${ num }`, temp);
+					countEl.textContent = +countEl.textContent + 1;
+				}, () => $popup('err-2chlike', Lng.noConnect[lang]));
+			}
+			// Click on "truncated message" link
+			if(el.classList.contains('expand-large-comment')) {
+				post._getFullMsg(el, false);
+				e.preventDefault();
+				e.stopPropagation();
+			}
+		}
 		init() {
 			if($id('js-posts')) { // New Makaba engine
 				this._isBeta = true;
@@ -1236,6 +1269,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getPostWrap(el) {
 			return el.parentNode;
+		}
+		handlePostClick(post, el, e) {
+			if(el.classList.contains('de-img-name')) {
+				post._downloadImageByLink(el, e);
+			}
 		}
 		reportForm(pNum) {
 			$script(`Report.open('${ pNum }', '${ this.b }');`);
