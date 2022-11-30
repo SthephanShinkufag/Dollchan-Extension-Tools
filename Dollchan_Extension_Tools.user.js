@@ -7198,7 +7198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.11.8.0';
-  var commit = '73e5941';
+  var commit = '6802c64';
 
 
   var defaultCfg = {
@@ -9018,32 +9018,41 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var spellsHide = Cfg.hideBySpell;
     var maybeSpells = new Maybe(SpellsRunner);
     for (var post = firstPost; post; post = post.next) {
-      var _post = post,
-        num = _post.num;
+      var _post2 = post,
+        num = _post2.num;
       if (post.isOp && num in favBoardObj) {
         var newCount = 0;
         var youCount = 0;
         post.toggleFavBtn(true);
-        var _post2 = post,
-          thr = _post2.thr;
+        var _post3 = post,
+          thr = _post3.thr;
         thr.isFav = true;
         var isThrActive = aib.t && !doc.hidden;
         var entry = favBoardObj[num];
-        var lastPost = pByNum.get(+entry.last.match(/\d+/));
-        if (lastPost) {
-          while (lastPost = lastPost.nextInThread) {
+        var _post = pByNum.get(+entry.last.match(/\d+/));
+        if (_post) {
+          while (_post = _post.nextInThread) {
             if (Cfg.markNewPosts) {
-              Post.addMark(lastPost.el, true);
+              Post.addMark(_post.el, true);
             }
             if (!isThrActive) {
               newCount++;
-              if (isPostRefToYou(lastPost.el, MyPosts)) {
+              if (isPostRefToYou(_post.el)) {
                 youCount++;
               }
             }
           }
         } else if (!aib.t) {
           newCount = entry["new"] + thr.postsCount - entry.cnt;
+          _post = post;
+          while (_post = _post.nextInThread) {
+            if (Cfg.markNewPosts) {
+              Post.addMark(_post.el, true);
+            }
+            if (isPostRefToYou(_post.el)) {
+              youCount++;
+            }
+          }
         }
         if (isThrActive) {
           entry.last = aib.anchor + thr.last.num;
@@ -10385,8 +10394,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       youEl = _ref4[1],
       newEl = _ref4[2],
       oldEl = _ref4[3];
-    $toggle(youEl, value[2]);
     $toggle(newEl, value[1]);
+    $toggle(youEl, value[2]);
     if (mode === 'error') {
       iconEl.firstElementChild.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
       iconEl.title = value;
@@ -10443,11 +10452,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     return _remove404Favorites.apply(this, arguments);
   }
   function isPostRefToYou(post, myPosts) {
-    if (Cfg.markMyPosts && myPosts) {
-      var isMatch = myPosts instanceof Set ? function (num) {
-        return myPosts.has(num);
-      } : function (num) {
+    if (Cfg.markMyPosts && (myPosts || MyPosts)) {
+      var isMatch = myPosts ? function (num) {
         return myPosts[num];
+      } : function (num) {
+        return MyPosts.has(num);
       };
       var links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
       for (var a = 0, linksLen = links.length; a < linksLen; ++a) {
@@ -11202,7 +11211,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     handleEvent: function handleEvent(e) {
       var _this19 = this;
       return _asyncToGenerator( _regeneratorRuntime().mark(function _callee15() {
-        var type, el, tag, classList, info, _info, isHide, post, _iterator4, _step4, _el3, _info2, _post3, img, _iterator5, _step5, _el4, perf, arr, i, len, _info3, isCheck, val;
+        var type, el, tag, classList, info, _info, isHide, post, _iterator4, _step4, _el3, _info2, _post4, img, _iterator5, _step5, _el4, perf, arr, i, len, _info3, isCheck, val;
         return _regeneratorRuntime().wrap(function _callee15$(_context16) {
           while (1) {
             switch (_context16.prev = _context16.next) {
@@ -11340,11 +11349,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 67:
                 return _context16.abrupt("break", 116);
               case 68:
-                for (_post3 = Thread.first.op; _post3; _post3 = _post3.next) {
+                for (_post4 = Thread.first.op; _post4; _post4 = _post4.next) {
                   if (!Cfg.hideRefPsts) {
-                    _post3.ref.unhideRef();
-                  } else if (_post3.isHidden) {
-                    _post3.ref.hideRef();
+                    _post4.ref.unhideRef();
+                  } else if (_post4.isHidden) {
+                    _post4.ref.hideRef();
                   }
                 }
                 return _context16.abrupt("break", 116);
@@ -18926,8 +18935,8 @@ Spells.addSpell(9, '', false);
       key: "nextNotDeleted",
       get: function get() {
         var post = this.nextInThread;
-        while ((_post4 = post) !== null && _post4 !== void 0 && _post4.isDeleted) {
-          var _post4;
+        while ((_post5 = post) !== null && _post5 !== void 0 && _post5.isDeleted) {
+          var _post5;
           post = post.nextInThread;
         }
         return post;
@@ -22808,16 +22817,16 @@ Spells.addSpell(9, '', false);
         var len = pBuilder.length;
         var maybeSpells = new Maybe(SpellsRunner);
         var maybeVParser = new Maybe(Cfg.embedYTube ? VideosParser : null);
-        var _post5 = post,
-          count = _post5.count;
+        var _post6 = post,
+          count = _post6.count;
         if (count !== 0 && (aib.dobrochan || count > len || pBuilder.getPNum(count - 1) !== post.num)) {
           post = this.op.nextNotDeleted;
           var i = post.count - 1;
           var firstChangedPost = null;
           for (; i < len && post;) {
-            var _post6 = post,
-              num = _post6.num,
-              prev = _post6.prev;
+            var _post7 = post,
+              num = _post7.num,
+              prev = _post7.prev;
             var iNum = pBuilder.getPNum(i);
             if (num === iNum) {
               i++;

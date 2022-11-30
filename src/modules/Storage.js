@@ -261,21 +261,30 @@ function readPostsData(firstPost, favObj) {
 			thr.isFav = true;
 			const isThrActive = aib.t && !doc.hidden;
 			const entry = favBoardObj[num];
-			let lastPost = pByNum.get(+entry.last.match(/\d+/));
-			if(lastPost) {
-				while((lastPost = lastPost.nextInThread)) {
+			let _post = pByNum.get(+entry.last.match(/\d+/));
+			if(_post) {
+				while((_post = _post.nextInThread)) {
 					if(Cfg.markNewPosts) {
-						Post.addMark(lastPost.el, true);
+						Post.addMark(_post.el, true);
 					}
 					if(!isThrActive) {
 						newCount++;
-						if(isPostRefToYou(lastPost.el, MyPosts)) {
+						if(isPostRefToYou(_post.el)) {
 							youCount++;
 						}
 					}
 				}
 			} else if(!aib.t) {
 				newCount = entry.new + thr.postsCount - entry.cnt;
+				_post = post;
+				while((_post = _post.nextInThread)) {
+					if(Cfg.markNewPosts) {
+						Post.addMark(_post.el, true);
+					}
+					if(isPostRefToYou(_post.el)) {
+						youCount++;
+					}
+				}
 			}
 			if(isThrActive) {
 				entry.last = aib.anchor + thr.last.num;

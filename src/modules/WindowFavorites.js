@@ -84,8 +84,8 @@ function updateFavWindow(host, board, num, value, mode) {
 		return;
 	}
 	const [iconEl, youEl, newEl, oldEl] = [...el.children];
-	$toggle(youEl, value[2]);
 	$toggle(newEl, value[1]);
+	$toggle(youEl, value[2]);
 	if(mode === 'error') {
 		iconEl.firstElementChild.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 		iconEl.title = value;
@@ -119,8 +119,8 @@ async function remove404Favorites(favObj) {
 
 // Checking if post contains reply links to my posts
 function isPostRefToYou(post, myPosts) {
-	if(Cfg.markMyPosts && myPosts) {
-		const isMatch = myPosts instanceof Set ? num => myPosts.has(num) : num => myPosts[num];
+	if(Cfg.markMyPosts && (myPosts || MyPosts)) {
+		const isMatch = myPosts ? num => myPosts[num] : num => MyPosts.has(num);
 		const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
 		for(let a = 0, linksLen = links.length; a < linksLen; ++a) {
 			const tc = links[a].textContent;
