@@ -276,6 +276,8 @@ function readPostsData(firstPost, favObj) {
 						}
 					}
 				}
+			} else if(!aib.t) {
+				newCount = thr.postsCount - entry.cnt;
 			}
 			if(isThrActive) {
 				entry.last = aib.anchor + thr.last.num;

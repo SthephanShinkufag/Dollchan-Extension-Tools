@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.11.8.0';
-const commit = 'fc17901';
+const commit = '34c8bd8';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2717,6 +2717,8 @@ function readPostsData(firstPost, favObj) {
 						}
 					}
 				}
+			} else if(!aib.t) {
+				newCount = thr.postsCount - entry.cnt;
 			}
 			if(isThrActive) {
 				entry.last = aib.anchor + thr.last.num;

@@ -7198,7 +7198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.11.8.0';
-  var commit = 'fc17901';
+  var commit = '34c8bd8';
 
 
   var defaultCfg = {
@@ -9044,6 +9044,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
             }
           }
+        } else if (!aib.t) {
+          newCount = thr.postsCount - entry.cnt;
         }
         if (isThrActive) {
           entry.last = aib.anchor + thr.last.num;
