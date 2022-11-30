@@ -7198,7 +7198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.11.8.0';
-  var commit = '34c8bd8';
+  var commit = '73e5941';
 
 
   var defaultCfg = {
@@ -9029,23 +9029,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         thr.isFav = true;
         var isThrActive = aib.t && !doc.hidden;
         var entry = favBoardObj[num];
-        if (entry.last) {
-          var lastPost = pByNum.get(+entry.last.match(/\d+/));
-          if (lastPost) {
-            while (lastPost = lastPost.nextInThread) {
-              if (Cfg.markNewPosts) {
-                Post.addMark(lastPost.el, true);
-              }
-              if (!isThrActive) {
-                newCount++;
-                if (isPostRefToYou(lastPost.el, MyPosts)) {
-                  youCount++;
-                }
+        var lastPost = pByNum.get(+entry.last.match(/\d+/));
+        if (lastPost) {
+          while (lastPost = lastPost.nextInThread) {
+            if (Cfg.markNewPosts) {
+              Post.addMark(lastPost.el, true);
+            }
+            if (!isThrActive) {
+              newCount++;
+              if (isPostRefToYou(lastPost.el, MyPosts)) {
+                youCount++;
               }
             }
           }
         } else if (!aib.t) {
-          newCount = thr.postsCount - entry.cnt;
+          newCount = entry["new"] + thr.postsCount - entry.cnt;
         }
         if (isThrActive) {
           entry.last = aib.anchor + thr.last.num;
