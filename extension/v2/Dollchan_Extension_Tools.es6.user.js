@@ -28,7 +28,17 @@
 'use strict';
 
 const version = '22.11.8.0';
-const commit = '6802c64';
+const commit = '8697a5c';
+
+/* ==[ GlobalVars.js ]== */
+
+const doc = deWindow.document;
+const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
+const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
+
+let aib, Cfg, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum, postform,
+	sesStorage, updater;
+let topWinZ = 10;
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1154,11 +1164,11 @@ const Lng = {
 		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 		['Нед', 'Пон', 'Вів', 'Сер', 'Чет', 'Птн', 'Сбт']],
 	monthDict: {
-		/* eslint-disable */
+		/* eslint-disable key-spacing, max-len, object-property-newline */
 		янв: 0, фев: 1, мар: 2, апр: 3, май: 4, мая: 4, июн: 5, июл: 6, авг: 7, сен: 8, окт: 9, ноя: 10, дек: 11,
 		jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
 		січ: 0, лют: 1, бер: 2, кві: 3, тра: 4, чер: 5, лип: 6, сер: 7, вер: 8, жов: 9, лис: 10, гру: 11
-		/* eslint-enable */
+		/* eslint-enable key-spacing, max-len, object-property-newline */
 	},
 
 	// Spells: popups
@@ -1710,16 +1720,6 @@ const Lng = {
 		'Firefox аддон</a> доступний!']
 };
 
-/* ==[ GlobalVars.js ]== */
-
-const doc = deWindow.document;
-const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
-const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
-
-let aib, Cfg, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum, postform,
-	sesStorage, updater;
-let topWinZ = 10;
-
 /* ==[ Utils.js ]=============================================================================================
                                                     UTILS
 =========================================================================================================== */
@@ -1738,8 +1738,8 @@ function $Q(path, rootEl = doc.body) {
 	return rootEl.querySelectorAll(path);
 }
 
-function $match(parentEl, ...rules) {
-	return parentEl.split(', ').map(val => val + rules.join(', ' + val)).join(', ');
+function $match(parentStr, ...rules) {
+	return parentStr.split(', ').map(val => val + rules.join(', ' + val)).join(', ');
 }
 
 // DOM MODIFIERS
@@ -1875,7 +1875,7 @@ function arrTags(arr, start, end) {
 }
 
 function fixBoardName(board) {
-	return '/' + (board ? board + '/' : '');
+	return `/${ board ? board + '/' : '' }`;
 }
 
 function getFileName(url) {
@@ -1955,7 +1955,7 @@ function getFileMime(url) {
 	}
 }
 
-// Uploads files stored in a Blob
+// Downloads files stored in a Blob
 function downloadBlob(blob, name) {
 	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : deWindow.URL.createObjectURL(blob);
 	const link = $bEnd(doc.body, `<a href="${ url }" download="${ name }"></a>`);
@@ -1964,43 +1964,6 @@ function downloadBlob(blob, name) {
 		deWindow.URL.revokeObjectURL(url);
 		link.remove();
 	}, 2e5);
-}
-
-// Checks if the color entered by the user is correct
-function checkCSSColor(color) {
-	if(!color || color === 'inherit' || color === 'currentColor') {
-		return false;
-	}
-	if(color === 'transparent') {
-		return true;
-	}
-	const image = doc.createElement('img');
-	image.style.color = 'rgb(0, 0, 0)';
-	image.style.color = color;
-	if(image.style.color !== 'rgb(0, 0, 0)') {
-		return true;
-	}
-	image.style.color = 'rgb(255, 255, 255)';
-	image.style.color = color;
-	return image.style.color !== 'rgb(255, 255, 255)';
-}
-
-// Donation message after Dollchan update
-function showDonateMsg() {
-	const item = (name, value) =>
-		`<div><i>${ name }</i>: <i style="font: 14px monospace; color: green;">${ value }</i></div>`;
-	$popup('donate', Lng.donateMsg[lang] + `:<br style="margin-bottom: 8px;"><!--
-		--><div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div><!--
-		--><div style="display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;">` +
-			item('BTC (P2PKH)', '14Y6eJW7dAzL8n6pqyLqrJWuX35uTs2R6T') +
-			item('BTC (P2SH)', '3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq') +
-			item('ETH', '0x32da2d420d189a8c2f2656466f2ba78f58c6331a') +
-			item('YooMoney RUB', '410012122418236') +
-			item('WebMoney WMZ', 'Z100197626370') +
-		'</div>' +
-		(nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ?
-			`<br><br>New: <a href="https://addons.mozilla.org/${ lang === 1 ? 'en-US' : 'ru' }` +
-			'/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : ''));
 }
 
 // Allows to record the duration of code execution
@@ -3347,18 +3310,19 @@ const Panel = Object.create({
                                                 WINDOW: UTILS
 =========================================================================================================== */
 
-function updateWinZ(style) {
+function updateWinZ(winEl) {
+	const { style } = winEl;
 	if(style.zIndex < topWinZ) {
 		style.zIndex = ++topWinZ;
 	}
 }
 
-function makeDraggable(name, win, head) {
-	head.addEventListener('mousedown', {
+function makeDraggable(name, winEl, headEl) {
+	headEl.addEventListener('mousedown', {
 		_oldX   : 0,
 		_oldY   : 0,
-		_win    : win,
-		_wStyle : win.style,
+		_win    : winEl,
+		_wStyle : winEl.style,
 		_X      : 0,
 		_Y      : 0,
 		_Z      : 0,
@@ -3408,38 +3372,38 @@ function makeDraggable(name, win, head) {
 }
 
 class WinResizer {
-	constructor(name, dir, cfgName, win, target) {
+	constructor(name, direction, cfgName, winEl, targetEl) {
 		this.name = name;
-		this.dir = dir;
+		this.direction = direction;
 		this.cfgName = cfgName;
-		this.vertical = dir === 'top' || dir === 'bottom';
-		this.win = win;
-		this.wStyle = this.win.style;
-		this.tStyle = target.style;
-		$q('.de-resizer-' + dir, win).addEventListener('mousedown', this);
+		this.vertical = direction === 'top' || direction === 'bottom';
+		this.winEl = winEl;
+		this.wStyle = this.winEl.style;
+		this.tStyle = targetEl.style;
+		$q('.de-resizer-' + direction, winEl).addEventListener('mousedown', this);
 	}
 	async handleEvent(e) {
 		let val, x, y;
 		const { wWidth: maxX, wHeight: maxY } = Post.sizing;
 		const { width } = this.wStyle;
-		const cr = this.win.getBoundingClientRect();
+		const cr = this.winEl.getBoundingClientRect();
 		const z = `; z-index: ${ this.wStyle.zIndex }${ width ? '; width:' + width : '' }`;
 		switch(e.type) {
 		case 'mousedown':
-			if(this.win.classList.contains('de-win-fixed')) {
+			if(this.winEl.classList.contains('de-win-fixed')) {
 				x = 'right: 0';
 				y = 'bottom: 25px';
 			} else {
 				x = Cfg[this.name + 'WinX'];
 				y = Cfg[this.name + 'WinY'];
 			}
-			switch(this.dir) {
+			switch(this.direction) {
 			case 'top': val = `${ x }; bottom: ${ maxY - cr.bottom }px${ z }`; break;
 			case 'bottom': val = `${ x }; top: ${ cr.top }px${ z }`; break;
 			case 'left': val = `right: ${ maxX - cr.right }px; ${ y + z }`; break;
 			case 'right': val = `left: ${ cr.left }px; ${ y + z }`;
 			}
-			this.win.setAttribute('style', val);
+			this.winEl.setAttribute('style', val);
 			['mousemove', 'mouseup'].forEach(e => doc.body.addEventListener(e, this));
 			e.preventDefault();
 			return;
@@ -3447,23 +3411,22 @@ class WinResizer {
 			if(this.vertical) {
 				val = e.clientY;
 				this.tStyle.setProperty('height', Math.max(parseInt(this.tStyle.height, 10) + (
-					this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
+					this.direction === 'top' ? cr.top - (val < 20 ? 0 : val) :
 					(val > maxY - 45 ? maxY - 25 : val) - cr.bottom
 				), 90) + 'px', 'important');
-			} else {
-				val = e.clientX;
-				this.tStyle.setProperty('width', Math.max(parseInt(this.tStyle.width, 10) + (
-					this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
-					(val > maxX - 20 ? maxX : val) - cr.right
-				), this.name === 'reply' ? 275 : 400) + 'px', 'important');
+				return;
 			}
-			return;
+			val = e.clientX;
+			this.tStyle.setProperty('width', Math.max(parseInt(this.tStyle.width, 10) + (
+				this.direction === 'left' ? cr.left - (val < 20 ? 0 : val) :
+				(val > maxX - 20 ? maxX : val) - cr.right
+			), this.name === 'reply' ? 275 : 400) + 'px', 'important');
 		default: // mouseup
 			['mousemove', 'mouseup'].forEach(e => doc.body.removeEventListener(e, this));
 			await CfgSaver.save(this.cfgName,
 				parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
-			if(this.win.classList.contains('de-win-fixed')) {
-				this.win.setAttribute('style', 'right: 0; bottom: 25px' + z);
+			if(this.winEl.classList.contains('de-win-fixed')) {
+				this.winEl.setAttribute('style', 'right: 0; bottom: 25px' + z);
 				return;
 			}
 			if(this.vertical) {
@@ -3473,24 +3436,24 @@ class WinResizer {
 				await CfgSaver.save(this.name + 'WinX', cr.left < 1 ? 'left: 0' :
 					cr.right > maxX - 1 ? 'right: 0' : `left: ${ cr.left }px`);
 			}
-			this.win.setAttribute('style', Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z);
+			this.winEl.setAttribute('style', Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z);
 		}
 	}
 }
 
 function toggleWindow(name, isUpdate, data, noAnim) {
 	let el;
-	let win = $id('de-win-' + name);
-	const isActive = win?.classList.contains('de-win-active');
+	let winEl = $id('de-win-' + name);
+	const isActive = winEl?.classList.contains('de-win-active');
 	if(isUpdate && !isActive) {
 		return;
 	}
-	if(!win) {
+	if(!winEl) {
 		const winAttr = (Cfg[name + 'WinDrag'] ?
 			`de-win" style="${ Cfg[name + 'WinX'] }; ${ Cfg[name + 'WinY'] }` :
 			'de-win-fixed" style="right: 0; bottom: 25px'
 		) + (name !== 'fav' ? '' : `; width: ${ Cfg.favWinWidth }px; `);
-		win = $aBegin($id('de-main'), `<div id="de-win-${ name }" class="${ winAttr }; display: none;">
+		winEl = $aBegin($id('de-main'), `<div id="de-win-${ name }" class="${ winAttr }; display: none;">
 			<div class="de-win-head">
 				<span class="de-win-title">
 					${ name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang] }
@@ -3505,7 +3468,7 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 				<div class="de-resizer de-resizer-left"></div>
 				<div class="de-resizer de-resizer-right"></div>` }
 		</div>`);
-		const winBody = $q('.de-win-body', win);
+		const winBody = $q('.de-win-body', winEl);
 		if(name === 'cfg') {
 			winBody.className = 'de-win-body ' + aib.cReply;
 		} else {
@@ -3515,10 +3478,10 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 			}, 100);
 		}
 		if(name === 'fav') {
-			new WinResizer('fav', 'left', 'favWinWidth', win, win);
-			new WinResizer('fav', 'right', 'favWinWidth', win, win);
+			new WinResizer('fav', 'left', 'favWinWidth', winEl, winEl);
+			new WinResizer('fav', 'right', 'favWinWidth', winEl, winEl);
 		}
-		el = $q('.de-win-buttons', win);
+		el = $q('.de-win-buttons', winEl);
 		el.onmouseover = e => {
 			const el = nav.fixEventEl(e.target);
 			const parent = el.parentNode;
@@ -3533,48 +3496,48 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 			await toggleCfg(name + 'WinDrag');
 			const isDrag = Cfg[name + 'WinDrag'];
 			if(!isDrag) {
-				const temp = $q('.de-win-active.de-win-fixed', win.parentNode);
+				const temp = $q('.de-win-active.de-win-fixed', winEl.parentNode);
 				if(temp) {
 					toggleWindow(temp.id.substr(7), false);
 				}
 			}
-			win.classList.toggle('de-win', isDrag);
-			win.classList.toggle('de-win-fixed', !isDrag);
-			const { width } = win.style;
-			win.style.cssText = `${ isDrag ? `${ Cfg[name + 'WinX'] }; ${ Cfg[name + 'WinY'] }` :
+			winEl.classList.toggle('de-win', isDrag);
+			winEl.classList.toggle('de-win-fixed', !isDrag);
+			const { width } = winEl.style;
+			winEl.style.cssText = `${ isDrag ? `${ Cfg[name + 'WinX'] }; ${ Cfg[name + 'WinY'] }` :
 				'right: 0; bottom: 25px' }${ width ? '; width: ' + width : '' }`;
-			updateWinZ(win.style);
+			updateWinZ(winEl);
 		};
-		makeDraggable(name, win, $q('.de-win-head', win));
+		makeDraggable(name, winEl, $q('.de-win-head', winEl));
 	}
-	updateWinZ(win.style);
+	updateWinZ(winEl);
 	let isRemove = !isUpdate && isActive;
-	if(!isRemove && !win.classList.contains('de-win') &&
-		(el = $q(`.de-win-active.de-win-fixed:not(#de-win-${ name })`, win.parentNode))
+	if(!isRemove && !winEl.classList.contains('de-win') &&
+		(el = $q(`.de-win-active.de-win-fixed:not(#de-win-${ name })`, winEl.parentNode))
 	) {
 		toggleWindow(el.id.substr(7), false);
 	}
 	const isAnim = !noAnim && !isUpdate && Cfg.animation;
-	let body = $q('.de-win-body', win);
-	if(isAnim && body.hasChildNodes()) {
-		win.addEventListener('animationend', function aEvent(e) {
+	let winBody = $q('.de-win-body', winEl);
+	if(isAnim && winBody.hasChildNodes()) {
+		winEl.addEventListener('animationend', function aEvent(e) {
 			e.target.removeEventListener('animationend', aEvent);
-			showWindow(win, body, name, isRemove, data, Cfg.animation);
-			win = body = name = isRemove = data = null;
+			showWindow(winEl, winBody, name, isRemove, data, Cfg.animation);
+			winEl = winBody = name = isRemove = data = null;
 		});
-		win.classList.remove('de-win-open');
-		win.classList.add('de-win-close');
+		winEl.classList.remove('de-win-open');
+		winEl.classList.add('de-win-close');
 	} else {
-		showWindow(win, body, name, isRemove, data, isAnim);
+		showWindow(winEl, winBody, name, isRemove, data, isAnim);
 	}
 }
 
-function showWindow(win, body, name, isRemove, data, isAnim) {
-	body.innerHTML = '';
-	win.classList.toggle('de-win-active', !isRemove);
+function showWindow(winEl, winBody, name, isRemove, data, isAnim) {
+	winBody.innerHTML = '';
+	winEl.classList.toggle('de-win-active', !isRemove);
 	if(isRemove) {
-		win.classList.remove('de-win-close');
-		$hide(win);
+		winEl.classList.remove('de-win-close');
+		$hide(winEl);
 		if(!Cfg.expandPanel && !$q('.de-win-active')) {
 			$hide($id('de-panel-buttons'));
 		}
@@ -3586,24 +3549,24 @@ function showWindow(win, body, name, isRemove, data, isAnim) {
 	switch(name) {
 	case 'fav':
 		if(data) {
-			showFavoritesWindow(body, data);
+			showFavoritesWindow(winBody, data);
 			break;
 		}
 		readFavorites().then(favObj => {
-			showFavoritesWindow(body, favObj);
-			$show(win);
+			showFavoritesWindow(winBody, favObj);
+			$show(winEl);
 			if(isAnim) {
-				win.classList.add('de-win-open');
+				winEl.classList.add('de-win-open');
 			}
 		});
 		return;
-	case 'cfg': CfgWindow.initCfgWindow(body); break;
-	case 'hid': showHiddenWindow(body); break;
-	case 'vid': showVideosWindow(body);
+	case 'cfg': CfgWindow.initCfgWindow(winBody); break;
+	case 'hid': showHiddenWindow(winBody); break;
+	case 'vid': showVideosWindow(winBody);
 	}
-	$show(win);
+	$show(winEl);
 	if(isAnim) {
-		win.classList.add('de-win-open');
+		winEl.classList.add('de-win-open');
 	}
 }
 
@@ -3611,13 +3574,13 @@ function showWindow(win, body, name, isRemove, data, isAnim) {
                                         WINDOW: VIDEOS, HIDDEN THREADS
 =========================================================================================================== */
 
-function showVideosWindow(body) {
+function showVideosWindow(winBody) {
 	const els = $Q('.de-video-link');
 	if(!els.length) {
-		body.innerHTML = `<b>${ Lng.noVideoLinks[lang] }</b>`;
+		winBody.innerHTML = `<b>${ Lng.noVideoLinks[lang] }</b>`;
 		return;
 	}
-	body.innerHTML = `<div de-disableautoplay class="de-video-obj"></div>
+	winBody.innerHTML = `<div de-disableautoplay class="de-video-obj"></div>
 	<div id="de-video-buttons">
 		<a class="de-abtn" id="de-video-btn-prev" href="#" title="${ Lng.prevVideo[lang] }">&#x25C0;</a>
 		<a class="de-abtn" id="de-video-btn-resize" href="#" title="${ Lng.expandVideo[lang] }"></a>
@@ -3629,11 +3592,11 @@ function showVideosWindow(body) {
 		nav.viewportHeight() * 0.92 - +Cfg.YTubeHeigh - 82 }px;"></div>`);
 
 	// Events for control buttons
-	body.addEventListener('click', {
+	winBody.addEventListener('click', {
 		linkList,
 		currentLink : null,
 		listHidden  : false,
-		player      : body.firstElementChild,
+		player      : winBody.firstElementChild,
 		playerInfo  : null,
 		handleEvent(e) {
 			const el = e.target;
@@ -3689,7 +3652,7 @@ function showVideosWindow(body) {
 	for(let i = 0, len = els.length; i < len; ++i) {
 		updateVideoList(linkList, els[i], aib.getPostOfEl(els[i]).num);
 	}
-	body.append(linkList);
+	winBody.append(linkList);
 	$q('.de-video-link', linkList).click();
 }
 
@@ -3704,7 +3667,7 @@ function updateVideoList(parent, link, num) {
 }
 
 // HIDDEN THREADS WINDOW
-function showHiddenWindow(body) {
+function showHiddenWindow(winBody) {
 	const boards = HiddenThreads.getRawData();
 	const hasThreads = !$isEmpty(boards);
 	if(hasThreads) {
@@ -3717,7 +3680,7 @@ function showHiddenWindow(body) {
 			if($isEmpty(threads)) {
 				continue;
 			}
-			const block = $bEnd(body,
+			const block = $bEnd(winBody,
 				`<div class="de-fold-block"><input type="checkbox"><b>/${ board }</b></div>`);
 			block.firstChild.onclick =
 				e => $Q('.de-entry > input', block).forEach(el => (el.checked = e.target.checked));
@@ -3733,7 +3696,7 @@ function showHiddenWindow(body) {
 			}
 		}
 	}
-	$bEnd(body, (!hasThreads ? `<center><b>${ Lng.noHidThr[lang] }</b></center>` : '') +
+	$bEnd(winBody, (!hasThreads ? `<center><b>${ Lng.noHidThr[lang] }</b></center>` : '') +
 		'<div id="de-hid-buttons"></div>'
 	).append(
 		// "Edit" button. Calls a popup with editor to edit Hidden in JSON.
@@ -3759,7 +3722,7 @@ function showHiddenWindow(body) {
 		}),
 		// "Delete" button. Allows to delete selected threads
 		$button(Lng.remove[lang], Lng.delEntries[lang], () => {
-			$Q('.de-entry[info]', body).forEach(el => {
+			$Q('.de-entry[info]', winBody).forEach(el => {
 				if(!$q('input', el).checked) {
 					return;
 				}
@@ -4059,7 +4022,7 @@ async function refreshFavorites(needClear404) {
 	}
 }
 
-function showFavoritesWindow(body, favObj) {
+function showFavoritesWindow(winBody, favObj) {
 	let html = '';
 	// Create the list of favorite threads
 	for(const host in favObj) {
@@ -4148,7 +4111,7 @@ function showFavoritesWindow(body, favObj) {
 
 	// Appending DOM and events
 	if(html) {
-		$bEnd(body, `<div class="de-fav-table">${ html }</div>`).addEventListener('click', e => {
+		$bEnd(winBody, `<div class="de-fav-table">${ html }</div>`).addEventListener('click', e => {
 			let el = nav.fixEventEl(e.target);
 			let parentEl = el.parentNode;
 			if(el.tagName.toLowerCase() === 'svg') {
@@ -4175,7 +4138,7 @@ function showFavoritesWindow(body, favObj) {
 						entriesEl.classList.remove('de-fav-entries-hide');
 					}
 				}
-				const isShowDelBtns = !!$q('.de-entry > .de-fav-del-btn[de-checked]', body);
+				const isShowDelBtns = !!$q('.de-entry > .de-fav-del-btn[de-checked]', winBody);
 				$toggle($id('de-fav-buttons'), !isShowDelBtns);
 				$toggle($id('de-fav-del-confirm'), isShowDelBtns);
 				break;
@@ -4192,10 +4155,10 @@ function showFavoritesWindow(body, favObj) {
 			}
 		});
 	} else {
-		body.insertAdjacentHTML('beforeend', `<center><b>${ Lng.noFavThr[lang] }</b></center>`);
+		winBody.insertAdjacentHTML('beforeend', `<center><b>${ Lng.noFavThr[lang] }</b></center>`);
 	}
 
-	const btns = $bEnd(body, '<div id="de-fav-buttons"></div>');
+	const btns = $bEnd(winBody, '<div id="de-fav-buttons"></div>');
 	btns.append(
 		// "Edit" button. Calls a popup with editor to edit Favorites in JSON.
 		getEditButton('favor', fn => readFavorites().then(favObj => fn(favObj, true, saveRenewFavorites))),
@@ -4281,17 +4244,17 @@ function showFavoritesWindow(body, favObj) {
 	);
 
 	// Deletion of confirm/cancel buttons
-	const delBtns = $bEnd(body, '<div id="de-fav-del-confirm" style="display: none;"></div>');
+	const delBtns = $bEnd(winBody, '<div id="de-fav-del-confirm" style="display: none;"></div>');
 	delBtns.append(
 		$button(Lng.remove[lang], Lng.delEntries[lang], () => {
-			$Q('.de-entry > .de-fav-del-btn[de-checked]', body).forEach(
+			$Q('.de-entry > .de-fav-del-btn[de-checked]', winBody).forEach(
 				el => el.parentNode.setAttribute('de-removed', ''));
 			remove404Favorites();
 			$show(btns);
 			$hide(delBtns);
 		}),
 		$button(Lng.cancel[lang], '', () => {
-			$Q('.de-fav-del-btn', body).forEach(el => el.removeAttribute('de-checked'));
+			$Q('.de-fav-del-btn', winBody).forEach(el => el.removeAttribute('de-checked'));
 			$show(btns);
 			$hide(delBtns);
 		})
@@ -4303,12 +4266,12 @@ function showFavoritesWindow(body, favObj) {
 =========================================================================================================== */
 
 const CfgWindow = {
-	initCfgWindow(body) {
+	initCfgWindow(winBody) {
 		['click', 'mouseover', 'mouseout', 'change', 'keyup', 'keydown', 'scroll'].forEach(
-			e => body.addEventListener(e, this));
+			e => winBody.addEventListener(e, this));
 
 		// Create tab bar and bottom buttons
-		let div = $bEnd(body, `<div id="de-cfg-bar">${
+		let div = $bEnd(winBody, `<div id="de-cfg-bar">${
 			this._getTab('filters') +
 			this._getTab('posts') +
 			this._getTab('images') +
@@ -4598,9 +4561,9 @@ const CfgWindow = {
 			case 'panelCounter': this._updateCSS(); break;
 			case 'favThrOrder':
 				readFavorites().then(favObj => {
-					const body = $q('#de-win-fav > .de-win-body');
-					body.innerHTML = '';
-					showFavoritesWindow(body, favObj);
+					const winBody = $q('#de-win-fav > .de-win-body');
+					winBody.innerHTML = '';
+					showFavoritesWindow(winBody, favObj);
 				});
 			}
 			return;
@@ -4763,9 +4726,23 @@ const CfgWindow = {
 			const info = el.getAttribute('info');
 			switch(info) {
 			case 'postBtnsBack': {
-				const isCheck = checkCSSColor(el.value);
-				classList.toggle('de-input-error', !isCheck);
-				if(isCheck) {
+				let isValidColor = false;
+				const color = el.value;
+				if(color === 'transparent') {
+					isValidColor = true;
+				} else if(color && color !== 'inherit' && color !== 'currentColor') {
+					const image = doc.createElement('img');
+					image.style.color = 'rgb(0, 0, 0)';
+					image.style.color = color;
+					if(image.style.color !== 'rgb(0, 0, 0)') {
+						isValidColor = true;
+					}
+					image.style.color = 'rgb(255, 255, 255)';
+					image.style.color = color;
+					isValidColor = image.style.color !== 'rgb(255, 255, 255)';
+				}
+				classList.toggle('de-input-error', !isValidColor);
+				if(isValidColor) {
 					await CfgSaver.save('postBtnsBack', el.value);
 					updateCSS();
 				}
@@ -8930,7 +8907,7 @@ class PostForm {
 		}
 		post.wrap.after(this.qArea);
 		if(this.qArea.classList.contains('de-win')) {
-			updateWinZ(this.qArea.style);
+			updateWinZ(this.qArea);
 		}
 		const qNum = post.thr.num;
 		if(!aib.t) {
@@ -9205,7 +9182,7 @@ class PostForm {
 			await toggleCfg('replyWinDrag');
 			if(Cfg.replyWinDrag) {
 				this.qArea.className = aib.cReply + ' de-win';
-				updateWinZ(this.qArea.style);
+				updateWinZ(this.qArea);
 			} else {
 				this.qArea.className = aib.cReply + ' de-win-inpost';
 				this.txta.focus();
@@ -17915,7 +17892,7 @@ const DollchanAPI = {
 	}
 };
 
-// Checking for Dollchan updates from github
+// Checking for Dollchan updates from Github
 async function checkForUpdates(isManual, lastUpdateTime) {
 	if(!isManual) {
 		if(Date.now() - +lastUpdateTime < [0, 1, 2, 7, 14, 30][Cfg.updDollchan] * 1e3 * 60 * 60 * 24) {
@@ -17960,6 +17937,25 @@ async function checkForUpdates(isManual, lastUpdateTime) {
 				Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>${ chLogLink }`) }`;
 	}
 	throw new Error();
+}
+
+
+// Donation message after Dollchan update
+function showDonateMsg() {
+	const item = (name, value) =>
+		`<div><i>${ name }</i>: <i style="font: 14px monospace; color: green;">${ value }</i></div>`;
+	$popup('donate', Lng.donateMsg[lang] + `:<br style="margin-bottom: 8px;"><!--
+		--><div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div><!--
+		--><div style="display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;">` +
+			item('BTC (P2PKH)', '14Y6eJW7dAzL8n6pqyLqrJWuX35uTs2R6T') +
+			item('BTC (P2SH)', '3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq') +
+			item('ETH', '0x32da2d420d189a8c2f2656466f2ba78f58c6331a') +
+			item('YooMoney RUB', '410012122418236') +
+			item('WebMoney WMZ', 'Z100197626370') +
+		'</div>' +
+		(nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ?
+			`<br><br>New: <a href="https://addons.mozilla.org/${ lang === 1 ? 'en-US' : 'ru' }` +
+			'/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : ''));
 }
 
 function initPage() {

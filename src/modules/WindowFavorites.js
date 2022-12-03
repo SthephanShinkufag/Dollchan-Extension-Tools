@@ -279,7 +279,7 @@ async function refreshFavorites(needClear404) {
 	}
 }
 
-function showFavoritesWindow(body, favObj) {
+function showFavoritesWindow(winBody, favObj) {
 	let html = '';
 	// Create the list of favorite threads
 	for(const host in favObj) {
@@ -368,7 +368,7 @@ function showFavoritesWindow(body, favObj) {
 
 	// Appending DOM and events
 	if(html) {
-		$bEnd(body, `<div class="de-fav-table">${ html }</div>`).addEventListener('click', e => {
+		$bEnd(winBody, `<div class="de-fav-table">${ html }</div>`).addEventListener('click', e => {
 			let el = nav.fixEventEl(e.target);
 			let parentEl = el.parentNode;
 			if(el.tagName.toLowerCase() === 'svg') {
@@ -395,7 +395,7 @@ function showFavoritesWindow(body, favObj) {
 						entriesEl.classList.remove('de-fav-entries-hide');
 					}
 				}
-				const isShowDelBtns = !!$q('.de-entry > .de-fav-del-btn[de-checked]', body);
+				const isShowDelBtns = !!$q('.de-entry > .de-fav-del-btn[de-checked]', winBody);
 				$toggle($id('de-fav-buttons'), !isShowDelBtns);
 				$toggle($id('de-fav-del-confirm'), isShowDelBtns);
 				break;
@@ -412,10 +412,10 @@ function showFavoritesWindow(body, favObj) {
 			}
 		});
 	} else {
-		body.insertAdjacentHTML('beforeend', `<center><b>${ Lng.noFavThr[lang] }</b></center>`);
+		winBody.insertAdjacentHTML('beforeend', `<center><b>${ Lng.noFavThr[lang] }</b></center>`);
 	}
 
-	const btns = $bEnd(body, '<div id="de-fav-buttons"></div>');
+	const btns = $bEnd(winBody, '<div id="de-fav-buttons"></div>');
 	btns.append(
 		// "Edit" button. Calls a popup with editor to edit Favorites in JSON.
 		getEditButton('favor', fn => readFavorites().then(favObj => fn(favObj, true, saveRenewFavorites))),
@@ -501,17 +501,17 @@ function showFavoritesWindow(body, favObj) {
 	);
 
 	// Deletion of confirm/cancel buttons
-	const delBtns = $bEnd(body, '<div id="de-fav-del-confirm" style="display: none;"></div>');
+	const delBtns = $bEnd(winBody, '<div id="de-fav-del-confirm" style="display: none;"></div>');
 	delBtns.append(
 		$button(Lng.remove[lang], Lng.delEntries[lang], () => {
-			$Q('.de-entry > .de-fav-del-btn[de-checked]', body).forEach(
+			$Q('.de-entry > .de-fav-del-btn[de-checked]', winBody).forEach(
 				el => el.parentNode.setAttribute('de-removed', ''));
 			remove404Favorites();
 			$show(btns);
 			$hide(delBtns);
 		}),
 		$button(Lng.cancel[lang], '', () => {
-			$Q('.de-fav-del-btn', body).forEach(el => el.removeAttribute('de-checked'));
+			$Q('.de-fav-del-btn', winBody).forEach(el => el.removeAttribute('de-checked'));
 			$show(btns);
 			$hide(delBtns);
 		})

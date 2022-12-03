@@ -1,4 +1,4 @@
-/* eslint no-undef: "off" */
+/* global require */
 
 const browserify   = require('browserify');
 const { spawn }    = require('child_process');

@@ -7198,7 +7198,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.11.8.0';
-  var commit = '6802c64';
+  var commit = '8697a5c';
+
+
+  var doc = deWindow.document;
+  var gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
+  var gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
+  var aib, Cfg, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum, postform, sesStorage, updater;
+  var topWinZ = 10;
 
 
   var defaultCfg = {
@@ -7806,13 +7813,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   };
 
 
-  var doc = deWindow.document;
-  var gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
-  var gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
-  var aib, Cfg, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum, postform, sesStorage, updater;
-  var topWinZ = 10;
-
-
 
   function $id(id) {
     return doc.getElementById(id);
@@ -7825,11 +7825,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var rootEl = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : doc.body;
     return rootEl.querySelectorAll(path);
   }
-  function $match(parentEl) {
+  function $match(parentStr) {
     for (var _len = arguments.length, rules = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
       rules[_key - 1] = arguments[_key];
     }
-    return parentEl.split(', ').map(function (val) {
+    return parentStr.split(', ').map(function (val) {
       return val + rules.join(', ' + val);
     }).join(', ');
   }
@@ -7947,7 +7947,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     return start + arr.join(end + start) + end;
   }
   function fixBoardName(board) {
-    return '/' + (board ? board + '/' : '');
+    return "/".concat(board ? board + '/' : '');
   }
   function getFileName(url) {
     return url.substring(url.lastIndexOf('/') + 1);
@@ -8051,31 +8051,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       deWindow.URL.revokeObjectURL(url);
       link.remove();
     }, 2e5);
-  }
-
-  function checkCSSColor(color) {
-    if (!color || color === 'inherit' || color === 'currentColor') {
-      return false;
-    }
-    if (color === 'transparent') {
-      return true;
-    }
-    var image = doc.createElement('img');
-    image.style.color = 'rgb(0, 0, 0)';
-    image.style.color = color;
-    if (image.style.color !== 'rgb(0, 0, 0)') {
-      return true;
-    }
-    image.style.color = 'rgb(255, 255, 255)';
-    image.style.color = color;
-    return image.style.color !== 'rgb(255, 255, 255)';
-  }
-
-  function showDonateMsg() {
-    var item = function item(name, value) {
-      return "<div><i>".concat(name, "</i>: <i style=\"font: 14px monospace; color: green;\">").concat(value, "</i></div>");
-    };
-    $popup('donate', Lng.donateMsg[lang] + ":<br style=\"margin-bottom: 8px;\"><!--\n\t\t--><div class=\"de-logo\"><svg><use xlink:href=\"#de-symbol-panel-logo\"/></svg></div><!--\n\t\t--><div style=\"display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;\">" + item('BTC (P2PKH)', '14Y6eJW7dAzL8n6pqyLqrJWuX35uTs2R6T') + item('BTC (P2SH)', '3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq') + item('ETH', '0x32da2d420d189a8c2f2656466f2ba78f58c6331a') + item('YooMoney RUB', '410012122418236') + item('WebMoney WMZ', 'Z100197626370') + '</div>' + (nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ? "<br><br>New: <a href=\"https://addons.mozilla.org/".concat(lang === 1 ? 'en-US' : 'ru') + '/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : ''));
   }
 
   var Logger = {
@@ -9784,17 +9759,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   });
 
 
-  function updateWinZ(style) {
+  function updateWinZ(winEl) {
+    var style = winEl.style;
     if (style.zIndex < topWinZ) {
       style.zIndex = ++topWinZ;
     }
   }
-  function makeDraggable(name, win, head) {
-    head.addEventListener('mousedown', {
+  function makeDraggable(name, winEl, headEl) {
+    headEl.addEventListener('mousedown', {
       _oldX: 0,
       _oldY: 0,
-      _win: win,
-      _wStyle: win.style,
+      _win: winEl,
+      _wStyle: winEl.style,
       _X: 0,
       _Y: 0,
       _Z: 0,
@@ -9859,16 +9835,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     });
   }
   var WinResizer = function () {
-    function WinResizer(name, dir, cfgName, win, target) {
+    function WinResizer(name, direction, cfgName, winEl, targetEl) {
       _classCallCheck(this, WinResizer);
       this.name = name;
-      this.dir = dir;
+      this.direction = direction;
       this.cfgName = cfgName;
-      this.vertical = dir === 'top' || dir === 'bottom';
-      this.win = win;
-      this.wStyle = this.win.style;
-      this.tStyle = target.style;
-      $q('.de-resizer-' + dir, win).addEventListener('mousedown', this);
+      this.vertical = direction === 'top' || direction === 'bottom';
+      this.winEl = winEl;
+      this.wStyle = this.winEl.style;
+      this.tStyle = targetEl.style;
+      $q('.de-resizer-' + direction, winEl).addEventListener('mousedown', this);
     }
     _createClass(WinResizer, [{
       key: "handleEvent",
@@ -9882,20 +9858,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 case 0:
                   _Post$sizing = Post.sizing, maxX = _Post$sizing.wWidth, maxY = _Post$sizing.wHeight;
                   width = this.wStyle.width;
-                  cr = this.win.getBoundingClientRect();
+                  cr = this.winEl.getBoundingClientRect();
                   z = "; z-index: ".concat(this.wStyle.zIndex).concat(width ? '; width:' + width : '');
                   _context7.t0 = e.type;
-                  _context7.next = _context7.t0 === 'mousedown' ? 7 : _context7.t0 === 'mousemove' ? 22 : 24;
+                  _context7.next = _context7.t0 === 'mousedown' ? 7 : _context7.t0 === 'mousemove' ? 22 : 28;
                   break;
                 case 7:
-                  if (this.win.classList.contains('de-win-fixed')) {
+                  if (this.winEl.classList.contains('de-win-fixed')) {
                     x = 'right: 0';
                     y = 'bottom: 25px';
                   } else {
                     x = Cfg[this.name + 'WinX'];
                     y = Cfg[this.name + 'WinY'];
                   }
-                  _context7.t1 = this.dir;
+                  _context7.t1 = this.direction;
                   _context7.next = _context7.t1 === 'top' ? 11 : _context7.t1 === 'bottom' ? 13 : _context7.t1 === 'left' ? 15 : _context7.t1 === 'right' ? 17 : 18;
                   break;
                 case 11:
@@ -9910,50 +9886,52 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 case 17:
                   val = "left: ".concat(cr.left, "px; ").concat(y + z);
                 case 18:
-                  this.win.setAttribute('style', val);
+                  this.winEl.setAttribute('style', val);
                   ['mousemove', 'mouseup'].forEach(function (e) {
                     return doc.body.addEventListener(e, _this17);
                   });
                   e.preventDefault();
                   return _context7.abrupt("return");
                 case 22:
-                  if (this.vertical) {
-                    val = e.clientY;
-                    this.tStyle.setProperty('height', Math.max(parseInt(this.tStyle.height, 10) + (this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) : (val > maxY - 45 ? maxY - 25 : val) - cr.bottom), 90) + 'px', 'important');
-                  } else {
-                    val = e.clientX;
-                    this.tStyle.setProperty('width', Math.max(parseInt(this.tStyle.width, 10) + (this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) : (val > maxX - 20 ? maxX : val) - cr.right), this.name === 'reply' ? 275 : 400) + 'px', 'important');
+                  if (!this.vertical) {
+                    _context7.next = 26;
+                    break;
                   }
+                  val = e.clientY;
+                  this.tStyle.setProperty('height', Math.max(parseInt(this.tStyle.height, 10) + (this.direction === 'top' ? cr.top - (val < 20 ? 0 : val) : (val > maxY - 45 ? maxY - 25 : val) - cr.bottom), 90) + 'px', 'important');
                   return _context7.abrupt("return");
-                case 24:
+                case 26:
+                  val = e.clientX;
+                  this.tStyle.setProperty('width', Math.max(parseInt(this.tStyle.width, 10) + (this.direction === 'left' ? cr.left - (val < 20 ? 0 : val) : (val > maxX - 20 ? maxX : val) - cr.right), this.name === 'reply' ? 275 : 400) + 'px', 'important');
+                case 28:
                   ['mousemove', 'mouseup'].forEach(function (e) {
                     return doc.body.removeEventListener(e, _this17);
                   });
-                  _context7.next = 27;
+                  _context7.next = 31;
                   return CfgSaver.save(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
-                case 27:
-                  if (!this.win.classList.contains('de-win-fixed')) {
-                    _context7.next = 30;
+                case 31:
+                  if (!this.winEl.classList.contains('de-win-fixed')) {
+                    _context7.next = 34;
                     break;
                   }
-                  this.win.setAttribute('style', 'right: 0; bottom: 25px' + z);
+                  this.winEl.setAttribute('style', 'right: 0; bottom: 25px' + z);
                   return _context7.abrupt("return");
-                case 30:
+                case 34:
                   if (!this.vertical) {
-                    _context7.next = 35;
+                    _context7.next = 39;
                     break;
                   }
-                  _context7.next = 33;
+                  _context7.next = 37;
                   return CfgSaver.save(this.name + 'WinY', cr.top < 1 ? 'top: 0' : cr.bottom > maxY - 26 ? 'bottom: 25px' : "top: ".concat(cr.top, "px"));
-                case 33:
-                  _context7.next = 37;
-                  break;
-                case 35:
-                  _context7.next = 37;
-                  return CfgSaver.save(this.name + 'WinX', cr.left < 1 ? 'left: 0' : cr.right > maxX - 1 ? 'right: 0' : "left: ".concat(cr.left, "px"));
                 case 37:
-                  this.win.setAttribute('style', Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z);
-                case 38:
+                  _context7.next = 41;
+                  break;
+                case 39:
+                  _context7.next = 41;
+                  return CfgSaver.save(this.name + 'WinX', cr.left < 1 ? 'left: 0' : cr.right > maxX - 1 ? 'right: 0' : "left: ".concat(cr.left, "px"));
+                case 41:
+                  this.winEl.setAttribute('style', Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z);
+                case 42:
                 case "end":
                   return _context7.stop();
               }
@@ -9969,30 +9947,30 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     return WinResizer;
   }();
   function toggleWindow(name, isUpdate, data, noAnim) {
-    var _win;
+    var _winEl;
     var el;
-    var win = $id('de-win-' + name);
-    var isActive = (_win = win) === null || _win === void 0 ? void 0 : _win.classList.contains('de-win-active');
+    var winEl = $id('de-win-' + name);
+    var isActive = (_winEl = winEl) === null || _winEl === void 0 ? void 0 : _winEl.classList.contains('de-win-active');
     if (isUpdate && !isActive) {
       return;
     }
-    if (!win) {
+    if (!winEl) {
       var winAttr = (Cfg[name + 'WinDrag'] ? "de-win\" style=\"".concat(Cfg[name + 'WinX'], "; ").concat(Cfg[name + 'WinY']) : 'de-win-fixed" style="right: 0; bottom: 25px') + (name !== 'fav' ? '' : "; width: ".concat(Cfg.favWinWidth, "px; "));
-      win = $aBegin($id('de-main'), "<div id=\"de-win-".concat(name, "\" class=\"").concat(winAttr, "; display: none;\">\n\t\t\t<div class=\"de-win-head\">\n\t\t\t\t<span class=\"de-win-title\">\n\t\t\t\t\t").concat(name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang], "\n\t\t\t\t</span>\n\t\t\t\t<span class=\"de-win-buttons\">\n\t\t\t\t\t<svg class=\"de-win-btn-toggle\"><use xlink:href=\"#de-symbol-win-arrow\"/></svg>\n\t\t\t\t\t<svg class=\"de-win-btn-close\"><use xlink:href=\"#de-symbol-win-close\"/></svg>\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t<div class=\"de-win-body\"></div>\n\t\t\t").concat(name !== 'fav' ? '' : "\n\t\t\t\t<div class=\"de-resizer de-resizer-left\"></div>\n\t\t\t\t<div class=\"de-resizer de-resizer-right\"></div>", "\n\t\t</div>"));
-      var winBody = $q('.de-win-body', win);
+      winEl = $aBegin($id('de-main'), "<div id=\"de-win-".concat(name, "\" class=\"").concat(winAttr, "; display: none;\">\n\t\t\t<div class=\"de-win-head\">\n\t\t\t\t<span class=\"de-win-title\">\n\t\t\t\t\t").concat(name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang], "\n\t\t\t\t</span>\n\t\t\t\t<span class=\"de-win-buttons\">\n\t\t\t\t\t<svg class=\"de-win-btn-toggle\"><use xlink:href=\"#de-symbol-win-arrow\"/></svg>\n\t\t\t\t\t<svg class=\"de-win-btn-close\"><use xlink:href=\"#de-symbol-win-close\"/></svg>\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t<div class=\"de-win-body\"></div>\n\t\t\t").concat(name !== 'fav' ? '' : "\n\t\t\t\t<div class=\"de-resizer de-resizer-left\"></div>\n\t\t\t\t<div class=\"de-resizer de-resizer-right\"></div>", "\n\t\t</div>"));
+      var _winBody = $q('.de-win-body', winEl);
       if (name === 'cfg') {
-        winBody.className = 'de-win-body ' + aib.cReply;
+        _winBody.className = 'de-win-body ' + aib.cReply;
       } else {
         setTimeout(function () {
           var backColor = getComputedStyle(doc.body).getPropertyValue('background-color');
-          winBody.style.backgroundColor = backColor !== 'transparent' ? backColor : '#EEE';
+          _winBody.style.backgroundColor = backColor !== 'transparent' ? backColor : '#EEE';
         }, 100);
       }
       if (name === 'fav') {
-        new WinResizer('fav', 'left', 'favWinWidth', win, win);
-        new WinResizer('fav', 'right', 'favWinWidth', win, win);
+        new WinResizer('fav', 'left', 'favWinWidth', winEl, winEl);
+        new WinResizer('fav', 'right', 'favWinWidth', winEl, winEl);
       }
-      el = $q('.de-win-buttons', win);
+      el = $q('.de-win-buttons', winEl);
       el.onmouseover = function (e) {
         var el = nav.fixEventEl(e.target);
         var parent = el.parentNode;
@@ -10018,16 +9996,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 2:
                 isDrag = Cfg[name + 'WinDrag'];
                 if (!isDrag) {
-                  temp = $q('.de-win-active.de-win-fixed', win.parentNode);
+                  temp = $q('.de-win-active.de-win-fixed', winEl.parentNode);
                   if (temp) {
                     toggleWindow(temp.id.substr(7), false);
                   }
                 }
-                win.classList.toggle('de-win', isDrag);
-                win.classList.toggle('de-win-fixed', !isDrag);
-                width = win.style.width;
-                win.style.cssText = "".concat(isDrag ? "".concat(Cfg[name + 'WinX'], "; ").concat(Cfg[name + 'WinY']) : 'right: 0; bottom: 25px').concat(width ? '; width: ' + width : '');
-                updateWinZ(win.style);
+                winEl.classList.toggle('de-win', isDrag);
+                winEl.classList.toggle('de-win-fixed', !isDrag);
+                width = winEl.style.width;
+                winEl.style.cssText = "".concat(isDrag ? "".concat(Cfg[name + 'WinX'], "; ").concat(Cfg[name + 'WinY']) : 'right: 0; bottom: 25px').concat(width ? '; width: ' + width : '');
+                updateWinZ(winEl);
               case 9:
               case "end":
                 return _context8.stop();
@@ -10035,33 +10013,33 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
         }, _callee8);
       }));
-      makeDraggable(name, win, $q('.de-win-head', win));
+      makeDraggable(name, winEl, $q('.de-win-head', winEl));
     }
-    updateWinZ(win.style);
+    updateWinZ(winEl);
     var isRemove = !isUpdate && isActive;
-    if (!isRemove && !win.classList.contains('de-win') && (el = $q(".de-win-active.de-win-fixed:not(#de-win-".concat(name, ")"), win.parentNode))) {
+    if (!isRemove && !winEl.classList.contains('de-win') && (el = $q(".de-win-active.de-win-fixed:not(#de-win-".concat(name, ")"), winEl.parentNode))) {
       toggleWindow(el.id.substr(7), false);
     }
     var isAnim = !noAnim && !isUpdate && Cfg.animation;
-    var body = $q('.de-win-body', win);
-    if (isAnim && body.hasChildNodes()) {
-      win.addEventListener('animationend', function aEvent(e) {
+    var winBody = $q('.de-win-body', winEl);
+    if (isAnim && winBody.hasChildNodes()) {
+      winEl.addEventListener('animationend', function aEvent(e) {
         e.target.removeEventListener('animationend', aEvent);
-        showWindow(win, body, name, isRemove, data, Cfg.animation);
-        win = body = name = isRemove = data = null;
+        showWindow(winEl, winBody, name, isRemove, data, Cfg.animation);
+        winEl = winBody = name = isRemove = data = null;
       });
-      win.classList.remove('de-win-open');
-      win.classList.add('de-win-close');
+      winEl.classList.remove('de-win-open');
+      winEl.classList.add('de-win-close');
     } else {
-      showWindow(win, body, name, isRemove, data, isAnim);
+      showWindow(winEl, winBody, name, isRemove, data, isAnim);
     }
   }
-  function showWindow(win, body, name, isRemove, data, isAnim) {
-    body.innerHTML = '';
-    win.classList.toggle('de-win-active', !isRemove);
+  function showWindow(winEl, winBody, name, isRemove, data, isAnim) {
+    winBody.innerHTML = '';
+    winEl.classList.toggle('de-win-active', !isRemove);
     if (isRemove) {
-      win.classList.remove('de-win-close');
-      $hide(win);
+      winEl.classList.remove('de-win-close');
+      $hide(winEl);
       if (!Cfg.expandPanel && !$q('.de-win-active')) {
         $hide($id('de-panel-buttons'));
       }
@@ -10073,37 +10051,37 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     switch (name) {
       case 'fav':
         if (data) {
-          showFavoritesWindow(body, data);
+          showFavoritesWindow(winBody, data);
           break;
         }
         readFavorites().then(function (favObj) {
-          showFavoritesWindow(body, favObj);
-          $show(win);
+          showFavoritesWindow(winBody, favObj);
+          $show(winEl);
           if (isAnim) {
-            win.classList.add('de-win-open');
+            winEl.classList.add('de-win-open');
           }
         });
         return;
       case 'cfg':
-        CfgWindow.initCfgWindow(body);
+        CfgWindow.initCfgWindow(winBody);
         break;
       case 'hid':
-        showHiddenWindow(body);
+        showHiddenWindow(winBody);
         break;
       case 'vid':
-        showVideosWindow(body);
+        showVideosWindow(winBody);
     }
-    $show(win);
+    $show(winEl);
     if (isAnim) {
-      win.classList.add('de-win-open');
+      winEl.classList.add('de-win-open');
     }
   }
 
 
-  function showVideosWindow(body) {
+  function showVideosWindow(winBody) {
     var els = $Q('.de-video-link');
     if (!els.length) {
-      body.innerHTML = "<b>".concat(Lng.noVideoLinks[lang], "</b>");
+      winBody.innerHTML = "<b>".concat(Lng.noVideoLinks[lang], "</b>");
       return;
     }
     if (!$id('de-ytube-api')) {
@@ -10113,19 +10091,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       _script.id = 'de-ytube-api';
       doc.head.append(_script);
     }
-    body.innerHTML = "<div de-disableautoplay class=\"de-video-obj\"></div>\n\t<div id=\"de-video-buttons\">\n\t\t<a class=\"de-abtn\" id=\"de-video-btn-prev\" href=\"#\" title=\"".concat(Lng.prevVideo[lang], "\">&#x25C0;</a>\n\t\t<a class=\"de-abtn\" id=\"de-video-btn-resize\" href=\"#\" title=\"").concat(Lng.expandVideo[lang], "\"></a>\n\t\t<a class=\"de-abtn\" id=\"de-video-btn-next\" href=\"#\" title=\"").concat(Lng.nextVideo[lang], "\">&#x25B6;</a>\n\t\t<a class=\"de-abtn\" id=\"de-video-btn-hide\" href=\"#\" title=\"").concat(Lng.hideLnkList[lang], "\">&#x25B2;</a>\n\t</div>");
+    winBody.innerHTML = "<div de-disableautoplay class=\"de-video-obj\"></div>\n\t<div id=\"de-video-buttons\">\n\t\t<a class=\"de-abtn\" id=\"de-video-btn-prev\" href=\"#\" title=\"".concat(Lng.prevVideo[lang], "\">&#x25C0;</a>\n\t\t<a class=\"de-abtn\" id=\"de-video-btn-resize\" href=\"#\" title=\"").concat(Lng.expandVideo[lang], "\"></a>\n\t\t<a class=\"de-abtn\" id=\"de-video-btn-next\" href=\"#\" title=\"").concat(Lng.nextVideo[lang], "\">&#x25B6;</a>\n\t\t<a class=\"de-abtn\" id=\"de-video-btn-hide\" href=\"#\" title=\"").concat(Lng.hideLnkList[lang], "\">&#x25B2;</a>\n\t</div>");
     var linkList = $add("<div id=\"de-video-list\" style=\"max-width: ".concat(+Cfg.YTubeWidth + 40, "px; max-height: ").concat(nav.viewportHeight() * 0.92 - +Cfg.YTubeHeigh - 82, "px;\"></div>"));
 
     var script = doc.createElement('script');
     script.type = 'text/javascript';
     script.textContent = "(function() {\n\t\tif('YT' in window && 'Player' in window.YT) {\n\t\t\tonYouTubePlayerAPIReady();\n\t\t} else {\n\t\t\twindow.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;\n\t\t}\n\t\tfunction onYouTubePlayerAPIReady() {\n\t\t\twindow.de_addVideoEvents =\n\t\t\t\taddEvents.bind(document.querySelector('#de-win-vid > .de-win-body > .de-video-obj'));\n\t\t\twindow.de_addVideoEvents();\n\t\t}\n\t\tfunction addEvents() {\n\t\t\tvar autoplay = true;\n\t\t\tif(this.hasAttribute('de-disableautoplay')) {\n\t\t\t\tautoplay = false;\n\t\t\t\tthis.removeAttribute('de-disableautoplay');\n\t\t\t}\n\t\t\tnew YT.Player(this.firstChild, { events: {\n\t\t\t\t'onError': gotoNextVideo,\n\t\t\t\t'onReady': autoplay ? function(e) {\n\t\t\t\t\te.target.playVideo();\n\t\t\t\t} : Function.prototype,\n\t\t\t\t'onStateChange': function(e) {\n\t\t\t\t\tif(e.data === 0) {\n\t\t\t\t\t\tgotoNextVideo();\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}});\n\t\t}\n\t\tfunction gotoNextVideo() {\n\t\t\tdocument.getElementById(\"de-video-btn-next\").click();\n\t\t}\n\t})();";
-    body.append(script);
+    winBody.append(script);
 
-    body.addEventListener('click', {
+    winBody.addEventListener('click', {
       linkList: linkList,
       currentLink: null,
       listHidden: false,
-      player: body.firstElementChild,
+      player: winBody.firstElementChild,
       playerInfo: null,
       handleEvent: function handleEvent(e) {
         var el = e.target;
@@ -10179,7 +10157,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     for (var i = 0, len = els.length; i < len; ++i) {
       updateVideoList(linkList, els[i], aib.getPostOfEl(els[i]).num);
     }
-    body.append(linkList);
+    winBody.append(linkList);
     $q('.de-video-link', linkList).click();
   }
   function updateVideoList(parent, link, num) {
@@ -10190,7 +10168,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     $bEnd(parent, "<div class=\"de-entry ".concat(aib.cReply, "\">\n\t\t<a class=\"de-video-refpost\" title=\">>").concat(num, "\" de-num=\"").concat(num, "\">&gt;&gt;</a>\n\t</div>")).append(el);
   }
 
-  function showHiddenWindow(body) {
+  function showHiddenWindow(winBody) {
     var boards = HiddenThreads.getRawData();
     var hasThreads = !$isEmpty(boards);
     if (hasThreads) {
@@ -10202,7 +10180,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         if ($isEmpty(threads)) {
           return "continue";
         }
-        var block = $bEnd(body, "<div class=\"de-fold-block\"><input type=\"checkbox\"><b>/".concat(board, "</b></div>"));
+        var block = $bEnd(winBody, "<div class=\"de-fold-block\"><input type=\"checkbox\"><b>/".concat(board, "</b></div>"));
         block.firstChild.onclick = function (e) {
           return $Q('.de-entry > input', block).forEach(function (el) {
             return el.checked = e.target.checked;
@@ -10219,7 +10197,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         if (_ret === "continue") continue;
       }
     }
-    $bEnd(body, (!hasThreads ? "<center><b>".concat(Lng.noHidThr[lang], "</b></center>") : '') + '<div id="de-hid-buttons"></div>').append(
+    $bEnd(winBody, (!hasThreads ? "<center><b>".concat(Lng.noHidThr[lang], "</b></center>") : '') + '<div id="de-hid-buttons"></div>').append(
     getEditButton('hidden', function (fn) {
       return fn(HiddenThreads.getRawData(), true, function (data) {
         HiddenThreads.saveRawData(data);
@@ -10281,7 +10259,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       };
     }()),
     $button(Lng.remove[lang], Lng.delEntries[lang], function () {
-      $Q('.de-entry[info]', body).forEach(function (el) {
+      $Q('.de-entry[info]', winBody).forEach(function (el) {
         if (!$q('input', el).checked) {
           return;
         }
@@ -10694,7 +10672,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }));
     return _refreshFavorites.apply(this, arguments);
   }
-  function showFavoritesWindow(body, favObj) {
+  function showFavoritesWindow(winBody, favObj) {
     var html = '';
     for (var host in favObj) {
       if (!$hasProp(favObj, host)) {
@@ -10750,7 +10728,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }
 
     if (html) {
-      $bEnd(body, "<div class=\"de-fav-table\">".concat(html, "</div>")).addEventListener('click', function (e) {
+      $bEnd(winBody, "<div class=\"de-fav-table\">".concat(html, "</div>")).addEventListener('click', function (e) {
         var el = nav.fixEventEl(e.target);
         var parentEl = el.parentNode;
         if (el.tagName.toLowerCase() === 'svg') {
@@ -10776,7 +10754,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   entriesEl.classList.remove('de-fav-entries-hide');
                 }
               }
-              var isShowDelBtns = !!$q('.de-entry > .de-fav-del-btn[de-checked]', body);
+              var isShowDelBtns = !!$q('.de-entry > .de-fav-del-btn[de-checked]', winBody);
               $toggle($id('de-fav-buttons'), !isShowDelBtns);
               $toggle($id('de-fav-del-confirm'), isShowDelBtns);
               break;
@@ -10794,9 +10772,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       });
     } else {
-      body.insertAdjacentHTML('beforeend', "<center><b>".concat(Lng.noFavThr[lang], "</b></center>"));
+      winBody.insertAdjacentHTML('beforeend', "<center><b>".concat(Lng.noFavThr[lang], "</b></center>"));
     }
-    var btns = $bEnd(body, '<div id="de-fav-buttons"></div>');
+    var btns = $bEnd(winBody, '<div id="de-fav-buttons"></div>');
     btns.append(
     getEditButton('favor', function (fn) {
       return readFavorites().then(function (favObj) {
@@ -10908,16 +10886,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, _callee10, null, [[13, 21]]);
     }))));
 
-    var delBtns = $bEnd(body, '<div id="de-fav-del-confirm" style="display: none;"></div>');
+    var delBtns = $bEnd(winBody, '<div id="de-fav-del-confirm" style="display: none;"></div>');
     delBtns.append($button(Lng.remove[lang], Lng.delEntries[lang], function () {
-      $Q('.de-entry > .de-fav-del-btn[de-checked]', body).forEach(function (el) {
+      $Q('.de-entry > .de-fav-del-btn[de-checked]', winBody).forEach(function (el) {
         return el.parentNode.setAttribute('de-removed', '');
       });
       remove404Favorites();
       $show(btns);
       $hide(delBtns);
     }), $button(Lng.cancel[lang], '', function () {
-      $Q('.de-fav-del-btn', body).forEach(function (el) {
+      $Q('.de-fav-del-btn', winBody).forEach(function (el) {
         return el.removeAttribute('de-checked');
       });
       $show(btns);
@@ -10927,13 +10905,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
   var CfgWindow = {
-    initCfgWindow: function initCfgWindow(body) {
+    initCfgWindow: function initCfgWindow(winBody) {
       var _this18 = this;
       ['click', 'mouseover', 'mouseout', 'change', 'keyup', 'keydown', 'scroll'].forEach(function (e) {
-        return body.addEventListener(e, _this18);
+        return winBody.addEventListener(e, _this18);
       });
 
-      var div = $bEnd(body, "<div id=\"de-cfg-bar\">".concat(this._getTab('filters') + this._getTab('posts') + this._getTab('images') + this._getTab('links') + (postform.form || postform.oeForm ? this._getTab('form') : '') + this._getTab('common') + this._getTab('info'), "</div><div id=\"de-cfg-buttons\">").concat(this._getSel('language'), "</div>"));
+      var div = $bEnd(winBody, "<div id=\"de-cfg-bar\">".concat(this._getTab('filters') + this._getTab('posts') + this._getTab('images') + this._getTab('links') + (postform.form || postform.oeForm ? this._getTab('form') : '') + this._getTab('common') + this._getTab('info'), "</div><div id=\"de-cfg-buttons\">").concat(this._getSel('language'), "</div>"));
 
       this._clickTab(Cfg.cfgTab);
       div.append(
@@ -11211,7 +11189,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     handleEvent: function handleEvent(e) {
       var _this19 = this;
       return _asyncToGenerator( _regeneratorRuntime().mark(function _callee15() {
-        var type, el, tag, classList, info, _info, isHide, post, _iterator4, _step4, _el3, _info2, _post4, img, _iterator5, _step5, _el4, perf, arr, i, len, _info3, isCheck, val;
+        var type, el, tag, classList, info, _info, isHide, post, _iterator4, _step4, _el3, _info2, _post4, img, _iterator5, _step5, _el4, perf, arr, i, len, _info3, isValidColor, color, image, val;
         return _regeneratorRuntime().wrap(function _callee15$(_context16) {
           while (1) {
             switch (_context16.prev = _context16.next) {
@@ -11312,9 +11290,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 return _context16.abrupt("break", 50);
               case 49:
                 readFavorites().then(function (favObj) {
-                  var body = $q('#de-win-fav > .de-win-body');
-                  body.innerHTML = '';
-                  showFavoritesWindow(body, favObj);
+                  var winBody = $q('#de-win-fav > .de-win-body');
+                  winBody.innerHTML = '';
+                  showFavoritesWindow(winBody, favObj);
                 });
               case 50:
                 return _context16.abrupt("return");
@@ -11524,155 +11502,169 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }, '\t');
               case 139:
                 if (!(type === 'keyup' && tag === 'input' && el.type === 'text')) {
-                  _context16.next = 194;
+                  _context16.next = 196;
                   break;
                 }
                 _info3 = el.getAttribute('info');
                 _context16.t3 = _info3;
-                _context16.next = _context16.t3 === 'postBtnsBack' ? 144 : _context16.t3 === 'limitPostMsg' ? 151 : _context16.t3 === 'minImgSize' ? 155 : _context16.t3 === 'maxImgSize' ? 158 : _context16.t3 === 'zoomFactor' ? 161 : _context16.t3 === 'webmVolume' ? 164 : _context16.t3 === 'minWebmWidth' ? 169 : _context16.t3 === 'maskVisib' ? 172 : _context16.t3 === 'linksOver' ? 176 : _context16.t3 === 'linksOut' ? 179 : _context16.t3 === 'ytApiKey' ? 182 : _context16.t3 === 'passwValue' ? 185 : _context16.t3 === 'nameValue' ? 188 : 191;
+                _context16.next = _context16.t3 === 'postBtnsBack' ? 144 : _context16.t3 === 'limitPostMsg' ? 153 : _context16.t3 === 'minImgSize' ? 157 : _context16.t3 === 'maxImgSize' ? 160 : _context16.t3 === 'zoomFactor' ? 163 : _context16.t3 === 'webmVolume' ? 166 : _context16.t3 === 'minWebmWidth' ? 171 : _context16.t3 === 'maskVisib' ? 174 : _context16.t3 === 'linksOver' ? 178 : _context16.t3 === 'linksOut' ? 181 : _context16.t3 === 'ytApiKey' ? 184 : _context16.t3 === 'passwValue' ? 187 : _context16.t3 === 'nameValue' ? 190 : 193;
                 break;
               case 144:
-                isCheck = checkCSSColor(el.value);
-                classList.toggle('de-input-error', !isCheck);
-                if (!isCheck) {
-                  _context16.next = 150;
+                isValidColor = false;
+                color = el.value;
+                if (color === 'transparent') {
+                  isValidColor = true;
+                } else if (color && color !== 'inherit' && color !== 'currentColor') {
+                  image = doc.createElement('img');
+                  image.style.color = 'rgb(0, 0, 0)';
+                  image.style.color = color;
+                  if (image.style.color !== 'rgb(0, 0, 0)') {
+                    isValidColor = true;
+                  }
+                  image.style.color = 'rgb(255, 255, 255)';
+                  image.style.color = color;
+                  isValidColor = image.style.color !== 'rgb(255, 255, 255)';
+                }
+                classList.toggle('de-input-error', !isValidColor);
+                if (!isValidColor) {
+                  _context16.next = 152;
                   break;
                 }
-                _context16.next = 149;
+                _context16.next = 151;
                 return CfgSaver.save('postBtnsBack', el.value);
-              case 149:
-                updateCSS();
-              case 150:
-                return _context16.abrupt("break", 193);
               case 151:
-                _context16.next = 153;
-                return CfgSaver.save('limitPostMsg', Math.max(+el.value || 0, 50));
+                updateCSS();
+              case 152:
+                return _context16.abrupt("break", 195);
               case 153:
-                updateCSS();
-                return _context16.abrupt("break", 193);
+                _context16.next = 155;
+                return CfgSaver.save('limitPostMsg', Math.max(+el.value || 0, 50));
               case 155:
-                _context16.next = 157;
-                return CfgSaver.save('minImgSize', Math.min(Math.max(+el.value, 1)), Cfg.maxImgSize);
-              case 157:
-                return _context16.abrupt("break", 193);
-              case 158:
-                _context16.next = 160;
-                return CfgSaver.save('maxImgSize', Math.max(+el.value, Cfg.minImgSize));
-              case 160:
-                return _context16.abrupt("break", 193);
-              case 161:
-                _context16.next = 163;
-                return CfgSaver.save('zoomFactor', Math.min(Math.max(+el.value, 1), 100));
-              case 163:
-                return _context16.abrupt("break", 193);
-              case 164:
-                val = Math.min(+el.value || 0, 100);
-                _context16.next = 167;
-                return CfgSaver.save('webmVolume', val);
-              case 167:
-                sendStorageEvent('__de-webmvolume', val);
-                return _context16.abrupt("break", 193);
-              case 169:
-                _context16.next = 171;
-                return CfgSaver.save('minWebmWidth', Math.max(+el.value, Cfg.minImgSize));
-              case 171:
-                return _context16.abrupt("break", 193);
-              case 172:
-                _context16.next = 174;
-                return CfgSaver.save('maskVisib', Math.min(+el.value || 0, 100));
-              case 174:
                 updateCSS();
-                return _context16.abrupt("break", 193);
+                return _context16.abrupt("break", 195);
+              case 157:
+                _context16.next = 159;
+                return CfgSaver.save('minImgSize', Math.min(Math.max(+el.value, 1)), Cfg.maxImgSize);
+              case 159:
+                return _context16.abrupt("break", 195);
+              case 160:
+                _context16.next = 162;
+                return CfgSaver.save('maxImgSize', Math.max(+el.value, Cfg.minImgSize));
+              case 162:
+                return _context16.abrupt("break", 195);
+              case 163:
+                _context16.next = 165;
+                return CfgSaver.save('zoomFactor', Math.min(Math.max(+el.value, 1), 100));
+              case 165:
+                return _context16.abrupt("break", 195);
+              case 166:
+                val = Math.min(+el.value || 0, 100);
+                _context16.next = 169;
+                return CfgSaver.save('webmVolume', val);
+              case 169:
+                sendStorageEvent('__de-webmvolume', val);
+                return _context16.abrupt("break", 195);
+              case 171:
+                _context16.next = 173;
+                return CfgSaver.save('minWebmWidth', Math.max(+el.value, Cfg.minImgSize));
+              case 173:
+                return _context16.abrupt("break", 195);
+              case 174:
+                _context16.next = 176;
+                return CfgSaver.save('maskVisib', Math.min(+el.value || 0, 100));
               case 176:
-                _context16.next = 178;
-                return CfgSaver.save('linksOver', +el.value | 0);
+                updateCSS();
+                return _context16.abrupt("break", 195);
               case 178:
-                return _context16.abrupt("break", 193);
-              case 179:
-                _context16.next = 181;
-                return CfgSaver.save('linksOut', +el.value | 0);
+                _context16.next = 180;
+                return CfgSaver.save('linksOver', +el.value | 0);
+              case 180:
+                return _context16.abrupt("break", 195);
               case 181:
-                return _context16.abrupt("break", 193);
-              case 182:
-                _context16.next = 184;
-                return CfgSaver.save('ytApiKey', el.value.trim());
+                _context16.next = 183;
+                return CfgSaver.save('linksOut', +el.value | 0);
+              case 183:
+                return _context16.abrupt("break", 195);
               case 184:
-                return _context16.abrupt("break", 193);
-              case 185:
-                _context16.next = 187;
-                return PostForm.setUserPassw();
+                _context16.next = 186;
+                return CfgSaver.save('ytApiKey', el.value.trim());
+              case 186:
+                return _context16.abrupt("break", 195);
               case 187:
-                return _context16.abrupt("break", 193);
-              case 188:
-                _context16.next = 190;
-                return PostForm.setUserName();
+                _context16.next = 189;
+                return PostForm.setUserPassw();
+              case 189:
+                return _context16.abrupt("break", 195);
               case 190:
-                return _context16.abrupt("break", 193);
-              case 191:
-                _context16.next = 193;
-                return CfgSaver.save(_info3, el.value);
+                _context16.next = 192;
+                return PostForm.setUserName();
+              case 192:
+                return _context16.abrupt("break", 195);
               case 193:
+                _context16.next = 195;
+                return CfgSaver.save(_info3, el.value);
+              case 195:
                 return _context16.abrupt("return");
-              case 194:
+              case 196:
                 if (!(tag === 'a')) {
-                  _context16.next = 223;
+                  _context16.next = 225;
                   break;
                 }
                 if (!(el.id === 'de-btn-spell-add')) {
-                  _context16.next = 205;
+                  _context16.next = 207;
                   break;
                 }
                 _context16.t4 = e.type;
-                _context16.next = _context16.t4 === 'click' ? 199 : _context16.t4 === 'mouseover' ? 201 : _context16.t4 === 'mouseout' ? 203 : 204;
+                _context16.next = _context16.t4 === 'click' ? 201 : _context16.t4 === 'mouseover' ? 203 : _context16.t4 === 'mouseout' ? 205 : 206;
                 break;
-              case 199:
-                e.preventDefault();
-                return _context16.abrupt("break", 204);
               case 201:
+                e.preventDefault();
+                return _context16.abrupt("break", 206);
+              case 203:
                 el.odelay = setTimeout(function () {
                   return addMenu(el);
                 }, Cfg.linksOver);
-                return _context16.abrupt("break", 204);
-              case 203:
-                clearTimeout(el.odelay);
-              case 204:
-                return _context16.abrupt("return");
+                return _context16.abrupt("break", 206);
               case 205:
+                clearTimeout(el.odelay);
+              case 206:
+                return _context16.abrupt("return");
+              case 207:
                 if (!(type === 'click')) {
-                  _context16.next = 222;
+                  _context16.next = 224;
                   break;
                 }
                 _context16.t5 = el.id;
-                _context16.next = _context16.t5 === 'de-btn-spell-apply' ? 209 : _context16.t5 === 'de-btn-spell-clear' ? 216 : 222;
+                _context16.next = _context16.t5 === 'de-btn-spell-apply' ? 211 : _context16.t5 === 'de-btn-spell-clear' ? 218 : 224;
                 break;
-              case 209:
+              case 211:
                 e.preventDefault();
-                _context16.next = 212;
+                _context16.next = 214;
                 return CfgSaver.save('hideBySpell', 1);
-              case 212:
+              case 214:
                 $q('input[info="hideBySpell"]').checked = true;
-                _context16.next = 215;
+                _context16.next = 217;
                 return Spells.toggle();
-              case 215:
-                return _context16.abrupt("break", 222);
-              case 216:
+              case 217:
+                return _context16.abrupt("break", 224);
+              case 218:
                 e.preventDefault();
                 if (confirm(Lng.clear[lang] + '?')) {
-                  _context16.next = 219;
+                  _context16.next = 221;
                   break;
                 }
                 return _context16.abrupt("return");
-              case 219:
+              case 221:
                 $id('de-spell-txt').value = '';
-                _context16.next = 222;
+                _context16.next = 224;
                 return Spells.toggle();
-              case 222:
+              case 224:
                 return _context16.abrupt("return");
-              case 223:
+              case 225:
                 if (tag === 'textarea' && el.id === 'de-spell-txt' && (type === 'keydown' || type === 'scroll')) {
                   _this19._updateRowMeter(el);
                 }
-              case 224:
+              case 226:
               case "end":
                 return _context16.stop();
             }
@@ -16142,7 +16134,7 @@ this.disableSpells();
         }
         post.wrap.after(this.qArea);
         if (this.qArea.classList.contains('de-win')) {
-          updateWinZ(this.qArea.style);
+          updateWinZ(this.qArea);
         }
         var qNum = post.thr.num;
         if (!aib.t) {
@@ -16489,7 +16481,7 @@ this.disableSpells();
                 case 2:
                   if (Cfg.replyWinDrag) {
                     _this49.qArea.className = aib.cReply + ' de-win';
-                    updateWinZ(_this49.qArea.style);
+                    updateWinZ(_this49.qArea);
                   } else {
                     _this49.qArea.className = aib.cReply + ' de-win-inpost';
                     _this49.txta.focus();
@@ -27503,7 +27495,7 @@ Spells.addSpell(9, '', false);
 
   function checkForUpdates(_x40, _x41) {
     return _checkForUpdates.apply(this, arguments);
-  }
+  } 
   function _checkForUpdates() {
     _checkForUpdates = _asyncToGenerator( _regeneratorRuntime().mark(function _callee58(isManual, lastUpdateTime) {
       var _v$;
@@ -27599,6 +27591,12 @@ Spells.addSpell(9, '', false);
       }, _callee58, null, [[3, 10]]);
     }));
     return _checkForUpdates.apply(this, arguments);
+  }
+  function showDonateMsg() {
+    var item = function item(name, value) {
+      return "<div><i>".concat(name, "</i>: <i style=\"font: 14px monospace; color: green;\">").concat(value, "</i></div>");
+    };
+    $popup('donate', Lng.donateMsg[lang] + ":<br style=\"margin-bottom: 8px;\"><!--\n\t\t--><div class=\"de-logo\"><svg><use xlink:href=\"#de-symbol-panel-logo\"/></svg></div><!--\n\t\t--><div style=\"display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;\">" + item('BTC (P2PKH)', '14Y6eJW7dAzL8n6pqyLqrJWuX35uTs2R6T') + item('BTC (P2SH)', '3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq') + item('ETH', '0x32da2d420d189a8c2f2656466f2ba78f58c6331a') + item('YooMoney RUB', '410012122418236') + item('WebMoney WMZ', 'Z100197626370') + '</div>' + (nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ? "<br><br>New: <a href=\"https://addons.mozilla.org/".concat(lang === 1 ? 'en-US' : 'ru') + '/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : ''));
   }
   function initPage() {
     if (aib.t) {

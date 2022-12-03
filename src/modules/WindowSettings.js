@@ -3,12 +3,12 @@
 =========================================================================================================== */
 
 const CfgWindow = {
-	initCfgWindow(body) {
+	initCfgWindow(winBody) {
 		['click', 'mouseover', 'mouseout', 'change', 'keyup', 'keydown', 'scroll'].forEach(
-			e => body.addEventListener(e, this));
+			e => winBody.addEventListener(e, this));
 
 		// Create tab bar and bottom buttons
-		let div = $bEnd(body, `<div id="de-cfg-bar">${
+		let div = $bEnd(winBody, `<div id="de-cfg-bar">${
 			this._getTab('filters') +
 			this._getTab('posts') +
 			this._getTab('images') +
@@ -298,9 +298,9 @@ const CfgWindow = {
 			case 'panelCounter': this._updateCSS(); break;
 			case 'favThrOrder':
 				readFavorites().then(favObj => {
-					const body = $q('#de-win-fav > .de-win-body');
-					body.innerHTML = '';
-					showFavoritesWindow(body, favObj);
+					const winBody = $q('#de-win-fav > .de-win-body');
+					winBody.innerHTML = '';
+					showFavoritesWindow(winBody, favObj);
 				});
 			}
 			return;
@@ -463,9 +463,23 @@ const CfgWindow = {
 			const info = el.getAttribute('info');
 			switch(info) {
 			case 'postBtnsBack': {
-				const isCheck = checkCSSColor(el.value);
-				classList.toggle('de-input-error', !isCheck);
-				if(isCheck) {
+				let isValidColor = false;
+				const color = el.value;
+				if(color === 'transparent') {
+					isValidColor = true;
+				} else if(color && color !== 'inherit' && color !== 'currentColor') {
+					const image = doc.createElement('img');
+					image.style.color = 'rgb(0, 0, 0)';
+					image.style.color = color;
+					if(image.style.color !== 'rgb(0, 0, 0)') {
+						isValidColor = true;
+					}
+					image.style.color = 'rgb(255, 255, 255)';
+					image.style.color = color;
+					isValidColor = image.style.color !== 'rgb(255, 255, 255)';
+				}
+				classList.toggle('de-input-error', !isValidColor);
+				if(isValidColor) {
 					await CfgSaver.save('postBtnsBack', el.value);
 					updateCSS();
 				}

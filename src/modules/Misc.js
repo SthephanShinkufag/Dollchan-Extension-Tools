@@ -60,7 +60,7 @@ const DollchanAPI = {
 	}
 };
 
-// Checking for Dollchan updates from github
+// Checking for Dollchan updates from Github
 async function checkForUpdates(isManual, lastUpdateTime) {
 	if(!isManual) {
 		if(Date.now() - +lastUpdateTime < [0, 1, 2, 7, 14, 30][Cfg.updDollchan] * 1e3 * 60 * 60 * 24) {
@@ -105,6 +105,25 @@ async function checkForUpdates(isManual, lastUpdateTime) {
 				Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>${ chLogLink }`) }`;
 	}
 	throw new Error();
+}
+
+
+// Donation message after Dollchan update
+function showDonateMsg() {
+	const item = (name, value) =>
+		`<div><i>${ name }</i>: <i style="font: 14px monospace; color: green;">${ value }</i></div>`;
+	$popup('donate', Lng.donateMsg[lang] + `:<br style="margin-bottom: 8px;"><!--
+		--><div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div><!--
+		--><div style="display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;">` +
+			item('BTC (P2PKH)', '14Y6eJW7dAzL8n6pqyLqrJWuX35uTs2R6T') +
+			item('BTC (P2SH)', '3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq') +
+			item('ETH', '0x32da2d420d189a8c2f2656466f2ba78f58c6331a') +
+			item('YooMoney RUB', '410012122418236') +
+			item('WebMoney WMZ', 'Z100197626370') +
+		'</div>' +
+		(nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ?
+			`<br><br>New: <a href="https://addons.mozilla.org/${ lang === 1 ? 'en-US' : 'ru' }` +
+			'/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : ''));
 }
 
 function initPage() {

@@ -2,10 +2,10 @@
                                         WINDOW: VIDEOS, HIDDEN THREADS
 =========================================================================================================== */
 
-function showVideosWindow(body) {
+function showVideosWindow(winBody) {
 	const els = $Q('.de-video-link');
 	if(!els.length) {
-		body.innerHTML = `<b>${ Lng.noVideoLinks[lang] }</b>`;
+		winBody.innerHTML = `<b>${ Lng.noVideoLinks[lang] }</b>`;
 		return;
 	}
 	// <EXCLUDED_FROM_EXTENSION>
@@ -18,7 +18,7 @@ function showVideosWindow(body) {
 		doc.head.append(script);
 	}
 	// </EXCLUDED_FROM_EXTENSION>
-	body.innerHTML = `<div de-disableautoplay class="de-video-obj"></div>
+	winBody.innerHTML = `<div de-disableautoplay class="de-video-obj"></div>
 	<div id="de-video-buttons">
 		<a class="de-abtn" id="de-video-btn-prev" href="#" title="${ Lng.prevVideo[lang] }">&#x25C0;</a>
 		<a class="de-abtn" id="de-video-btn-resize" href="#" title="${ Lng.expandVideo[lang] }"></a>
@@ -67,15 +67,15 @@ function showVideosWindow(body) {
 			document.getElementById("de-video-btn-next").click();
 		}
 	})();`;
-	body.append(script);
+	winBody.append(script);
 	// </EXCLUDED_FROM_EXTENSION>
 
 	// Events for control buttons
-	body.addEventListener('click', {
+	winBody.addEventListener('click', {
 		linkList,
 		currentLink : null,
 		listHidden  : false,
-		player      : body.firstElementChild,
+		player      : winBody.firstElementChild,
 		playerInfo  : null,
 		handleEvent(e) {
 			const el = e.target;
@@ -131,7 +131,7 @@ function showVideosWindow(body) {
 	for(let i = 0, len = els.length; i < len; ++i) {
 		updateVideoList(linkList, els[i], aib.getPostOfEl(els[i]).num);
 	}
-	body.append(linkList);
+	winBody.append(linkList);
 	$q('.de-video-link', linkList).click();
 }
 
@@ -146,7 +146,7 @@ function updateVideoList(parent, link, num) {
 }
 
 // HIDDEN THREADS WINDOW
-function showHiddenWindow(body) {
+function showHiddenWindow(winBody) {
 	const boards = HiddenThreads.getRawData();
 	const hasThreads = !$isEmpty(boards);
 	if(hasThreads) {
@@ -159,7 +159,7 @@ function showHiddenWindow(body) {
 			if($isEmpty(threads)) {
 				continue;
 			}
-			const block = $bEnd(body,
+			const block = $bEnd(winBody,
 				`<div class="de-fold-block"><input type="checkbox"><b>/${ board }</b></div>`);
 			block.firstChild.onclick =
 				e => $Q('.de-entry > input', block).forEach(el => (el.checked = e.target.checked));
@@ -175,7 +175,7 @@ function showHiddenWindow(body) {
 			}
 		}
 	}
-	$bEnd(body, (!hasThreads ? `<center><b>${ Lng.noHidThr[lang] }</b></center>` : '') +
+	$bEnd(winBody, (!hasThreads ? `<center><b>${ Lng.noHidThr[lang] }</b></center>` : '') +
 		'<div id="de-hid-buttons"></div>'
 	).append(
 		// "Edit" button. Calls a popup with editor to edit Hidden in JSON.
@@ -201,7 +201,7 @@ function showHiddenWindow(body) {
 		}),
 		// "Delete" button. Allows to delete selected threads
 		$button(Lng.remove[lang], Lng.delEntries[lang], () => {
-			$Q('.de-entry[info]', body).forEach(el => {
+			$Q('.de-entry[info]', winBody).forEach(el => {
 				if(!$q('input', el).checked) {
 					return;
 				}

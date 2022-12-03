@@ -4,11 +4,11 @@
 'use strict';
 
 const version = '22.11.8.0';
-const commit = '6802c64';
+const commit = '8697a5c';
 
+/* ==[ GlobalVars.js ]== */
 /* ==[ DefaultCfg.js ]== */
 /* ==[ Localization.js ]== */
-/* ==[ GlobalVars.js ]== */
 /* ==[ Utils.js ]== */
 /* ==[ Storage.js ]== */
 /* ==[ Panel.js ]== */

@@ -16,8 +16,8 @@ function $Q(path, rootEl = doc.body) {
 	return rootEl.querySelectorAll(path);
 }
 
-function $match(parentEl, ...rules) {
-	return parentEl.split(', ').map(val => val + rules.join(', ' + val)).join(', ');
+function $match(parentStr, ...rules) {
+	return parentStr.split(', ').map(val => val + rules.join(', ' + val)).join(', ');
 }
 
 // DOM MODIFIERS
@@ -153,7 +153,7 @@ function arrTags(arr, start, end) {
 }
 
 function fixBoardName(board) {
-	return '/' + (board ? board + '/' : '');
+	return `/${ board ? board + '/' : '' }`;
 }
 
 function getFileName(url) {
@@ -233,7 +233,7 @@ function getFileMime(url) {
 	}
 }
 
-// Uploads files stored in a Blob
+// Downloads files stored in a Blob
 function downloadBlob(blob, name) {
 	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : deWindow.URL.createObjectURL(blob);
 	const link = $bEnd(doc.body, `<a href="${ url }" download="${ name }"></a>`);
@@ -242,43 +242,6 @@ function downloadBlob(blob, name) {
 		deWindow.URL.revokeObjectURL(url);
 		link.remove();
 	}, 2e5);
-}
-
-// Checks if the color entered by the user is correct
-function checkCSSColor(color) {
-	if(!color || color === 'inherit' || color === 'currentColor') {
-		return false;
-	}
-	if(color === 'transparent') {
-		return true;
-	}
-	const image = doc.createElement('img');
-	image.style.color = 'rgb(0, 0, 0)';
-	image.style.color = color;
-	if(image.style.color !== 'rgb(0, 0, 0)') {
-		return true;
-	}
-	image.style.color = 'rgb(255, 255, 255)';
-	image.style.color = color;
-	return image.style.color !== 'rgb(255, 255, 255)';
-}
-
-// Donation message after Dollchan update
-function showDonateMsg() {
-	const item = (name, value) =>
-		`<div><i>${ name }</i>: <i style="font: 14px monospace; color: green;">${ value }</i></div>`;
-	$popup('donate', Lng.donateMsg[lang] + `:<br style="margin-bottom: 8px;"><!--
-		--><div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div><!--
-		--><div style="display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;">` +
-			item('BTC (P2PKH)', '14Y6eJW7dAzL8n6pqyLqrJWuX35uTs2R6T') +
-			item('BTC (P2SH)', '3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq') +
-			item('ETH', '0x32da2d420d189a8c2f2656466f2ba78f58c6331a') +
-			item('YooMoney RUB', '410012122418236') +
-			item('WebMoney WMZ', 'Z100197626370') +
-		'</div>' +
-		(nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ?
-			`<br><br>New: <a href="https://addons.mozilla.org/${ lang === 1 ? 'en-US' : 'ru' }` +
-			'/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : ''));
 }
 
 // Allows to record the duration of code execution

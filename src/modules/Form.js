@@ -291,7 +291,7 @@ class PostForm {
 		}
 		post.wrap.after(this.qArea);
 		if(this.qArea.classList.contains('de-win')) {
-			updateWinZ(this.qArea.style);
+			updateWinZ(this.qArea);
 		}
 		const qNum = post.thr.num;
 		if(!aib.t) {
@@ -566,7 +566,7 @@ class PostForm {
 			await toggleCfg('replyWinDrag');
 			if(Cfg.replyWinDrag) {
 				this.qArea.className = aib.cReply + ' de-win';
-				updateWinZ(this.qArea.style);
+				updateWinZ(this.qArea);
 			} else {
 				this.qArea.className = aib.cReply + ' de-win-inpost';
 				this.txta.focus();
