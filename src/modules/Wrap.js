@@ -3,8 +3,8 @@
 (function deMainFuncInner(deWindow, prestoStorage, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '22.11.8.0';
-const commit = '1dd46c9';
+const version = '22.12.5.0';
+const commit = '9af6371';
 
 /* ==[ GlobalVars.js ]== */
 /* ==[ DefaultCfg.js ]== */
