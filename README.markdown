@@ -1,15 +1,15 @@
 ![Last commit](https://img.shields.io/github/last-commit/SthephanShinkufag/Dollchan-Extension-Tools.svg)&nbsp;![Commit activity](https://img.shields.io/github/commit-activity/y/SthephanShinkufag/Dollchan-Extension-Tools.svg)&nbsp;![Bugs](https://img.shields.io/github/issues/SthephanShinkufag/Dollchan-Extension-Tools/bug.svg)&nbsp;![Enhancements](https://img.shields.io/github/issues/SthephanShinkufag/Dollchan-Extension-Tools/enhancement.svg)
 
-# ![dE](https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/extension/icons/logo-32.png) Dollchan Extension Tools
+# ![dE](https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/extension/v3/icons/logo-32.png) Dollchan Extension Tools
 
-- **[ [ES5 USERSCRIPT](https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js) ]** &mdash; `for old browsers`
-- **[ [ESNEXT USERSCRIPT ](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/src/Dollchan_Extension_Tools.es6.user.js) ]** &mdash; `Firefox 77+ / Chrome 85+ / Opera 71+`
+- **[ [ES5 USERSCRIPT](https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js) ]** &mdash; for old browsers
+- **[ [ESNEXT USERSCRIPT ](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/src/Dollchan_Extension_Tools.es6.user.js) ]** &mdash; Firefox 77+ / Chrome 85+ / Opera 71+
 - **[ [FIREFOX EXTENSION](https://addons.mozilla.org/firefox/addon/dollchan-extension/) ]**<br>![Mozilla rating](https://img.shields.io/amo/rating/dollchan-extension.svg)
 
 ---
-- **[English wiki](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/home-en)**
-- **[Russian wiki](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki)**
-- **Homepage: [https://dollchan.net/](https://dollchan.net/)**
+- **[ [English wiki](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/home-en) ]**
+- **[ [Russian wiki](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki) ]**
+- **[ [Homepage](https://dollchan.net/) ]**
 - **License:** © 2022 Dollchan Extension Tools Team.<br>See the [LICENSE file](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/blob/master/LICENSE) for license rights and limitations (MIT).
 
 ---
