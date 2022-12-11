@@ -7198,7 +7198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.12.5.0';
-  var commit = '9af6371';
+  var commit = '90205eb';
 
 
   var doc = deWindow.document;
@@ -10337,6 +10337,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               value[1] = value[2] = 0;
               entry.last = aib.anchor + value[3];
             }
+            if (entry.err) {
+              delete entry.err;
+            }
             var _value = _slicedToArray(value, 3);
             entry.cnt = _value[0];
             entry["new"] = _value[1];
@@ -10378,6 +10381,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       iconEl.firstElementChild.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
       iconEl.title = value;
       return;
+    } else if (mode === 'update') {
+      iconEl.firstElementChild.setAttribute('class', 'de-fav-inf-icon');
+      iconEl.removeAttribute('title');
     }
     oldEl.textContent = value[0];
     newEl.textContent = value[1];
@@ -10469,7 +10475,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               i = 0, len = entryEls.length;
             case 9:
               if (!(i < len)) {
-                _context63.next = 106;
+                _context63.next = 107;
                 break;
               }
               entryEl = entryEls[i];
@@ -10484,14 +10490,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 _context63.next = 20;
                 break;
               }
-              return _context63.abrupt("continue", 103);
+              return _context63.abrupt("continue", 104);
             case 20:
               if (!(host !== aib.host || entry.err === 'Closed')) {
-                _context63.next = 49;
+                _context63.next = 50;
                 break;
               }
               if (!needClear404) {
-                _context63.next = 48;
+                _context63.next = 49;
                 break;
               }
               parentEl.classList.add('de-fav-table-unfold');
@@ -10510,76 +10516,80 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 titleEl.removeAttribute('title');
               }
               isLast404 = false;
-              _context63.next = 48;
+              if (entry.err && entry.err !== 'Closed') {
+                delete entry.err;
+                isUpdate = true;
+              }
+              _context63.next = 49;
               break;
-            case 35:
-              _context63.prev = 35;
+            case 36:
+              _context63.prev = 36;
               _context63.t0 = _context63["catch"](27);
               if (!(_context63.t0 instanceof AjaxError && _context63.t0.code === 404)) {
-                _context63.next = 43;
+                _context63.next = 44;
                 break;
               }
               if (isLast404) {
-                _context63.next = 42;
+                _context63.next = 43;
                 break;
               }
               isLast404 = true;
               --i; 
-              return _context63.abrupt("continue", 103);
-            case 42:
-              Thread.removeSavedData(board, num); 
+              return _context63.abrupt("continue", 104);
             case 43:
+              Thread.removeSavedData(board, num); 
+            case 44:
               entryEl.setAttribute('de-removed', ''); 
               iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
               titleEl.title = entry.err = getErrorMessage(_context63.t0);
               isLast404 = false;
               isUpdate = true;
-            case 48:
-              return _context63.abrupt("continue", 103);
             case 49:
+              return _context63.abrupt("continue", 104);
+            case 50:
               formEl = void 0, isArchived = void 0;
               iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
               titleEl.title = Lng.updating[lang];
-              _context63.prev = 52;
+              _context63.prev = 53;
               if (!aib.hasArchive) {
-                _context63.next = 62;
+                _context63.next = 63;
                 break;
               }
-              _context63.next = 56;
+              _context63.next = 57;
               return ajaxLoad(url, true, false, true);
-            case 56:
+            case 57:
               _yield$ajaxLoad = _context63.sent;
               _yield$ajaxLoad2 = _slicedToArray(_yield$ajaxLoad, 2);
               formEl = _yield$ajaxLoad2[0];
               isArchived = _yield$ajaxLoad2[1];
+              _context63.next = 66;
+              break;
+            case 63:
               _context63.next = 65;
-              break;
-            case 62:
-              _context63.next = 64;
               return ajaxLoad(url);
-            case 64:
-              formEl = _context63.sent;
             case 65:
+              formEl = _context63.sent;
+            case 66:
               isLast404 = false;
-              _context63.next = 84;
+              _context63.next = 85;
               break;
-            case 68:
-              _context63.prev = 68;
-              _context63.t1 = _context63["catch"](52);
+            case 69:
+              _context63.prev = 69;
+              _context63.t1 = _context63["catch"](53);
               if (!(_context63.t1 instanceof AjaxError && _context63.t1.code === 404)) {
-                _context63.next = 76;
+                _context63.next = 77;
                 break;
               }
               if (isLast404) {
-                _context63.next = 75;
+                _context63.next = 76;
                 break;
               }
               isLast404 = true;
               --i;
-              return _context63.abrupt("continue", 103);
-            case 75:
-              Thread.removeSavedData(board, num);
+              return _context63.abrupt("continue", 104);
             case 76:
+              Thread.removeSavedData(board, num);
+            case 77:
               $hide(newEl);
               $hide(youEl);
               entryEl.setAttribute('de-removed', '');
@@ -10587,8 +10597,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               titleEl.title = entry.err = getErrorMessage(_context63.t1);
               isLast404 = false;
               isUpdate = true;
-              return _context63.abrupt("continue", 103);
-            case 84:
+              return _context63.abrupt("continue", 104);
+            case 85:
               if (aib.qClosed && $q(aib.qClosed, formEl)) {
                 iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
                 titleEl.title = Lng.thrClosed[lang];
@@ -10613,27 +10623,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               posts = $Q(aib.qPost, formEl);
               postsLen = posts.length;
               j = 0;
-            case 91:
+            case 92:
               if (!(j < postsLen)) {
-                _context63.next = 100;
+                _context63.next = 101;
                 break;
               }
               post = posts[j];
               if (!(lastNum >= aib.getPNum(post))) {
-                _context63.next = 95;
+                _context63.next = 96;
                 break;
               }
-              return _context63.abrupt("continue", 97);
-            case 95:
+              return _context63.abrupt("continue", 98);
+            case 96:
               newCount++;
               if (isPostRefToYou(post, myPosts[board])) {
                 youCount++;
               }
-            case 97:
+            case 98:
               ++j;
-              _context63.next = 91;
+              _context63.next = 92;
               break;
-            case 100:
+            case 101:
               if (newCount !== entry["new"] || entry.cnt !== postsLen + 1) {
                 isUpdate = true;
               }
@@ -10649,11 +10659,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 $hide(newEl);
                 $hide(youEl);
               }
-            case 103:
+            case 104:
               ++i;
               _context63.next = 9;
               break;
-            case 106:
+            case 107:
               AjaxCache.clearCache();
               if (needClear404) {
                 if (isUpdate) {
@@ -10663,12 +10673,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               } else if (isUpdate) {
                 saveFavorites(favObj);
               }
-            case 108:
+            case 109:
             case "end":
               return _context63.stop();
           }
         }
-      }, _callee54, null, [[27, 35], [52, 68]]);
+      }, _callee54, null, [[27, 36], [53, 69]]);
     }));
     return _refreshFavorites.apply(this, arguments);
   }

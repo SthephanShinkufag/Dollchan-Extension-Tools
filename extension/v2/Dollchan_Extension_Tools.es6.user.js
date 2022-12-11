@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = '9af6371';
+const commit = '90205eb';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -3797,6 +3797,9 @@ function updateFavorites(num, value, mode) {
 					value[1] = value[2] = 0;
 					entry.last = aib.anchor + value[3];
 				}
+				if(entry.err) {
+					delete entry.err;
+				}
 				[entry.cnt, entry.new, entry.you] = value;
 				isUpdate = true;
 			}
@@ -3833,6 +3836,9 @@ function updateFavWindow(host, board, num, value, mode) {
 		iconEl.firstElementChild.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 		iconEl.title = value;
 		return;
+	} else if(mode === 'update') {
+		iconEl.firstElementChild.setAttribute('class', 'de-fav-inf-icon');
+		iconEl.removeAttribute('title');
 	}
 	oldEl.textContent = value[0];
 	newEl.textContent = value[1];
@@ -3912,6 +3918,10 @@ async function refreshFavorites(needClear404) {
 						titleEl.removeAttribute('title');
 					}
 					isLast404 = false;
+					if(entry.err && entry.err !== 'Closed') {
+						delete entry.err;
+						isUpdate = true;
+					}
 				} catch(err) {
 					if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
 						if(!isLast404) {
