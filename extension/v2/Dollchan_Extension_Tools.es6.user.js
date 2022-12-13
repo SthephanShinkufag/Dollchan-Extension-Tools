@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = '90205eb';
+const commit = '574910c';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -17065,7 +17065,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			const links = $Q('.expand_image', formEl);
 			for(let i = 0, len = links.length; i < len; ++i) {
 				const link = links[i];
-				const href = link.getAttribute('onclick').match(/(?:https?:\/|\/storage)[^']+/);
+				const href = link.getAttribute('onclick')?.match(/(?:https?:\/|\/storage)[^']+/);
 				if(href) {
 					link.href = href[0];
 					link.removeAttribute('onclick');

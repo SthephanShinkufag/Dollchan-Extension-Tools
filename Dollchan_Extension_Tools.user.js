@@ -7198,7 +7198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.12.5.0';
-  var commit = '90205eb';
+  var commit = '574910c';
 
 
   var doc = deWindow.document;
@@ -26366,8 +26366,9 @@ Spells.addSpell(9, '', false);
           var formEl = _get(_getPrototypeOf(Arhivach.prototype), "fixHTML", this).call(this, data, isForm);
           var links = $Q('.expand_image', formEl);
           for (var i = 0, len = links.length; i < len; ++i) {
+            var _link$getAttribute;
             var link = links[i];
-            var href = link.getAttribute('onclick').match(/(?:https?:\/|\/storage)[^']+/);
+            var href = (_link$getAttribute = link.getAttribute('onclick')) === null || _link$getAttribute === void 0 ? void 0 : _link$getAttribute.match(/(?:https?:\/|\/storage)[^']+/);
             if (href) {
               link.href = href[0];
               link.removeAttribute('onclick');
