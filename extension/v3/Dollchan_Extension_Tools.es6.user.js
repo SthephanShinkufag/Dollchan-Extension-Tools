@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = '574910c';
+const commit = 'f2b9f7c';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -3414,13 +3414,14 @@ class WinResizer {
 					this.direction === 'top' ? cr.top - (val < 20 ? 0 : val) :
 					(val > maxY - 45 ? maxY - 25 : val) - cr.bottom
 				), 90) + 'px', 'important');
-				return;
+			} else {
+				val = e.clientX;
+				this.tStyle.setProperty('width', Math.max(parseInt(this.tStyle.width, 10) + (
+					this.direction === 'left' ? cr.left - (val < 20 ? 0 : val) :
+					(val > maxX - 20 ? maxX : val) - cr.right
+				), this.name === 'reply' ? 275 : 400) + 'px', 'important');
 			}
-			val = e.clientX;
-			this.tStyle.setProperty('width', Math.max(parseInt(this.tStyle.width, 10) + (
-				this.direction === 'left' ? cr.left - (val < 20 ? 0 : val) :
-				(val > maxX - 20 ? maxX : val) - cr.right
-			), this.name === 'reply' ? 275 : 400) + 'px', 'important');
+			return;
 		default: // mouseup
 			['mousemove', 'mouseup'].forEach(e => doc.body.removeEventListener(e, this));
 			await CfgSaver.save(this.cfgName,

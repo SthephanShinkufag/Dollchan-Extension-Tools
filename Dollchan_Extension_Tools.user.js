@@ -7198,7 +7198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.12.5.0';
-  var commit = '574910c';
+  var commit = 'f2b9f7c';
 
 
   var doc = deWindow.document;
@@ -9861,7 +9861,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   cr = this.winEl.getBoundingClientRect();
                   z = "; z-index: ".concat(this.wStyle.zIndex).concat(width ? '; width:' + width : '');
                   _context7.t0 = e.type;
-                  _context7.next = _context7.t0 === 'mousedown' ? 7 : _context7.t0 === 'mousemove' ? 22 : 28;
+                  _context7.next = _context7.t0 === 'mousedown' ? 7 : _context7.t0 === 'mousemove' ? 22 : 24;
                   break;
                 case 7:
                   if (this.winEl.classList.contains('de-win-fixed')) {
@@ -9893,45 +9893,43 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   e.preventDefault();
                   return _context7.abrupt("return");
                 case 22:
-                  if (!this.vertical) {
-                    _context7.next = 26;
-                    break;
+                  if (this.vertical) {
+                    val = e.clientY;
+                    this.tStyle.setProperty('height', Math.max(parseInt(this.tStyle.height, 10) + (this.direction === 'top' ? cr.top - (val < 20 ? 0 : val) : (val > maxY - 45 ? maxY - 25 : val) - cr.bottom), 90) + 'px', 'important');
+                  } else {
+                    val = e.clientX;
+                    this.tStyle.setProperty('width', Math.max(parseInt(this.tStyle.width, 10) + (this.direction === 'left' ? cr.left - (val < 20 ? 0 : val) : (val > maxX - 20 ? maxX : val) - cr.right), this.name === 'reply' ? 275 : 400) + 'px', 'important');
                   }
-                  val = e.clientY;
-                  this.tStyle.setProperty('height', Math.max(parseInt(this.tStyle.height, 10) + (this.direction === 'top' ? cr.top - (val < 20 ? 0 : val) : (val > maxY - 45 ? maxY - 25 : val) - cr.bottom), 90) + 'px', 'important');
                   return _context7.abrupt("return");
-                case 26:
-                  val = e.clientX;
-                  this.tStyle.setProperty('width', Math.max(parseInt(this.tStyle.width, 10) + (this.direction === 'left' ? cr.left - (val < 20 ? 0 : val) : (val > maxX - 20 ? maxX : val) - cr.right), this.name === 'reply' ? 275 : 400) + 'px', 'important');
-                case 28:
+                case 24:
                   ['mousemove', 'mouseup'].forEach(function (e) {
                     return doc.body.removeEventListener(e, _this17);
                   });
-                  _context7.next = 31;
+                  _context7.next = 27;
                   return CfgSaver.save(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
-                case 31:
+                case 27:
                   if (!this.winEl.classList.contains('de-win-fixed')) {
-                    _context7.next = 34;
+                    _context7.next = 30;
                     break;
                   }
                   this.winEl.setAttribute('style', 'right: 0; bottom: 25px' + z);
                   return _context7.abrupt("return");
-                case 34:
+                case 30:
                   if (!this.vertical) {
-                    _context7.next = 39;
+                    _context7.next = 35;
                     break;
                   }
-                  _context7.next = 37;
+                  _context7.next = 33;
                   return CfgSaver.save(this.name + 'WinY', cr.top < 1 ? 'top: 0' : cr.bottom > maxY - 26 ? 'bottom: 25px' : "top: ".concat(cr.top, "px"));
-                case 37:
-                  _context7.next = 41;
+                case 33:
+                  _context7.next = 37;
                   break;
-                case 39:
-                  _context7.next = 41;
+                case 35:
+                  _context7.next = 37;
                   return CfgSaver.save(this.name + 'WinX', cr.left < 1 ? 'left: 0' : cr.right > maxX - 1 ? 'right: 0' : "left: ".concat(cr.left, "px"));
-                case 41:
+                case 37:
                   this.winEl.setAttribute('style', Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z);
-                case 42:
+                case 38:
                 case "end":
                   return _context7.stop();
               }
