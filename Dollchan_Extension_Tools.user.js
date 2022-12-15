@@ -7198,7 +7198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.12.5.0';
-  var commit = 'f2b9f7c';
+  var commit = '964b6ff';
 
 
   var doc = deWindow.document;
@@ -7872,11 +7872,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     return el;
   }
   function $script(text) {
-    var el = doc.createElement('script'); 
-    el.type = 'text/javascript';
-    el.textContent = text;
-    doc.head.append(el);
-    el.remove();
+    try {
+      var el = doc.createElement('script');
+      el.type = 'text/javascript';
+      el.textContent = text;
+      doc.head.append(el);
+      el.remove();
+    } catch (err) {}
   }
   function $css(text) {
     return $bEnd(doc.head, "<style type=\"text/css\">".concat(nav.isSafari && !('flex' in doc.body.style) ? text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1') : text, "</style>"));

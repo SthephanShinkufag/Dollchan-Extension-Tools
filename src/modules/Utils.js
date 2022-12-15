@@ -63,11 +63,13 @@ function $button(value, title, fn, className = 'de-button') {
 }
 
 function $script(text) {
-	const el = doc.createElement('script'); // We canʼt insert scripts directly as html
-	el.type = 'text/javascript';
-	el.textContent = text;
-	doc.head.append(el);
-	el.remove();
+	try {
+		const el = doc.createElement('script');
+		el.type = 'text/javascript';
+		el.textContent = text;
+		doc.head.append(el);
+		el.remove();
+	} catch(err) {}
 }
 
 function $css(text) {
