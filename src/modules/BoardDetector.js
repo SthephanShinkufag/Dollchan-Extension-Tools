@@ -265,8 +265,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			return super.getImgRealName(wrap);
 		}
 		init() {
-			$Q('.message > .omittedposts').forEach(
-				el => $replace(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>'));
+			$Q('.message > .omittedposts').forEach(el => {
+				el.insertAdjacentHTML('afterend',
+					'<span class="abbrev">Post too long. <a href="#">Click to view.</a>');
+				el.remove();
+			});
 			return false;
 		}
 	}
@@ -383,8 +386,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			const submEl = $id('formButton');
 			if(submEl) {
 				this._hasNewAPI = true;
-				$replace(submEl, `<button id="de-postform-submit" type="submit">${
+				submEl.insertAdjacentHTML('afterend', `<button id="de-postform-submit" type="submit">${
 					submEl.innerHTML }</button>`);
+				submEl.remove();
 			}
 			const formEl = $q(this.qForm);
 			if(formEl && !$q('td', formEl)) {
@@ -1198,7 +1202,8 @@ function getImageBoard(checkDomains, checkEngines) {
 						cap.hasCaptcha = false;
 						return;
 					}
-					$replace(containerEl, '<div id="t-root"></div>');
+					containerEl.insertAdjacentHTML('afterend', '<div id="t-root"></div>');
+					containerEl.remove();
 					$script('initTCaptcha();');
 					setTimeout(() => {
 						cap.textEl = $id('t-resp');

@@ -27,8 +27,9 @@ class Captcha {
 			$show(this.parentEl);
 		} else if(this._isRecap) {
 			const el = $q('#g-recaptcha, .g-recaptcha');
-			$replace(el, `<div id="g-recaptcha" class="g-recaptcha" data-sitekey="${
+			el.insertAdjacentHTML('afterend', `<div id="g-recaptcha" class="g-recaptcha" data-sitekey="${
 				el.getAttribute('data-sitekey') }"></div>`);
+			el.remove();
 		} else {
 			this.parentEl.innerHTML = this.originHTML;
 			this.textEl = $q('input[type="text"][name*="aptcha"]', this.parentEl);

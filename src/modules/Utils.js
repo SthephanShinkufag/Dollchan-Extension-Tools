@@ -42,11 +42,6 @@ function $aEnd(siblingEl, html) {
 	return siblingEl.nextSibling;
 }
 
-function $replace(el, html) {
-	el.insertAdjacentHTML('afterend', html);
-	el.remove();
-}
-
 function $delAll(path, rootEl = doc.body) {
 	rootEl.querySelectorAll(path, rootEl).forEach(el => el.remove());
 }
