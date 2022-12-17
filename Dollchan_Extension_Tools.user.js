@@ -7200,7 +7200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.12.5.0';
-  var commit = '93cb514';
+  var commit = '051a8a2';
 
 
   var doc = deWindow.document;
@@ -7352,7 +7352,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     cfgNeedReload: ['Для применения необходима перезагрузка', 'Reboot required to apply', 'Для застосування необхідне перезавантаження'],
     cfgTab: {
       filters: ['Фильтры', 'Filters', 'Фільтри'],
-      posts: ['Посты', 'Posts', 'Пости'],
+      posts: ['Посты', 'Posts', 'Дописи'],
       images: ['Картинки', 'Images', 'Зображ.'],
       links: ['Ссылки', 'Links', 'Посил.'],
       form: ['Форма', 'Form', 'Форма'],
@@ -7366,50 +7366,50 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       hideBySpell: ['Спеллы: ', 'Magic spells: ', 'Спелли: '],
       sortSpells: ['Сортировать спеллы и удалять дубликаты', 'Sort spells and remove duplicates', 'Сортувати спелли та видаляти дублікати'],
-      hideRefPsts: ['Скрывать ответы на скрытые посты', 'Hide replies to hidden posts', 'Ховати відповіді на сховані пости'],
+      hideRefPsts: ['Скрывать ответы на скрытые посты', 'Hide replies to hidden posts', 'Ховати відповіді на сховані дописи'],
       nextPageThr: ['Скрытые треды - загружать со следующих страниц', 'Load threads from next pages instead of hidden', 'Сховані треди - брати з наступних сторінок'],
       delHiddPost: {
-        sel: [['Откл.', 'Всё', 'Только посты', 'Только треды'], ['Disable', 'All', 'Posts only', 'Threads only'], ['Вимк.', 'Все', 'Лише пости', 'Лише треди']],
+        sel: [['Откл.', 'Всё', 'Только посты', 'Только треды'], ['Disable', 'All', 'Posts only', 'Threads only'], ['Вимк.', 'Все', 'Лише дописи', 'Лише треди']],
         txt: ['Удалять скрытое', 'Remove placeholders', 'Видаляти сховане']
       },
       ajaxUpdThr: ['Апдейтер тредов ', 'Threads updater ', 'Оновлювач тредів '],
       updThrDelay: ['(сек)', '(sec)', '(сек)'],
       updCount: ['Обратный счетчик обновления треда', 'Show countdown to thread update', 'Зворотній відлік оновлення треду'],
-      favIcoBlink: ['Мигать фавиконом при появлении новых постов', 'Blink the favicon on new posts', 'Блимати фавіконом в разі появи нових постів'],
-      desktNotif: ['Уведомлять о новых постах на рабочем столе', 'Desktop notifications for new posts', 'Повідомляти про нові пости на стільниці'],
-      markNewPosts: ['Выделять цветом новые посты', 'Highlight new posts with color', 'Виділяти кольором нові пости'],
+      favIcoBlink: ['Мигать фавиконом при появлении новых постов', 'Blink the favicon on new posts', 'Блимати фавіконом в разі появи нових дописів'],
+      desktNotif: ['Уведомлять о новых постах на рабочем столе', 'Desktop notifications for new posts', 'Повідомляти про нові дописи на стільниці'],
+      markNewPosts: ['Выделять цветом новые посты', 'Highlight new posts with color', 'Виділяти кольором нові дописи'],
       useDobrAPI: ['dobrochan: использовать JSON API', 'dobrochan: use JSON API', 'dobrochan: використовувати JSON API'],
-      markMyPosts: ['Выделять цветом мои посты', 'Highlight my own posts', 'Виділяти кольором мої пости'],
-      expandTrunc: ['Авторазворот сокращенных постов', 'Autoexpand truncated posts', 'Авторозгортання скорочених постів'],
-      widePosts: ['Растягивать посты по ширине экрана', 'Stretch posts to page width', 'Розтягувати пости на ширину екрану'],
-      limitPostMsg: ['Ограничение ширины текста в постах (px)', 'Limit text width in posts messages (px)', 'Обмеження ширини тексту в постах (px)'],
+      markMyPosts: ['Выделять цветом мои посты', 'Highlight my own posts', 'Виділяти кольором мої дописи'],
+      expandTrunc: ['Авторазворот сокращенных постов', 'Autoexpand truncated posts', 'Авторозгортання скорочених дописів'],
+      widePosts: ['Растягивать посты по ширине экрана', 'Stretch posts to page width', 'Розтягувати дописи на ширину екрану'],
+      limitPostMsg: ['Ограничение ширины текста в постах (px)', 'Limit text width in posts messages (px)', 'Обмеження ширини тексту в дописах (px)'],
       thrBtns: {
-        sel: [['Откл.', 'Все', 'Все (на доске)', '"Новые посты" на доске'], ['Disable', 'All', 'All (on board)', '"New posts" on board'], ['Вимк.', 'Всі', 'Всі (на дошці)', '"Нові пости" на дошці']],
+        sel: [['Откл.', 'Все', 'Все (на доске)', '"Новые посты" на доске'], ['Disable', 'All', 'All (on board)', '"New posts" on board'], ['Вимк.', 'Всі', 'Всі (на дошці)', '"Нові дописи" на дошці']],
         txt: ['Кнопки под тредами', 'Buttons under threads', 'Кнопки під тредами']
       },
       showHideBtn: {
         sel: [['Откл.', 'С меню', 'Без меню'], ['Disable', 'With menu', 'No menu'], ['Вимк.', 'Із меню', 'Без меню']],
-        txt: ['Кнопки "Скрыть пост/тред"', '"Hide post/thread" buttons', 'Кнопки "Сховати пост/тред"']
+        txt: ['Кнопки "Скрыть пост/тред"', '"Hide post/thread" buttons', 'Кнопки "Сховати допис/тред"']
       },
       showRepBtn: {
         sel: [['Откл.', 'С меню', 'Без меню'], ['Disable', 'With menu', 'No menu'], ['Вимк.', 'Із меню', 'Без меню']],
-        txt: ['Кнопки "Ответить на пост/тред"', '"Reply to post/thread" buttons', 'Кнопки "Відповісти на пост/тред"']
+        txt: ['Кнопки "Ответить на пост/тред"', '"Reply to post/thread" buttons', 'Кнопки "Відповісти на допис/тред"']
       },
       postBtnsCSS: {
         sel: [['Упрощенные', 'Серый градиент', 'Настраиваемые'], ['Simple', 'Gradient grey', 'Custom'], ['Спрощені', 'Сірий градієнт', 'Користувацькі']],
-        txt: ['Кнопки постов ', 'Post buttons ', 'Кнопки постів ']
+        txt: ['Кнопки постов ', 'Post buttons ', 'Кнопки дописів ']
       },
       noSpoilers: {
         sel: [['Откл.', 'Серое', 'Родное'], ['Disable', 'Grey', 'Native'], ['Вимк.', 'Сіре', 'Рідне']],
         txt: ['Раскрытие текстовых спойлеров', 'Text spoilers expansion', 'Розкриття текстових спойлерів']
       },
-      noPostNames: ['Скрывать имена в постах', 'Hide poster names', 'Ховати імена в постах'],
-      correctTime: ['Коррекция времени в постах', 'Time correction in posts', 'Корекція часу в постах'],
+      noPostNames: ['Скрывать имена в постах', 'Hide poster names', 'Ховати імена в дописах'],
+      correctTime: ['Коррекция времени в постах', 'Time correction in posts', 'Корекція часу в дописах'],
       timeOffset: ['разница (ч) ', 'time offset (h) ', 'різниця (год) '],
       timePattern: ['Шаблон поиска', 'Search pattern', 'Шаблон пошуку'],
       timeRPattern: ['Шаблон замены', 'Replace pattern', 'Шаблон заміни'],
       expandImgs: {
-        sel: [['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center'], ['Вимк.', 'В пості', 'По центру']],
+        sel: [['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center'], ['Вимк.', 'В дописі', 'По центру']],
         txt: ['Раскрывать картинки по клику', 'Expand images on click', 'Розгортати зображення по кліку']
       },
       imgNavBtns: ['Добавлять кнопки навигации по картинкам', 'Add buttons to navigate images', 'Додавати кнопки навігації по зображеннях'],
@@ -7417,7 +7417,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       resizeDPI: ['Не растягивать на дисплеях с высоким DPI', 'Donʼt upscale images on high DPI displays', 'Не розтягувати на дисплеях з високим DPI'],
       resizeImgs: {
         sel: [['Откл.', 'По ширине', 'Шир.+выс.'], ['Disable', 'By width', 'Width+Height'], ['Вимк.', 'По ширині', 'Шир.+выс.']],
-        txt: ['Уменьшать при раскрытии в посте', 'Fit to screen for expanding in post', 'Зменшувати при розкритті в пості']
+        txt: ['Уменьшать при раскрытии в посте', 'Fit to screen for expanding in post', 'Зменшувати при розкритті в дописі']
       },
       minImgSize: ['мин.', 'min', 'мін.'],
       maxImgSize: ['макс. размер раскрытия (px)', 'max expansion size (px)', 'макс. розмір розгортання (px)'],
@@ -7441,17 +7441,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         txt: ['имена картинок', 'filenames', 'імена зображень']
       },
       maskVisib: ['Видимость для NSFW-картинок [0-100%]', 'Visibility for NSFW images [0-100%]', 'Видимість для NSFW-зображень [0-100%]'],
-      linksNavig: ['Навигация постов по >>ссылкам', 'Posts navigation by >>links', 'Навігація постів по >>посиланнях'],
+      linksNavig: ['Навигация постов по >>ссылкам', 'Posts navigation by >>links', 'Навігація дописів по >>посиланнях'],
       linksOver: ['Появление ', 'Appearance ', 'Поява '],
       linksOut: ['Пропадание (мс)', 'Disappearance (ms)', 'Зникнення (мс)'],
-      markViewed: ['Помечать просмотренные посты', 'Mark viewed posts', 'Позначати переглянуті пости'],
-      strikeHidd: ['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts', 'Закреслювати >>посилання на сховані пости'],
+      markViewed: ['Помечать просмотренные посты', 'Mark viewed posts', 'Позначати переглянуті дописи'],
+      strikeHidd: ['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts', 'Закреслювати >>посилання на сховані дописи'],
       removeHidd: ['Также удалять из обратных >>ссылок', 'Also remove from >>backlinks', 'Також видаляти із зворотніх >>посилань'],
-      noNavigHidd: ['Не отображать превью для скрытых постов', 'Donʼt show previews for hidden posts', 'Не показувати превʼю до cхованих постів'],
-      markMyLinks: ['Помечать ссылки на мои посты как (You)', 'Mark links to my posts with (You)', 'Позначати посилання на мої пости як (You)'],
+      noNavigHidd: ['Не отображать превью для скрытых постов', 'Donʼt show previews for hidden posts', 'Не показувати превʼю до cхованих дописів'],
+      markMyLinks: ['Помечать ссылки на мои посты как (You)', 'Mark links to my posts with (You)', 'Позначати посилання на мої дописи як (You)'],
       crossLinks: ['Заменять http:// на >>/b/ссылки', 'Replace http:// with >>/b/links', 'Замінювати https:// на >>/b/посилання'],
       decodeLinks: ['Декодировать %D0%A5%D1 в ссылках', 'Decode %D0%A5%D1 in links', 'Декодувати %D0%A5%D1 в посиланнях'],
-      insertNum: ['Вставлять >>ссылку по клику на №поста', 'Insert >>link on №postnumber click', 'Вставляти >>посилання на клік по №посту'],
+      insertNum: ['Вставлять >>ссылку по клику на №поста', 'Insert >>link on №postnumber click', 'Вставляти >>посилання на клік по №допису'],
       addOPLink: ['>>ссылка при ответе на OP в списке тредов', 'Insert >>link when replying to OP on threads list', '>>посилання при відповіді на OP у списці тредів'],
       addImgs: ['Загружать картинки к jpg/png/gif ссылкам', 'Load images for jpg/png/gif links', 'Додавати зображення до jpg/png/gif посилань'],
       addMP3: ['Плеер к mp3 ссылкам', 'Player for mp3 links', 'Плеєр до mp3 посилань'],
@@ -7463,7 +7463,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
       YTubeTitles: ['Загружать названия к YouTube ссылкам', 'Load titles for YouTube links', 'Отримувати назви до YouTube посилань'],
       ytApiKey: ['Ключ YT API*', 'YT API Key*', 'Ключ YT API*'],
-      ajaxPosting: ['Отправка постов без перезагрузки', 'Posting without page refresh', 'Постування без оновлення сторінки'],
+      ajaxPosting: ['Отправка постов без перезагрузки', 'Posting without page refresh', 'Дописування без оновлення сторінки'],
       postSameImg: ['Возможность отправки одинаковых картинок', 'Ability to post duplicate images', 'Можливість надсилання однакових зображень'],
       removeEXIF: ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG ', 'Видаляти EXIF з JPEG '],
       removeFName: {
@@ -7511,8 +7511,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       hotKeys: ['Горячие клавиши', 'Hotkeys', 'Гарячі клавіші'],
       loadPages: ['Количество страниц, загружаемых по F5', 'Number of pages that are loaded on F5 ', 'Кількість сторінок, що завантажуються по F5'],
       panelCounter: {
-        sel: [['Откл.', 'Все посты', 'Без скрытых'], ['Disabled', 'All posts', 'Except hidden'], ['Вимкн.', 'Усі пости', 'Крім схованих']],
-        txt: ['Счетчик постов/картинок в треде', 'Сounter for posts/images in thread', 'Лічильник постів/зображень в треді']
+        sel: [['Откл.', 'Все посты', 'Без скрытых'], ['Disabled', 'All posts', 'Except hidden'], ['Вимкн.', 'Всі дописи', 'Крім схованих']],
+        txt: ['Счетчик постов/картинок в треде', 'Сounter for posts/images in thread', 'Лічильник дописів/зображ. в треді']
       },
       rePageTitle: ['Название треда в заголовке вкладки', 'Show thread title in the page tab', 'Назва треду в заголовку вкладки'],
       inftyScroll: ['Бесконечная прокрутка страниц', 'Infinite scrolling for pages', 'Нескінченна прокрутка сторінок'],
@@ -7544,21 +7544,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       godown: ['В конец страницы', 'Scroll to bottom', 'Прогорнути донизу'],
       expimg: ['Раскрыть все картинки', 'Expand all images', 'Розгорнути всі зображення'],
       maskimg: ['Режим NSFW', 'NSFW mode', 'Режим NSFW'],
-      preimg: ['Предзагрузить картинки\r\n([Ctrl+Click] только для новых постов)', 'Preload images\r\n([Ctrl+Click] for new posts only)', 'Наперед завантажити зображення\r\n([Ctrl+Click] лише для нових постів)'],
+      preimg: ['Предзагрузить картинки\r\n([Ctrl+Click] только для новых постов)', 'Preload images\r\n([Ctrl+Click] for new posts only)', 'Наперед завантажити зображення\r\n([Ctrl+Click] лише для нових дописів)'],
       savethr: ['Сохранить на диск', 'Save to disk', 'Зберегти на диск'],
       'upd-on': ['Выключить автообновление треда', 'Disable thread updater', 'Вимкнути оновлювач треду'],
       'upd-off': ['Включить автообновление треда', 'Enable thread updater', 'Увімкнути оновлювач треду'],
-      'audio-off': ['Звуковое оповещение о новых постах', 'Sound notification about new posts', 'Звукове сповіщення про нові пости'],
+      'audio-off': ['Звуковое оповещение о новых постах', 'Sound notification about new posts', 'Звукове сповіщення про нові дописи'],
       catalog: ['Перейти в каталог', 'Go to catalog', 'Перейти до каталогу'],
       enable: ['Включить/выключить Dollchan', 'Turn on/off the Dollchan', 'Увімкнути/вимкнути Dollchan'],
-      postsCount: ['Постов в треде', 'Posts in thread', 'Постів у треді'],
-      postsNotHid: ['Постов в треде (без скрытых)', 'Posts in thread (without hidden)', 'Постів у треді (крім схованих)'],
+      postsCount: ['Постов в треде', 'Posts in thread', 'Дописів у треді'],
+      postsNotHid: ['Постов в треде (без скрытых)', 'Posts in thread (without hidden)', 'Дописів у треді (крім схованих)'],
       filesCount: ['Картинок и видео в треде', 'Images and videos in thread', 'Зображень та відео у треді'],
-      postersCount: ['Постящих в треде', 'Posters in thread', 'Постувачів у треді']
+      postersCount: ['Постящих в треде', 'Posters in thread', 'Дописувачів у треді']
     },
-    togglePost: ['Скрыть/Раскрыть пост', 'Hide/Unhide post', 'Сховати/показати пост'],
+    togglePost: ['Скрыть/Раскрыть пост', 'Hide/Unhide post', 'Сховати/показати допис'],
     toggleThr: ['Скрыть/Раскрыть тред', 'Hide/Unhide thread', 'Сховати/показати тред'],
-    replyToPost: ['Ответить на пост', 'Reply to post', 'Відповісти на пост'],
+    replyToPost: ['Ответить на пост', 'Reply to post', 'Відповісти на допис'],
     replyToThr: ['Ответить в тред', 'Reply to thread', 'Відповісти в тред'],
     expandThr: ['Развернуть тред', 'Expand thread', 'Розгорнути тред'],
     addFav: ['Добавить тред в Избранное', 'Add thread to Favorites', 'Додати тред в Вибране'],
@@ -7568,7 +7568,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     closeReply: ['Закрыть форму', 'Close form', 'Закрити форму'],
     toPanel: ['Закрепить на панели', 'Attach to panel', 'Закріпити на панелі'],
     makeDrag: ['Сделать перетаскиваемым окном', 'Make draggable window', 'Зробити перетягуваним вікном'],
-    underPost: ['Разместить форму после поста', 'Move form under post', 'Розмістити форму після посту'],
+    underPost: ['Разместить форму после поста', 'Move form under post', 'Розмістити форму після допису'],
     clearForm: ['Очистить форму', 'Clear form', 'Очистити форму'],
     txtBtn: [['Жирный', 'Bold', 'Жирний'], ['Курсив', 'Italic', 'Курсив'], ['Подчеркнутый', 'Underlined', 'Підкреслений'], ['Зачеркнутый', 'Strike', 'Закреслений'], ['Спойлер', 'Spoiler', 'Спойлер'], ['Код', 'Code', 'Код'], ['Верхний индекс', 'Superscript', 'Верхній індекс'], ['Нижний индекс', 'Subscript', 'Нижній індекс'], ['Цитировать выделенное', 'Quote selected', 'Цитувати виділене']],
     selHiderMenu: {
@@ -7585,17 +7585,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       refsonly: ['Скрывать ответы', 'Hide replies', 'Ховати відповіді']
     },
     selExpandThr: [
-    ['+10 постов', 'Последние 30', 'Последние 50', 'Последние 100', 'Весь тред'], ['+10 posts', 'Last 30 posts', 'Last 50 posts', 'Last 100 posts', 'Entire thread'], ['+10 постів', 'Останні 30', 'Останні 50', 'Останні 100', 'Весь тред']],
+    ['+10 постов', 'Последние 30', 'Последние 50', 'Последние 100', 'Весь тред'], ['+10 posts', 'Last 30 posts', 'Last 50 posts', 'Last 100 posts', 'Entire thread'], ['+10 дописів', 'Останні 30', 'Останні 50', 'Останні 100', 'Весь тред']],
     selAjaxPages: [
     ['1 страница', '2 страницы', '3 страницы', '4 страницы', '5 страниц'], ['1 page', '2 pages', '3 pages', '4 pages', '5 pages'], ['1 сторінка', '2 сторінки', '3 сторінки', '4 сторінки', '5 сторінок']],
     selSaveThr: [
     ['Скачать весь тред', 'Скачать картинки'], ['Download thread', 'Download images'], ['Завантажити весь тред', 'Завантажити зображення']],
     selAudioNotif: [
     ['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'], ['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.'], ['Кожні 30 сек.', 'Щохвилини', 'Кожні 2 хв.', 'Кожні 5 хв.']],
-    reportPost: ['Жалоба на пост', 'Report a post', 'Скарга на пост'],
+    reportPost: ['Жалоба на пост', 'Report a post', 'Скарга на допис'],
     reportThr: ['Жалоба на тред', 'Report a thread', 'Скарга на тред'],
-    markMyPost: ['Пометить как мой пост', 'Mark as my post', 'Відмітити як мій пост'],
-    deleteMyPost: ['Убрать из моих постов', 'Delete from my posts', 'Прибрати з моїх постів'],
+    markMyPost: ['Пометить как мой пост', 'Mark as my post', 'Відмітити як мій допис'],
+    deleteMyPost: ['Убрать из моих постов', 'Delete from my posts', 'Прибрати з моїх дописів'],
     saveAs: ['Сохр. как ', 'Save as ', 'Збер. як '],
     origName: ['Оригинальное имя', 'Original name', 'Оригінальне імʼя'],
     metaName: ['Имя из метаданных', 'Name from metadata', 'Імʼя з метаданих'],
@@ -7609,7 +7609,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     hotKeyEdit: [[
     '%l%i24 – предыдущая страница/картинка%/l', '%l%i217 – следующая страница/картинка%/l', '%l%i21 – тред (на доске)/пост (в треде) ниже%/l', '%l%i20 – тред (на доске)/пост (в треде) выше%/l', '%l%i31 – пост (на доске) ниже%/l', '%l%i30 – пост (на доске) выше%/l', '%l%i23 – скрыть пост/тред%/l', '%l%i32 – перейти в тред%/l', '%l%i33 – развернуть тред%/l', '%l%i211 – раскрыть картинку в посте%/l', '%l%i22 – быстрый ответ%/l', '%l%i25t – отправить пост%/l', '%l%i210 – открыть/закрыть "Настройки"%/l', '%l%i26 – открыть/закрыть "Избранное"%/l', '%l%i27 – открыть/закрыть "Скрытое"%/l', '%l%i218 – открыть/закрыть "Видео"%/l', '%l%i28 – открыть/закрыть панель%/l', '%l%i29 – вкл./выкл. режим NSFW%/l', '%l%i40 – обновить тред (в треде)%/l', '%l%i212t – жирный%/l', '%l%i213t – курсив%/l', '%l%i214t – зачеркнутый%/l', '%l%i215t – спойлер%/l', '%l%i216t – код%/l'], [
     '%l%i24 – previous page/image%/l', '%l%i217 – next page/image%/l', '%l%i21 – thread (on board)/post (in thread) below%/l', '%l%i20 – thread (on board)/post (in thread) above%/l', '%l%i31 – on board post below%/l', '%l%i30 – on board post above%/l', '%l%i23 – hide post/thread%/l', '%l%i32 – go to thread%/l', '%l%i33 – expand thread%/l', '%l%i211 – expand postʼs images%/l', '%l%i22 – quick reply%/l', '%l%i25t – send post%/l', '%l%i210 – open/close "Settings"%/l', '%l%i26 – open/close "Favorites"%/l', '%l%i27 – open/close "Hidden"%/l', '%l%i218 – open/close "Videos"%/l', '%l%i28 – open/close main panel%/l', '%l%i29 – toggle NSFW mode%/l', '%l%i40 – update thread%/l', '%l%i212t – bold%/l', '%l%i213t – italic%/l', '%l%i214t – strike%/l', '%l%i215t – spoiler%/l', '%l%i216t – code%/l'], [
-    '%l%i24 – попередня сторінка/зображення%/l', '%l%i217 – наступна сторінка/зображення%/l', '%l%i21 – тред (на дошці)/пост (в треді) нижче%/l', '%l%i20 – тред (на дошці)/пост (в треді) вище%/l', '%l%i31 – пост (на дошці) нижче%/l', '%l%i30 – пост (на дошці) вище%/l', '%l%i23 – приховати пост/тред%/l', '%l%i32 – перейти в тред%/l', '%l%i33 – розгорнути тред%/l', '%l%i211 – розгорнути зображення в пості%/l', '%l%i22 – швидка відповідь%/l', '%l%i25t – відправити пост%/l', '%l%i210 – відкрити/закрити "Налаштування"%/l', '%l%i26 – відкрити/закрити "Вибране"%/l', '%l%i27 – відкрити/закрити "Сховане"%/l', '%l%i218 – відкрити/закрити "Посилання на відео"%/l', '%l%i28 – відкрити/закрити панель%/l', '%l%i29 – увімкнути/вимкнути режим NSFW%/l', '%l%i40 – оновити тред (в треді)%/l', '%l%i212t – жирний%/l', '%l%i213t – курсив%/l', '%l%i214t – закреслений%/l', '%l%i215t – спойлер%/l', '%l%i216t – код%/l']],
+    '%l%i24 – попередня сторінка/зображення%/l', '%l%i217 – наступна сторінка/зображення%/l', '%l%i21 – тред (на дошці)/допис (в треді) нижче%/l', '%l%i20 – тред (на дошці)/допис (в треді) вище%/l', '%l%i31 – допис (на дошці) нижче%/l', '%l%i30 – допис (на дошці) вище%/l', '%l%i23 – приховати допис/тред%/l', '%l%i32 – перейти в тред%/l', '%l%i33 – розгорнути тред%/l', '%l%i211 – розгорнути зображення в дописі%/l', '%l%i22 – швидка відповідь%/l', '%l%i25t – відправити допис%/l', '%l%i210 – відкрити/закрити "Налаштування"%/l', '%l%i26 – відкрити/закрити "Вибране"%/l', '%l%i27 – відкрити/закрити "Сховане"%/l', '%l%i218 – відкрити/закрити "Посилання на відео"%/l', '%l%i28 – відкрити/закрити панель%/l', '%l%i29 – увімкнути/вимкнути режим NSFW%/l', '%l%i40 – оновити тред (в треді)%/l', '%l%i212t – жирний%/l', '%l%i213t – курсив%/l', '%l%i214t – закреслений%/l', '%l%i215t – спойлер%/l', '%l%i216t – код%/l']],
     cTimeError: ['Неправильные настройки времени', 'Invalid time settings', 'Неправильні налаштування часу'],
     month: [['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'], ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], ['січ', 'лют', 'бер', 'кві', 'тра', 'чер', 'лип', 'сер', 'вер', 'жов', 'лис', 'гру']],
     fullMonth: [['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], ['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня', 'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня']],
@@ -7685,8 +7685,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     allDomains: ['для всех доменов', 'for all domains', 'для всіх доменів'],
     delEntries: ['Удалить выбранные записи', 'Delete selected entries', 'Видалити обрані записи'],
     saveChanges: ['Сохранить внесенные изменения', 'Save your changes', 'Зберегти внесені зміни'],
-    hidPostThr: ['Скрытые посты и треды', 'Hidden posts and threads', 'Сховані пости та треди'],
-    myPosts: ['Мои посты', 'My posts', 'Мої пости'],
+    hidPostThr: ['Скрытые посты и треды', 'Hidden posts and threads', 'Сховані дописи та треди'],
+    myPosts: ['Мои посты', 'My posts', 'Мої дописи'],
     checkNow: ['Проверить сейчас', 'Check now', 'Перевірити зараз'],
     updAvail: ['Доступно обновление Dollchan: %s', 'Dollchan update available: %s!', 'Доступне оновлення Dollchan: %s'],
     newCommitsAvail: ['Обнаружены новые исправления: %s', 'New fixes detected: %s', 'Виявлено нові виправлення: %s'],
@@ -7696,17 +7696,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     thrViewed: ['Тредов посещено', 'Threads visited', 'Тредів відвідано'],
     thrCreated: ['Тредов создано', 'Threads created', 'Тредів створено'],
     thrHidden: ['Тредов скрыто', 'Threads hidden', 'Тредів сховано'],
-    postsSent: ['Постов отправлено', 'Posts sent', 'Постів надіслано'],
+    postsSent: ['Постов отправлено', 'Posts sent', 'дописів надіслано'],
     total: ['Всего', 'Total', 'Всього'],
     debug: ['Отладка', 'Debug', 'Відлагодження'],
     infoDebug: ['Информация для отладки', 'Information for debugging', 'Інформація для відлагодження'],
-    refreshCounters: ['Обновить счетчики постов', 'Refresh posts counters', 'Оновити лічильники постів'],
+    refreshCounters: ['Обновить счетчики постов', 'Refresh posts counters', 'Оновити лічильники дописів'],
     refreshClear404: ['Обновить счетчики и очистить недоступные (404) треды', 'Refresh counters and clear inaccessible (404) threads', 'Оновити лічильники та очистити недоступні (404) треди'],
     clear404: ['Очистить недоступные (404) треды', 'Clear inaccessible (404) threads', 'Очистити недоступні (404) треди'],
     infoPage: ['Проверить положение тредов (до 10-й страницы)', 'Check for threads position (up to 10th page)', 'Перевірити актуальність тредів (до 10 сторінки)'],
-    totalPosts: ['Всего постов в треде', 'Total posts in thread', 'Всього постів в треді'],
-    newPosts: ['Количество новых постов', 'Number of new posts', 'Кількість нових постів'],
-    myPostsRep: ['Ответов на ваши посты', 'Replies to your posts', 'Відповідей на ваші пости'],
+    totalPosts: ['Всего постов в треде', 'Total posts in thread', 'Всього дописів в треді'],
+    newPosts: ['Количество новых постов', 'Number of new posts', 'Кількість нових дописів'],
+    myPostsRep: ['Ответов на ваши посты', 'Replies to your posts', 'Відповідей на ваші дописи'],
     thrPage: ['На какой странице сейчас тред', 'What page is the thread on now', 'На якій сторінці зараз тред'],
     goToThread: ['Перейти к треду', 'Go to the thread', 'Перейти до треду'],
     goToBoard: ['Перейти к доске', 'Go to the board', 'Перейти до дошки'],
@@ -7727,8 +7727,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     addManually: ['Ввести ссылку на файл вручную', 'Enter a link to the file manually', 'Ввести посилання на файл вручну'],
     enterTheLink: ['Введите ссылку и нажмите \'+\'', 'Enter the link and click \'+\'', 'Введіть посилання та натисніть \'+\''],
     helpAddFile: ['Встроить ogg/rar/zip/7z в картинку', 'Embed ogg/rar/zip/7z into the image', 'Вбудувати ogg/rar/zip/7z в зображення'],
-    expImgInline: ['[Click] открыть в посте, [Ctrl+Click] по центру', '[Click] expand in post, [Ctrl+Click] by center', '[Click] розгорнути в пості, [Ctrl+Click] в центрі'],
-    expImgFull: ['[Click] открыть по центру, [Ctrl+Click] в посте', '[Click] expand by center, [Ctrl+Click] in post', '[Click] розгорнути в центрі, [Ctrl+Click] в пості'],
+    expImgInline: ['[Click] открыть в посте, [Ctrl+Click] по центру', '[Click] expand in post, [Ctrl+Click] by center', '[Click] розгорнути в дописі, [Ctrl+Click] в центрі'],
+    expImgFull: ['[Click] открыть по центру, [Ctrl+Click] в посте', '[Click] expand by center, [Ctrl+Click] in post', '[Click] розгорнути в центрі, [Ctrl+Click] в дописі'],
     nextImg: ['Следующая картинка', 'Next image', 'Наступне зображення'],
     prevImg: ['Предыдущая картинка', 'Previous image', 'Попереднє зображення'],
     rotateImg: ['Повернуть вправо', 'Rotate right', 'Повернути вправо'],
@@ -7753,8 +7753,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     stormWallCheck: ['Проверка StormWall защиты от DDoS атак...', 'Checking for the StormWall DDoS protection...', 'Перевірка StormWall захисту від DDoS атак...'],
     stormWallErr: ['Пожалуйста, решите капчу StormWall защиты', 'Please resolve the StormWall protection captcha', 'Будь ласка, вирішіть капчу StormWall захисту'],
     internalError: ['Внутренняя ошибка:\n', 'Internal error:\n', 'Внутрішня помилка:\n'],
-    postNotFound: ['Пост не найден', 'Post not found', 'Пост не знайдено'],
-    noHidThr: ['Нет скрытых тредов…', 'No hidden threads…', 'Немає схованих постів…'],
+    postNotFound: ['Пост не найден', 'Post not found', 'Допис не знайдено'],
+    noHidThr: ['Нет скрытых тредов…', 'No hidden threads…', 'Немає схованих дописів…'],
     noFavThr: ['Нет избранных тредов…', 'Favorites is empty…', 'Немає вибраних тредів…'],
     noVideoLinks: ['Нет ссылок на видео…', 'No video links…', 'Немає посилань на відео…'],
     invalidData: ['Некорректный формат данных', 'Incorrect data format', 'Некоректний формат даних'],
@@ -7797,9 +7797,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     deleting: ['Удаление…', 'Deleting…', 'Видалення…'],
     deleted: ['удалён', 'deleted', 'видалено'],
     hide: ['Скрыть: ', 'Hide: ', 'Сховати: '],
-    hidePosts: ['Скрыть посты', 'Hide posts', 'Сховати пости'],
-    showPosts: ['Показать посты', 'Show posts', 'Показати пости'],
-    getNewPosts: ['Получить новые посты', 'Get new posts', 'Отримати нові пости'],
+    hidePosts: ['Скрыть посты', 'Hide posts', 'Сховати дописи'],
+    showPosts: ['Показать посты', 'Show posts', 'Показати дописи'],
+    getNewPosts: ['Получить новые посты', 'Get new posts', 'Отримати нові дописи'],
     makeThr: ['Создать тред', 'Create thread', 'Створити тред'],
     collapseThr: ['Свернуть тред', 'Collapse thread', 'Згорнути тред'],
     hiddenThr: ['Скрытый тред', 'Hidden thread', 'Схований тред'],
@@ -7807,9 +7807,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     enableSage: ['Нажмите, чтобы включить сажу', 'Click to enable sage', 'Натисніть, щоб увімкнути сажу'],
     disableSage: ['САЖА включена! Нажмите, чтобы отключить', 'SAGE enabled! Click to disable', 'САЖА ввімкнена! Натисніть, щоб вимкнути'],
     postsOmitted: ['Пропущено ответов: ', 'Posts omitted: ', 'Пропущено відповідей: '],
-    newPost: [['новый пост', 'новых поста', 'новых постов'], ['new post', 'new posts', 'new posts'], ['новий пост', 'нових пости', 'нових постів']],
+    newPost: [['новый пост', 'новых поста', 'новых постов'], ['new post', 'new posts', 'new posts'], ['новий допис', 'нових дописи', 'нових дописів']],
     youReplies: [['ответ Вам', 'ответа Вам', 'ответов Вам'], ['reply to You', 'replies to You', 'replies to You'], ['відповідь Вам', 'відповіді Вам', 'відповідей Вам']],
-    latestPost: ['Последний пост', 'Latest post', 'Останній пост'],
+    latestPost: ['Последний пост', 'Latest post', 'Останній допис'],
     donateMsg: ['<b>Спасибо за использование Dollchan Extension!</b><br>Вы можете поддержать проект пожертвованием', '<b>Thank You for using Dollchan Extension!</b><br>You can support the project by donating', '<b>Дякуємо за використання Dollchan Extension!</b><br>Ви можете підтримати проект пожертвою'],
     firefoxAddon: ['Firefox аддон</a> доступен!', 'Firefox add-on</a> is available!', 'Firefox аддон</a> доступний!']
   };

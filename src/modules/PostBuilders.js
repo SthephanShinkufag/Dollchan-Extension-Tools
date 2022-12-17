@@ -417,8 +417,7 @@ class MakabaPostsBuilder {
 			'!!%Inquisitor%!!' : 'post__inquisitor">## Applejack ##',
 			'!!%coder%!!'      : 'post__mod">## Кодер ##',
 			'!!%curunir%!!'    : 'post__mod">## Curunir ##',
-			'@@default'        :
-				`${ data.trip_style ? data.trip_style : 'post__trip' }">` + data.trip
+			'@@default'        : `${ data.trip_style ? data.trip_style : 'post__trip' }">` + data.trip
 		}) }</span>`;
 		const refHref = `/${ board }/res/${ parseInt(data.parent) || num }.html#${ num }`;
 		let rate = '';

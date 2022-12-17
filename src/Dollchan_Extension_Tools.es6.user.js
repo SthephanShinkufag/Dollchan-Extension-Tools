@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = '93cb514';
+const commit = '051a8a2';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -204,7 +204,7 @@ const Lng = {
 	// Settings window: tab names
 	cfgTab: {
 		filters : ['Фильтры', 'Filters', 'Фільтри'],
-		posts   : ['Посты', 'Posts', 'Пости'],
+		posts   : ['Посты', 'Posts', 'Дописи'],
 		images  : ['Картинки', 'Images', 'Зображ.'],
 		links   : ['Ссылки', 'Links', 'Посил.'],
 		form    : ['Форма', 'Form', 'Форма'],
@@ -230,7 +230,7 @@ const Lng = {
 		hideRefPsts: [
 			'Скрывать ответы на скрытые посты',
 			'Hide replies to hidden posts',
-			'Ховати відповіді на сховані пости'],
+			'Ховати відповіді на сховані дописи'],
 		nextPageThr: [
 			'Скрытые треды - загружать со следующих страниц',
 			'Load threads from next pages instead of hidden',
@@ -239,7 +239,7 @@ const Lng = {
 			sel: [
 				['Откл.', 'Всё', 'Только посты', 'Только треды'],
 				['Disable', 'All', 'Posts only', 'Threads only'],
-				['Вимк.', 'Все', 'Лише пости', 'Лише треди']],
+				['Вимк.', 'Все', 'Лише дописи', 'Лише треди']],
 			txt: [
 				'Удалять скрытое',
 				'Remove placeholders',
@@ -262,15 +262,15 @@ const Lng = {
 		favIcoBlink: [
 			'Мигать фавиконом при появлении новых постов',
 			'Blink the favicon on new posts',
-			'Блимати фавіконом в разі появи нових постів'],
+			'Блимати фавіконом в разі появи нових дописів'],
 		desktNotif: [
 			'Уведомлять о новых постах на рабочем столе',
 			'Desktop notifications for new posts',
-			'Повідомляти про нові пости на стільниці'],
+			'Повідомляти про нові дописи на стільниці'],
 		markNewPosts: [
 			'Выделять цветом новые посты',
 			'Highlight new posts with color',
-			'Виділяти кольором нові пости'],
+			'Виділяти кольором нові дописи'],
 		useDobrAPI: [
 			'dobrochan: использовать JSON API',
 			'dobrochan: use JSON API',
@@ -278,25 +278,25 @@ const Lng = {
 		markMyPosts: [
 			'Выделять цветом мои посты',
 			'Highlight my own posts',
-			'Виділяти кольором мої пости'],
+			'Виділяти кольором мої дописи'],
 		expandTrunc: [
 			'Авторазворот сокращенных постов',
 			'Autoexpand truncated posts',
-			'Авторозгортання скорочених постів'],
+			'Авторозгортання скорочених дописів'],
 		widePosts: [
 			'Растягивать посты по ширине экрана',
 			'Stretch posts to page width',
-			'Розтягувати пости на ширину екрану'],
+			'Розтягувати дописи на ширину екрану'],
 		limitPostMsg: [
 			'Ограничение ширины текста в постах (px)',
 			'Limit text width in posts messages (px)',
-			'Обмеження ширини тексту в постах (px)'
+			'Обмеження ширини тексту в дописах (px)'
 		],
 		thrBtns: {
 			sel: [
 				['Откл.', 'Все', 'Все (на доске)', '"Новые посты" на доске'],
 				['Disable', 'All', 'All (on board)', '"New posts" on board'],
-				['Вимк.', 'Всі', 'Всі (на дошці)', '"Нові пости" на дошці']],
+				['Вимк.', 'Всі', 'Всі (на дошці)', '"Нові дописи" на дошці']],
 			txt: [
 				'Кнопки под тредами',
 				'Buttons under threads',
@@ -310,7 +310,7 @@ const Lng = {
 			txt: [
 				'Кнопки "Скрыть пост/тред"',
 				'"Hide post/thread" buttons',
-				'Кнопки "Сховати пост/тред"']
+				'Кнопки "Сховати допис/тред"']
 		},
 		showRepBtn: {
 			sel: [
@@ -320,7 +320,7 @@ const Lng = {
 			txt: [
 				'Кнопки "Ответить на пост/тред"',
 				'"Reply to post/thread" buttons',
-				'Кнопки "Відповісти на пост/тред"']
+				'Кнопки "Відповісти на допис/тред"']
 		},
 		postBtnsCSS: {
 			sel: [
@@ -330,7 +330,7 @@ const Lng = {
 			txt: [
 				'Кнопки постов ',
 				'Post buttons ',
-				'Кнопки постів ']
+				'Кнопки дописів ']
 		},
 		noSpoilers: {
 			sel: [
@@ -345,11 +345,11 @@ const Lng = {
 		noPostNames: [
 			'Скрывать имена в постах',
 			'Hide poster names',
-			'Ховати імена в постах'],
+			'Ховати імена в дописах'],
 		correctTime: [
 			'Коррекция времени в постах',
 			'Time correction in posts',
-			'Корекція часу в постах'],
+			'Корекція часу в дописах'],
 		timeOffset: [
 			'разница (ч) ',
 			'time offset (h) ',
@@ -368,7 +368,7 @@ const Lng = {
 			sel: [
 				['Откл.', 'В посте', 'По центру'],
 				['Disable', 'In post', 'By center'],
-				['Вимк.', 'В пості', 'По центру']],
+				['Вимк.', 'В дописі', 'По центру']],
 			txt: [
 				'Раскрывать картинки по клику',
 				'Expand images on click',
@@ -394,7 +394,7 @@ const Lng = {
 			txt: [
 				'Уменьшать при раскрытии в посте',
 				'Fit to screen for expanding in post',
-				'Зменшувати при розкритті в пості']
+				'Зменшувати при розкритті в дописі']
 		},
 		minImgSize: [
 			'мин.',
@@ -471,7 +471,7 @@ const Lng = {
 		linksNavig: [
 			'Навигация постов по >>ссылкам',
 			'Posts navigation by >>links',
-			'Навігація постів по >>посиланнях'],
+			'Навігація дописів по >>посиланнях'],
 		linksOver: [
 			'Появление ',
 			'Appearance ',
@@ -483,11 +483,11 @@ const Lng = {
 		markViewed: [
 			'Помечать просмотренные посты',
 			'Mark viewed posts',
-			'Позначати переглянуті пости'],
+			'Позначати переглянуті дописи'],
 		strikeHidd: [
 			'Зачеркивать >>ссылки на скрытые посты',
 			'Strike >>links to hidden posts',
-			'Закреслювати >>посилання на сховані пости'],
+			'Закреслювати >>посилання на сховані дописи'],
 		removeHidd: [
 			'Также удалять из обратных >>ссылок',
 			'Also remove from >>backlinks',
@@ -495,11 +495,11 @@ const Lng = {
 		noNavigHidd: [
 			'Не отображать превью для скрытых постов',
 			'Donʼt show previews for hidden posts',
-			'Не показувати превʼю до cхованих постів'],
+			'Не показувати превʼю до cхованих дописів'],
 		markMyLinks: [
 			'Помечать ссылки на мои посты как (You)',
 			'Mark links to my posts with (You)',
-			'Позначати посилання на мої пости як (You)'],
+			'Позначати посилання на мої дописи як (You)'],
 		crossLinks: [
 			'Заменять http:// на >>/b/ссылки',
 			'Replace http:// with >>/b/links',
@@ -511,7 +511,7 @@ const Lng = {
 		insertNum: [
 			'Вставлять >>ссылку по клику на №поста',
 			'Insert >>link on №postnumber click',
-			'Вставляти >>посилання на клік по №посту'],
+			'Вставляти >>посилання на клік по №допису'],
 		addOPLink: [
 			'>>ссылка при ответе на OP в списке тредов',
 			'Insert >>link when replying to OP on threads list',
@@ -555,7 +555,7 @@ const Lng = {
 		ajaxPosting: [
 			'Отправка постов без перезагрузки',
 			'Posting without page refresh',
-			'Постування без оновлення сторінки'],
+			'Дописування без оновлення сторінки'],
 		postSameImg: [
 			'Возможность отправки одинаковых картинок',
 			'Ability to post duplicate images',
@@ -713,11 +713,11 @@ const Lng = {
 			sel: [
 				['Откл.', 'Все посты', 'Без скрытых'],
 				['Disabled', 'All posts', 'Except hidden'],
-				['Вимкн.', 'Усі пости', 'Крім схованих']],
+				['Вимкн.', 'Всі дописи', 'Крім схованих']],
 			txt: [
 				'Счетчик постов/картинок в треде',
 				'Сounter for posts/images in thread',
-				'Лічильник постів/зображень в треді']
+				'Лічильник дописів/зображ. в треді']
 		},
 		rePageTitle: [
 			'Название треда в заголовке вкладки',
@@ -826,7 +826,7 @@ const Lng = {
 		preimg: [
 			'Предзагрузить картинки\r\n([Ctrl+Click] только для новых постов)',
 			'Preload images\r\n([Ctrl+Click] for new posts only)',
-			'Наперед завантажити зображення\r\n([Ctrl+Click] лише для нових постів)'],
+			'Наперед завантажити зображення\r\n([Ctrl+Click] лише для нових дописів)'],
 		savethr: [
 			'Сохранить на диск',
 			'Save to disk',
@@ -842,7 +842,7 @@ const Lng = {
 		'audio-off': [
 			'Звуковое оповещение о новых постах',
 			'Sound notification about new posts',
-			'Звукове сповіщення про нові пости'],
+			'Звукове сповіщення про нові дописи'],
 		catalog: [
 			'Перейти в каталог',
 			'Go to catalog',
@@ -854,11 +854,11 @@ const Lng = {
 		postsCount: [
 			'Постов в треде',
 			'Posts in thread',
-			'Постів у треді'],
+			'Дописів у треді'],
 		postsNotHid: [
 			'Постов в треде (без скрытых)',
 			'Posts in thread (without hidden)',
-			'Постів у треді (крім схованих)'],
+			'Дописів у треді (крім схованих)'],
 		filesCount: [
 			'Картинок и видео в треде',
 			'Images and videos in thread',
@@ -866,14 +866,14 @@ const Lng = {
 		postersCount: [
 			'Постящих в треде',
 			'Posters in thread',
-			'Постувачів у треді']
+			'Дописувачів у треді']
 	},
 
 	// Post buttons: tooltips
 	togglePost: [
 		'Скрыть/Раскрыть пост',
 		'Hide/Unhide post',
-		'Сховати/показати пост'],
+		'Сховати/показати допис'],
 	toggleThr: [
 		'Скрыть/Раскрыть тред',
 		'Hide/Unhide thread',
@@ -881,7 +881,7 @@ const Lng = {
 	replyToPost: [
 		'Ответить на пост',
 		'Reply to post',
-		'Відповісти на пост'],
+		'Відповісти на допис'],
 	replyToThr: [
 		'Ответить в тред',
 		'Reply to thread',
@@ -923,7 +923,7 @@ const Lng = {
 	underPost: [
 		'Разместить форму после поста',
 		'Move form under post',
-		'Розмістити форму після посту'],
+		'Розмістити форму після допису'],
 	clearForm: [
 		'Очистить форму',
 		'Clear form',
@@ -991,7 +991,7 @@ const Lng = {
 	selExpandThr: [ // "Expand thread" post button
 		['+10 постов', 'Последние 30', 'Последние 50', 'Последние 100', 'Весь тред'],
 		['+10 posts', 'Last 30 posts', 'Last 50 posts', 'Last 100 posts', 'Entire thread'],
-		['+10 постів', 'Останні 30', 'Останні 50', 'Останні 100', 'Весь тред']],
+		['+10 дописів', 'Останні 30', 'Останні 50', 'Останні 100', 'Весь тред']],
 	selAjaxPages: [ // "Refresh" panel button
 		['1 страница', '2 страницы', '3 страницы', '4 страницы', '5 страниц'],
 		['1 page', '2 pages', '3 pages', '4 pages', '5 pages'],
@@ -1007,7 +1007,7 @@ const Lng = {
 	reportPost: [
 		'Жалоба на пост',
 		'Report a post',
-		'Скарга на пост'],
+		'Скарга на допис'],
 	reportThr: [
 		'Жалоба на тред',
 		'Report a thread',
@@ -1015,12 +1015,12 @@ const Lng = {
 	markMyPost: [
 		'Пометить как мой пост',
 		'Mark as my post',
-		'Відмітити як мій пост'
+		'Відмітити як мій допис'
 	],
 	deleteMyPost: [
 		'Убрать из моих постов',
 		'Delete from my posts',
-		'Прибрати з моїх постів'
+		'Прибрати з моїх дописів'
 	],
 
 	// Sauce search for images and video frames
@@ -1120,16 +1120,16 @@ const Lng = {
 		// Ua
 		'%l%i24 – попередня сторінка/зображення%/l',
 		'%l%i217 – наступна сторінка/зображення%/l',
-		'%l%i21 – тред (на дошці)/пост (в треді) нижче%/l',
-		'%l%i20 – тред (на дошці)/пост (в треді) вище%/l',
-		'%l%i31 – пост (на дошці) нижче%/l',
-		'%l%i30 – пост (на дошці) вище%/l',
-		'%l%i23 – приховати пост/тред%/l',
+		'%l%i21 – тред (на дошці)/допис (в треді) нижче%/l',
+		'%l%i20 – тред (на дошці)/допис (в треді) вище%/l',
+		'%l%i31 – допис (на дошці) нижче%/l',
+		'%l%i30 – допис (на дошці) вище%/l',
+		'%l%i23 – приховати допис/тред%/l',
 		'%l%i32 – перейти в тред%/l',
 		'%l%i33 – розгорнути тред%/l',
-		'%l%i211 – розгорнути зображення в пості%/l',
+		'%l%i211 – розгорнути зображення в дописі%/l',
 		'%l%i22 – швидка відповідь%/l',
-		'%l%i25t – відправити пост%/l',
+		'%l%i25t – відправити допис%/l',
 		'%l%i210 – відкрити/закрити "Налаштування"%/l',
 		'%l%i26 – відкрити/закрити "Вибране"%/l',
 		'%l%i27 – відкрити/закрити "Сховане"%/l',
@@ -1297,11 +1297,11 @@ const Lng = {
 	hidPostThr: [
 		'Скрытые посты и треды',
 		'Hidden posts and threads',
-		'Сховані пости та треди'],
+		'Сховані дописи та треди'],
 	myPosts: [
 		'Мои посты',
 		'My posts',
-		'Мої пости'],
+		'Мої дописи'],
 
 	// Settings window: Common/Info tab
 	checkNow: [
@@ -1343,7 +1343,7 @@ const Lng = {
 	postsSent: [
 		'Постов отправлено',
 		'Posts sent',
-		'Постів надіслано'],
+		'дописів надіслано'],
 	total: [
 		'Всего',
 		'Total',
@@ -1361,7 +1361,7 @@ const Lng = {
 	refreshCounters: [
 		'Обновить счетчики постов',
 		'Refresh posts counters',
-		'Оновити лічильники постів'],
+		'Оновити лічильники дописів'],
 	refreshClear404: [
 		'Обновить счетчики и очистить недоступные (404) треды',
 		'Refresh counters and clear inaccessible (404) threads',
@@ -1377,15 +1377,15 @@ const Lng = {
 	totalPosts: [
 		'Всего постов в треде',
 		'Total posts in thread',
-		'Всього постів в треді'],
+		'Всього дописів в треді'],
 	newPosts: [
 		'Количество новых постов',
 		'Number of new posts',
-		'Кількість нових постів'],
+		'Кількість нових дописів'],
 	myPostsRep: [
 		'Ответов на ваши посты',
 		'Replies to your posts',
-		'Відповідей на ваші пости'],
+		'Відповідей на ваші дописи'],
 	thrPage: [
 		'На какой странице сейчас тред',
 		'What page is the thread on now',
@@ -1475,11 +1475,11 @@ const Lng = {
 	expImgInline: [
 		'[Click] открыть в посте, [Ctrl+Click] по центру',
 		'[Click] expand in post, [Ctrl+Click] by center',
-		'[Click] розгорнути в пості, [Ctrl+Click] в центрі'],
+		'[Click] розгорнути в дописі, [Ctrl+Click] в центрі'],
 	expImgFull: [
 		'[Click] открыть по центру, [Ctrl+Click] в посте',
 		'[Click] expand by center, [Ctrl+Click] in post',
-		'[Click] розгорнути в центрі, [Ctrl+Click] в пості'],
+		'[Click] розгорнути в центрі, [Ctrl+Click] в дописі'],
 	nextImg: [
 		'Следующая картинка',
 		'Next image',
@@ -1585,11 +1585,11 @@ const Lng = {
 	postNotFound: [
 		'Пост не найден',
 		'Post not found',
-		'Пост не знайдено'],
+		'Допис не знайдено'],
 	noHidThr: [
 		'Нет скрытых тредов…',
 		'No hidden threads…',
-		'Немає схованих постів…'],
+		'Немає схованих дописів…'],
 	noFavThr: [
 		'Нет избранных тредов…',
 		'Favorites is empty…',
@@ -1661,15 +1661,15 @@ const Lng = {
 	hidePosts: [
 		'Скрыть посты',
 		'Hide posts',
-		'Сховати пости'],
+		'Сховати дописи'],
 	showPosts: [
 		'Показать посты',
 		'Show posts',
-		'Показати пости'],
+		'Показати дописи'],
 	getNewPosts: [
 		'Получить новые посты',
 		'Get new posts',
-		'Отримати нові пости'],
+		'Отримати нові дописи'],
 	makeThr: [
 		'Создать тред',
 		'Create thread',
@@ -1701,7 +1701,7 @@ const Lng = {
 	newPost: [
 		['новый пост', 'новых поста', 'новых постов'],
 		['new post', 'new posts', 'new posts'],
-		['новий пост', 'нових пости', 'нових постів']],
+		['новий допис', 'нових дописи', 'нових дописів']],
 	youReplies: [
 		['ответ Вам', 'ответа Вам', 'ответов Вам'],
 		['reply to You', 'replies to You', 'replies to You'],
@@ -1709,7 +1709,7 @@ const Lng = {
 	latestPost: [
 		'Последний пост',
 		'Latest post',
-		'Останній пост'],
+		'Останній допис'],
 	donateMsg: [
 		'<b>Спасибо за использование Dollchan Extension!</b><br>Вы можете поддержать проект пожертвованием',
 		'<b>Thank You for using Dollchan Extension!</b><br>You can support the project by donating',
@@ -13477,8 +13477,7 @@ class MakabaPostsBuilder {
 			'!!%Inquisitor%!!' : 'post__inquisitor">## Applejack ##',
 			'!!%coder%!!'      : 'post__mod">## Кодер ##',
 			'!!%curunir%!!'    : 'post__mod">## Curunir ##',
-			'@@default'        :
-				`${ data.trip_style ? data.trip_style : 'post__trip' }">` + data.trip
+			'@@default'        : `${ data.trip_style ? data.trip_style : 'post__trip' }">` + data.trip
 		}) }</span>`;
 		const refHref = `/${ board }/res/${ parseInt(data.parent) || num }.html#${ num }`;
 		let rate = '';
