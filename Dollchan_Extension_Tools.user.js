@@ -7200,7 +7200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.12.5.0';
-  var commit = '051a8a2';
+  var commit = '926f310';
 
 
   var doc = deWindow.document;
@@ -25806,7 +25806,7 @@ Spells.addSpell(9, '', false);
               }
             });
           }
-          $script("(function() {\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name,\n\t\t\t\t\t\t{ value: Function.prototype, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc(\"$alert\");\n\t\t\t\t".concat(this._isBeta ? '' : 'fixGlobalFunc("autorefresh_start");', "\n\t\t\t\tfixGlobalFunc(\"linkremover\");\n\t\t\t\tfixGlobalFunc(\"Media\");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t})();"));
+          $script("(function() {\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name,\n\t\t\t\t\t\t{ value: Function.prototype, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\t".concat(this._isBeta ? '' : 'fixGlobalFunc("autorefresh_start");', "\n\t\t\t\tfixGlobalFunc(\"linkremover\");\n\t\t\t\tfixGlobalFunc(\"Media\");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t})();"));
           $Q('.autorefresh').forEach(function (el) {
             var inpEl = $q('input', el);
             if (inpEl.checked) {

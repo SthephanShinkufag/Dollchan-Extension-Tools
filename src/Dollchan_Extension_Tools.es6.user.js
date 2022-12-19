@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = '051a8a2';
+const commit = '926f310';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -16694,12 +16694,10 @@ function getImageBoard(checkDomains, checkEngines) {
 					Object.defineProperty(window, name,
 						{ value: Function.prototype, writable: false, configurable: false });
 				}
-				fixGlobalFunc("$alert");
 				${ this._isBeta ? '' : 'fixGlobalFunc("autorefresh_start");' }
 				fixGlobalFunc("linkremover");
 				fixGlobalFunc("Media");
 				window.FormData = void 0;
-				$(function() { $(window).off(); });
 			})();`);
 			$Q('.autorefresh').forEach(el => {
 				const inpEl = $q('input', el);

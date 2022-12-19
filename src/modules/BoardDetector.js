@@ -933,12 +933,10 @@ function getImageBoard(checkDomains, checkEngines) {
 					Object.defineProperty(window, name,
 						{ value: Function.prototype, writable: false, configurable: false });
 				}
-				fixGlobalFunc("$alert");
 				${ this._isBeta ? '' : 'fixGlobalFunc("autorefresh_start");' }
 				fixGlobalFunc("linkremover");
 				fixGlobalFunc("Media");
 				window.FormData = void 0;
-				$(function() { $(window).off(); });
 			})();`);
 			$Q('.autorefresh').forEach(el => {
 				const inpEl = $q('input', el);
