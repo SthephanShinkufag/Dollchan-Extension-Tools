@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = '926f310';
+const commit = '41c1ab5';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -2070,7 +2070,7 @@ class Maybe {
 
 class TemporaryContent {
 	constructor(key) {
-		const oClass = /* new.target */this.constructor; // https://github.com/babel/babel/issues/1088
+		const oClass = /* new.target */ this.constructor; // https://github.com/babel/babel/issues/1088
 		if(oClass.purgeTO) {
 			clearTimeout(oClass.purgeTO);
 		}
@@ -7372,11 +7372,11 @@ const Spells = Object.create({
 		return this.reps;
 	},
 	async addSpell(type, arg, isNeg) {
-		const fld = $id('de-spell-txt');
-		const val = fld?.value;
-		const chk = $q('input[info="hideBySpell"]');
-		let spells = val && this.parseText(val);
-		if(!val || spells) {
+		const inputEl = $id('de-spell-txt');
+		const value = inputEl?.value;
+		const checkboxEl = $q('input[info="hideBySpell"]');
+		let spells = value && this.parseText(value);
+		if(!value || spells) {
 			if(!spells) {
 				try {
 					spells = JSON.parse(Cfg.spells);
@@ -7430,13 +7430,13 @@ const Spells = Object.create({
 			}
 			if(isAdded) {
 				await CfgSaver.save('hideBySpell', 1);
-				if(chk) {
-					chk.checked = true;
+				if(checkboxEl) {
+					checkboxEl.checked = true;
 				}
 			} else if(!spells[1] && !spells[2] && !spells[3]) {
 				await CfgSaver.save('hideBySpell', 0);
-				if(chk) {
-					chk.checked = false;
+				if(checkboxEl) {
+					checkboxEl.checked = false;
 				}
 			}
 			if(spells[1] && Cfg.sortSpells) {
@@ -7444,14 +7444,14 @@ const Spells = Object.create({
 			}
 			await CfgSaver.save('spells', JSON.stringify(spells));
 			await this.setSpells(spells, true);
-			if(fld) {
-				fld.value = this.list;
+			if(inputEl) {
+				inputEl.value = this.list;
 			}
 			Pview.updatePosition(true);
 			return;
 		}
-		if(chk) {
-			chk.checked = false;
+		if(checkboxEl) {
+			checkboxEl.checked = false;
 		}
 	},
 	decompileSpell(type, neg, val, scope, wipeMsg = null) {
@@ -7565,35 +7565,35 @@ const Spells = Object.create({
 			return;
 		}
 		this._optimize(spells);
-		if(this.hiders) {
-			const sRunner = new SpellsRunner();
-			for(let post = Thread.first.op; post; post = post.next) {
-				sRunner.runSpells(post);
-			}
-			sRunner.endSpells();
-		} else {
+		if(!this.hiders) {
 			SpellsRunner.unhideAll();
+			return;
 		}
+		const sRunner = new SpellsRunner();
+		for(let post = Thread.first.op; post; post = post.next) {
+			sRunner.runSpells(post);
+		}
+		sRunner.endSpells();
 	},
 	async toggle() {
 		let spells;
-		const fld = $id('de-spell-txt');
-		const val = fld.value;
-		if(val && (spells = this.parseText(val))) {
+		const inputEl = $id('de-spell-txt');
+		const { value } = inputEl;
+		if(value && (spells = this.parseText(value))) {
 			closePopup('err-spell');
 			await this.setSpells(spells, true);
 			await CfgSaver.save('spells', JSON.stringify(spells));
-			fld.value = this.list;
-		} else {
-			if(!val) {
-				closePopup('err-spell');
-				SpellsRunner.unhideAll();
-				await this.disableSpells();
-				await CfgSaver.save('spells', JSON.stringify([Date.now(), null, null, null]));
-				sendStorageEvent('__de-spells', '{ hide: false, data: null }');
-			}
-			$q('input[info="hideBySpell"]').checked = false;
+			inputEl.value = this.list;
+			return;
 		}
+		if(!value) {
+			closePopup('err-spell');
+			SpellsRunner.unhideAll();
+			await this.disableSpells();
+			await CfgSaver.save('spells', JSON.stringify([Date.now(), null, null, null]));
+			sendStorageEvent('__de-spells', '{ hide: false, data: null }');
+		}
+		$q('input[info="hideBySpell"]').checked = false;
 	},
 
 	_decompileRep(rep, isOrep) {
@@ -8807,7 +8807,7 @@ class PostForm {
 	addMarkupPanel() {
 		let el = $id('de-txt-panel');
 		if(!Cfg.addTextBtns) {
-			aib.removeFormButtons(el);
+			aib.removeMarkupButtons(el);
 			return;
 		}
 		if(!el) {
@@ -8815,7 +8815,7 @@ class PostForm {
 			['click', 'mouseover'].forEach(e => el.addEventListener(e, this));
 		}
 		el.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
-		aib.insertFormButtons(this, el);
+		aib.insertMarkupButtons(this, el);
 		const id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
 		const val = ['B', 'i', 'U', 'S', '%', 'C', 'x\u00b2', 'x\u2082'];
 		const mode = Cfg.addTextBtns;
@@ -9556,8 +9556,8 @@ async function html5Submit(form, submitter, needProgress = false) {
 				mime === 'image/jpeg' ||
 				mime === 'image/png' ||
 				mime === 'image/gif' ||
-				mime === 'video/webm' && !aib.makaba)
-			) {
+				mime === 'video/webm'
+			)) {
 				const cleanData = cleanFile((await readFile(value)).data, el.obj ? el.obj.extraFile : null);
 				if(!cleanData) {
 					return Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName));
@@ -9768,6 +9768,9 @@ class Files {
 			inp.clearInp();
 		}
 		this.hideEmpty();
+		if(aib.clearFileInputs) {
+			aib.clearFileInputs();
+		}
 	}
 	hideEmpty() {
 		for(let els = this._inputs, i = els.length - 1; i > 0; --i) {
@@ -15484,6 +15487,9 @@ class BaseBoard {
 	get changeReplyMode() {
 		return null;
 	}
+	get clearFileInputs() {
+		return null;
+	}
 	get css() {
 		return '';
 	}
@@ -15723,14 +15729,11 @@ class BaseBoard {
 	getTNum(thr) {
 		return +$q('input[type="checkbox"]', thr).value;
 	}
-	insertYtPlayer(msg, playerHtml) {
-		return $bBegin(msg, playerHtml);
-	}
-	insertFormButtons(postForm, el) {
+	insertMarkupButtons(postForm, el) {
 		(Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm).after(el);
 	}
-	removeFormButtons(el) {
-		el?.remove();
+	insertYtPlayer(msg, playerHtml) {
+		return $bBegin(msg, playerHtml);
 	}
 	isAjaxStatusOK(status) {
 		return status === 200 || status === 206;
@@ -15753,6 +15756,9 @@ class BaseBoard {
 		if(this.docExt === null) {
 			this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
 		}
+	}
+	removeMarkupButtons(el) {
+		el?.remove();
 	}
 	updateSubmitBtn(el) {
 		el.value = Lng.reply[lang];
@@ -16570,6 +16576,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 			});
 		}
+		clearFileInputs() {
+			$delAll('.sticker-input, .postform__sticker-img');
+		}
 		deleteTruncMsg(post, el) {
 			el.previousSibling.remove();
 			$show(el.previousSibling);
@@ -16718,6 +16727,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return false;
 		}
+		insertMarkupButtons(postForm, el) {
+			const formEl = Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm;
+			const posEl = formEl.parentNode;
+			posEl.insertAdjacentHTML('afterend', '<div class="postform__raw"></div>');
+			posEl.nextSibling.appendChild(el);
+		}
 		observeContent(checkDomains, dataPromise) {
 			if($q('#posts-form > .thread, #js-posts > .thread, [de-form] > .thread')) {
 				return true;
@@ -16734,13 +16749,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return false;
 		}
-		insertFormButtons(postForm, el) {
-			const formEl = Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm;
-			const posEl = formEl.parentNode;
-			posEl.insertAdjacentHTML('afterend', '<div class="postform__raw"></div>');
-			posEl.nextSibling.appendChild(el);
-		}
-		removeFormButtons(el) {
+		removeMarkupButtons(el) {
 			el?.parentNode.remove();
 		}
 	}

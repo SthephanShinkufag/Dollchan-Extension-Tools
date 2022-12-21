@@ -809,6 +809,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 			});
 		}
+		clearFileInputs() {
+			$delAll('.sticker-input, .postform__sticker-img');
+		}
 		deleteTruncMsg(post, el) {
 			el.previousSibling.remove();
 			$show(el.previousSibling);
@@ -957,6 +960,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return false;
 		}
+		insertMarkupButtons(postForm, el) {
+			const formEl = Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm;
+			const posEl = formEl.parentNode;
+			posEl.insertAdjacentHTML('afterend', '<div class="postform__raw"></div>');
+			posEl.nextSibling.appendChild(el);
+		}
 		observeContent(checkDomains, dataPromise) {
 			if($q('#posts-form > .thread, #js-posts > .thread, [de-form] > .thread')) {
 				return true;
@@ -973,13 +982,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return false;
 		}
-		insertFormButtons(postForm, el) {
-			const formEl = Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm;
-			const posEl = formEl.parentNode;
-			posEl.insertAdjacentHTML('afterend', '<div class="postform__raw"></div>');
-			posEl.nextSibling.appendChild(el);
-		}
-		removeFormButtons(el) {
+		removeMarkupButtons(el) {
 			el?.parentNode.remove();
 		}
 	}

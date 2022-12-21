@@ -61,11 +61,11 @@ const Spells = Object.create({
 		return this.reps;
 	},
 	async addSpell(type, arg, isNeg) {
-		const fld = $id('de-spell-txt');
-		const val = fld?.value;
-		const chk = $q('input[info="hideBySpell"]');
-		let spells = val && this.parseText(val);
-		if(!val || spells) {
+		const inputEl = $id('de-spell-txt');
+		const value = inputEl?.value;
+		const checkboxEl = $q('input[info="hideBySpell"]');
+		let spells = value && this.parseText(value);
+		if(!value || spells) {
 			if(!spells) {
 				try {
 					spells = JSON.parse(Cfg.spells);
@@ -119,13 +119,13 @@ const Spells = Object.create({
 			}
 			if(isAdded) {
 				await CfgSaver.save('hideBySpell', 1);
-				if(chk) {
-					chk.checked = true;
+				if(checkboxEl) {
+					checkboxEl.checked = true;
 				}
 			} else if(!spells[1] && !spells[2] && !spells[3]) {
 				await CfgSaver.save('hideBySpell', 0);
-				if(chk) {
-					chk.checked = false;
+				if(checkboxEl) {
+					checkboxEl.checked = false;
 				}
 			}
 			if(spells[1] && Cfg.sortSpells) {
@@ -133,14 +133,14 @@ const Spells = Object.create({
 			}
 			await CfgSaver.save('spells', JSON.stringify(spells));
 			await this.setSpells(spells, true);
-			if(fld) {
-				fld.value = this.list;
+			if(inputEl) {
+				inputEl.value = this.list;
 			}
 			Pview.updatePosition(true);
 			return;
 		}
-		if(chk) {
-			chk.checked = false;
+		if(checkboxEl) {
+			checkboxEl.checked = false;
 		}
 	},
 	decompileSpell(type, neg, val, scope, wipeMsg = null) {
@@ -254,35 +254,35 @@ const Spells = Object.create({
 			return;
 		}
 		this._optimize(spells);
-		if(this.hiders) {
-			const sRunner = new SpellsRunner();
-			for(let post = Thread.first.op; post; post = post.next) {
-				sRunner.runSpells(post);
-			}
-			sRunner.endSpells();
-		} else {
+		if(!this.hiders) {
 			SpellsRunner.unhideAll();
+			return;
 		}
+		const sRunner = new SpellsRunner();
+		for(let post = Thread.first.op; post; post = post.next) {
+			sRunner.runSpells(post);
+		}
+		sRunner.endSpells();
 	},
 	async toggle() {
 		let spells;
-		const fld = $id('de-spell-txt');
-		const val = fld.value;
-		if(val && (spells = this.parseText(val))) {
+		const inputEl = $id('de-spell-txt');
+		const { value } = inputEl;
+		if(value && (spells = this.parseText(value))) {
 			closePopup('err-spell');
 			await this.setSpells(spells, true);
 			await CfgSaver.save('spells', JSON.stringify(spells));
-			fld.value = this.list;
-		} else {
-			if(!val) {
-				closePopup('err-spell');
-				SpellsRunner.unhideAll();
-				await this.disableSpells();
-				await CfgSaver.save('spells', JSON.stringify([Date.now(), null, null, null]));
-				sendStorageEvent('__de-spells', '{ hide: false, data: null }');
-			}
-			$q('input[info="hideBySpell"]').checked = false;
+			inputEl.value = this.list;
+			return;
 		}
+		if(!value) {
+			closePopup('err-spell');
+			SpellsRunner.unhideAll();
+			await this.disableSpells();
+			await CfgSaver.save('spells', JSON.stringify([Date.now(), null, null, null]));
+			sendStorageEvent('__de-spells', '{ hide: false, data: null }');
+		}
+		$q('input[info="hideBySpell"]').checked = false;
 	},
 
 	_decompileRep(rep, isOrep) {

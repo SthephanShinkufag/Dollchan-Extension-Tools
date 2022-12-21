@@ -274,8 +274,8 @@ async function html5Submit(form, submitter, needProgress = false) {
 				mime === 'image/jpeg' ||
 				mime === 'image/png' ||
 				mime === 'image/gif' ||
-				mime === 'video/webm' && !aib.makaba)
-			) {
+				mime === 'video/webm'
+			)) {
 				const cleanData = cleanFile((await readFile(value)).data, el.obj ? el.obj.extraFile : null);
 				if(!cleanData) {
 					return Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName));

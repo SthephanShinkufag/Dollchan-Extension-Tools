@@ -348,7 +348,7 @@ class Maybe {
 
 class TemporaryContent {
 	constructor(key) {
-		const oClass = /* new.target */this.constructor; // https://github.com/babel/babel/issues/1088
+		const oClass = /* new.target */ this.constructor; // https://github.com/babel/babel/issues/1088
 		if(oClass.purgeTO) {
 			clearTimeout(oClass.purgeTO);
 		}

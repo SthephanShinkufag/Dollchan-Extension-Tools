@@ -132,7 +132,7 @@ class PostForm {
 	addMarkupPanel() {
 		let el = $id('de-txt-panel');
 		if(!Cfg.addTextBtns) {
-			aib.removeFormButtons(el);
+			aib.removeMarkupButtons(el);
 			return;
 		}
 		if(!el) {
@@ -140,7 +140,7 @@ class PostForm {
 			['click', 'mouseover'].forEach(e => el.addEventListener(e, this));
 		}
 		el.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
-		aib.insertFormButtons(this, el);
+		aib.insertMarkupButtons(this, el);
 		const id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
 		const val = ['B', 'i', 'U', 'S', '%', 'C', 'x\u00b2', 'x\u2082'];
 		const mode = Cfg.addTextBtns;

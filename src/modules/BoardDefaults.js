@@ -120,6 +120,9 @@ class BaseBoard {
 	get changeReplyMode() {
 		return null;
 	}
+	get clearFileInputs() {
+		return null;
+	}
 	get css() {
 		return '';
 	}
@@ -359,14 +362,11 @@ class BaseBoard {
 	getTNum(thr) {
 		return +$q('input[type="checkbox"]', thr).value;
 	}
-	insertYtPlayer(msg, playerHtml) {
-		return $bBegin(msg, playerHtml);
-	}
-	insertFormButtons(postForm, el) {
+	insertMarkupButtons(postForm, el) {
 		(Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm).after(el);
 	}
-	removeFormButtons(el) {
-		el?.remove();
+	insertYtPlayer(msg, playerHtml) {
+		return $bBegin(msg, playerHtml);
 	}
 	isAjaxStatusOK(status) {
 		return status === 200 || status === 206;
@@ -389,6 +389,9 @@ class BaseBoard {
 		if(this.docExt === null) {
 			this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
 		}
+	}
+	removeMarkupButtons(el) {
+		el?.remove();
 	}
 	updateSubmitBtn(el) {
 		el.value = Lng.reply[lang];

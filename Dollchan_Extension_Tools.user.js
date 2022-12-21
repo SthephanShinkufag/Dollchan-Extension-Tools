@@ -7200,7 +7200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.12.5.0';
-  var commit = '926f310';
+  var commit = '41c1ab5';
 
 
   var doc = deWindow.document;
@@ -14226,16 +14226,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     addSpell: function addSpell(type, arg, isNeg) {
       var _this32 = this;
       return _asyncToGenerator( _regeneratorRuntime().mark(function _callee23() {
-        var fld, val, chk, spells, idx, isAdded, scope, sScope, sArg;
+        var inputEl, value, checkboxEl, spells, idx, isAdded, scope, sScope, sArg;
         return _regeneratorRuntime().wrap(function _callee23$(_context24) {
           while (1) {
             switch (_context24.prev = _context24.next) {
               case 0:
-                fld = $id('de-spell-txt');
-                val = fld === null || fld === void 0 ? void 0 : fld.value;
-                chk = $q('input[info="hideBySpell"]');
-                spells = val && _this32.parseText(val);
-                if (!(!val || spells)) {
+                inputEl = $id('de-spell-txt');
+                value = inputEl === null || inputEl === void 0 ? void 0 : inputEl.value;
+                checkboxEl = $q('input[info="hideBySpell"]');
+                spells = value && _this32.parseText(value);
+                if (!(!value || spells)) {
                   _context24.next = 28;
                   break;
                 }
@@ -14288,8 +14288,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 _context24.next = 13;
                 return CfgSaver.save('hideBySpell', 1);
               case 13:
-                if (chk) {
-                  chk.checked = true;
+                if (checkboxEl) {
+                  checkboxEl.checked = true;
                 }
                 _context24.next = 20;
                 break;
@@ -14301,8 +14301,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 _context24.next = 19;
                 return CfgSaver.save('hideBySpell', 0);
               case 19:
-                if (chk) {
-                  chk.checked = false;
+                if (checkboxEl) {
+                  checkboxEl.checked = false;
                 }
               case 20:
                 if (spells[1] && Cfg.sortSpells) {
@@ -14314,14 +14314,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 _context24.next = 25;
                 return _this32.setSpells(spells, true);
               case 25:
-                if (fld) {
-                  fld.value = _this32.list;
+                if (inputEl) {
+                  inputEl.value = _this32.list;
                 }
                 Pview.updatePosition(true);
                 return _context24.abrupt("return");
               case 28:
-                if (chk) {
-                  chk.checked = false;
+                if (checkboxEl) {
+                  checkboxEl.checked = false;
                 }
               case 29:
               case "end":
@@ -14484,15 +14484,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 6:
                 _this34._optimize(spells);
                 if (_this34.hiders) {
-                  sRunner = new SpellsRunner();
-                  for (post = Thread.first.op; post; post = post.next) {
-                    sRunner.runSpells(post);
-                  }
-                  sRunner.endSpells();
-                } else {
-                  SpellsRunner.unhideAll();
+                  _context26.next = 10;
+                  break;
                 }
-              case 8:
+                SpellsRunner.unhideAll();
+                return _context26.abrupt("return");
+              case 10:
+                sRunner = new SpellsRunner();
+                for (post = Thread.first.op; post; post = post.next) {
+                  sRunner.runSpells(post);
+                }
+                sRunner.endSpells();
+              case 13:
               case "end":
                 return _context26.stop();
             }
@@ -14503,15 +14506,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     toggle: function toggle() {
       var _this35 = this;
       return _asyncToGenerator( _regeneratorRuntime().mark(function _callee26() {
-        var spells, fld, val;
+        var spells, inputEl, value;
         return _regeneratorRuntime().wrap(function _callee26$(_context27) {
           while (1) {
             switch (_context27.prev = _context27.next) {
               case 0:
-                fld = $id('de-spell-txt');
-                val = fld.value;
-                if (!(val && (spells = _this35.parseText(val)))) {
-                  _context27.next = 11;
+                inputEl = $id('de-spell-txt');
+                value = inputEl.value;
+                if (!(value && (spells = _this35.parseText(value)))) {
+                  _context27.next = 10;
                   break;
                 }
                 closePopup('err-spell');
@@ -14521,26 +14524,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 _context27.next = 8;
                 return CfgSaver.save('spells', JSON.stringify(spells));
               case 8:
-                fld.value = _this35.list;
-                _context27.next = 20;
-                break;
-              case 11:
-                if (val) {
-                  _context27.next = 19;
+                inputEl.value = _this35.list;
+                return _context27.abrupt("return");
+              case 10:
+                if (value) {
+                  _context27.next = 18;
                   break;
                 }
                 closePopup('err-spell');
                 SpellsRunner.unhideAll();
-                _context27.next = 16;
+                _context27.next = 15;
                 return _this35.disableSpells();
-              case 16:
-                _context27.next = 18;
+              case 15:
+                _context27.next = 17;
                 return CfgSaver.save('spells', JSON.stringify([Date.now(), null, null, null]));
-              case 18:
+              case 17:
                 sendStorageEvent('__de-spells', '{ hide: false, data: null }');
-              case 19:
+              case 18:
                 $q('input[info="hideBySpell"]').checked = false;
-              case 20:
+              case 19:
               case "end":
                 return _context27.stop();
             }
@@ -15960,7 +15962,7 @@ this.disableSpells();
         var _this41 = this;
         var el = $id('de-txt-panel');
         if (!Cfg.addTextBtns) {
-          aib.removeFormButtons(el);
+          aib.removeMarkupButtons(el);
           return;
         }
         if (!el) {
@@ -15970,7 +15972,7 @@ this.disableSpells();
           });
         }
         el.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
-        aib.insertFormButtons(this, el);
+        aib.insertMarkupButtons(this, el);
         var id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
         var val = ['B', 'i', 'U', 'S', '%', 'C', "x\xB2", "x\u2082"];
         var mode = Cfg.addTextBtns;
@@ -17127,7 +17129,7 @@ this.disableSpells();
               newFileName = !Cfg.removeFName || (_el$obj = el.obj) !== null && _el$obj !== void 0 && (_el$obj$imgFile = _el$obj.imgFile) !== null && _el$obj$imgFile !== void 0 && _el$obj$imgFile.isConstName ? fileName : (Cfg.removeFName === 1 ? '' :
               Date.now() - (Cfg.removeFName === 2 ? 0 : Math.round(Math.random() * 15768e7))) + '.' + getFileExt(fileName);
               mime = value.type;
-              if (!((Cfg.postSameImg || Cfg.removeEXIF) && (mime === 'image/jpeg' || mime === 'image/png' || mime === 'image/gif' || mime === 'video/webm' && !aib.makaba))) {
+              if (!((Cfg.postSameImg || Cfg.removeEXIF) && (mime === 'image/jpeg' || mime === 'image/png' || mime === 'image/gif' || mime === 'video/webm'))) {
                 _context66.next = 26;
                 break;
               }
@@ -17372,6 +17374,9 @@ this.disableSpells();
           inp.clearInp();
         }
         this.hideEmpty();
+        if (aib.clearFileInputs) {
+          aib.clearFileInputs();
+        }
       }
     }, {
       key: "hideEmpty",
@@ -24201,6 +24206,11 @@ Spells.addSpell(9, '', false);
         return null;
       }
     }, {
+      key: "clearFileInputs",
+      get: function get() {
+        return null;
+      }
+    }, {
       key: "css",
       get: function get() {
         return '';
@@ -24532,19 +24542,14 @@ Spells.addSpell(9, '', false);
         return +$q('input[type="checkbox"]', thr).value;
       }
     }, {
-      key: "insertYtPlayer",
-      value: function insertYtPlayer(msg, playerHtml) {
-        return $bBegin(msg, playerHtml);
-      }
-    }, {
-      key: "insertFormButtons",
-      value: function insertFormButtons(postForm, el) {
+      key: "insertMarkupButtons",
+      value: function insertMarkupButtons(postForm, el) {
         (Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm).after(el);
       }
     }, {
-      key: "removeFormButtons",
-      value: function removeFormButtons(el) {
-        el === null || el === void 0 ? void 0 : el.remove();
+      key: "insertYtPlayer",
+      value: function insertYtPlayer(msg, playerHtml) {
+        return $bBegin(msg, playerHtml);
       }
     }, {
       key: "isAjaxStatusOK",
@@ -24573,6 +24578,11 @@ Spells.addSpell(9, '', false);
         if (this.docExt === null) {
           this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
         }
+      }
+    }, {
+      key: "removeMarkupButtons",
+      value: function removeMarkupButtons(el) {
+        el === null || el === void 0 ? void 0 : el.remove();
       }
     }, {
       key: "updateSubmitBtn",
@@ -25671,6 +25681,11 @@ Spells.addSpell(9, '', false);
           });
         }
       }, {
+        key: "clearFileInputs",
+        value: function clearFileInputs() {
+          $delAll('.sticker-input, .postform__sticker-img');
+        }
+      }, {
         key: "deleteTruncMsg",
         value: function deleteTruncMsg(post, el) {
           el.previousSibling.remove();
@@ -25827,6 +25842,14 @@ Spells.addSpell(9, '', false);
           return false;
         }
       }, {
+        key: "insertMarkupButtons",
+        value: function insertMarkupButtons(postForm, el) {
+          var formEl = Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm;
+          var posEl = formEl.parentNode;
+          posEl.insertAdjacentHTML('afterend', '<div class="postform__raw"></div>');
+          posEl.nextSibling.appendChild(el);
+        }
+      }, {
         key: "observeContent",
         value: function observeContent(checkDomains, dataPromise) {
           if ($q('#posts-form > .thread, #js-posts > .thread, [de-form] > .thread')) {
@@ -25848,16 +25871,8 @@ Spells.addSpell(9, '', false);
           return false;
         }
       }, {
-        key: "insertFormButtons",
-        value: function insertFormButtons(postForm, el) {
-          var formEl = Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm;
-          var posEl = formEl.parentNode;
-          posEl.insertAdjacentHTML('afterend', '<div class="postform__raw"></div>');
-          posEl.nextSibling.appendChild(el);
-        }
-      }, {
-        key: "removeFormButtons",
-        value: function removeFormButtons(el) {
+        key: "removeMarkupButtons",
+        value: function removeMarkupButtons(el) {
           el === null || el === void 0 ? void 0 : el.parentNode.remove();
         }
       }]);
