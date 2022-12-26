@@ -58,7 +58,7 @@ class Videos {
 	}
 	get player() {
 		const { post } = this;
-		const value = aib.insertYtPlayer(post.msg, `<div class="de-video-obj${
+		const value = $bBegin(post.msg, `<div class="de-video-obj${
 			post.images.hasAttachments && !post.isOp ? ' de-video-obj-inline' : '' }"></div>`);
 		Object.defineProperty(this, 'player', { value });
 		return value;

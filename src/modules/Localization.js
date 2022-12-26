@@ -78,10 +78,6 @@ const Lng = {
 			'Выделять цветом новые посты',
 			'Highlight new posts with color',
 			'Виділяти кольором нові дописи'],
-		useDobrAPI: [
-			'dobrochan: использовать JSON API',
-			'dobrochan: use JSON API',
-			'dobrochan: використовувати JSON API'],
 		markMyPosts: [
 			'Выделять цветом мои посты',
 			'Highlight my own posts',

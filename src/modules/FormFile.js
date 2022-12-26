@@ -419,9 +419,6 @@ class FileInput {
 	}
 	_changeFilesCount(val) {
 		this._parent.filesCount = Math.max(this._parent.filesCount + val, 0);
-		if(aib.dobrochan) {
-			$id('post_files_count').value = this._parent.filesCount + 1;
-		}
 	}
 	_initThumbs() {
 		const { fileTr } = this._parent;

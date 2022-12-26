@@ -352,7 +352,6 @@ const CfgWindow = {
 				}
 				break;
 			case 'markNewPosts': Post.clearMarks(); break;
-			case 'useDobrAPI': aib.JsonBuilder = Cfg.useDobrAPI ? DobrochanPostsBuilder : null; break;
 			case 'markMyPosts':
 			case 'markMyLinks':
 				if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
@@ -644,8 +643,7 @@ const CfgWindow = {
 					${ this._getBox('updCount') }<br>
 					${ this._getBox('favIcoBlink') }<br>
 					${ 'Notification' in deWindow ? this._getBox('desktNotif') + '<br>' : '' }
-					${ this._getBox('markNewPosts') }<br>
-					${ aib.dobrochan ? this._getBox('useDobrAPI') : '' }
+					${ this._getBox('markNewPosts') }
 				</div>` }
 			${ this._getBox('markMyPosts') }<br>
 			${ !localData ? `${ this._getBox('expandTrunc', true) }<br>` : '' }

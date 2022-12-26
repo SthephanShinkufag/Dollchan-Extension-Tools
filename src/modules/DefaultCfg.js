@@ -19,7 +19,6 @@ const defaultCfg = {
 	favIcoBlink  : 0,    //    blink the favicon on new posts
 	desktNotif   : 0,    //    desktop notifications for new posts
 	markNewPosts : 1,    //    highlight new posts with color
-	useDobrAPI   : 1,    //    dobrochan: use json API
 	markMyPosts  : 1,    // highlight my own posts
 	expandTrunc  : 0,    // auto-expand truncated posts
 	widePosts    : 0,    // stretch posts to screen width

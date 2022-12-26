@@ -280,12 +280,11 @@ class AbstractPost {
 	}
 	updateMsg(newMsg, sRunner) {
 		let videoExt, videoLinks;
-		const origMsg = aib.dobrochan ? this.msg.firstElementChild : this.msg;
 		if(Cfg.embedYTube) {
-			videoExt = $q('.de-video-ext', origMsg);
-			videoLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
+			videoExt = $q('.de-video-ext', this.msg);
+			videoLinks = $Q(':not(.de-video-ext) > .de-video-link', this.msg);
 		}
-		origMsg.replaceWith(newMsg);
+		this.msg.replaceWith(newMsg);
 		Object.defineProperties(this, {
 			msg   : { configurable: true, value: newMsg },
 			trunc : { configurable: true, value: null }

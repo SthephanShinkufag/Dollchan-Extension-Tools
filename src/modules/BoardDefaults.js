@@ -6,7 +6,6 @@ class BaseBoard {
 	constructor(protocol, domain) {
 		// Imageboard-specific booleans
 		this._4chan = false;
-		this.dobrochan = false;
 		this.kohlchan = false;
 		this.makaba = false;
 
@@ -195,10 +194,6 @@ class BaseBoard {
 	get stormWallHelper() {
 		return null;
 	}
-	disableRedirection(el) {
-		$hide(el.closest(this.qFormTr));
-		el.checked = true;
-	}
 	fixHTML(data, isForm = false) {
 		if(!(dTime || Spells.reps || Cfg.crossLinks || Cfg.decodeLinks ||
 			this.fixHTMLHelper || this.fixDeadLinks || this.hasTextLinks)
@@ -304,9 +299,6 @@ class BaseBoard {
 		return (img.closest('a') || img).parentNode;
 	}
 	getJsonApiUrl() {}
-	getOmitted(el) {
-		return +(el && (el.textContent || '').match(/\d+/)) + 1;
-	}
 	getOp(thr) {
 		let op = localData ? $q('.de-oppost', thr) : $q(this.qOPost, thr);
 		if(op) {
@@ -364,9 +356,6 @@ class BaseBoard {
 	}
 	insertMarkupButtons(postForm, el) {
 		(Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm).after(el);
-	}
-	insertYtPlayer(msg, playerHtml) {
-		return $bBegin(msg, playerHtml);
 	}
 	isAjaxStatusOK(status) {
 		return status === 200 || status === 206;

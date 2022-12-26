@@ -369,7 +369,8 @@ class PostForm {
 	_initAjaxPosting() {
 		let el;
 		if(aib.qFormRedir && (el = $q(aib.qFormRedir, this.form))) {
-			aib.disableRedirection(el);
+			$hide(el.closest(aib.qFormTr));
+			el.checked = true;
 		}
 		this.form.onsubmit = async e => {
 			e.preventDefault();
@@ -451,9 +452,6 @@ class PostForm {
 	}
 	_initTextarea() {
 		const el = this.txta;
-		if(aib.dobrochan) {
-			el.removeAttribute('id');
-		}
 		el.classList.add('de-textarea');
 		const { style } = el;
 		style.setProperty('width', Cfg.textaWidth + 'px', 'important');

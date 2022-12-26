@@ -166,9 +166,6 @@ async function readCfg() {
 	if(!Cfg.timePattern) {
 		Cfg.timePattern = aib.timePattern;
 	}
-	if(aib.dobrochan && !Cfg.useDobrAPI) {
-		aib.JsonBuilder = null;
-	}
 	if(!('FormData' in deWindow)) {
 		Cfg.ajaxPosting = 0;
 	}

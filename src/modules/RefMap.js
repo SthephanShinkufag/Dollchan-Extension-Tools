@@ -197,15 +197,8 @@ class RefMap {
 		return value;
 	}
 	_createEl(innerHTML, isHidden) {
-		let el;
-		const { msg } = this._post;
-		const html = `<div class="de-refmap${
-			isHidden ? ' de-post-hiddencontent' : '' }">${ innerHTML }</div>`;
-		if(aib.dobrochan && (el = msg.nextElementSibling)) {
-			el.insertAdjacentHTML('beforeend', html);
-		} else {
-			msg.insertAdjacentHTML('afterend', html);
-		}
+		this._post.msg.insertAdjacentHTML('afterend', `<div class="de-refmap${
+			isHidden ? ' de-post-hiddencontent' : '' }">${ innerHTML }</div>`);
 	}
 	_getHTML(num, tUrl, isHidden) {
 		return `<a href="${ tUrl }${ aib.anchor }${ num }" class="de-link-backref${

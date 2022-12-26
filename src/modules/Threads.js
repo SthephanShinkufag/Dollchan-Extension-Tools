@@ -13,8 +13,8 @@ class Thread {
 		this.num = num;
 		const els = $Q(aib.qPost, el);
 		const len = els.length;
-		const omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
-		this.postsCount = omt + len;
+		const omitted = (!aib.t && +$q(aib.qOmitted, el)?.textContent?.match(/\d+/) || 0) + 1;
+		this.postsCount = omitted + len;
 		this.el = el;
 		this.prev = prev;
 		this.form = form;
@@ -26,7 +26,7 @@ class Thread {
 		pByEl.set(el, lastPost);
 		for(let i = 0; i < len; ++i) {
 			const pEl = els[i];
-			lastPost = new Post(pEl, this, aib.getPNum(pEl), omt + i, false, lastPost);
+			lastPost = new Post(pEl, this, aib.getPNum(pEl), omitted + i, false, lastPost);
 		}
 		this.last = lastPost;
 		el.setAttribute('de-thread', null);
@@ -462,7 +462,7 @@ class Thread {
 		const maybeSpells = new Maybe(SpellsRunner);
 		const maybeVParser = new Maybe(Cfg.embedYTube ? VideosParser : null);
 		const { count } = post;
-		if(count !== 0 && (aib.dobrochan || count > len || pBuilder.getPNum(count - 1) !== post.num)) {
+		if(count !== 0 && (count > len || pBuilder.getPNum(count - 1) !== post.num)) {
 			post = this.op.nextNotDeleted;
 			let i = post.count - 1;
 			let firstChangedPost = null;
