@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = '9d0f7f0';
+const commit = '5adf114';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -1935,6 +1935,7 @@ function getFileMime(url) {
 	const dotIdx = url.lastIndexOf('.') + 1;
 	switch(dotIdx && url.substr(dotIdx).toLowerCase()) {
 	case 'gif': return 'image/gif';
+	case 'jfif':
 	case 'jpeg':
 	case 'jpg': return 'image/jpeg';
 	case 'mp4':
@@ -12323,7 +12324,7 @@ class ExpandableImage {
 		return value;
 	}
 	get isImage() {
-		const value = /(jpe?g|png|gif|webp)$/i.test(this.src) ||
+		const value = /(jfif|jpe?g|png|gif|webp)$/i.test(this.src) ||
 			this.src.startsWith('blob:') && !this.el.hasAttribute('de-video');
 		Object.defineProperty(this, 'isImage', { value });
 		return value;
@@ -15317,15 +15318,16 @@ class BaseBoard {
 	}
 	get qMsgImgLink() {
 		const value = $match(this.qPostMsg.split(', ').join(' a, ') + ' a',
-			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]');
+			'[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
+			'[href$=".webp"]');
 		Object.defineProperty(this, 'qMsgImgLink', { value });
 		return value;
 	}
 	get qPostImgNameLink() {
 		const value = $match(this.qPostImgInfo.split(', ').join(' a, ') + ' a',
-			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]',
-			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]',
-			', [href^="blob:"]');
+			'[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
+			'[href$=".webm"]', '[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]',
+			'[href$=".apng"]', ', [href^="blob:"]');
 		Object.defineProperty(this, 'qPostImgNameLink', { value });
 		return value;
 	}

@@ -218,6 +218,7 @@ function getFileMime(url) {
 	const dotIdx = url.lastIndexOf('.') + 1;
 	switch(dotIdx && url.substr(dotIdx).toLowerCase()) {
 	case 'gif': return 'image/gif';
+	case 'jfif':
 	case 'jpeg':
 	case 'jpg': return 'image/jpeg';
 	case 'mp4':
