@@ -26299,7 +26299,7 @@ Spells.addSpell(9, '', false);
       }]);
       return Arhivach;
     }(BaseBoard);
-    ibDomains['arhivach.ng'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
+    ibDomains['arhivach.top'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
     var Dollchan = function (_TinyIB) {
       _inherits(Dollchan, _TinyIB);
       var _super25 = _createSuper(Dollchan);
