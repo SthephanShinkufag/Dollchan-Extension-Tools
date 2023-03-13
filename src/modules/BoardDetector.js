@@ -1732,7 +1732,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				deWindow.location.reload();
 				return true;
 			}
-			$Q('.imgLink').forEach(el => (el.className = 'de-img-link'));
+			$Q('.imgLink').forEach(el => (el.className = 'de-img-link imgLink'));
 			return super.init();
 		}
 	}
