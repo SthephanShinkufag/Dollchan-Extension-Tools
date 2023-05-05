@@ -92,8 +92,8 @@ class BaseBoard {
 	get qPostImgNameLink() {
 		const value = $match(this.qPostImgInfo.split(', ').join(' a, ') + ' a',
 			'[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
-			'[href$=".webm"]', '[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]',
-			'[href$=".apng"]', ', [href^="blob:"]');
+			'[href$=".webm"]', '[href$=".webp"]', '[href$=".mov"]', '[href$=".mp4"]', '[href$=".m4v"]',
+			'[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
 		Object.defineProperty(this, 'qPostImgNameLink', { value });
 		return value;
 	}

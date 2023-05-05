@@ -223,7 +223,8 @@ const ContentLoader = {
 			let isRepToOrig = !!Cfg.openImgs;
 			const url = aib.getImgSrcLink(imgEl).getAttribute('href');
 			const type = getFileMime(url);
-			const isVideo = type && (type === 'video/webm' || type === 'video/mp4' || type === 'video/ogv');
+			const isVideo = type && (type === 'video/webm' || type === 'video/mp4' ||
+				type === 'video/quicktime' || type === 'video/ogv');
 			if(!type || isVideo && Cfg.preLoadImgs === 2) {
 				continue;
 			} else if($q('img[src*="/spoiler"]', parentLink)) {

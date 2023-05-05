@@ -221,6 +221,7 @@ function getFileMime(url) {
 	case 'jfif':
 	case 'jpeg':
 	case 'jpg': return 'image/jpeg';
+	case 'mov': return 'video/quicktime';
 	case 'mp4':
 	case 'm4v': return 'video/mp4';
 	case 'ogv': return 'video/ogv';

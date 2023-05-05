@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = '5adf114';
+const commit = '5080fff';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -1938,6 +1938,7 @@ function getFileMime(url) {
 	case 'jfif':
 	case 'jpeg':
 	case 'jpg': return 'image/jpeg';
+	case 'mov': return 'video/quicktime';
 	case 'mp4':
 	case 'm4v': return 'video/mp4';
 	case 'ogv': return 'video/ogv';
@@ -6212,7 +6213,8 @@ const ContentLoader = {
 			let isRepToOrig = !!Cfg.openImgs;
 			const url = aib.getImgSrcLink(imgEl).getAttribute('href');
 			const type = getFileMime(url);
-			const isVideo = type && (type === 'video/webm' || type === 'video/mp4' || type === 'video/ogv');
+			const isVideo = type && (type === 'video/webm' || type === 'video/mp4' ||
+				type === 'video/quicktime' || type === 'video/ogv');
 			if(!type || isVideo && Cfg.preLoadImgs === 2) {
 				continue;
 			} else if($q('img[src*="/spoiler"]', parentLink)) {
@@ -12272,7 +12274,7 @@ class ExpandableImage {
 		return value;
 	}
 	get isVideo() {
-		const value = /(webm|mp4|m4v|ogv)(&|$)/i.test(this.src) ||
+		const value = /(webm|mov|mp4|m4v|ogv)(&|$)/i.test(this.src) ||
 			this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
 		Object.defineProperty(this, 'isVideo', { value });
 		return value;
@@ -12515,7 +12517,7 @@ class ExpandableImage {
 			return wrapEl;
 		}
 
-		// Expand videos: WEBM, MP4
+		// Expand videos
 		// FIXME: handle null size videos
 		const isWebm = getFileExt(origSrc) === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;
@@ -15268,8 +15270,8 @@ class BaseBoard {
 	get qPostImgNameLink() {
 		const value = $match(this.qPostImgInfo.split(', ').join(' a, ') + ' a',
 			'[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
-			'[href$=".webm"]', '[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]',
-			'[href$=".apng"]', ', [href^="blob:"]');
+			'[href$=".webm"]', '[href$=".webp"]', '[href$=".mov"]', '[href$=".mp4"]', '[href$=".m4v"]',
+			'[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
 		Object.defineProperty(this, 'qPostImgNameLink', { value });
 		return value;
 	}

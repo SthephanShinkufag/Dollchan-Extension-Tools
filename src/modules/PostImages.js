@@ -389,7 +389,7 @@ class ExpandableImage {
 		return value;
 	}
 	get isVideo() {
-		const value = /(webm|mp4|m4v|ogv)(&|$)/i.test(this.src) ||
+		const value = /(webm|mov|mp4|m4v|ogv)(&|$)/i.test(this.src) ||
 			this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
 		Object.defineProperty(this, 'isVideo', { value });
 		return value;
@@ -632,7 +632,7 @@ class ExpandableImage {
 			return wrapEl;
 		}
 
-		// Expand videos: WEBM, MP4
+		// Expand videos
 		// FIXME: handle null size videos
 		const isWebm = getFileExt(origSrc) === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;

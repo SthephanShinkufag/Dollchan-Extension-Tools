@@ -7200,7 +7200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.12.5.0';
-  var commit = '5adf114';
+  var commit = '5080fff';
 
 
   var doc = deWindow.document;
@@ -8026,6 +8026,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       case 'jpeg':
       case 'jpg':
         return 'image/jpeg';
+      case 'mov':
+        return 'video/quicktime';
       case 'mp4':
       case 'm4v':
         return 'video/mp4';
@@ -12895,7 +12897,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var isRepToOrig = !!Cfg.openImgs;
         var url = aib.getImgSrcLink(imgEl).getAttribute('href');
         var type = getFileMime(url);
-        var isVideo = type && (type === 'video/webm' || type === 'video/mp4' || type === 'video/ogv');
+        var isVideo = type && (type === 'video/webm' || type === 'video/mp4' || type === 'video/quicktime' || type === 'video/ogv');
         if (!type || isVideo && Cfg.preLoadImgs === 2) {
           continue;
         } else if ($q('img[src*="/spoiler"]', parentLink)) {
@@ -20613,7 +20615,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "isVideo",
       get: function get() {
-        var value = /(webm|mp4|m4v|ogv)(&|$)/i.test(this.src) || this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
+        var value = /(webm|mov|mp4|m4v|ogv)(&|$)/i.test(this.src) || this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
         Object.defineProperty(this, 'isVideo', {
           value: value
         });
@@ -24027,7 +24029,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "qPostImgNameLink",
       get: function get() {
-        var value = $match(this.qPostImgInfo.split(', ').join(' a, ') + ' a', '[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
+        var value = $match(this.qPostImgInfo.split(', ').join(' a, ') + ' a', '[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".webp"]', '[href$=".mov"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
         Object.defineProperty(this, 'qPostImgNameLink', {
           value: value
         });
