@@ -7200,7 +7200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.12.5.0';
-  var commit = 'd140c2a';
+  var commit = '7eec7be';
 
 
   var doc = deWindow.document;
@@ -26301,7 +26301,7 @@ Spells.addSpell(9, '', false);
       }]);
       return Arhivach;
     }(BaseBoard);
-    ibDomains['arhivach.ng'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
+    ibDomains['arhivach.top'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
     var Dollchan = function (_TinyIB) {
       _inherits(Dollchan, _TinyIB);
       var _super25 = _createSuper(Dollchan);

@@ -383,7 +383,7 @@ class ExpandableImage {
 		return value;
 	}
 	get isImage() {
-		const value = /(jpe?g|png|gif|webp|jfif)$/i.test(this.src) ||
+		const value = /(jfif|jpe?g|png|gif|webp)$/i.test(this.src) ||
 			this.src.startsWith('blob:') && !this.el.hasAttribute('de-video');
 		Object.defineProperty(this, 'isImage', { value });
 		return value;

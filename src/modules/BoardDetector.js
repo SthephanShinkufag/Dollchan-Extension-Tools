@@ -1411,7 +1411,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['arhivach.ng'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
+	ibDomains['arhivach.top'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
 	class Dollchan extends TinyIB {
 		constructor(...args) {
@@ -1442,7 +1442,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(...args);
 
 			this.qTrunc = '.contentOmissionIndicator > p';
-			
+
 			this.jsonSubmit = false;
 		}
 		get css() {
@@ -1460,7 +1460,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 			return false;
 		}
-		
+
 		getSubmitData(data) {
 			const doc = $createDoc(data);
 			const error = $q('#errorLabel', doc)?.innerText;
