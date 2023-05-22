@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = '9d0f7f0';
+const commit = 'd140c2a';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -1935,8 +1935,10 @@ function getFileMime(url) {
 	const dotIdx = url.lastIndexOf('.') + 1;
 	switch(dotIdx && url.substr(dotIdx).toLowerCase()) {
 	case 'gif': return 'image/gif';
+	case 'jfif':
 	case 'jpeg':
 	case 'jpg': return 'image/jpeg';
+	case 'mov': return 'video/quicktime';
 	case 'mp4':
 	case 'm4v': return 'video/mp4';
 	case 'ogv': return 'video/ogv';
@@ -6211,7 +6213,8 @@ const ContentLoader = {
 			let isRepToOrig = !!Cfg.openImgs;
 			const url = aib.getImgSrcLink(imgEl).getAttribute('href');
 			const type = getFileMime(url);
-			const isVideo = type && (type === 'video/webm' || type === 'video/mp4' || type === 'video/ogv');
+			const isVideo = type && (type === 'video/webm' || type === 'video/mp4' ||
+				type === 'video/quicktime' || type === 'video/ogv');
 			if(!type || isVideo && Cfg.preLoadImgs === 2) {
 				continue;
 			} else if($q('img[src*="/spoiler"]', parentLink)) {
@@ -12265,13 +12268,13 @@ class ExpandableImage {
 		return value;
 	}
 	get isImage() {
-		const value = /(jpe?g|png|gif|webp)$/i.test(this.src) ||
+		const value = /(jfif|jpe?g|png|gif|webp)$/i.test(this.src) ||
 			this.src.startsWith('blob:') && !this.el.hasAttribute('de-video');
 		Object.defineProperty(this, 'isImage', { value });
 		return value;
 	}
 	get isVideo() {
-		const value = /(webm|mp4|m4v|ogv)(&|$)/i.test(this.src) ||
+		const value = /(webm|mov|mp4|m4v|ogv)(&|$)/i.test(this.src) ||
 			this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
 		Object.defineProperty(this, 'isVideo', { value });
 		return value;
@@ -12514,7 +12517,7 @@ class ExpandableImage {
 			return wrapEl;
 		}
 
-		// Expand videos: WEBM, MP4
+		// Expand videos
 		// FIXME: handle null size videos
 		const isWebm = getFileExt(origSrc) === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;
@@ -15259,15 +15262,16 @@ class BaseBoard {
 	}
 	get qMsgImgLink() {
 		const value = $match(this.qPostMsg.split(', ').join(' a, ') + ' a',
-			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]');
+			'[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
+			'[href$=".webp"]');
 		Object.defineProperty(this, 'qMsgImgLink', { value });
 		return value;
 	}
 	get qPostImgNameLink() {
 		const value = $match(this.qPostImgInfo.split(', ').join(' a, ') + ' a',
-			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]',
-			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]',
-			', [href^="blob:"]');
+			'[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
+			'[href$=".webm"]', '[href$=".webp"]', '[href$=".mov"]', '[href$=".mp4"]', '[href$=".m4v"]',
+			'[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
 		Object.defineProperty(this, 'qPostImgNameLink', { value });
 		return value;
 	}
@@ -17006,6 +17010,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(...args);
 
 			this.qTrunc = '.contentOmissionIndicator > p';
+			
+			this.jsonSubmit = false;
 		}
 		get css() {
 			return `${ super.css }
@@ -17022,8 +17028,19 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 			return false;
 		}
+		
+		getSubmitData(data) {
+			const doc = $createDoc(data);
+			const error = $q('#errorLabel', doc)?.innerText;
+			const link = $q('#linkRedirect', doc)?.href;
+			const postNum = link?.match(/\d+$/);
+			return { postNum, error };
+		}
 	}
-	ibDomains['endchan.net'] = Endchan;
+	ibDomains['endchan.net'] = ibDomains['endchan.gg'] = ibDomains['endchan.org'] =
+		ibDomains['endchancxfbnrfgauuxlztwlckytq7rgeo5v6pc2zd4nyqo3khfam4ad.onion'] =
+		ibDomains['enxx3byspwsdo446jujc52ucy2pf5urdbhqw3kbsfhlfjwmbpj5smdad.onion'] =
+		ibDomains['kqrtg5wz4qbyjprujkz33gza7r73iw3ainqp1mz5zmu16symcdwy.loki'] = Endchan;
 
 	class Ernstchan extends BaseBoard {
 		constructor(...args) {
@@ -17296,7 +17313,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				deWindow.location.reload();
 				return true;
 			}
-			$Q('.imgLink').forEach(el => (el.className = 'de-img-link'));
+			$Q('.imgLink').forEach(el => (el.className = 'de-img-link imgLink'));
 			return super.init();
 		}
 	}

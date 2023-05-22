@@ -7200,7 +7200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.12.5.0';
-  var commit = '41c1ab5';
+  var commit = 'd140c2a';
 
 
   var doc = deWindow.document;
@@ -8022,9 +8022,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     switch (dotIdx && url.substr(dotIdx).toLowerCase()) {
       case 'gif':
         return 'image/gif';
+      case 'jfif':
       case 'jpeg':
       case 'jpg':
         return 'image/jpeg';
+      case 'mov':
+        return 'video/quicktime';
       case 'mp4':
       case 'm4v':
         return 'video/mp4';
@@ -12894,7 +12897,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var isRepToOrig = !!Cfg.openImgs;
         var url = aib.getImgSrcLink(imgEl).getAttribute('href');
         var type = getFileMime(url);
-        var isVideo = type && (type === 'video/webm' || type === 'video/mp4' || type === 'video/ogv');
+        var isVideo = type && (type === 'video/webm' || type === 'video/mp4' || type === 'video/quicktime' || type === 'video/ogv');
         if (!type || isVideo && Cfg.preLoadImgs === 2) {
           continue;
         } else if ($q('img[src*="/spoiler"]', parentLink)) {
@@ -20603,7 +20606,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "isImage",
       get: function get() {
-        var value = /(jpe?g|png|gif|webp)$/i.test(this.src) || this.src.startsWith('blob:') && !this.el.hasAttribute('de-video');
+        var value = /(jfif|jpe?g|png|gif|webp)$/i.test(this.src) || this.src.startsWith('blob:') && !this.el.hasAttribute('de-video');
         Object.defineProperty(this, 'isImage', {
           value: value
         });
@@ -20612,7 +20615,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "isVideo",
       get: function get() {
-        var value = /(webm|mp4|m4v|ogv)(&|$)/i.test(this.src) || this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
+        var value = /(webm|mov|mp4|m4v|ogv)(&|$)/i.test(this.src) || this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
         Object.defineProperty(this, 'isVideo', {
           value: value
         });
@@ -24017,7 +24020,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "qMsgImgLink",
       get: function get() {
-        var value = $match(this.qPostMsg.split(', ').join(' a, ') + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]');
+        var value = $match(this.qPostMsg.split(', ').join(' a, ') + ' a', '[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webp"]');
         Object.defineProperty(this, 'qMsgImgLink', {
           value: value
         });
@@ -24026,7 +24029,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "qPostImgNameLink",
       get: function get() {
-        var value = $match(this.qPostImgInfo.split(', ').join(' a, ') + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
+        var value = $match(this.qPostImgInfo.split(', ').join(' a, ') + ' a', '[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".webp"]', '[href$=".mov"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
         Object.defineProperty(this, 'qPostImgNameLink', {
           value: value
         });
@@ -26350,6 +26353,7 @@ Spells.addSpell(9, '', false);
         }
         _this124 = _super26.call.apply(_super26, [this].concat(args));
         _this124.qTrunc = '.contentOmissionIndicator > p';
+        _this124.jsonSubmit = false;
         return _this124;
       }
       _createClass(Endchan, [{
@@ -26370,10 +26374,23 @@ Spells.addSpell(9, '', false);
           });
           return false;
         }
+      }, {
+        key: "getSubmitData",
+        value: function getSubmitData(data) {
+          var _$q15, _$q16;
+          var doc = $createDoc(data);
+          var error = (_$q15 = $q('#errorLabel', doc)) === null || _$q15 === void 0 ? void 0 : _$q15.innerText;
+          var link = (_$q16 = $q('#linkRedirect', doc)) === null || _$q16 === void 0 ? void 0 : _$q16.href;
+          var postNum = link === null || link === void 0 ? void 0 : link.match(/\d+$/);
+          return {
+            postNum: postNum,
+            error: error
+          };
+        }
       }]);
       return Endchan;
     }(Lynxchan);
-    ibDomains['endchan.net'] = Endchan;
+    ibDomains['endchan.net'] = ibDomains['endchan.gg'] = ibDomains['endchan.org'] = ibDomains['endchancxfbnrfgauuxlztwlckytq7rgeo5v6pc2zd4nyqo3khfam4ad.onion'] = ibDomains['enxx3byspwsdo446jujc52ucy2pf5urdbhqw3kbsfhlfjwmbpj5smdad.onion'] = ibDomains['kqrtg5wz4qbyjprujkz33gza7r73iw3ainqp1mz5zmu16symcdwy.loki'] = Endchan;
     var Ernstchan = function (_BaseBoard10) {
       _inherits(Ernstchan, _BaseBoard10);
       var _super27 = _createSuper(Ernstchan);
@@ -26722,7 +26739,7 @@ Spells.addSpell(9, '', false);
             return true;
           }
           $Q('.imgLink').forEach(function (el) {
-            return el.className = 'de-img-link';
+            return el.className = 'de-img-link imgLink';
           });
           return _get(_getPrototypeOf(Kohlchan.prototype), "init", this).call(this);
         }
