@@ -1442,6 +1442,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(...args);
 
 			this.qTrunc = '.contentOmissionIndicator > p';
+			
+			this.jsonSubmit = false;
 		}
 		get css() {
 			return `${ super.css }
@@ -1457,6 +1459,14 @@ function getImageBoard(checkDomains, checkEngines) {
 				$bBegin(el, `<a href="${ src }">${ src }</a>`).nextSibling.remove();
 			});
 			return false;
+		}
+		
+		getSubmitData(data) {
+			const doc = $createDoc(data);
+			const error = $q('#errorLabel', doc)?.innerText;
+			const link = $q('#linkRedirect', doc)?.href;
+			const postNum = link?.match(/\d+$/);
+			return { postNum, error };
 		}
 	}
 	ibDomains['endchan.net'] = Endchan;
