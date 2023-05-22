@@ -1469,7 +1469,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return { postNum, error };
 		}
 	}
-	ibDomains['endchan.net'] = Endchan;
+	ibDomains['endchan.net'] = ibDomains['endchan.gg'] = ibDomains['endchan.org'] =
+		ibDomains['endchancxfbnrfgauuxlztwlckytq7rgeo5v6pc2zd4nyqo3khfam4ad.onion'] =
+		ibDomains['enxx3byspwsdo446jujc52ucy2pf5urdbhqw3kbsfhlfjwmbpj5smdad.onion'] =
+		ibDomains['kqrtg5wz4qbyjprujkz33gza7r73iw3ainqp1mz5zmu16symcdwy.loki'] = Endchan;
 
 	class Ernstchan extends BaseBoard {
 		constructor(...args) {
