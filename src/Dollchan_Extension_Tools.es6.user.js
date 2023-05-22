@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = '5080fff';
+const commit = 'd140c2a';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -17068,6 +17068,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(...args);
 
 			this.qTrunc = '.contentOmissionIndicator > p';
+			
+			this.jsonSubmit = false;
 		}
 		get css() {
 			return `${ super.css }
@@ -17084,8 +17086,19 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 			return false;
 		}
+		
+		getSubmitData(data) {
+			const doc = $createDoc(data);
+			const error = $q('#errorLabel', doc)?.innerText;
+			const link = $q('#linkRedirect', doc)?.href;
+			const postNum = link?.match(/\d+$/);
+			return { postNum, error };
+		}
 	}
-	ibDomains['endchan.net'] = Endchan;
+	ibDomains['endchan.net'] = ibDomains['endchan.gg'] = ibDomains['endchan.org'] =
+		ibDomains['endchancxfbnrfgauuxlztwlckytq7rgeo5v6pc2zd4nyqo3khfam4ad.onion'] =
+		ibDomains['enxx3byspwsdo446jujc52ucy2pf5urdbhqw3kbsfhlfjwmbpj5smdad.onion'] =
+		ibDomains['kqrtg5wz4qbyjprujkz33gza7r73iw3ainqp1mz5zmu16symcdwy.loki'] = Endchan;
 
 	class Ernstchan extends BaseBoard {
 		constructor(...args) {
@@ -17358,7 +17371,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				deWindow.location.reload();
 				return true;
 			}
-			$Q('.imgLink').forEach(el => (el.className = 'de-img-link'));
+			$Q('.imgLink').forEach(el => (el.className = 'de-img-link imgLink'));
 			return super.init();
 		}
 	}

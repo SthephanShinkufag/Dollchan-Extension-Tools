@@ -7200,7 +7200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.12.5.0';
-  var commit = '5080fff';
+  var commit = 'd140c2a';
 
 
   var doc = deWindow.document;
@@ -26353,6 +26353,7 @@ Spells.addSpell(9, '', false);
         }
         _this124 = _super26.call.apply(_super26, [this].concat(args));
         _this124.qTrunc = '.contentOmissionIndicator > p';
+        _this124.jsonSubmit = false;
         return _this124;
       }
       _createClass(Endchan, [{
@@ -26373,10 +26374,23 @@ Spells.addSpell(9, '', false);
           });
           return false;
         }
+      }, {
+        key: "getSubmitData",
+        value: function getSubmitData(data) {
+          var _$q15, _$q16;
+          var doc = $createDoc(data);
+          var error = (_$q15 = $q('#errorLabel', doc)) === null || _$q15 === void 0 ? void 0 : _$q15.innerText;
+          var link = (_$q16 = $q('#linkRedirect', doc)) === null || _$q16 === void 0 ? void 0 : _$q16.href;
+          var postNum = link === null || link === void 0 ? void 0 : link.match(/\d+$/);
+          return {
+            postNum: postNum,
+            error: error
+          };
+        }
       }]);
       return Endchan;
     }(Lynxchan);
-    ibDomains['endchan.net'] = Endchan;
+    ibDomains['endchan.net'] = ibDomains['endchan.gg'] = ibDomains['endchan.org'] = ibDomains['endchancxfbnrfgauuxlztwlckytq7rgeo5v6pc2zd4nyqo3khfam4ad.onion'] = ibDomains['enxx3byspwsdo446jujc52ucy2pf5urdbhqw3kbsfhlfjwmbpj5smdad.onion'] = ibDomains['kqrtg5wz4qbyjprujkz33gza7r73iw3ainqp1mz5zmu16symcdwy.loki'] = Endchan;
     var Ernstchan = function (_BaseBoard10) {
       _inherits(Ernstchan, _BaseBoard10);
       var _super27 = _createSuper(Ernstchan);
@@ -26725,7 +26739,7 @@ Spells.addSpell(9, '', false);
             return true;
           }
           $Q('.imgLink').forEach(function (el) {
-            return el.className = 'de-img-link';
+            return el.className = 'de-img-link imgLink';
           });
           return _get(_getPrototypeOf(Kohlchan.prototype), "init", this).call(this);
         }
