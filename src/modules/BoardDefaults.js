@@ -44,10 +44,12 @@ class BaseBoard {
 		this.qTrunc = '.abbrev, .abbr, .shortened';
 
 		// Other propertioes
+		let port = deWindow.location.port;
+		port = (port ? ':' + port : '');
 		this.anchor = '#';
 		this.b = '';
 		this.captchaRu = false;
-		this.domain = domain;
+		this.domain = domain + port;
 		this.docExt = null;
 		this.firstPage = 0;
 		this.formHeaders = false;
@@ -59,7 +61,7 @@ class BaseBoard {
 		this.hasPicWrap = false;
 		this.hasRefererErr = false;
 		this.hasTextLinks = false;
-		this.host = deWindow.location.hostname;
+		this.host = deWindow.location.hostname + port;
 		this.JsonBuilder = null;
 		this.jsonSubmit = false;
 		this.markupBB = false;
