@@ -7200,7 +7200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.12.5.0';
-  var commit = 'b870819';
+  var commit = '80c7bd3';
 
 
   var doc = deWindow.document;
@@ -26644,7 +26644,7 @@ Spells.addSpell(9, '', false);
       }]);
       return Iichan;
     }(BaseBoard);
-    ibDomains['iichan.hk'] = Iichan;
+    ibDomains['iichan.hk'] = ibDomains['ii.yakuji.moe'] = Iichan;
     var Kohlchan = function (_Lynxchan2) {
       _inherits(Kohlchan, _Lynxchan2);
       var _super32 = _createSuper(Kohlchan);

@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = 'b870819';
+const commit = '80c7bd3';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -17271,7 +17271,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['iichan.hk'] = Iichan;
+	ibDomains['iichan.hk'] = ibDomains['ii.yakuji.moe'] = Iichan;
 
 	class Kohlchan extends Lynxchan {
 		constructor(...args) {

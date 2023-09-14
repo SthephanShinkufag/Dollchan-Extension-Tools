@@ -1639,7 +1639,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['iichan.hk'] = Iichan;
+	ibDomains['iichan.hk'] = ibDomains['ii.yakuji.moe'] = Iichan;
 
 	class Kohlchan extends Lynxchan {
 		constructor(...args) {
