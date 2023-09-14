@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = '22df69d';
+const commit = '6875b40';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -16997,6 +16997,14 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['arhivach.top'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
+
+	class Dobrochan extends Vichan {
+		captchaUpdate() {
+			$script('load_captcha("/vichan/inc/captcha/entrypoint.php", "abcdefghijklmnopqrstuvwxyz");');
+			return null;
+		}
+	}
+	ibDomains['dobrochan.net'] = Dobrochan;
 
 	class Dollchan extends TinyIB {
 		constructor(...args) {

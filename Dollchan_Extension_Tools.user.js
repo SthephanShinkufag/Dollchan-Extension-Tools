@@ -7200,7 +7200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.12.5.0';
-  var commit = '22df69d';
+  var commit = '6875b40';
 
 
   var doc = deWindow.document;
@@ -26332,16 +26332,33 @@ Spells.addSpell(9, '', false);
       return Arhivach;
     }(BaseBoard);
     ibDomains['arhivach.top'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
+    var Dobrochan = function (_Vichan2) {
+      _inherits(Dobrochan, _Vichan2);
+      var _super26 = _createSuper(Dobrochan);
+      function Dobrochan() {
+        _classCallCheck(this, Dobrochan);
+        return _super26.apply(this, arguments);
+      }
+      _createClass(Dobrochan, [{
+        key: "captchaUpdate",
+        value: function captchaUpdate() {
+          $script('load_captcha("/vichan/inc/captcha/entrypoint.php", "abcdefghijklmnopqrstuvwxyz");');
+          return null;
+        }
+      }]);
+      return Dobrochan;
+    }(Vichan);
+    ibDomains['dobrochan.net'] = Dobrochan;
     var Dollchan = function (_TinyIB) {
       _inherits(Dollchan, _TinyIB);
-      var _super26 = _createSuper(Dollchan);
+      var _super27 = _createSuper(Dollchan);
       function Dollchan() {
         var _this123;
         _classCallCheck(this, Dollchan);
         for (var _len20 = arguments.length, args = new Array(_len20), _key17 = 0; _key17 < _len20; _key17++) {
           args[_key17] = arguments[_key17];
         }
-        _this123 = _super26.call.apply(_super26, [this].concat(args));
+        _this123 = _super27.call.apply(_super27, [this].concat(args));
         _this123.markupBB = true;
         _this123.multiFile = true;
         _this123.timePattern = 'yy+nn+dd+w+hh+ii+ss';
@@ -26374,14 +26391,14 @@ Spells.addSpell(9, '', false);
     ibDomains['dollchan.net'] = Dollchan;
     var Endchan = function (_Lynxchan) {
       _inherits(Endchan, _Lynxchan);
-      var _super27 = _createSuper(Endchan);
+      var _super28 = _createSuper(Endchan);
       function Endchan() {
         var _this124;
         _classCallCheck(this, Endchan);
         for (var _len21 = arguments.length, args = new Array(_len21), _key18 = 0; _key18 < _len21; _key18++) {
           args[_key18] = arguments[_key18];
         }
-        _this124 = _super27.call.apply(_super27, [this].concat(args));
+        _this124 = _super28.call.apply(_super28, [this].concat(args));
         _this124.qTrunc = '.contentOmissionIndicator > p';
         _this124.jsonSubmit = false;
         return _this124;
@@ -26423,14 +26440,14 @@ Spells.addSpell(9, '', false);
     ibDomains['endchan.net'] = ibDomains['endchan.gg'] = ibDomains['endchan.org'] = ibDomains['endchancxfbnrfgauuxlztwlckytq7rgeo5v6pc2zd4nyqo3khfam4ad.onion'] = ibDomains['enxx3byspwsdo446jujc52ucy2pf5urdbhqw3kbsfhlfjwmbpj5smdad.onion'] = ibDomains['kqrtg5wz4qbyjprujkz33gza7r73iw3ainqp1mz5zmu16symcdwy.loki'] = Endchan;
     var Ernstchan = function (_BaseBoard10) {
       _inherits(Ernstchan, _BaseBoard10);
-      var _super28 = _createSuper(Ernstchan);
+      var _super29 = _createSuper(Ernstchan);
       function Ernstchan() {
         var _this125;
         _classCallCheck(this, Ernstchan);
         for (var _len22 = arguments.length, args = new Array(_len22), _key19 = 0; _key19 < _len22; _key19++) {
           args[_key19] = arguments[_key19];
         }
-        _this125 = _super28.call.apply(_super28, [this].concat(args));
+        _this125 = _super29.call.apply(_super29, [this].concat(args));
         _this125.cReply = 'post';
         _this125.qError = '.error > .info';
         _this125.qFormRedir = 'input[name="gb2"][value="thread"]';
@@ -26490,14 +26507,14 @@ Spells.addSpell(9, '', false);
     ibDomains['ernstchan.xyz'] = Ernstchan;
     var Gensokyo = function (_Kusaba4) {
       _inherits(Gensokyo, _Kusaba4);
-      var _super29 = _createSuper(Gensokyo);
+      var _super30 = _createSuper(Gensokyo);
       function Gensokyo() {
         var _this126;
         _classCallCheck(this, Gensokyo);
         for (var _len23 = arguments.length, args = new Array(_len23), _key20 = 0; _key20 < _len23; _key20++) {
           args[_key20] = arguments[_key20];
         }
-        _this126 = _super29.call.apply(_super29, [this].concat(args));
+        _this126 = _super30.call.apply(_super30, [this].concat(args));
         _this126.hasRefererErr = true;
         return _this126;
       }
@@ -26506,14 +26523,14 @@ Spells.addSpell(9, '', false);
     ibDomains['gensokyo.4otaku.org'] = Gensokyo;
     var Iichan = function (_BaseBoard11) {
       _inherits(Iichan, _BaseBoard11);
-      var _super30 = _createSuper(Iichan);
+      var _super31 = _createSuper(Iichan);
       function Iichan() {
         var _this127;
         _classCallCheck(this, Iichan);
         for (var _len24 = arguments.length, args = new Array(_len24), _key21 = 0; _key21 < _len24; _key21++) {
           args[_key21] = arguments[_key21];
         }
-        _this127 = _super30.call.apply(_super30, [this].concat(args));
+        _this127 = _super31.call.apply(_super31, [this].concat(args));
         _this127.hasArchive = true;
         _this127.hasCatalog = true;
         return _this127;
@@ -26630,14 +26647,14 @@ Spells.addSpell(9, '', false);
     ibDomains['iichan.hk'] = Iichan;
     var Kohlchan = function (_Lynxchan2) {
       _inherits(Kohlchan, _Lynxchan2);
-      var _super31 = _createSuper(Kohlchan);
+      var _super32 = _createSuper(Kohlchan);
       function Kohlchan() {
         var _this129;
         _classCallCheck(this, Kohlchan);
         for (var _len25 = arguments.length, args = new Array(_len25), _key22 = 0; _key22 < _len25; _key22++) {
           args[_key22] = arguments[_key22];
         }
-        _this129 = _super31.call.apply(_super31, [this].concat(args));
+        _this129 = _super32.call.apply(_super32, [this].concat(args));
         _this129.kohlchan = true;
         _this129.qFormRules = '#rules_row';
         _this129.qPostImg = '.imgLink > img, .de-img-link > img';
@@ -26777,16 +26794,16 @@ Spells.addSpell(9, '', false);
       return Kohlchan;
     }(Lynxchan);
     ibDomains['kohlchan.net'] = ibDomains['kohlchan.top'] = ibDomains['kohlchanagb7ih5g.onion'] = ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] = ibDomains['kohlkanal.net'] = Kohlchan;
-    var Kropyvach = function (_Vichan2) {
-      _inherits(Kropyvach, _Vichan2);
-      var _super32 = _createSuper(Kropyvach);
+    var Kropyvach = function (_Vichan3) {
+      _inherits(Kropyvach, _Vichan3);
+      var _super33 = _createSuper(Kropyvach);
       function Kropyvach() {
         var _this130;
         _classCallCheck(this, Kropyvach);
         for (var _len26 = arguments.length, args = new Array(_len26), _key23 = 0; _key23 < _len26; _key23++) {
           args[_key23] = arguments[_key23];
         }
-        _this130 = _super32.call.apply(_super32, [this].concat(args));
+        _this130 = _super33.call.apply(_super33, [this].concat(args));
         _this130.markupBB = true;
         return _this130;
       }
@@ -26804,16 +26821,16 @@ Spells.addSpell(9, '', false);
       return Kropyvach;
     }(Vichan);
     ibDomains['kropyva.ch'] = Kropyvach;
-    var Lainchan = function (_Vichan3) {
-      _inherits(Lainchan, _Vichan3);
-      var _super33 = _createSuper(Lainchan);
+    var Lainchan = function (_Vichan4) {
+      _inherits(Lainchan, _Vichan4);
+      var _super34 = _createSuper(Lainchan);
       function Lainchan() {
         var _this131;
         _classCallCheck(this, Lainchan);
         for (var _len27 = arguments.length, args = new Array(_len27), _key24 = 0; _key24 < _len27; _key24++) {
           args[_key24] = arguments[_key24];
         }
-        _this131 = _super33.call.apply(_super33, [this].concat(args));
+        _this131 = _super34.call.apply(_super34, [this].concat(args));
         _this131.qOPost = '.op';
         return _this131;
       }
@@ -26842,10 +26859,10 @@ Spells.addSpell(9, '', false);
     ibDomains['lainchan.org'] = Lainchan;
     var Niuchan = function (_Kusaba5) {
       _inherits(Niuchan, _Kusaba5);
-      var _super34 = _createSuper(Niuchan);
+      var _super35 = _createSuper(Niuchan);
       function Niuchan() {
         _classCallCheck(this, Niuchan);
-        return _super34.apply(this, arguments);
+        return _super35.apply(this, arguments);
       }
       _createClass(Niuchan, [{
         key: "css",
@@ -26858,10 +26875,10 @@ Spells.addSpell(9, '', false);
     ibDomains['niuchan.org'] = Niuchan;
     var Nowere = function (_BaseBoard12) {
       _inherits(Nowere, _BaseBoard12);
-      var _super35 = _createSuper(Nowere);
+      var _super36 = _createSuper(Nowere);
       function Nowere() {
         _classCallCheck(this, Nowere);
-        return _super35.apply(this, arguments);
+        return _super36.apply(this, arguments);
       }
       _createClass(Nowere, [{
         key: "markupTags",
@@ -26880,14 +26897,14 @@ Spells.addSpell(9, '', false);
     ibDomains['nowere.net'] = Nowere;
     var Ponyach = function (_BaseBoard13) {
       _inherits(Ponyach, _BaseBoard13);
-      var _super36 = _createSuper(Ponyach);
+      var _super37 = _createSuper(Ponyach);
       function Ponyach() {
         var _this132;
         _classCallCheck(this, Ponyach);
         for (var _len28 = arguments.length, args = new Array(_len28), _key25 = 0; _key25 < _len28; _key25++) {
           args[_key25] = arguments[_key25];
         }
-        _this132 = _super36.call.apply(_super36, [this].concat(args));
+        _this132 = _super37.call.apply(_super37, [this].concat(args));
         _this132.qBan = 'font[color="#FF0000"]';
         _this132.qPostImgInfo = '.filesize[style="display: inline;"]';
         _this132.formParent = 'replythread';
@@ -26947,14 +26964,14 @@ Spells.addSpell(9, '', false);
     ibDomains['ponyach.ru'] = Ponyach;
     var Ponychan = function (_Tinyboard2) {
       _inherits(Ponychan, _Tinyboard2);
-      var _super37 = _createSuper(Ponychan);
+      var _super38 = _createSuper(Ponychan);
       function Ponychan() {
         var _this133;
         _classCallCheck(this, Ponychan);
         for (var _len29 = arguments.length, args = new Array(_len29), _key26 = 0; _key26 < _len29; _key26++) {
           args[_key26] = arguments[_key26];
         }
-        _this133 = _super37.call.apply(_super37, [this].concat(args));
+        _this133 = _super38.call.apply(_super38, [this].concat(args));
         _this133.qClosed = 'img[title="Locked"]';
         _this133.qOPost = '.opContainer';
         _this133.jsonSubmit = false;
@@ -26983,12 +27000,12 @@ Spells.addSpell(9, '', false);
       return Ponychan;
     }(Tinyboard);
     ibDomains['ponychan.net'] = Ponychan;
-    var Rfch = function (_Vichan4) {
-      _inherits(Rfch, _Vichan4);
-      var _super38 = _createSuper(Rfch);
+    var Rfch = function (_Vichan5) {
+      _inherits(Rfch, _Vichan5);
+      var _super39 = _createSuper(Rfch);
       function Rfch() {
         _classCallCheck(this, Rfch);
-        return _super38.apply(this, arguments);
+        return _super39.apply(this, arguments);
       }
       _createClass(Rfch, [{
         key: "css",
@@ -26999,16 +27016,16 @@ Spells.addSpell(9, '', false);
       return Rfch;
     }(Vichan);
     ibDomains['rfch.rocks'] = Rfch;
-    var Spirech = function (_Vichan5) {
-      _inherits(Spirech, _Vichan5);
-      var _super39 = _createSuper(Spirech);
+    var Spirech = function (_Vichan6) {
+      _inherits(Spirech, _Vichan6);
+      var _super40 = _createSuper(Spirech);
       function Spirech() {
         var _this134;
         _classCallCheck(this, Spirech);
         for (var _len30 = arguments.length, args = new Array(_len30), _key27 = 0; _key27 < _len30; _key27++) {
           args[_key27] = arguments[_key27];
         }
-        _this134 = _super39.call.apply(_super39, [this].concat(args));
+        _this134 = _super40.call.apply(_super40, [this].concat(args));
         _this134.qForm = 'form[name="post"], form[name="de-post"]';
         _this134.qFormRules = '#post-info';
         _this134.jsonSubmit = true;
@@ -27044,14 +27061,14 @@ Spells.addSpell(9, '', false);
     ibDomains['spirech.org'] = ibDomains['old52qbrspw6jivvrcjlybucxatpnzwea3oxrsw75be4ka53qfqhrnid.onion'] = Spirech;
     var Synch = function (_Tinyboard3) {
       _inherits(Synch, _Tinyboard3);
-      var _super40 = _createSuper(Synch);
+      var _super41 = _createSuper(Synch);
       function Synch() {
         var _this135;
         _classCallCheck(this, Synch);
         for (var _len31 = arguments.length, args = new Array(_len31), _key28 = 0; _key28 < _len31; _key28++) {
           args[_key28] = arguments[_key28];
         }
-        _this135 = _super40.call.apply(_super40, [this].concat(args));
+        _this135 = _super41.call.apply(_super41, [this].concat(args));
         _this135.qPages = '.pagination';
         _this135.qPostImgInfo = '.unimportant';
         _this135.markupBB = true;
@@ -27103,14 +27120,14 @@ Spells.addSpell(9, '', false);
     ibDomains['syn-ch.ru'] = ibDomains['syn-ch.com'] = ibDomains['syn-ch.com.ua'] = ibDomains['syn-ch.org'] = Synch;
     var Warosu = function (_BaseBoard14) {
       _inherits(Warosu, _BaseBoard14);
-      var _super41 = _createSuper(Warosu);
+      var _super42 = _createSuper(Warosu);
       function Warosu() {
         var _this136;
         _classCallCheck(this, Warosu);
         for (var _len32 = arguments.length, args = new Array(_len32), _key29 = 0; _key29 < _len32; _key29++) {
           args[_key29] = arguments[_key29];
         }
-        _this136 = _super41.call.apply(_super41, [this].concat(args));
+        _this136 = _super42.call.apply(_super42, [this].concat(args));
         _this136.qDelForm = '.content';
         _this136.qForm = '.subreply';
         _this136.qPostImgInfo = 'span';
