@@ -201,12 +201,7 @@ function* getFormElements(form, submitter) {
 						value : new File([img.data], img.name, { type: img.type })
 					};
 				} else {
-					yield {
-						el    : field,
-						name  : fixName(name),
-						type  : 'application/octet-stream',
-						value : new File([''], '')
-					};
+					yield aib.getEmptyFile(field, fixName(name));
 				}
 				continue constructSet;
 			}

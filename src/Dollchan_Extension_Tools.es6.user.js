@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = '025c938';
+const commit = '22df69d';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -9473,12 +9473,7 @@ function* getFormElements(form, submitter) {
 						value : new File([img.data], img.name, { type: img.type })
 					};
 				} else {
-					yield {
-						el    : field,
-						name  : fixName(name),
-						type  : 'application/octet-stream',
-						value : new File([''], '')
-					};
+					yield aib.getEmptyFile(field, fixName(name));
 				}
 				continue constructSet;
 			}
@@ -15524,6 +15519,14 @@ class BaseBoard {
 			.replace(/dummy=[\d.]*/, 'dummy=' + Math.random());
 		return tNum ? temp.replace(/mainpage|res\d+/, 'res' + tNum) : temp.replace(/res\d+/, 'mainpage');
 	}
+	getEmptyFile(field, name) {
+		return {
+			el    : field,
+			name,
+			type  : 'application/octet-stream',
+			value : new File([''], '')
+		};
+	}
 	getImgInfo(wrap) {
 		const el = $q(this.qPostImgInfo, wrap);
 		return el ? el.textContent : '';
@@ -16948,6 +16951,17 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['7chan.org'] = _7chan;
+
+	class _8kun extends Vichan {
+		getEmptyFile(field, name) {
+			return {
+				el    : field,
+				name,
+				value : undefined
+			};
+		}
+	}
+	ibDomains['8kun.top'] = _8kun;
 
 	class Archived extends FoolFuuka {
 		getImgRedirectSrc(url) {

@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = '075c937';
+const commit = '22df69d';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -6813,9 +6813,8 @@ function $ajax(url, params = null, isCORS = false) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
 	const WAITING_TIME = 5e3;
-	if(((isCORS ? !nav.hasGMXHR : !nav.canUseNativeXHR) || aib.hasRefererErr && nav.canUseFetch) &&
-		(nav.canUseFetch || !url.startsWith('blob'))
-	) {
+	const canUseXhr = isCORS ? nav.hasGMXHR : nav.canUseNativeXHR;
+	if(nav.canUseFetch && (!canUseXhr || aib.hasRefererErr || aib._4chan && nav.isTampermonkey)) {
 		if(!params) {
 			params = {};
 		}
@@ -6873,7 +6872,7 @@ function $ajax(url, params = null, isCORS = false) {
 				}
 				if(e.readyState === 4 && !(
 					// Violentmonkey gives extra stage with undefined responseText and 200 status
-					nav.scriptHandler.startsWith('Violentmonkey') && e.status === 200 &&
+					nav.isViolentmonkey && e.status === 200 &&
 					typeof e.responseText === 'undefined' && typeof e.response === 'undefined'
 				)) {
 					if(aib.isAjaxStatusOK(e.status)) {
@@ -9230,7 +9229,7 @@ function getSubmitError(dc) {
 		return null;
 	}
 	const err = [...$Q(aib.qError, dc)].map(str => str.innerHTML + '\n').join('')
-		.replace(/<a [^>]+>Назад.+|<br.+/, '') || dc.body.innerHTML;
+		.replace(/<a [^>]+>Назад.+/, '') || dc.body.innerHTML;
 	return aib.isIgnoreError(err) ? null : err;
 }
 
@@ -9423,12 +9422,7 @@ function* getFormElements(form, submitter) {
 						value : new File([img.data], img.name, { type: img.type })
 					};
 				} else {
-					yield {
-						el    : field,
-						name  : fixName(name),
-						type  : 'application/octet-stream',
-						value : new File([''], '')
-					};
+					yield aib.getEmptyFile(field, fixName(name));
 				}
 				continue constructSet;
 			}
@@ -15096,6 +15090,8 @@ function initNavFuncs() {
 		isMsEdge         : ua.includes('Edge/'),
 		isPresto         : !!deWindow.opera,
 		isSafari,
+		isTampermonkey   : scriptHandler.startsWith('Tampermonkey'),
+		isViolentmonkey  : scriptHandler.startsWith('Violentmonkey'),
 		isWebkit,
 		scriptHandler,
 		ua               : navigator.userAgent + (isFirefox ? ` [${ navigator.buildID }]` : ''),
@@ -15152,7 +15148,7 @@ function initNavFuncs() {
 		//    'Accessing TypedArray data over Xrays is slow, and forbidden' errors
 		getUnsafeUint8Array(data, i, len) {
 			let Ctor = Uint8Array;
-			if(this.isFirefox && (this.hasOldGM || this.scriptHandler.startsWith('Tampermonkey'))) {
+			if(this.isFirefox && (this.hasOldGM || this.isTampermonkey)) {
 				try {
 					if(!(new Uint8Array(data) instanceof Uint8Array)) {
 						Ctor = unsafeWindow.Uint8Array;
@@ -15222,8 +15218,8 @@ class BaseBoard {
 		this.qTrunc = '.abbrev, .abbr, .shortened';
 
 		// Other propertioes
-		let port = deWindow.location.port;
-		port = (port ? ':' + port : '');
+		let { port } = deWindow.location;
+		port = port ? ':' + port : '';
 		this.anchor = '#';
 		this.b = '';
 		this.captchaRu = false;
@@ -15464,6 +15460,14 @@ class BaseBoard {
 		const temp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
 			.replace(/dummy=[\d.]*/, 'dummy=' + Math.random());
 		return tNum ? temp.replace(/mainpage|res\d+/, 'res' + tNum) : temp.replace(/res\d+/, 'mainpage');
+	}
+	getEmptyFile(field, name) {
+		return {
+			el    : field,
+			name,
+			type  : 'application/octet-stream',
+			value : new File([''], '')
+		};
 	}
 	getImgInfo(wrap) {
 		const el = $q(this.qPostImgInfo, wrap);
@@ -16890,6 +16894,17 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['7chan.org'] = _7chan;
 
+	class _8kun extends Vichan {
+		getEmptyFile(field, name) {
+			return {
+				el    : field,
+				name,
+				value : undefined
+			};
+		}
+	}
+	ibDomains['8kun.top'] = _8kun;
+
 	class Archived extends FoolFuuka {
 		getImgRedirectSrc(url) {
 			return $ajax(url).then(xhr => xhr.responseText.match(/<meta[^>]+url=([^"]+)">/)[1]);
@@ -17709,15 +17724,13 @@ function showDonateMsg() {
 	$popup('donate', Lng.donateMsg[lang] + `:<br style="margin-bottom: 8px;"><!--
 		--><div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div><!--
 		--><div style="display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;">` +
-			item('BTC (P2PKH)', '14Y6eJW7dAzL8n6pqyLqrJWuX35uTs2R6T') +
-			item('BTC (P2SH)', '3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq') +
-			item('ETH', '0x32da2d420d189a8c2f2656466f2ba78f58c6331a') +
+			item('BTC', '1BmVjk3DMPZeJUqBtqZRUCmL234Wc3Bc9Y') +
+			item('BTC (SegWit)', 'bc1qleycjdph5v3g26ewy7x37n5a4kwegjgttpjwzw') +
+			item('ETH (ERC20)', '0xffa96732ae8df25c34444c70c0d59c752a47aafa') +
 			item('YooMoney RUB', '410012122418236') +
-			item('WebMoney WMZ', 'Z100197626370') +
-		'</div>' +
-		(nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ?
-			`<br><br>New: <a href="https://addons.mozilla.org/${ lang === 1 ? 'en-US' : 'ru' }` +
-			'/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : ''));
+			item('Mastercard', '5375411208220306 ' +
+				'<a href="https://send.monobank.ua/jar/A7Saf6YAaz" target="_blank">send UAH</a>') +
+		'</div>');
 }
 
 function initPage() {

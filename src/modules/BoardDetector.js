@@ -1320,6 +1320,17 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['7chan.org'] = _7chan;
 
+	class _8kun extends Vichan {
+		getEmptyFile(field, name) {
+			return {
+				el    : field,
+				name,
+				value : undefined
+			};
+		}
+	}
+	ibDomains['8kun.top'] = _8kun;
+
 	class Archived extends FoolFuuka {
 		getImgRedirectSrc(url) {
 			return $ajax(url).then(xhr => xhr.responseText.match(/<meta[^>]+url=([^"]+)">/)[1]);
