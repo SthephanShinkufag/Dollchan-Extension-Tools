@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = '6875b40';
+const commit = '0252e25';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -7299,7 +7299,7 @@ const Spells = Object.create({
 	get needArg() {
 		return [
 			/* words */ true, /* exp */ true, /* exph */ true, /* imgn */ true, /* ihash */ true,
-			/* subj */ false, /* name */ true, /* trip */ false, /* img */ false, /* sage */ false,
+			/* subj */ false, /* name */ false, /* trip */ false, /* img */ false, /* sage */ false,
 			/* op */ false, /* tlen */ false, /* all */ false, /* video */ false, /* wipe */ false,
 			/* num */ true, /* vauthor */ true, /* // */ false
 		];
