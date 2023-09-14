@@ -527,8 +527,8 @@ class SpellsCodegen {
 	}
 
 	static _getScope(str) {
-		const m = str.match(/^\[([a-z0-9/-]+)(?:(,)|,(\s*[0-9]+))?\]/);
-		return m ? [m[0].length, [m[1], m[3] ? +m[3] : m[2] ? -1 : false]] : null;
+		const m = str.match(/^\[([a-z0-9/-]+)?(?:(,)|,(\s*[0-9]+))?\]/);
+		return m ? [m[0].length, [m[1] || '', m[3] ? +m[3] : m[2] ? -1 : false]] : null;
 	}
 	static _getText(str, haveBracket) {
 		if(haveBracket && (str[0] !== '(')) {

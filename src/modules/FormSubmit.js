@@ -259,7 +259,7 @@ async function html5Submit(form, submitter, needProgress = false) {
 		if(type === 'file') {
 			hasFiles = true;
 			const fileName = value.name;
-			const newFileName = !Cfg.removeFName || el.obj?.imgFile?.isConstName ? fileName : (
+			const newFileName = !Cfg.removeFName || el.obj?.imgFile?.isCustomName ? fileName : (
 				Cfg.removeFName === 1 ? '' :
 				// 5 years = 5*365*24*60*60*1e3 = 15768e7
 				Date.now() - (Cfg.removeFName === 2 ? 0 : Math.round(Math.random() * 15768e7))

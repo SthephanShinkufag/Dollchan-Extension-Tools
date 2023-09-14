@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = '0252e25';
+const commit = 'b870819';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -7830,8 +7830,8 @@ class SpellsCodegen {
 	}
 
 	static _getScope(str) {
-		const m = str.match(/^\[([a-z0-9/-]+)(?:(,)|,(\s*[0-9]+))?\]/);
-		return m ? [m[0].length, [m[1], m[3] ? +m[3] : m[2] ? -1 : false]] : null;
+		const m = str.match(/^\[([a-z0-9/-]+)?(?:(,)|,(\s*[0-9]+))?\]/);
+		return m ? [m[0].length, [m[1] || '', m[3] ? +m[3] : m[2] ? -1 : false]] : null;
 	}
 	static _getText(str, haveBracket) {
 		if(haveBracket && (str[0] !== '(')) {
@@ -9531,7 +9531,7 @@ async function html5Submit(form, submitter, needProgress = false) {
 		if(type === 'file') {
 			hasFiles = true;
 			const fileName = value.name;
-			const newFileName = !Cfg.removeFName || el.obj?.imgFile?.isConstName ? fileName : (
+			const newFileName = !Cfg.removeFName || el.obj?.imgFile?.isCustomName ? fileName : (
 				Cfg.removeFName === 1 ? '' :
 				// 5 years = 5*365*24*60*60*1e3 = 15768e7
 				Date.now() - (Cfg.removeFName === 2 ? 0 : Math.round(Math.random() * 15768e7))
@@ -10000,7 +10000,7 @@ class FileInput {
 						return;
 					}
 					if(this.imgFile) {
-						this.imgFile.isConstName = true;
+						this.imgFile.isCustomName = true;
 						this.imgFile.name = newName;
 						if(FileInput._isThumbMode) {
 							this._addThumbTitle(newName, this.imgFile.data.byteLength);
@@ -10009,7 +10009,7 @@ class FileInput {
 					}
 					const file = this._input.files[0];
 					readFile(file).then(({ data }) => {
-						this.imgFile = { data, name: newName, type: file.type, isConstName: true };
+						this.imgFile = { data, name: newName, type: file.type, isCustomName: true };
 						this._removeFileHelper(); // Clear the original file
 						if(FileInput._isThumbMode) {
 							this._addThumbTitle(newName, data.byteLength);

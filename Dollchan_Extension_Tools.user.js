@@ -7200,7 +7200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.12.5.0';
-  var commit = '0252e25';
+  var commit = 'b870819';
 
 
   var doc = deWindow.document;
@@ -15172,8 +15172,8 @@ this.disableSpells();
     }], [{
       key: "_getScope",
       value: function _getScope(str) {
-        var m = str.match(/^\[([a-z0-9/-]+)(?:(,)|,(\s*[0-9]+))?\]/);
-        return m ? [m[0].length, [m[1], m[3] ? +m[3] : m[2] ? -1 : false]] : null;
+        var m = str.match(/^\[([a-z0-9/-]+)?(?:(,)|,(\s*[0-9]+))?\]/);
+        return m ? [m[0].length, [m[1] || '', m[3] ? +m[3] : m[2] ? -1 : false]] : null;
       }
     }, {
       key: "_getText",
@@ -17115,7 +17115,7 @@ this.disableSpells();
               }
               hasFiles = true;
               fileName = value.name;
-              newFileName = !Cfg.removeFName || (_el$obj = el.obj) !== null && _el$obj !== void 0 && (_el$obj$imgFile = _el$obj.imgFile) !== null && _el$obj$imgFile !== void 0 && _el$obj$imgFile.isConstName ? fileName : (Cfg.removeFName === 1 ? '' :
+              newFileName = !Cfg.removeFName || (_el$obj = el.obj) !== null && _el$obj !== void 0 && (_el$obj$imgFile = _el$obj.imgFile) !== null && _el$obj$imgFile !== void 0 && _el$obj$imgFile.isCustomName ? fileName : (Cfg.removeFName === 1 ? '' :
               Date.now() - (Cfg.removeFName === 2 ? 0 : Math.round(Math.random() * 15768e7))) + '.' + getFileExt(fileName);
               mime = value.type;
               if (!((Cfg.postSameImg || Cfg.removeEXIF) && (mime === 'image/jpeg' || mime === 'image/png' || mime === 'image/gif' || mime === 'video/webm'))) {
@@ -17666,7 +17666,7 @@ this.disableSpells();
                     return;
                   }
                   if (this.imgFile) {
-                    this.imgFile.isConstName = true;
+                    this.imgFile.isCustomName = true;
                     this.imgFile.name = newName;
                     if (FileInput._isThumbMode) {
                       this._addThumbTitle(newName, this.imgFile.data.byteLength);
@@ -17680,7 +17680,7 @@ this.disableSpells();
                       data: data,
                       name: newName,
                       type: file.type,
-                      isConstName: true
+                      isCustomName: true
                     };
                     _this51._removeFileHelper(); 
                     if (FileInput._isThumbMode) {

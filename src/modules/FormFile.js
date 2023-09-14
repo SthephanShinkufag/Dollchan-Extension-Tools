@@ -293,7 +293,7 @@ class FileInput {
 						return;
 					}
 					if(this.imgFile) {
-						this.imgFile.isConstName = true;
+						this.imgFile.isCustomName = true;
 						this.imgFile.name = newName;
 						if(FileInput._isThumbMode) {
 							this._addThumbTitle(newName, this.imgFile.data.byteLength);
@@ -302,7 +302,7 @@ class FileInput {
 					}
 					const file = this._input.files[0];
 					readFile(file).then(({ data }) => {
-						this.imgFile = { data, name: newName, type: file.type, isConstName: true };
+						this.imgFile = { data, name: newName, type: file.type, isCustomName: true };
 						this._removeFileHelper(); // Clear the original file
 						if(FileInput._isThumbMode) {
 							this._addThumbTitle(newName, data.byteLength);
