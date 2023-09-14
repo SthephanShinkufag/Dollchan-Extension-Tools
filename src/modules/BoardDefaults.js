@@ -44,8 +44,8 @@ class BaseBoard {
 		this.qTrunc = '.abbrev, .abbr, .shortened';
 
 		// Other propertioes
-		let port = deWindow.location.port;
-		port = (port ? ':' + port : '');
+		let { port } = deWindow.location;
+		port = port ? ':' + port : '';
 		this.anchor = '#';
 		this.b = '';
 		this.captchaRu = false;

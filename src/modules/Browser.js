@@ -104,6 +104,8 @@ function initNavFuncs() {
 		isMsEdge         : ua.includes('Edge/'),
 		isPresto         : !!deWindow.opera,
 		isSafari,
+		isTampermonkey   : scriptHandler.startsWith('Tampermonkey'),
+		isViolentmonkey  : scriptHandler.startsWith('Violentmonkey'),
 		isWebkit,
 		scriptHandler,
 		ua               : navigator.userAgent + (isFirefox ? ` [${ navigator.buildID }]` : ''),
@@ -160,7 +162,7 @@ function initNavFuncs() {
 		//    'Accessing TypedArray data over Xrays is slow, and forbidden' errors
 		getUnsafeUint8Array(data, i, len) {
 			let Ctor = Uint8Array;
-			if(this.isFirefox && (this.hasOldGM || this.scriptHandler.startsWith('Tampermonkey'))) {
+			if(this.isFirefox && (this.hasOldGM || this.isTampermonkey)) {
 				try {
 					if(!(new Uint8Array(data) instanceof Uint8Array)) {
 						Ctor = unsafeWindow.Uint8Array;

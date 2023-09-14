@@ -7,9 +7,8 @@ function $ajax(url, params = null, isCORS = false) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
 	const WAITING_TIME = 5e3;
-	if(((isCORS ? !nav.hasGMXHR : !nav.canUseNativeXHR) || aib.hasRefererErr && nav.canUseFetch) &&
-		(nav.canUseFetch || !url.startsWith('blob'))
-	) {
+	const canUseXhr = isCORS ? nav.hasGMXHR : nav.canUseNativeXHR;
+	if(nav.canUseFetch && (!canUseXhr || aib.hasRefererErr || aib._4chan && nav.isTampermonkey)) {
 		if(!params) {
 			params = {};
 		}
@@ -67,7 +66,7 @@ function $ajax(url, params = null, isCORS = false) {
 				}
 				if(e.readyState === 4 && !(
 					// Violentmonkey gives extra stage with undefined responseText and 200 status
-					nav.scriptHandler.startsWith('Violentmonkey') && e.status === 200 &&
+					nav.isViolentmonkey && e.status === 200 &&
 					typeof e.responseText === 'undefined' && typeof e.response === 'undefined'
 				)) {
 					if(aib.isAjaxStatusOK(e.status)) {

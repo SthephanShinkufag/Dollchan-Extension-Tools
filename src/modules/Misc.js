@@ -115,15 +115,13 @@ function showDonateMsg() {
 	$popup('donate', Lng.donateMsg[lang] + `:<br style="margin-bottom: 8px;"><!--
 		--><div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div><!--
 		--><div style="display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;">` +
-			item('BTC (P2PKH)', '14Y6eJW7dAzL8n6pqyLqrJWuX35uTs2R6T') +
-			item('BTC (P2SH)', '3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq') +
-			item('ETH', '0x32da2d420d189a8c2f2656466f2ba78f58c6331a') +
+			item('BTC', '1BmVjk3DMPZeJUqBtqZRUCmL234Wc3Bc9Y') +
+			item('BTC (SegWit)', 'bc1qleycjdph5v3g26ewy7x37n5a4kwegjgttpjwzw') +
+			item('ETH (ERC20)', '0xffa96732ae8df25c34444c70c0d59c752a47aafa') +
 			item('YooMoney RUB', '410012122418236') +
-			item('WebMoney WMZ', 'Z100197626370') +
-		'</div>' +
-		(nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ?
-			`<br><br>New: <a href="https://addons.mozilla.org/${ lang === 1 ? 'en-US' : 'ru' }` +
-			'/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : ''));
+			item('Mastercard', '5375411208220306 ' +
+				'<a href="https://send.monobank.ua/jar/A7Saf6YAaz" target="_blank">send UAH</a>') +
+		'</div>');
 }
 
 function initPage() {

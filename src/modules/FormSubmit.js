@@ -8,7 +8,7 @@ function getSubmitError(dc) {
 		return null;
 	}
 	const err = [...$Q(aib.qError, dc)].map(str => str.innerHTML + '\n').join('')
-		.replace(/<a [^>]+>Назад.+|<br.+/, '') || dc.body.innerHTML;
+		.replace(/<a [^>]+>Назад.+/, '') || dc.body.innerHTML;
 	return aib.isIgnoreError(err) ? null : err;
 }
 
