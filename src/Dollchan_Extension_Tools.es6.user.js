@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = '80c7bd3';
+const commit = '8c7fc0a';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -8750,9 +8750,15 @@ class PostForm {
 		}
 	}
 	static hideField(el) {
-		const next = el.nextElementSibling;
-		$toggle(next && (next.style.display !== 'none') ||
-			el.previousElementSibling ? el : el.closest(aib.qFormTr));
+		const els = el.parentNode.children;
+		let hideTr = true;
+		for(let i = 0, len = els.length; i < len; ++i) {
+			if(els[i] !== el && els[i].style.display !== 'none') {
+				hideTr = false;
+				break;
+			}
+		}
+		$toggle(hideTr ? el.closest(aib.qFormTr) : el);
 	}
 	static async setUserName() {
 		const el = $q('input[info="nameValue"]');
@@ -17057,6 +17063,13 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['arhivach.top'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
 	class Dobrochan extends Vichan {
+		get css() {
+			return `${ super.css }
+				#de-pform input[type="text"] { float: none !important; }`;
+		}
+		get markupTags() {
+			return ['**', '*', '', '~~', '%%', ''];
+		}
 		captchaUpdate() {
 			$script('load_captcha("/vichan/inc/captcha/entrypoint.php", "abcdefghijklmnopqrstuvwxyz");');
 			return null;

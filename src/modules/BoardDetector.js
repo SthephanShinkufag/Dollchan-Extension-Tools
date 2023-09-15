@@ -1425,6 +1425,13 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['arhivach.top'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
 	class Dobrochan extends Vichan {
+		get css() {
+			return `${ super.css }
+				#de-pform input[type="text"] { float: none !important; }`;
+		}
+		get markupTags() {
+			return ['**', '*', '', '~~', '%%', ''];
+		}
 		captchaUpdate() {
 			$script('load_captcha("/vichan/inc/captcha/entrypoint.php", "abcdefghijklmnopqrstuvwxyz");');
 			return null;

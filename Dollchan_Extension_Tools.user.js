@@ -7200,7 +7200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.12.5.0';
-  var commit = '80c7bd3';
+  var commit = '8c7fc0a';
 
 
   var doc = deWindow.document;
@@ -16537,8 +16537,15 @@ this.disableSpells();
     }], [{
       key: "hideField",
       value: function hideField(el) {
-        var next = el.nextElementSibling;
-        $toggle(next && next.style.display !== 'none' || el.previousElementSibling ? el : el.closest(aib.qFormTr));
+        var els = el.parentNode.children;
+        var hideTr = true;
+        for (var i = 0, len = els.length; i < len; ++i) {
+          if (els[i] !== el && els[i].style.display !== 'none') {
+            hideTr = false;
+            break;
+          }
+        }
+        $toggle(hideTr ? el.closest(aib.qFormTr) : el);
       }
     }, {
       key: "setUserName",
@@ -26340,6 +26347,16 @@ Spells.addSpell(9, '', false);
         return _super26.apply(this, arguments);
       }
       _createClass(Dobrochan, [{
+        key: "css",
+        get: function get() {
+          return "".concat(_get(_getPrototypeOf(Dobrochan.prototype), "css", this), "\n\t\t\t\t#de-pform input[type=\"text\"] { float: none !important; }");
+        }
+      }, {
+        key: "markupTags",
+        get: function get() {
+          return ['**', '*', '', '~~', '%%', ''];
+        }
+      }, {
         key: "captchaUpdate",
         value: function captchaUpdate() {
           $script('load_captcha("/vichan/inc/captcha/entrypoint.php", "abcdefghijklmnopqrstuvwxyz");');

@@ -83,9 +83,15 @@ class PostForm {
 		}
 	}
 	static hideField(el) {
-		const next = el.nextElementSibling;
-		$toggle(next && (next.style.display !== 'none') ||
-			el.previousElementSibling ? el : el.closest(aib.qFormTr));
+		const els = el.parentNode.children;
+		let hideTr = true;
+		for(let i = 0, len = els.length; i < len; ++i) {
+			if(els[i] !== el && els[i].style.display !== 'none') {
+				hideTr = false;
+				break;
+			}
+		}
+		$toggle(hideTr ? el.closest(aib.qFormTr) : el);
 	}
 	static async setUserName() {
 		const el = $q('input[info="nameValue"]');
