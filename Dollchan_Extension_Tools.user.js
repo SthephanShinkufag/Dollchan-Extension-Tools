@@ -7200,7 +7200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.12.5.0';
-  var commit = '8c7fc0a';
+  var commit = '0c1a04b';
 
 
   var doc = deWindow.document;
@@ -7984,6 +7984,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     return Lng.internalError[lang] + (!stack ? "".concat(name, ": ").concat(message) : nav.isWebkit ? stack : "".concat(name, ": ").concat(message, "\n").concat(!nav.isFirefox ? stack : stack.replace(/^([^@]*).*\/(.+)$/gm, function (str, fName, line) {
       return "    at ".concat(fName ? "".concat(fName, " (").concat(line, ")") : line);
     })));
+  }
+
+  function getCookies() {
+    var obj = {};
+    var cookies = doc.cookie.split(';');
+    for (var i = 0, len = cookies.length; i < len; ++i) {
+      var parts = cookies[i].split('=');
+      obj[parts.shift().trim()] = decodeURI(parts.join('='));
+    }
+    return obj;
   }
 
   function readFile(_x, _x2) {
@@ -18179,7 +18189,7 @@ this.disableSpells();
       value: function _setUpdateError(e) {
         var _this60 = this;
         if (e) {
-          this.parentEl = e.toString();
+          this.parentEl.innerHTML = e.toString();
           this.isAdded = false;
           this.parentEl.onclick = function () {
             _this60.parentEl.onclick = null;
@@ -25006,7 +25016,7 @@ Spells.addSpell(9, '', false);
         key: "sendHTML5Post",
         value: function () {
           var _sendHTML5Post = _asyncToGenerator( _regeneratorRuntime().mark(function _callee46(form, data, needProgress, hasFiles) {
-            var ajaxParams, getBase64, getCookies, dataObj, files, i, len, file, cookieObj, task, url;
+            var ajaxParams, getBase64, dataObj, files, i, len, file, cookieObj, task, url;
             return _regeneratorRuntime().wrap(function _callee46$(_context54) {
               while (1) {
                 switch (_context54.prev = _context54.next) {
@@ -25019,7 +25029,7 @@ Spells.addSpell(9, '', false);
                       data: data,
                       method: 'POST'
                     };
-                    _context54.next = 27;
+                    _context54.next = 26;
                     break;
                   case 4:
                     getBase64 = function () {
@@ -25049,15 +25059,6 @@ Spells.addSpell(9, '', false);
                         return _ref54.apply(this, arguments);
                       };
                     }();
-                    getCookies = function getCookies() {
-                      var obj = {};
-                      var cookies = doc.cookie.split(';');
-                      for (var i = 0, len = cookies.length; i < len; ++i) {
-                        var parts = cookies[i].split('=');
-                        obj[parts.shift().trim()] = decodeURI(parts.join('='));
-                      }
-                      return obj;
-                    };
                     dataObj = {
                       files: []
                     };
@@ -25085,23 +25086,23 @@ Spells.addSpell(9, '', false);
                       };
                     }());
                     i = 0, len = files.length;
-                  case 10:
+                  case 9:
                     if (!(i < len)) {
-                      _context54.next = 25;
+                      _context54.next = 24;
                       break;
                     }
                     file = files[i];
                     if (!file.type) {
-                      _context54.next = 22;
+                      _context54.next = 21;
                       break;
                     }
                     _context54.t0 = dataObj.files;
                     _context54.t1 = "data:".concat(file.type, ";base64,");
-                    _context54.next = 17;
+                    _context54.next = 16;
                     return getBase64(file).then(function (data) {
                       return data.split(',')[1];
                     });
-                  case 17:
+                  case 16:
                     _context54.t2 = _context54.sent;
                     _context54.t3 = _context54.t1.concat.call(_context54.t1, _context54.t2);
                     _context54.t4 = file.name;
@@ -25111,11 +25112,11 @@ Spells.addSpell(9, '', false);
                       spoiler: false
                     };
                     _context54.t0.push.call(_context54.t0, _context54.t5);
-                  case 22:
+                  case 21:
                     ++i;
-                    _context54.next = 10;
+                    _context54.next = 9;
                     break;
-                  case 25:
+                  case 24:
                     cookieObj = getCookies();
                     ajaxParams = {
                       data: JSON.stringify({
@@ -25132,7 +25133,7 @@ Spells.addSpell(9, '', false);
                       },
                       method: 'POST'
                     };
-                  case 27:
+                  case 26:
                     if (needProgress && hasFiles) {
                       ajaxParams.onprogress = getUploadFunc();
                     }
@@ -25143,7 +25144,7 @@ Spells.addSpell(9, '', false);
                     })["catch"](function (err) {
                       return Promise.reject(err);
                     }));
-                  case 31:
+                  case 30:
                   case "end":
                     return _context54.stop();
                 }
@@ -26385,6 +26386,22 @@ Spells.addSpell(9, '', false);
         key: "fixHTMLHelper",
         get: function get() {
           return null;
+        }
+      }, {
+        key: "captchaInit",
+        value: function captchaInit(cap) {
+          return this.captchaUpdate(cap);
+        }
+      }, {
+        key: "captchaUpdate",
+        value: function captchaUpdate(cap) {
+          if (getCookies().passcode === '1') {
+            $hide($id('captchablock').lastElementChild);
+            $show($id('validcaptchablock'));
+          } else {
+            $show($id('captchablock').lastElementChild);
+            $hide($id('validcaptchablock'));
+          }
         }
       }, {
         key: "fixFileInputs",

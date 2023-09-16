@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = '8c7fc0a';
+const commit = '0c1a04b';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -1915,6 +1915,17 @@ function getErrorMessage(err) {
 			(str, fName, line) => `    at ${ fName ? `${ fName } (${ line })` : line }`
 		) }`
 	);
+}
+
+// Read cookies
+function getCookies() {
+	const obj = {};
+	const cookies = doc.cookie.split(';');
+	for(let i = 0, len = cookies.length; i < len; ++i) {
+		const parts = cookies[i].split('=');
+		obj[parts.shift().trim()] = decodeURI(parts.join('='));
+	}
+	return obj;
 }
 
 // Reads File into data
@@ -10374,7 +10385,7 @@ class Captcha {
 
 	_setUpdateError(e) {
 		if(e) {
-			this.parentEl = e.toString();
+			this.parentEl.innerHTML = e.toString();
 			this.isAdded = false;
 			this.parentEl.onclick = () => {
 				this.parentEl.onclick = null;
@@ -16004,15 +16015,6 @@ function getImageBoard(checkDomains, checkEngines) {
 					reader.onload = () => resolve(reader.result);
 					reader.onerror = err => reject(err);
 				});
-				const getCookies = () => {
-					const obj = {};
-					const cookies = doc.cookie.split(';');
-					for(let i = 0, len = cookies.length; i < len; ++i) {
-						const parts = cookies[i].split('=');
-						obj[parts.shift().trim()] = decodeURI(parts.join('='));
-					}
-					return obj;
-				};
 				const dataObj = { files: [] };
 				const files = [];
 				data.forEach(async (value, key) => {
@@ -17029,6 +17031,18 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get fixHTMLHelper() {
 			return null;
+		}
+		captchaInit(cap) {
+			return this.captchaUpdate(cap);
+		}
+		captchaUpdate(cap) {
+			if(getCookies().passcode === '1') {
+				$hide($id('captchablock').lastElementChild);
+				$show($id('validcaptchablock'));
+			} else {
+				$show($id('captchablock').lastElementChild);
+				$hide($id('validcaptchablock'));
+			}
 		}
 		fixFileInputs(el) {
 			const str = ' class="de-file-wrap"><input type="file" name="file[]"></div>';

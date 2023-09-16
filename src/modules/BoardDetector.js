@@ -424,15 +424,6 @@ function getImageBoard(checkDomains, checkEngines) {
 					reader.onload = () => resolve(reader.result);
 					reader.onerror = err => reject(err);
 				});
-				const getCookies = () => {
-					const obj = {};
-					const cookies = doc.cookie.split(';');
-					for(let i = 0, len = cookies.length; i < len; ++i) {
-						const parts = cookies[i].split('=');
-						obj[parts.shift().trim()] = decodeURI(parts.join('='));
-					}
-					return obj;
-				};
 				const dataObj = { files: [] };
 				const files = [];
 				data.forEach(async (value, key) => {
@@ -1449,6 +1440,18 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get fixHTMLHelper() {
 			return null;
+		}
+		captchaInit(cap) {
+			return this.captchaUpdate(cap);
+		}
+		captchaUpdate(cap) {
+			if(getCookies().passcode === '1') {
+				$hide($id('captchablock').lastElementChild);
+				$show($id('validcaptchablock'));
+			} else {
+				$show($id('captchablock').lastElementChild);
+				$hide($id('validcaptchablock'));
+			}
 		}
 		fixFileInputs(el) {
 			const str = ' class="de-file-wrap"><input type="file" name="file[]"></div>';

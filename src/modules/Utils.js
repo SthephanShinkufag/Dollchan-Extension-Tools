@@ -200,6 +200,17 @@ function getErrorMessage(err) {
 	);
 }
 
+// Read cookies
+function getCookies() {
+	const obj = {};
+	const cookies = doc.cookie.split(';');
+	for(let i = 0, len = cookies.length; i < len; ++i) {
+		const parts = cookies[i].split('=');
+		obj[parts.shift().trim()] = decodeURI(parts.join('='));
+	}
+	return obj;
+}
+
 // Reads File into data
 async function readFile(file, asText) {
 	return new Promise(resolve => {

@@ -187,7 +187,7 @@ class Captcha {
 
 	_setUpdateError(e) {
 		if(e) {
-			this.parentEl = e.toString();
+			this.parentEl.innerHTML = e.toString();
 			this.isAdded = false;
 			this.parentEl.onclick = () => {
 				this.parentEl.onclick = null;
