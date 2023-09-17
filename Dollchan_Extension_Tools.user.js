@@ -7200,7 +7200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '22.12.5.0';
-  var commit = '0c1a04b';
+  var commit = 'e9b3780';
 
 
   var doc = deWindow.document;
@@ -13572,8 +13572,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var resolve, reject, cancelFn;
     var needTO = params ? params.useTimeout : false;
     var WAITING_TIME = 5e3;
-    var canUseXhr = isCORS ? nav.hasGMXHR : nav.canUseNativeXHR;
-    if (nav.canUseFetch && (!canUseXhr || aib.hasRefererErr || aib._4chan && nav.isTampermonkey)) {
+    if (nav.canUseFetch && (!(isCORS ? nav.hasGMXHR : nav.canUseNativeXHR) || aib.hasRefererErr)) {
       if (!params) {
         params = {};
       }
@@ -26098,7 +26097,7 @@ Spells.addSpell(9, '', false);
       }, {
         key: "getJsonApiUrl",
         value: function getJsonApiUrl(board, tNum) {
-          return "//a.4cdn.org/".concat(board, "/thread/").concat(tNum, ".json");
+          return "/".concat(board, "/thread/").concat(tNum, ".json");
         }
       }, {
         key: "getImgWrap",
@@ -26389,12 +26388,12 @@ Spells.addSpell(9, '', false);
         }
       }, {
         key: "captchaInit",
-        value: function captchaInit(cap) {
-          return this.captchaUpdate(cap);
+        value: function captchaInit() {
+          return this.captchaUpdate();
         }
       }, {
         key: "captchaUpdate",
-        value: function captchaUpdate(cap) {
+        value: function captchaUpdate() {
           if (getCookies().passcode === '1') {
             $hide($id('captchablock').lastElementChild);
             $show($id('validcaptchablock'));

@@ -1256,7 +1256,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el ? el.title || el.parentNode.title || el.textContent : '';
 		}
 		getJsonApiUrl(board, tNum) {
-			return `//a.4cdn.org/${ board }/thread/${ tNum }.json`;
+			return `/${ board }/thread/${ tNum }.json`;
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode;
@@ -1441,10 +1441,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		get fixHTMLHelper() {
 			return null;
 		}
-		captchaInit(cap) {
-			return this.captchaUpdate(cap);
+		captchaInit() {
+			return this.captchaUpdate();
 		}
-		captchaUpdate(cap) {
+		captchaUpdate() {
 			if(getCookies().passcode === '1') {
 				$hide($id('captchablock').lastElementChild);
 				$show($id('validcaptchablock'));

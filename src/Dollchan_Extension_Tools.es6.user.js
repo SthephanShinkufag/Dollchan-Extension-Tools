@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.12.5.0';
-const commit = '0c1a04b';
+const commit = 'e9b3780';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -6875,8 +6875,7 @@ function $ajax(url, params = null, isCORS = false) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
 	const WAITING_TIME = 5e3;
-	const canUseXhr = isCORS ? nav.hasGMXHR : nav.canUseNativeXHR;
-	if(nav.canUseFetch && (!canUseXhr || aib.hasRefererErr || aib._4chan && nav.isTampermonkey)) {
+	if(nav.canUseFetch && (!(isCORS ? nav.hasGMXHR : nav.canUseNativeXHR) || aib.hasRefererErr)) {
 		if(!params) {
 			params = {};
 		}
@@ -16905,7 +16904,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el ? el.title || el.parentNode.title || el.textContent : '';
 		}
 		getJsonApiUrl(board, tNum) {
-			return `//a.4cdn.org/${ board }/thread/${ tNum }.json`;
+			return `/${ board }/thread/${ tNum }.json`;
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode;
@@ -17090,10 +17089,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		get fixHTMLHelper() {
 			return null;
 		}
-		captchaInit(cap) {
-			return this.captchaUpdate(cap);
+		captchaInit() {
+			return this.captchaUpdate();
 		}
-		captchaUpdate(cap) {
+		captchaUpdate() {
 			if(getCookies().passcode === '1') {
 				$hide($id('captchablock').lastElementChild);
 				$show($id('validcaptchablock'));
