@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         22.12.5.0
+// @version         23.9.18.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
@@ -27,8 +27,8 @@
 (function deMainFuncInner(deWindow, prestoStorage, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '22.12.5.0';
-const commit = 'e9b3780';
+const version = '23.9.18.0';
+const commit = '15966fc';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -7464,10 +7464,8 @@ const Spells = Object.create({
 		case 0: // #words
 		case 6: // #name
 		case 7: // #trip
-		case 16: // #vauthor
-			return `${ spell }(${ val.replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') })`;
-		case 17: // // comment
-			return '//' + String(val);
+		case 16: return `${ spell }(${ val.replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') })`; // #vauthor
+		case 17: return '//' + String(val); // comment
 		default: return `${ spell }(${ String(val) })`;
 		}
 	},

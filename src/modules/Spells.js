@@ -202,10 +202,8 @@ const Spells = Object.create({
 		case 0: // #words
 		case 6: // #name
 		case 7: // #trip
-		case 16: // #vauthor
-			return `${ spell }(${ val.replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') })`;
-		case 17: // // comment
-			return '//' + String(val);
+		case 16: return `${ spell }(${ val.replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') })`; // #vauthor
+		case 17: return '//' + String(val); // comment
 		default: return `${ spell }(${ String(val) })`;
 		}
 	},
