@@ -7200,7 +7200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '23.9.19.0';
-  var commit = '6290205';
+  var commit = 'de842da';
 
 
   var doc = deWindow.document;
@@ -26076,7 +26076,7 @@ Spells.addSpell(9, '', false);
       }, {
         key: "fixHTMLHelper",
         value: function fixHTMLHelper(str) {
-          return str.replace(/<span>([^<]+)(?:<\/?wbr>)?([^<]+)<\/span> \[<a [^>]+>Embed<\/a>\]/g, '$1$2').replace(/<\/?wbr>/g, '').replace(/( \(OP\)| →)<\/a/g, '</a');
+          return str.replace(/<span>([^<]+)(?:<\/?wbr>)?([^<]+)<\/span> \[<a [^>]+>Embed<\/a>\]/g, '$1$2').replace(/<\/?wbr>/g, '').replace(/( \(OP\)| →)<\/a/g, '</a').replace(/is2\.4chan/g, 'i.4cdn');
         }
       }, {
         key: "fixVideo",

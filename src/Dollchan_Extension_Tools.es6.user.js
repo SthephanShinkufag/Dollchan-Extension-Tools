@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '23.9.19.0';
-const commit = '6290205';
+const commit = 'de842da';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -16896,7 +16896,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixHTMLHelper(str) {
 			return str.replace(/<span>([^<]+)(?:<\/?wbr>)?([^<]+)<\/span> \[<a [^>]+>Embed<\/a>\]/g, '$1$2')
-				.replace(/<\/?wbr>/g, '').replace(/( \(OP\)| →)<\/a/g, '</a');
+				.replace(/<\/?wbr>/g, '')
+				.replace(/( \(OP\)| →)<\/a/g, '</a')
+				.replace(/is2\.4chan/g, 'i.4cdn');
 		}
 		fixVideo() {
 			return [];
