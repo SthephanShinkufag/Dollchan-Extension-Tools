@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '23.9.18.0';
-const commit = '709c6dc';
+const commit = '9eabc08';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -1709,6 +1709,11 @@ const Lng = {
 		'<b>Спасибо за использование Dollchan Extension!</b><br>Вы можете поддержать проект пожертвованием',
 		'<b>Thank You for using Dollchan Extension!</b><br>You can support the project by donating',
 		'<b>Дякуємо за використання Dollchan Extension!</b><br>Ви можете підтримати проект пожертвою'],
+	donateOnline: [
+		'Онлайн донат (грн)',
+		'Donate online (UAH)',
+		'Онлайн донат (грн)'
+	],
 	firefoxAddon: [
 		'Firefox аддон</a> доступен!',
 		'Firefox add-on</a> is available!',
@@ -6824,7 +6829,10 @@ function $ajax(url, params = null, isCORS = false) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
 	const WAITING_TIME = 5e3;
-	if(nav.canUseFetch && (!(isCORS ? nav.hasGMXHR : nav.canUseNativeXHR) || aib.hasRefererErr)) {
+	if(nav.canUseFetch &&
+		((isCORS ? !nav.hasGMXHR : !nav.canUseNativeXHR) || aib.hasRefererErr) &&
+		!(isCORS && nav.isTampermonkey)
+	) {
 		if(!params) {
 			params = {};
 		}
@@ -17760,7 +17768,7 @@ async function checkForUpdates(isManual, lastUpdateTime) {
 // Donation message after Dollchan update
 function showDonateMsg() {
 	const item = (name, value) =>
-		`<div><i>${ name }</i>: <i style="font: 14px monospace; color: green;">${ value }</i></div>`;
+		`<div>- <i>${ name }</i>: <i style="font: 14px monospace; color: green;">${ value }</i></div>`;
 	$popup('donate', Lng.donateMsg[lang] + `:<br style="margin-bottom: 8px;"><!--
 		--><div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div><!--
 		--><div style="display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;">` +
@@ -17768,8 +17776,9 @@ function showDonateMsg() {
 			item('BTC (SegWit)', 'bc1qleycjdph5v3g26ewy7x37n5a4kwegjgttpjwzw') +
 			item('ETH (ERC20)', '0xffa96732ae8df25c34444c70c0d59c752a47aafa') +
 			item('YooMoney RUB', '410012122418236') +
-			item('Mastercard', '5375411208220306 ' +
-				'<a href="https://send.monobank.ua/jar/A7Saf6YAaz" target="_blank">send UAH</a>') +
+			item('Mastercard', '5375411208220306') +
+			`<div>- <a href="https://send.monobank.ua/jar/A7Saf6YAaz" target="_blank">${
+				Lng.donateOnline[lang] }</a></div>` +
 		'</div>');
 }
 
@@ -18431,7 +18440,7 @@ function scriptCSS() {
 	.de-list { padding-top: 4px; }
 	.de-list::before { content: "\u25CF"; margin-right: 4px; }
 	.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }
-	.de-logo > svg { width: 112px; height: 112px; }
+	.de-logo > svg { width: 130px; height: 130px; }
 	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }
 	.de-menu-item:hover { background-color: #222; color: #fff; }

@@ -7,7 +7,10 @@ function $ajax(url, params = null, isCORS = false) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
 	const WAITING_TIME = 5e3;
-	if(nav.canUseFetch && (!(isCORS ? nav.hasGMXHR : nav.canUseNativeXHR) || aib.hasRefererErr)) {
+	if(nav.canUseFetch &&
+		((isCORS ? !nav.hasGMXHR : !nav.canUseNativeXHR) || aib.hasRefererErr) &&
+		!(isCORS && nav.isTampermonkey)
+	) {
 		if(!params) {
 			params = {};
 		}

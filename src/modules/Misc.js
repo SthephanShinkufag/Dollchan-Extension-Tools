@@ -111,7 +111,7 @@ async function checkForUpdates(isManual, lastUpdateTime) {
 // Donation message after Dollchan update
 function showDonateMsg() {
 	const item = (name, value) =>
-		`<div><i>${ name }</i>: <i style="font: 14px monospace; color: green;">${ value }</i></div>`;
+		`<div>- <i>${ name }</i>: <i style="font: 14px monospace; color: green;">${ value }</i></div>`;
 	$popup('donate', Lng.donateMsg[lang] + `:<br style="margin-bottom: 8px;"><!--
 		--><div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div><!--
 		--><div style="display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;">` +
@@ -119,8 +119,9 @@ function showDonateMsg() {
 			item('BTC (SegWit)', 'bc1qleycjdph5v3g26ewy7x37n5a4kwegjgttpjwzw') +
 			item('ETH (ERC20)', '0xffa96732ae8df25c34444c70c0d59c752a47aafa') +
 			item('YooMoney RUB', '410012122418236') +
-			item('Mastercard', '5375411208220306 ' +
-				'<a href="https://send.monobank.ua/jar/A7Saf6YAaz" target="_blank">send UAH</a>') +
+			item('Mastercard', '5375411208220306') +
+			`<div>- <a href="https://send.monobank.ua/jar/A7Saf6YAaz" target="_blank">${
+				Lng.donateOnline[lang] }</a></div>` +
 		'</div>');
 }
 
