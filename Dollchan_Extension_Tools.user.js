@@ -7200,7 +7200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '23.9.19.0';
-  var commit = 'd7adc77';
+  var commit = '6290205';
 
 
   var doc = deWindow.document;
@@ -26383,6 +26383,11 @@ Spells.addSpell(9, '', false);
         return _this123;
       }
       _createClass(Dollchan, [{
+        key: "css",
+        get: function get() {
+          return "".concat(_get(_getPrototypeOf(Dollchan.prototype), "css", this), "\n\t\t\t\t.postarea + hr { display: none; }");
+        }
+      }, {
         key: "fixHTMLHelper",
         get: function get() {
           return null;

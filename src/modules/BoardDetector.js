@@ -1438,6 +1438,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
 		}
+		get css() {
+			return `${ super.css }
+				.postarea + hr { display: none; }`;
+		}
 		get fixHTMLHelper() {
 			return null;
 		}
