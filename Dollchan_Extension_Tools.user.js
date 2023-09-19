@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         23.9.18.0
+// @version         23.9.19.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
@@ -7199,8 +7199,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   'use strict';
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
-  var version = '23.9.18.0';
-  var commit = '9eabc08';
+  var version = '23.9.19.0';
+  var commit = 'd7adc77';
 
 
   var doc = deWindow.document;
