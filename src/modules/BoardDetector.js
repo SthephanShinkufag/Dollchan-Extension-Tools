@@ -1442,16 +1442,24 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		captchaInit() {
+			const capImage = $id('captchaimage');
+			capImage.onload = capImage.onerror = () => {
+				if(getCookies().passcode === '1') {
+					$hide($id('captchablock').lastElementChild);
+					$show($id('validcaptchablock'));
+				} else {
+					$show($id('captchablock').lastElementChild);
+					$hide($id('validcaptchablock'));
+					const capEl = $id('captcha');
+					capEl.value = '';
+					capEl.focus();
+				}
+			};
 			return this.captchaUpdate();
 		}
 		captchaUpdate() {
-			if(getCookies().passcode === '1') {
-				$hide($id('captchablock').lastElementChild);
-				$show($id('validcaptchablock'));
-			} else {
-				$show($id('captchablock').lastElementChild);
-				$hide($id('validcaptchablock'));
-			}
+			const capImage = $id('captchaimage');
+			capImage.setAttribute('src', capImage.src + '#new');
 		}
 		fixFileInputs(el) {
 			const str = ' class="de-file-wrap"><input type="file" name="file[]"></div>';

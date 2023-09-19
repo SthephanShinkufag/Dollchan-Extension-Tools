@@ -8,7 +8,7 @@
 
 	"applications": {
 		"gecko": {
-			"id": "dollchan_extension@dscript.me",
+			"id": "dollchan_extension@dollchan.net",
 			"strict_min_version": "56.0"
 		}
 	},

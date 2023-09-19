@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '23.9.18.0';
-const commit = '15966fc';
+const commit = '709c6dc';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -5074,7 +5074,7 @@ const CfgWindow = {
 			<div style="padding-bottom: 10px;">
 				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit }` +
 					`${ nav.isESNext ? '.es6' : '' }</a> |
-				<a href="https://dollchan.net/" target="_blank">Homepage</a> |
+				<a href="https://dollchan.net/extension/" target="_blank">Homepage</a> |
 				<a href="${ gitWiki }${ lang === 1 ? 'home-en/' : '' }" target="_blank">Github</a> |
 				<input type="button" id="de-cfg-button-debug" value="` +
 					`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
@@ -17030,16 +17030,24 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		captchaInit() {
+			const capImage = $id('captchaimage');
+			capImage.onload = capImage.onerror = () => {
+				if(getCookies().passcode === '1') {
+					$hide($id('captchablock').lastElementChild);
+					$show($id('validcaptchablock'));
+				} else {
+					$show($id('captchablock').lastElementChild);
+					$hide($id('validcaptchablock'));
+					const capEl = $id('captcha');
+					capEl.value = '';
+					capEl.focus();
+				}
+			};
 			return this.captchaUpdate();
 		}
 		captchaUpdate() {
-			if(getCookies().passcode === '1') {
-				$hide($id('captchablock').lastElementChild);
-				$show($id('validcaptchablock'));
-			} else {
-				$show($id('captchablock').lastElementChild);
-				$hide($id('validcaptchablock'));
-			}
+			const capImage = $id('captchaimage');
+			capImage.setAttribute('src', capImage.src + '#new');
 		}
 		fixFileInputs(el) {
 			const str = ' class="de-file-wrap"><input type="file" name="file[]"></div>';

@@ -7200,7 +7200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '23.9.18.0';
-  var commit = '15966fc';
+  var commit = '709c6dc';
 
 
   var doc = deWindow.document;
@@ -11771,7 +11771,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     },
     _getCfgInfo: function _getCfgInfo() {
       var statsTable = this._getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], HiddenThreads.getCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false);
-      return "<div id=\"de-cfg-info\" class=\"de-cfg-unvis\">\n\t\t\t<div style=\"padding-bottom: 10px;\">\n\t\t\t\t<a href=\"".concat(gitWiki, "versions\" target=\"_blank\">v").concat(version, ".").concat(commit) + "".concat(nav.isESNext ? '.es6' : '', "</a> |\n\t\t\t\t<a href=\"https://dollchan.net/\" target=\"_blank\">Homepage</a> |\n\t\t\t\t<a href=\"").concat(gitWiki).concat(lang === 1 ? 'home-en/' : '', "\" target=\"_blank\">Github</a> |\n\t\t\t\t<input type=\"button\" id=\"de-cfg-button-debug\" value=\"") + "".concat(Lng.debug[lang], "\" title=\"").concat(Lng.infoDebug[lang], "\">\n\t\t\t</div>\n\t\t\t<div id=\"de-info-table\">\n\t\t\t\t<div id=\"de-info-stats\">").concat(statsTable, "</div>\n\t\t\t\t<div id=\"de-info-log\">").concat(this._getInfoTable(Logger.getLogData(false), true), "</div>\n\t\t\t</div>\n\t\t\t").concat(!nav.hasWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? "\n\t\t\t\t".concat(this._getSel('updDollchan'), "\n\t\t\t\t<div style=\"margin-top: 3px; text-align: center;\">&gt;&gt;\n\t\t\t\t\t<input type=\"button\" id=\"de-cfg-button-updnow\" value=\"").concat(Lng.checkNow[lang], "\">\n\t\t\t\t\t<input type=\"button\" id=\"de-cfg-button-donate\" value=\"Donate\">\n\t\t\t\t&lt;&lt;</div>") : "<div style=\"margin-top: 3px; text-align: center;\">&gt;&gt;\n\t\t\t\t\t<input type=\"button\" id=\"de-cfg-button-donate\" value=\"Donate\">\n\t\t\t\t&lt;&lt;</div>", "\n\t\t</div>");
+      return "<div id=\"de-cfg-info\" class=\"de-cfg-unvis\">\n\t\t\t<div style=\"padding-bottom: 10px;\">\n\t\t\t\t<a href=\"".concat(gitWiki, "versions\" target=\"_blank\">v").concat(version, ".").concat(commit) + "".concat(nav.isESNext ? '.es6' : '', "</a> |\n\t\t\t\t<a href=\"https://dollchan.net/extension/\" target=\"_blank\">Homepage</a> |\n\t\t\t\t<a href=\"").concat(gitWiki).concat(lang === 1 ? 'home-en/' : '', "\" target=\"_blank\">Github</a> |\n\t\t\t\t<input type=\"button\" id=\"de-cfg-button-debug\" value=\"") + "".concat(Lng.debug[lang], "\" title=\"").concat(Lng.infoDebug[lang], "\">\n\t\t\t</div>\n\t\t\t<div id=\"de-info-table\">\n\t\t\t\t<div id=\"de-info-stats\">").concat(statsTable, "</div>\n\t\t\t\t<div id=\"de-info-log\">").concat(this._getInfoTable(Logger.getLogData(false), true), "</div>\n\t\t\t</div>\n\t\t\t").concat(!nav.hasWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? "\n\t\t\t\t".concat(this._getSel('updDollchan'), "\n\t\t\t\t<div style=\"margin-top: 3px; text-align: center;\">&gt;&gt;\n\t\t\t\t\t<input type=\"button\" id=\"de-cfg-button-updnow\" value=\"").concat(Lng.checkNow[lang], "\">\n\t\t\t\t\t<input type=\"button\" id=\"de-cfg-button-donate\" value=\"Donate\">\n\t\t\t\t&lt;&lt;</div>") : "<div style=\"margin-top: 3px; text-align: center;\">&gt;&gt;\n\t\t\t\t\t<input type=\"button\" id=\"de-cfg-button-donate\" value=\"Donate\">\n\t\t\t\t&lt;&lt;</div>", "\n\t\t</div>");
     },
     _getBox: function _getBox(id, needReload) {
       return "<label class=\"de-cfg-label".concat(needReload ? ' de-cfg-needreload' : '', "\">\n\t\t<input class=\"de-cfg-chkbox\" info=\"").concat(id, "\" type=\"checkbox\"> ").concat(Lng.cfg[id][lang], "</label>");
@@ -26389,18 +26389,26 @@ Spells.addSpell(9, '', false);
       }, {
         key: "captchaInit",
         value: function captchaInit() {
+          var capImage = $id('captchaimage');
+          capImage.onload = capImage.onerror = function () {
+            if (getCookies().passcode === '1') {
+              $hide($id('captchablock').lastElementChild);
+              $show($id('validcaptchablock'));
+            } else {
+              $show($id('captchablock').lastElementChild);
+              $hide($id('validcaptchablock'));
+              var capEl = $id('captcha');
+              capEl.value = '';
+              capEl.focus();
+            }
+          };
           return this.captchaUpdate();
         }
       }, {
         key: "captchaUpdate",
         value: function captchaUpdate() {
-          if (getCookies().passcode === '1') {
-            $hide($id('captchablock').lastElementChild);
-            $show($id('validcaptchablock'));
-          } else {
-            $show($id('captchablock').lastElementChild);
-            $hide($id('validcaptchablock'));
-          }
+          var capImage = $id('captchaimage');
+          capImage.setAttribute('src', capImage.src + '#new');
         }
       }, {
         key: "fixFileInputs",
