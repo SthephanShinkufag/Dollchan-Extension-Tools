@@ -2,15 +2,15 @@
 
 # ![dE](https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/extension/v3/icons/logo-32.png) Dollchan Extension Tools
 
+- **[ [ESNEXT USERSCRIPT](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/src/Dollchan_Extension_Tools.es6.user.js) ]** &mdash; Firefox 77+, Chrome 85+, Opera 71+
 - **[ [ES5 USERSCRIPT](https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js) ]** &mdash; for old browsers
-- **[ [ESNEXT USERSCRIPT ](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/src/Dollchan_Extension_Tools.es6.user.js) ]** &mdash; Firefox 77+ / Chrome 85+ / Opera 71+
-- **[ [FIREFOX EXTENSION](https://addons.mozilla.org/firefox/addon/dollchan-extension/) ]**<br>![Mozilla rating](https://img.shields.io/amo/rating/dollchan-extension.svg)
+- **[ [FIREFOX EXTENSION](https://addons.mozilla.org/firefox/addon/dollchan_extension/) ]**
 
 ---
 - **[ [English wiki](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/home-en) ]**
 - **[ [Russian wiki](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki) ]**
-- **[ [Homepage](https://dollchan.net/) ]**
-- **License:** © 2022 Dollchan Extension Tools Team.<br>See the [LICENSE file](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/blob/master/LICENSE) for license rights and limitations (MIT).
+- **[ [Homepage](https://dollchan.net/extension/) ]**
+- **License:** © 2023 Dollchan Extension Tools Team.<br>See the [LICENSE file](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/blob/master/LICENSE) for license rights and limitations (MIT).
 
 ---
 **Dollchan Extension** is the userscript and extension that combines various options & features, making you hang out on [imageboards](https://en.wikipedia.org/wiki/Imageboard) in an easier and more convenient way. If you have visited sites like [4chan.org](http://4chan.org/) or [2ch.hk](https://2ch.hk/), then you probably already heard about it.
@@ -75,10 +75,12 @@ If you don't have a Dollchan repo, download and unpack the [repository archive](
 4. Done.
 
 ---
-### You can support the project by donating:
+### Support the project by donating:
 
-- BTC (P2PKH): `14Y6eJW7dAzL8n6pqyLqrJWuX35uTs2R6T`
-- BTC (P2SH): `3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq`
-- ETH: `0x32da2d420d189a8c2f2656466f2ba78f58c6331a`
+- BTC: `1BmVjk3DMPZeJUqBtqZRUCmL234Wc3Bc9Y`
+- BTC (SegWit): `bc1qleycjdph5v3g26ewy7x37n5a4kwegjgttpjwzw`
+- ETH (ERC20): `0xffa96732ae8df25c34444c70c0d59c752a47aafa`
 - YooMoney RUB: `410012122418236`
-- WebMoney WMZ: `Z100197626370`
+- Mastercard: `5375411208220306`
+- [Donate online (UAH)](https://send.monobank.ua/jar/A7Saf6YAaz)
+
