@@ -7200,7 +7200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '23.9.19.0';
-  var commit = 'de842da';
+  var commit = '2afa5b7';
 
 
   var doc = deWindow.document;
@@ -26383,6 +26383,30 @@ Spells.addSpell(9, '', false);
         return _this123;
       }
       _createClass(Dollchan, [{
+        key: "captchaInit",
+        get: function get() {
+          var refreshCap = function refreshCap() {
+            if (getCookies().passcode === '1') {
+              $hide($id('captchablock').lastElementChild);
+              $show($id('validcaptchablock'));
+            } else {
+              $show($id('captchablock').lastElementChild);
+              $hide($id('validcaptchablock'));
+              var captchaInput = $id('captcha');
+              if (captchaInput) {
+                captchaInput.value = '';
+              }
+            }
+          };
+          var capImage = $id('captchaimage');
+          if (capImage) {
+            capImage.onload = capImage.onerror = refreshCap;
+          } else {
+            refreshCap();
+          }
+          return null;
+        }
+      }, {
         key: "css",
         get: function get() {
           return "".concat(_get(_getPrototypeOf(Dollchan.prototype), "css", this), "\n\t\t\t\t.postarea + hr { display: none; }");
@@ -26391,30 +26415,6 @@ Spells.addSpell(9, '', false);
         key: "fixHTMLHelper",
         get: function get() {
           return null;
-        }
-      }, {
-        key: "captchaInit",
-        value: function captchaInit() {
-          var capImage = $id('captchaimage');
-          capImage.onload = capImage.onerror = function () {
-            if (getCookies().passcode === '1') {
-              $hide($id('captchablock').lastElementChild);
-              $show($id('validcaptchablock'));
-            } else {
-              $show($id('captchablock').lastElementChild);
-              $hide($id('validcaptchablock'));
-              var capEl = $id('captcha');
-              capEl.value = '';
-              capEl.focus();
-            }
-          };
-          return this.captchaUpdate();
-        }
-      }, {
-        key: "captchaUpdate",
-        value: function captchaUpdate() {
-          var capImage = $id('captchaimage');
-          capImage.setAttribute('src', capImage.src + '#new');
         }
       }, {
         key: "fixFileInputs",

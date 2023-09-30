@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '23.9.19.0';
-const commit = 'de842da';
+const commit = '2afa5b7';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -17094,32 +17094,34 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
 		}
-		get css() {
-			return `${ super.css }
-				.postarea + hr { display: none; }`;
-		}
-		get fixHTMLHelper() {
-			return null;
-		}
-		captchaInit() {
-			const capImage = $id('captchaimage');
-			capImage.onload = capImage.onerror = () => {
+		get captchaInit() {
+			const refreshCap = () => {
 				if(getCookies().passcode === '1') {
 					$hide($id('captchablock').lastElementChild);
 					$show($id('validcaptchablock'));
 				} else {
 					$show($id('captchablock').lastElementChild);
 					$hide($id('validcaptchablock'));
-					const capEl = $id('captcha');
-					capEl.value = '';
-					capEl.focus();
+					const captchaInput = $id('captcha');
+					if(captchaInput) {
+						captchaInput.value = '';
+					}
 				}
 			};
-			return this.captchaUpdate();
-		}
-		captchaUpdate() {
 			const capImage = $id('captchaimage');
-			capImage.setAttribute('src', capImage.src + '#new');
+			if(capImage) {
+				capImage.onload = capImage.onerror = refreshCap;
+			} else {
+				refreshCap();
+			}
+			return null;
+		}
+		get css() {
+			return `${ super.css }
+				.postarea + hr { display: none; }`;
+		}
+		get fixHTMLHelper() {
+			return null;
 		}
 		fixFileInputs(el) {
 			const str = ' class="de-file-wrap"><input type="file" name="file[]"></div>';
