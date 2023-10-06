@@ -1441,24 +1441,24 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
 		}
 		get captchaInit() {
-			const refreshCap = () => {
-				if(getCookies().passcode === '1') {
-					$hide($id('captchablock').lastElementChild);
-					$show($id('validcaptchablock'));
-				} else {
-					$show($id('captchablock').lastElementChild);
-					$hide($id('validcaptchablock'));
+			const switchCaptcha = status => {
+				const hasPasscode = status === 'validpasscode';
+				$toggle($id('captchablock').lastElementChild, !hasPasscode);
+				$toggle($id('validcaptchablock'), hasPasscode);
+				$toggle($id('invalidcaptchablock'), status === 'invalidpasscode');
+				if(!hasPasscode) {
 					const captchaInput = $id('captcha');
 					if(captchaInput) {
 						captchaInput.value = '';
 					}
 				}
 			};
-			const capImage = $id('captchaimage');
-			if(capImage) {
-				capImage.onload = capImage.onerror = refreshCap;
+			if(getCookies().passcode === '1') {
+				$ajax(this.protocol + '//' + this.host + '/' + this.b + '/imgboard.php?passcode&check').then(
+					xhr => switchCaptcha(xhr.responseText === 'OK' ? 'validpasscode' : 'invalidpasscode'),
+					err => switchCaptcha('invalidpasscode'));
 			} else {
-				refreshCap();
+				switchCaptcha('showcaptcha');
 			}
 			return null;
 		}
