@@ -158,7 +158,11 @@ async function readCfg() {
 		}
 	}
 	defaultCfg.captchaLang = aib.captchaLang;
-	defaultCfg.language = +!String(navigator.language).toLowerCase().startsWith('ru');
+	const browserLang = String(navigator.language).toLowerCase();
+	defaultCfg.language =
+		browserLang.startsWith('ru') ? 0 :
+		browserLang.startsWith('en') ? 1 :
+		browserLang.startsWith('uk') ? 2 : defaultCfg.language;
 	Cfg = Object.assign(Object.create(defaultCfg), obj);
 	if(!Cfg.timeOffset) {
 		Cfg.timeOffset = '+0';

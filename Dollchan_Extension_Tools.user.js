@@ -4014,10 +4014,10 @@ var store = require('../internals/shared-store');
 (module.exports = function (key, value) {
   return store[key] || (store[key] = value !== undefined ? value : {});
 })('versions', []).push({
-  version: '3.33.0',
+  version: '3.33.2',
   mode: IS_PURE ? 'pure' : 'global',
   copyright: '© 2014-2023 Denis Pushkarev (zloirock.ru)',
-  license: 'https://github.com/zloirock/core-js/blob/v3.33.0/LICENSE',
+  license: 'https://github.com/zloirock/core-js/blob/v3.33.2/LICENSE',
   source: 'https://github.com/zloirock/core-js'
 });
 
@@ -4665,13 +4665,12 @@ module.exports = defineIterator(Array, 'Array', function (iterated, kind) {
 }, function () {
   var state = getInternalState(this);
   var target = state.target;
-  var kind = state.kind;
   var index = state.index++;
   if (!target || index >= target.length) {
     state.target = undefined;
     return createIterResultObject(undefined, true);
   }
-  switch (kind) {
+  switch (state.kind) {
     case 'keys': return createIterResultObject(index, false);
     case 'values': return createIterResultObject(target[index], false);
   } return createIterResultObject([index, target[index]], false);
@@ -5919,14 +5918,15 @@ if (!NATIVE_SYMBOL) {
     var description = !arguments.length || arguments[0] === undefined ? undefined : $toString(arguments[0]);
     var tag = uid(description);
     var setter = function (value) {
-      if (this === ObjectPrototype) call(setter, ObjectPrototypeSymbols, value);
-      if (hasOwn(this, HIDDEN) && hasOwn(this[HIDDEN], tag)) this[HIDDEN][tag] = false;
+      var $this = this === undefined ? global : this;
+      if ($this === ObjectPrototype) call(setter, ObjectPrototypeSymbols, value);
+      if (hasOwn($this, HIDDEN) && hasOwn($this[HIDDEN], tag)) $this[HIDDEN][tag] = false;
       var descriptor = createPropertyDescriptor(1, value);
       try {
-        setSymbolDescriptor(this, tag, descriptor);
+        setSymbolDescriptor($this, tag, descriptor);
       } catch (error) {
         if (!(error instanceof RangeError)) throw error;
-        fallbackDefineProperty(this, tag, descriptor);
+        fallbackDefineProperty($this, tag, descriptor);
       }
     };
     if (DESCRIPTORS && USE_SETTER) setSymbolDescriptor(ObjectPrototype, tag, { configurable: true, set: setter });
@@ -7798,7 +7798,7 @@ var runtime = (function (exports) {
   };
 
   function values(iterable) {
-    if (iterable) {
+    if (iterable || iterable === "") {
       var iteratorMethod = iterable[iteratorSymbol];
       if (iteratorMethod) {
         return iteratorMethod.call(iterable);
@@ -7828,7 +7828,7 @@ var runtime = (function (exports) {
       }
     }
 
-    return { next: doneResult };
+    throw new TypeError(typeof iterable + " is not iterable");
   }
   exports.values = values;
 
@@ -8078,7 +8078,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '23.9.19.0';
-  var commit = '2afa5b7';
+  var commit = '335b491';
 
 
   var doc = deWindow.document;
@@ -8100,7 +8100,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     ajaxUpdThr: 1,
     updThrDelay: 20,
     updCount: 1,
-    favIcoBlink: 0,
+    favIcoBlink: 1,
     desktNotif: 0,
     markNewPosts: 1,
     markMyPosts: 1,
@@ -8112,7 +8112,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     postBtnsCSS: 2,
     postBtnsBack: '#8c8c8c',
     thrBtns: 1,
-    noSpoilers: 1,
+    noSpoilers: 0,
     noPostNames: 0,
     correctTime: 0,
     timeOffset: '+0',
@@ -8127,7 +8127,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     maxImgSize: 2000,
     zoomFactor: 20,
     webmControl: 1,
-    webmTitles: 0,
+    webmTitles: 1,
     webmVolume: 100,
     minWebmWidth: 320,
     preLoadImgs: 0,
@@ -8145,22 +8145,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     removeHidd: 0,
     noNavigHidd: 0,
     markMyLinks: 1,
-    crossLinks: 0,
-    decodeLinks: 0,
+    crossLinks: 1,
+    decodeLinks: 1,
     insertNum: 1,
-    addOPLink: 0,
+    addOPLink: 1,
     addImgs: 0,
     addMP3: 1,
     addVocaroo: 1,
     embedYTube: 1,
     YTubeWidth: 360,
     YTubeHeigh: 270,
-    YTubeTitles: 0,
+    YTubeTitles: 1,
     ytApiKey: '',
     addVimeo: 1,
     ajaxPosting: 1,
     postSameImg: 1,
-    removeEXIF: 1,
+    removeEXIF: 0,
     removeFName: 0,
     sendErrNotif: 1,
     scrAfterRep: 0,
@@ -9748,7 +9748,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   } 
   function _readCfg() {
     _readCfg = _asyncToGenerator( _regeneratorRuntime().mark(function _callee51() {
-      var obj, val, isGlobal;
+      var obj, val, isGlobal, browserLang;
       return _regeneratorRuntime().wrap(function _callee51$(_context59) {
         while (1) switch (_context59.prev = _context59.next) {
           case 0:
@@ -9765,7 +9765,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
             }
             defaultCfg.captchaLang = aib.captchaLang;
-            defaultCfg.language = +!String(navigator.language).toLowerCase().startsWith('ru');
+            browserLang = String(navigator.language).toLowerCase();
+            defaultCfg.language = browserLang.startsWith('ru') ? 0 : browserLang.startsWith('en') ? 1 : browserLang.startsWith('uk') ? 2 : defaultCfg.language;
             Cfg = Object.assign(Object.create(defaultCfg), obj);
             if (!Cfg.timeOffset) {
               Cfg.timeOffset = '+0';
@@ -9833,7 +9834,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
               }, Function.prototype);
             }
-          case 23:
+          case 24:
           case "end":
             return _context59.stop();
         }
