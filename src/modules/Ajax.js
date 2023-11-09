@@ -7,10 +7,7 @@ function $ajax(url, params = null, isCORS = false) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
 	const WAITING_TIME = 5e3;
-	if(nav.canUseFetch &&
-		((isCORS ? !nav.hasGMXHR : !nav.canUseNativeXHR) || aib.hasRefererErr) &&
-		!(isCORS && nav.isTampermonkey)
-	) {
+	if(nav.canUseFetch && (isCORS || !nav.canUseNativeXHR || aib.hasRefererErr)) {
 		if(!params) {
 			params = {};
 		}
@@ -50,59 +47,6 @@ function $ajax(url, params = null, isCORS = false) {
 			}
 			resolve(res);
 		}).catch(err => reject(getErrorMessage(err)));
-	} else if((isCORS || !nav.canUseNativeXHR) && nav.hasGMXHR) {
-		let gmxhr;
-		const timeoutFn = () => {
-			reject(AjaxError.Timeout);
-			try {
-				gmxhr.abort();
-			} catch(err) {}
-		};
-		let loadTO = needTO && setTimeout(timeoutFn, WAITING_TIME);
-		const newParams = {
-			method : params?.method || 'GET',
-			url    : nav.isSafari ? aib.getAbsLink(url) : url,
-			onreadystatechange(e) {
-				if(needTO) {
-					clearTimeout(loadTO);
-				}
-				if(e.readyState === 4 && !(
-					// Violentmonkey gives extra stage with undefined responseText and 200 status
-					nav.isViolentmonkey && e.status === 200 &&
-					typeof e.responseText === 'undefined' && typeof e.response === 'undefined'
-				)) {
-					if(aib.isAjaxStatusOK(e.status)) {
-						resolve(e);
-					} else {
-						reject(new AjaxError(e.status, e.statusText));
-					}
-				} else if(needTO) {
-					loadTO = setTimeout(timeoutFn, WAITING_TIME);
-				}
-			}
-		};
-		if(params) {
-			if(params.onprogress) {
-				newParams.upload = { onprogress: params.onprogress };
-				delete params.onprogress;
-			}
-			delete params.method;
-			Object.assign(newParams, params);
-		}
-		if(nav.hasNewGM) {
-			GM.xmlHttpRequest(newParams);
-			cancelFn = Function.prototype; // GreaseMonkey 4 cannot cancel xhr's
-		} else {
-			gmxhr = GM_xmlhttpRequest(newParams);
-			cancelFn = () => {
-				if(needTO) {
-					clearTimeout(loadTO);
-				}
-				try {
-					gmxhr.abort();
-				} catch(err) {}
-			};
-		}
 	} else if(nav.canUseNativeXHR) {
 		const xhr = new XMLHttpRequest();
 		const timeoutFn = () => {
@@ -112,9 +56,6 @@ function $ajax(url, params = null, isCORS = false) {
 		let loadTO = needTO && setTimeout(timeoutFn, WAITING_TIME);
 		if(params?.onprogress) {
 			xhr.upload.onprogress = params.onprogress;
-		}
-		if(aib._4chan) {
-			xhr.withCredentials = true;
 		}
 		xhr.onreadystatechange = ({ target }) => {
 			if(needTO) {
@@ -189,8 +130,8 @@ const AjaxCache = {
 	runCachedAjax(url, useCache) {
 		const { hasCacheControl, params } = this._data.get(url) || {};
 		const ajaxURL = hasCacheControl === false ? this.fixURL(url) : url;
-		return $ajax(ajaxURL, useCache && params || { useTimeout: true }, aib._4chan).then(xhr =>
-			this.saveData(url, xhr) ? xhr : $ajax(this.fixURL(url), useCache && params, aib._4chan));
+		return $ajax(ajaxURL, useCache && params || { useTimeout: true }).then(xhr =>
+			this.saveData(url, xhr) ? xhr : $ajax(this.fixURL(url), useCache && params));
 	},
 	saveData(url, xhr) {
 		let ETag = null;

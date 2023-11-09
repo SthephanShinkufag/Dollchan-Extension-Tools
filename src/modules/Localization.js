@@ -563,17 +563,7 @@ const Lng = {
 		closePopups: [
 			'Автоматически закрывать уведомления',
 			'Close popups automatically',
-			'Автоматично закривати сповіщення'],
-		updDollchan: {
-			sel: [
-				['Откл.', 'Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'],
-				['Disable', 'Every day', 'Every 2 days', 'Every week', 'Every 2 weeks', 'Every month'],
-				['Вимкн.', 'Щодня', 'Кожні 2 дні', 'Щотижня', 'Кожні 2 тижні', 'Щомісяця']],
-			txt: [
-				'Проверять обновления Dollchan',
-				'Check for Dollchan updates',
-				'Перевіряти оновлення Dollchan']
-		}
+			'Автоматично закривати сповіщення']
 	},
 
 	// Main panel buttons: tooltips

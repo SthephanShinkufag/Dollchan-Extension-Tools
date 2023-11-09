@@ -2,64 +2,13 @@
                                                      MAIN
 =========================================================================================================== */
 
-function runFrames() {
-	let inf;
-	if(typeof GM !== 'undefined') {
-		inf = GM.info;
-	} else {
-		if(typeof GM_info === 'undefined') {
-			return;
-		}
-		inf = GM_info;
-	}
-	if(!inf) {
-		return;
-	}
-	const handlerName = inf.scriptHandler;
-	if(handlerName !== 'Greasemonkey' && handlerName !== 'FireMonkey' || !deWindow.frames[0]) {
-		return;
-	}
-	const deMainFuncFrame = frameEl => {
-		const fDoc = frameEl.contentDocument;
-		if(fDoc) {
-			const deWindow = fDoc.defaultView;
-			deMainFuncInner(
-				deWindow,
-				deWindow.opera?.scriptStorage,
-				deWindow.FormData,
-				(x, y) => deWindow.scrollTo(x, y),
-				typeof localData === 'object' ? localData : null
-			);
-		}
-	};
-	for(let i = 0, len = deWindow.length; i < len; ++i) {
-		const frameEl = deWindow.frames[i].frameElement;
-		const fDoc = frameEl.contentDocument;
-		if(fDoc) {
-			if(String(fDoc.defaultView.location) === 'about:blank') {
-				frameEl.onload = () => deMainFuncFrame(frameEl);
-			} else if(fDoc.readyState === 'loading') {
-				fDoc.addEventListener('DOMContentLoaded', () => deMainFuncFrame(frameEl));
-			} else {
-				deMainFuncFrame(frameEl);
-			}
-		}
-	}
-}
-
 async function runMain(checkDomains, dataPromise) {
 	Logger.initLogger();
-	if(!doc.body || !aib && !(aib = getImageBoard(checkDomains, true))) {
+	if(!doc.body || !aib && !(aib = getImageBoard(checkDomains))) {
 		return;
 	}
 	let formEl = $q(aib.qDelForm + ', [de-form]');
 	if(!formEl) {
-		runFrames();
-		return;
-	}
-	if(doc.body.classList.contains('de-runned') ||
-		aib.observeContent && !aib.observeContent(checkDomains, dataPromise)
-	) {
 		return;
 	}
 	Logger.log('Imageboard check');
@@ -70,7 +19,7 @@ async function runMain(checkDomains, dataPromise) {
 		initNavFuncs();
 	}
 	const [favObj] = await (dataPromise || Promise.all([readFavorites(), readCfg()]));
-	if(!Cfg.disabled && aib.init?.() || !localData && doc.body.classList.contains('de-mode-local')) {
+	if(!localData && doc.body.classList.contains('de-mode-local')) {
 		return;
 	}
 	doc.body.classList.add('de-runned');
@@ -172,16 +121,13 @@ async function runMain(checkDomains, dataPromise) {
 }
 
 function initMain() {
-	if(window.name === 'de-prohibited') {
-		return;
-	}
 	if(doc.readyState !== 'loading') {
 		needScroll = false;
 		runMain(true, null);
 		return;
 	}
 	let dataPromise = null;
-	if((aib = getImageBoard(true, false))) {
+	if((aib = getImageBoard(true))) {
 		if(!checkStorage()) {
 			return;
 		}

@@ -57,16 +57,6 @@ function $button(value, title, fn, className = 'de-button') {
 	return el;
 }
 
-function $script(text) {
-	try {
-		const el = doc.createElement('script');
-		el.type = 'text/javascript';
-		el.textContent = text;
-		doc.head.append(el);
-		el.remove();
-	} catch(err) {}
-}
-
 function $css(text) {
 	return $bEnd(doc.head, `<style type="text/css">${
 		nav.isSafari && !('flex' in doc.body.style) ?
@@ -588,7 +578,7 @@ class TarBuilder {
 class WebmParser {
 	constructor(data) {
 		let offset = 0;
-		const dv = nav.getUnsafeDataView(data);
+		const dv = new DataView(data, 0);
 		const len = dv.byteLength;
 		const el = new WebmParser.Element(dv, len, 0);
 		const voids = [];
@@ -642,7 +632,7 @@ class WebmParser {
 		if(this.error) {
 			return null;
 		}
-		this.rv[0] = nav.getUnsafeUint8Array(this.data, 0, this.segment.endOffset);
+		this.rv[0] = new Uint8Array(this.data, 0, this.segment.endOffset);
 		return this.rv;
 	}
 }

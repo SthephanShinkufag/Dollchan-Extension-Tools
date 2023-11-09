@@ -4,7 +4,7 @@
 
 const defaultCfg = {
 	disabled     : 0,    // Dollchan enabled by default
-	language     : 0,    // Dollchan language [0=ru, 1=en]
+	language     : 1,    // Dollchan language [0=ru, 1=en, 2=ua]
 	// FILTERS
 	hideBySpell  : 1,    // hide posts by spells
 	spells       : null, // user defined spells
@@ -16,7 +16,7 @@ const defaultCfg = {
 	ajaxUpdThr   : 1,    // threads updater
 	updThrDelay  : 20,   //    update interval (sec)
 	updCount     : 1,    //    show countdown to thread update
-	favIcoBlink  : 0,    //    blink the favicon on new posts
+	favIcoBlink  : 1,    //    blink the favicon on new posts
 	desktNotif   : 0,    //    desktop notifications for new posts
 	markNewPosts : 1,    //    highlight new posts with color
 	markMyPosts  : 1,    // highlight my own posts
@@ -28,7 +28,7 @@ const defaultCfg = {
 	postBtnsCSS  : 2,    // post buttons style [0=simple, 1=gradient grey, 2=custom]
 	postBtnsBack : '#8c8c8c', //    custom background color
 	thrBtns      : 1,    // buttons under threads [0=off, 1=all, 2=all (on board), 3='New posts' on board]
-	noSpoilers   : 1,    // text spoilers expansion [0=off, 1=grey, 2=native]
+	noSpoilers   : 0,    // text spoilers expansion [0=off, 1=grey, 2=native]
 	noPostNames  : 0,    // hide poster names
 	correctTime  : 0,    // time correction in posts
 	timeOffset   : '+0', //    time offset (h)
@@ -44,7 +44,7 @@ const defaultCfg = {
 	maxImgSize   : 2000, //    maximum size for expanded images (px)
 	zoomFactor   : 20,   //    images zoom sensibility [1-100%]
 	webmControl  : 1,    //    show control bar for WebM
-	webmTitles   : 0,    //    load titles from WebM metadata
+	webmTitles   : 1,    //    load titles from WebM metadata
 	webmVolume   : 100,  //    default volume for WebM [0-100%]
 	minWebmWidth : 320,  //    minimal width for WebM (px)
 	preLoadImgs  : 0,    // preload images [0=off, 1=all, 2=non-WebM]
@@ -63,23 +63,23 @@ const defaultCfg = {
 	removeHidd   : 0,    //        also remove from reply maps
 	noNavigHidd  : 0,    //    donʼt show previews for hidden posts
 	markMyLinks  : 1,    // mark links to my posts with (You)
-	crossLinks   : 0,    // replace http:// with >>/b/links*
-	decodeLinks  : 0,    // decode %D0%A5%D1 in links
+	crossLinks   : 1,    // replace http:// with >>/b/links*
+	decodeLinks  : 1,    // decode %D0%A5%D1 in links
 	insertNum    : 1,    // insert >>link on №postnumber click*
-	addOPLink    : 0,    // insert >>link when replying to OP on board
+	addOPLink    : 1,    // insert >>link when replying to OP on board
 	addImgs      : 0,    // load images to jpg/png/gif links*
 	addMP3       : 1,    // embed mp3 links
 	addVocaroo   : 1,    // embed Vocaroo links
 	embedYTube   : 1,    // embed YouTube links [0=off, 1=preview+player, 2=onclick]
 	YTubeWidth   : 360,  //    player width (px)
 	YTubeHeigh   : 270,  //    player height (px)
-	YTubeTitles  : 0,    //    load titles for YouTube links
+	YTubeTitles  : 1,    //    load titles for YouTube links
 	ytApiKey     : '',   //    YouTube API key
 	addVimeo     : 1,    //    embed Vimeo links
 	// POSTFORM
 	ajaxPosting  : 1,    // posting without refresh
 	postSameImg  : 1,    //    ability to post duplicate images
-	removeEXIF   : 1,    //    remove EXIF from JPEG
+	removeEXIF   : 0,    //    remove EXIF from JPEG
 	removeFName  : 0,    //    clear file names [0=off, 1=empty, 2=unixtime, 3=unixtime-random]
 	sendErrNotif : 1,    //    inform in title about post send error
 	scrAfterRep  : 0,    //    scroll to bottom after reply
@@ -94,7 +94,7 @@ const defaultCfg = {
 	altCaptcha   : 0,    // use alternative captcha (if available)
 	capUpdTime   : 300,  // captcha update interval (sec)
 	captchaLang  : 1,    // forced captcha input language [0=off, 1=en, 2=ru]
-	addTextBtns  : 1,    // text markup buttons [0=off, 1=graphics, 2=text, 3=usual]
+	addTextBtns  : 3,    // text markup buttons [0=off, 1=graphics, 2=text, 3=usual]
 	txtBtnsLoc   : 1,    //    located at [0=top, 1=bottom]
 	userPassw    : 1,    // user password
 	passwValue   : '',   //    value
@@ -105,7 +105,7 @@ const defaultCfg = {
 	noName       : 0,    // hide form "Name" field
 	noSubj       : 0,    // hide form "Subject" field
 	// COMMON
-	scriptStyle  : 0,    /* Dollchan style [
+	scriptStyle  : 1,    /* Dollchan style [
 		0=gradient darkblue, 1=gradient blue, 2=solid grey, 3=transparent blue, 4=square dark,
 		5=gradient pink] */
 	userCSS      : 0,    // user CSS
@@ -125,7 +125,6 @@ const defaultCfg = {
 		[0=by opnum, 1=by opnum (desc), 2=by adding, 3=by adding (desc)] */
 	favWinOn     : 0,    // always open the Favorites window
 	closePopups  : 0,    // close popups automatically
-	updDollchan  : 2,    // Check for Dollchan updates [0=off, 1=per day, 2=2days, 3=week, 4=2weeks, 5=month]
 	// WINDOWS
 	textaWidth   : 300,  // textarea width (px)
 	textaHeight  : 115,  // textarea height (px)

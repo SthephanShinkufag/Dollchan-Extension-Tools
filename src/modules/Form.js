@@ -333,7 +333,7 @@ class PostForm {
 		this.sageBtn.style.opacity = isSage ? '1' : '.3';
 		this.sageBtn.title = isSage ? Lng.disableSage[lang] : Lng.enableSage[lang];
 		if(this.mail.type === 'text') {
-			this.mail.value = isSage ? 'sage' : aib._4chan ? 'noko' : '';
+			this.mail.value = isSage ? 'sage' : '';
 		} else {
 			this.mail.checked = isSage;
 		}
@@ -434,7 +434,7 @@ class PostForm {
 			if(this.tNum && pByNum.get(this.tNum).subj === 'Dollchan Extension Tools') {
 				const temp = `\n\n${ PostForm._wrapText(aib.markupTags[5],
 					`${ '-'.repeat(50) }\n${ nav.ua }\nv${ version }.${ commit }${
-						nav.isESNext ? '.es6' : '' } [${ nav.scriptHandler }]`
+						nav.isESNext ? '.es6' : '' } [Built-in]`
 				)[1] }`;
 				if(!val.includes(temp)) {
 					val += temp;
@@ -523,10 +523,7 @@ class PostForm {
 		(this.pForm = $add('<div id="de-pform" class="de-win-body"></div>'))
 			.append(this.form || '', this.oeForm || '');
 		const html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
-		this.pArea = [
-			$bBegin(DelForm.first.el, html),
-			$aEnd(aib._4chan ? $q('.board', DelForm.first.el) : DelForm.first.el, html)
-		];
+		this.pArea = [$bBegin(DelForm.first.el, html), $aEnd(DelForm.first.el, html)];
 		this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 		this._pBtn[0].firstElementChild.onclick = e => this.showMainReply(false, e);
 		this._pBtn[1].firstElementChild.onclick = e => this.showMainReply(true, e);

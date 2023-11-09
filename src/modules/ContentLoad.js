@@ -59,7 +59,7 @@ const ContentLoader = {
 				dcBody.classList.add('de-mode-local');
 				$delAll('#de-css, #de-css-dynamic, #de-css-user', dc);
 				tar.addString('data/dollscript.js', `${ nav.isESNext ?
-					`(${ String(deMainFuncInner) })(window, null, null, (x, y) => window.scrollTo(x, y), ` :
+					`(${ String(deMainFuncInner) })(window, null, (x, y) => window.scrollTo(x, y), ` :
 					`(${ String(/* global deMainFuncOuter */ deMainFuncOuter) })(`
 				}${ JSON.stringify({ domain: aib.domain, b: aib.b, t: aib.t }) });`);
 				const dt = doc.doctype;
@@ -99,7 +99,7 @@ const ContentLoader = {
 			$Q(aib.qPost, dc).forEach((el, i) => el.setAttribute('de-num', i ? aib.getPNum(el) : aib.t));
 			const files = [];
 			const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
-				escapeRegExp(aib._4chan ? '4cdn.org' : aib.domain) }\\/`, 'i');
+				escapeRegExp(aib.domain) }\\/`, 'i');
 			$Q('link, *[src]', dc).forEach(el => {
 				if(els.indexOf(el) !== -1) {
 					return;
@@ -156,7 +156,7 @@ const ContentLoader = {
 	).then(xhr => {
 		if('response' in xhr) {
 			try {
-				return nav.getUnsafeUint8Array(xhr.response);
+				return new Uint8Array(xhr.response);
 			} catch(err) {}
 		}
 		const txt = xhr.responseText;
@@ -257,7 +257,7 @@ const ContentLoader = {
 		}
 		const ext = ['7z', 'zip', 'rar', 'ogg', 'mp3'][type];
 		nameLink.insertAdjacentHTML('afterend', `<a href="${ deWindow.URL.createObjectURL(
-			new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {
+			new Blob([new Uint8Array(info.data, info.idx)], {
 				type: [
 					'application/x-7z-compressed',
 					'application/zip',

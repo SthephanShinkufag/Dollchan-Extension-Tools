@@ -4,11 +4,6 @@
 
 class BaseBoard {
 	constructor(protocol, domain) {
-		// Imageboard-specific booleans
-		this._4chan = false;
-		this.kohlchan = false;
-		this.makaba = false;
-
 		// Query paths
 		this.cReply = 'reply';
 		this.qBan = null;
@@ -163,9 +158,6 @@ class BaseBoard {
 	}
 	get markupTags() {
 		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
-	}
-	get observeContent() {
-		return null;
 	}
 	get handlePostClick() {
 		return null;

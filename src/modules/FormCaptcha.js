@@ -180,7 +180,7 @@ class Captcha {
 		}));
 	}
 	updateOutdated() {
-		if(!aib.makaba && this._lastUpdate && (Date.now() - this._lastUpdate > Cfg.capUpdTime * 1e3)) {
+		if(this._lastUpdate && (Date.now() - this._lastUpdate > Cfg.capUpdTime * 1e3)) {
 			this.refreshCaptcha(false);
 		}
 	}

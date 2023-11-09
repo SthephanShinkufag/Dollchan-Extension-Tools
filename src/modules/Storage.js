@@ -4,70 +4,18 @@
 
 // Gets data from the global storage
 async function getStored(id) {
-	if(nav.hasNewGM) {
-		const value = await GM.getValue(id);
-		return value;
-	} else if(nav.hasOldGM) {
-		return GM_getValue(id);
-	} else if(nav.hasWebStorage) {
-		// Read storage.local first. If it not existed then read storage.sync
-		return new Promise(resolve => chrome.storage.local.get(id, obj => {
-			if(Object.keys(obj).length) {
-				resolve(obj[id]);
-			} else {
-				chrome.storage.sync.get(id, obj => resolve(obj[id]));
-			}
-		}));
-	} else if(nav.hasPrestoStorage) {
-		return prestoStorage.getItem(id);
-	}
 	return locStorage[id];
 }
 
 // Saves data into the global storage
-// FIXME: make async?
 function setStored(id, value) {
-	if(nav.hasNewGM) {
-		return GM.setValue(id, value);
-	} else if(nav.hasOldGM) {
-		GM_setValue(id, value);
-	} else if(nav.hasWebStorage) {
-		return new Promise(resolve => {
-			const obj = {};
-			obj[id] = value;
-			chrome.storage.sync.set(obj, () => {
-				if(chrome.runtime.lastError) {
-					// Store into storage.local if the storage.sync limit is exceeded
-					chrome.storage.local.set(obj, Function.prototype);
-					chrome.storage.sync.remove(id, Function.prototype);
-				} else {
-					chrome.storage.local.remove(id, Function.prototype);
-				}
-				resolve();
-			});
-		});
-	} else if(nav.hasPrestoStorage) {
-		prestoStorage.setItem(id, value);
-	} else {
-		locStorage[id] = value;
-	}
+	locStorage[id] = value;
 	return null;
 }
 
 // Removes data from the global storage
-// FIXME: make async?
 function delStored(id) {
-	if(nav.hasNewGM) {
-		return GM.deleteValue(id);
-	} else if(nav.hasOldGM) {
-		GM_deleteValue(id);
-	} else if(nav.hasWebStorage) {
-		chrome.storage.sync.remove(id, Function.prototype);
-	} else if(nav.hasPrestoStorage) {
-		prestoStorage.removeItem(id);
-	} else {
-		locStorage.removeItem(id);
-	}
+	locStorage.removeItem(id);
 }
 
 // Receives and parses JSON data into an object
@@ -150,15 +98,14 @@ async function readCfg() {
 	let obj;
 	const val = await getStoredObj('DESU_Config');
 	if(!(aib.domain in val) || $isEmpty(obj = val[aib.domain])) {
-		const isGlobal = nav.hasGlobalStorage && !!val.global;
-		obj = isGlobal ? val.global : {};
-		if(isGlobal) {
-			delete obj.correctTime;
-			delete obj.captchaLang;
-		}
+		obj = {};
 	}
 	defaultCfg.captchaLang = aib.captchaLang;
-	defaultCfg.language = +!String(navigator.language).toLowerCase().startsWith('ru');
+	const browserLang = String(navigator.language).toLowerCase();
+	defaultCfg.language =
+		browserLang.startsWith('ru') ? 0 :
+		browserLang.startsWith('en') ? 1 :
+		browserLang.startsWith('uk') ? 2 : defaultCfg.language;
 	Cfg = Object.assign(Object.create(defaultCfg), obj);
 	if(!Cfg.timeOffset) {
 		Cfg.timeOffset = '+0';
@@ -178,13 +125,7 @@ async function readCfg() {
 	if(nav.isPresto) {
 		Cfg.preLoadImgs = 0;
 		Cfg.findImgFile = 0;
-		if(!nav.hasOldGM) {
-			Cfg.updDollchan = 0;
-		}
 		Cfg.fileInputs = 0;
-	}
-	if(nav.scriptHandler === 'WebExtension') {
-		Cfg.updDollchan = 0;
 	}
 	if(Cfg.updThrDelay < 10) {
 		Cfg.updThrDelay = 10;
@@ -201,23 +142,9 @@ async function readCfg() {
 	lang = Cfg.language;
 	val[aib.domain] = Cfg;
 	if(val.commit !== commit && !localData) {
-		if(doc.readyState === 'loading') {
-			doc.addEventListener('DOMContentLoaded', () => setTimeout(showDonateMsg, 1e3));
-		} else {
-			setTimeout(showDonateMsg, 1e3);
-		}
 		val.commit = commit;
 	}
 	setStored('DESU_Config', JSON.stringify(val));
-	if(Cfg.updDollchan && !localData) {
-		checkForUpdates(false, val.lastUpd).then(html => {
-			if(doc.readyState === 'loading') {
-				doc.addEventListener('DOMContentLoaded', () => $popup('updavail', html));
-			} else {
-				$popup('updavail', html);
-			}
-		}, Function.prototype);
-	}
 }
 
 // == POSTS DATA =============================================================================================

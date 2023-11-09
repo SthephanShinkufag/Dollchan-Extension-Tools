@@ -1,10 +1,10 @@
 /* eslint indent: ["error", "tab", { "flatTernaryExpressions": true, "outerIIFEBody": 0 }] */
 
-(function deMainFuncInner(deWindow, prestoStorage, FormData, scrollTo, localData) {
+(function deMainFuncInner(deWindow, FormData, scrollTo, localData) {
 'use strict';
 
 const version = '23.9.19.0';
-const commit = '5f0b6f7';
+const commit = '26863c8';
 
 /* ==[ GlobalVars.js ]== */
 /* ==[ DefaultCfg.js ]== */
@@ -46,7 +46,6 @@ const commit = '5f0b6f7';
 /* ==[ Tail ]== */
 }(
 	window,
-	window.opera?.scriptStorage,
 	window.FormData,
 	(x, y) => window.scrollTo(x, y),
 	/* global localData */ typeof localData === 'object' ? localData : null

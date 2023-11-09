@@ -13,8 +13,7 @@ const source       = require('vinyl-source-stream');
 
 const watchedPaths = [
 	'src/modules/*',
-	'src/es5-polyfills.js',
-	'Dollchan_Extension_Tools.meta.js'
+	'src/es5-polyfills.js'
 ];
 
 // Updates commit version in Wrap.js module
@@ -25,7 +24,7 @@ gulp.task('updatecommit', cb => {
 	git.stderr.on('data', data => (stderr = String(data)));
 	git.on('close', code => {
 		if(code !== 0) {
-			throw new Error(`Git error:\n${ stdout ? `${ stdout }\n` : '' }${ stderr }`);
+			throw new Error(`Git error:\r\n${ stdout ? `${ stdout }\r\n` : '' }${ stderr }`);
 		}
 		gulp.src('src/modules/Wrap.js')
 			.pipe(replace(/^const commit = '[^']*';$/m, `const commit = '${ stdout.trim().substr(0, 7) }';`))
@@ -45,19 +44,12 @@ gulp.task('make:es6', gulp.series('updatecommit', () =>
 				.pipe(tap(moduleFile => {
 					str = str.replace(arr[i], moduleFile.contents.toString());
 					if(++count === len) {
-						newfile('src/Dollchan_Extension_Tools.es6.user.js', `\r\n${ str }`)
-							.pipe(streamify(headerfooter.header('Dollchan_Extension_Tools.meta.js')))
-							.pipe(gulp.dest('.'));
+						newfile('src/Dollchan_Extension_Tools.es6.user.js', str).pipe(gulp.dest('.'));
 					}
 				}));
 		}
 	}))
 ));
-
-// Copy es6 script from src/ to extension/ folder
-gulp.task('copyext', () => gulp.src('src/Dollchan_Extension_Tools.es6.user.js')
-	.pipe(replace(/\s+\/\/ <EXCLUDED_FROM_EXTENSION>[\s\S]*?<\/EXCLUDED_FROM_EXTENSION>/g, ''))
-	.pipe(gulp.dest('extension/v2')).pipe(gulp.dest('extension/v3')));
 
 // Makes es5-script from es6-script
 gulp.task('make:es5', gulp.series(
@@ -68,18 +60,16 @@ gulp.task('make:es5', gulp.series(
 		.pipe(source('Dollchan_Extension_Tools.user.js'))
 		.pipe(streamify(strip()))
 		.pipe(streamify(headerfooter(
-			'/* eslint-disable */\n(function deMainFuncOuter(localData) {\n',
-			'})(null);')))
-		.pipe(streamify(headerfooter.header('Dollchan_Extension_Tools.meta.js')))
-		.pipe(gulp.dest('.')),
-	'copyext'
+			'/* eslint-disable */\r\n\r\n(function deMainFuncOuter(localData) {\r\n',
+			'})(null);\r\n')))
+		.pipe(gulp.dest('.'))
 ));
 
 gulp.task('make', gulp.series('make:es5'));
 
 // Split es6-script into separate module files
 gulp.task('make:modules', () => gulp.src('src/Dollchan_Extension_Tools.es6.user.js').pipe(tap(file => {
-	const arr = file.contents.toString().split('// ==/UserScript==\r\n\r\n')[1].split('/* ==[ ');
+	const arr = file.contents.toString().split('/* ==[ ');
 	let wrapStr = `${ arr[0].slice(0, -2) }\r\n`;
 	for(let i = 1, len = arr.length; i < len; ++i) {
 		let str = arr[i];

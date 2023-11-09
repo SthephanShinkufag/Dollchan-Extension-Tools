@@ -8,7 +8,7 @@ const CfgWindow = {
 			e => winBody.addEventListener(e, this));
 
 		// Create tab bar and bottom buttons
-		let div = $bEnd(winBody, `<div id="de-cfg-bar">${
+		const div = $bEnd(winBody, `<div id="de-cfg-bar">${
 			this._getTab('filters') +
 			this._getTab('posts') +
 			this._getTab('images') +
@@ -27,42 +27,6 @@ const CfgWindow = {
 				await CfgSaver.saveObj(aib.domain, () => data);
 				deWindow.location.reload();
 			})),
-
-			// "Global" button. Allows to save/load global settings.
-			nav.hasGlobalStorage ? $button(Lng.global[lang], Lng.globalCfg[lang], () => {
-				const el = $popup('cfg-global', `<b>${ Lng.globalCfg[lang] }:</b>`);
-				// "Load" button. Applies global settings for current domain.
-				$bEnd(el, `<div id="de-list"><input type="button" value="${
-					Lng.load[lang] }"> ${ Lng.loadGlobal[lang] }</div>`
-				).firstElementChild.onclick = async () => {
-					const data = await getStoredObj('DESU_Config');
-					if(data && ('global' in data) && !$isEmpty(data.global)) {
-						await CfgSaver.saveObj(aib.domain, () => data.global);
-						deWindow.location.reload();
-					} else {
-						$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
-					}
-				};
-				// "Save" button. Copies the domain settings into global.
-				div = $bEnd(el, `<div id="de-list"><input type="button" value="${
-					Lng.save[lang] }"> ${ Lng.saveGlobal[lang] }</div>`
-				).firstElementChild.onclick = async () => {
-					const data = await getStoredObj('DESU_Config');
-					const obj = {};
-					const com = data[aib.domain];
-					for(const i in com) {
-						if(i !== 'correctTime' && i !== 'timePattern' && i !== 'userCSS' &&
-							i !== 'userCSSTxt' && i !== 'stats' && com[i] !== defaultCfg[i]
-						) {
-							obj[i] = com[i];
-						}
-					}
-					data.global = obj;
-					await CfgSaver.saveObj('global', () => data.global);
-					toggleWindow('cfg', true);
-				};
-				el.insertAdjacentHTML('beforeend', `<hr><small>${ Lng.descrGlobal[lang] }</small>`);
-			}) : '',
 
 			// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
 			!nav.isPresto ? $button(Lng.file[lang], Lng.fileImpExp[lang], () => {
@@ -684,7 +648,7 @@ const CfgWindow = {
 				${ this._getInp('minWebmWidth') }
 			</div>
 			${ nav.isPresto ? '' : this._getSel('preLoadImgs', true) + '<br>' }
-			${ nav.isPresto || aib._4chan ? '' : `<div class="de-depend">
+			${ nav.isPresto ? '' : `<div class="de-depend">
 				${ this._getBox('findImgFile', true) }
 			</div>` }
 			${ this._getSel('openImgs', true) }<br>
@@ -746,10 +710,10 @@ const CfgWindow = {
 			${ postform.mail ? `${ this._getBox('addSageBtn') }
 				${ this._getBox('saveSage') }<br>` : '' }
 			${ postform.cap ? `${ aib.hasAltCaptcha ? `${ this._getBox('altCaptcha') }<br>` : '' }
-				${ !aib.makaba ? `${ this._getInp('capUpdTime') }<br>` : '' }
+				${ this._getInp('capUpdTime') }<br>
 				${ this._getSel('captchaLang') }<br>` : '' }
 			${ postform.txta ? `${ this._getSel('addTextBtns') }
-				${ !aib._4chan ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
+				${ this._getBox('txtBtnsLoc') }<br>` : '' }
 			${ postform.passw ? `${ this._getInp('passwValue', false, 9) }
 				${ this._getBox('userPassw') }<input type="button"` +
 				` id="de-cfg-button-pass" class="de-cfg-button" value="${ Lng.change[lang] }"><br>` : '' }
@@ -807,14 +771,9 @@ const CfgWindow = {
 				<div id="de-info-stats">${ statsTable }</div>
 				<div id="de-info-log">${ this._getInfoTable(Logger.getLogData(false), true) }</div>
 			</div>
-			${ !nav.hasWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
-				${ this._getSel('updDollchan') }
-				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
-					<input type="button" id="de-cfg-button-updnow" value="${ Lng.checkNow[lang] }">
-					<input type="button" id="de-cfg-button-donate" value="Donate">
-				&lt;&lt;</div>` : `<div style="margin-top: 3px; text-align: center;">&gt;&gt;
-					<input type="button" id="de-cfg-button-donate" value="Donate">
-				&lt;&lt;</div>` }
+			<div style="margin-top: 3px; text-align: center;">&gt;&gt;
+				<input type="button" id="de-cfg-button-donate" value="Donate">
+				&lt;&lt;</div>
 		</div>`;
 	},
 

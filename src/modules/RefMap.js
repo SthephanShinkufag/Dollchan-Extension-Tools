@@ -75,7 +75,7 @@ class RefMap {
 			}
 			const lPost = pByNum.get(lNum);
 			if(!aib.t) {
-				link.href = `#${ aib._4chan ? 'p' : '' }${ lNum }`;
+				link.href = `#${ lNum }`;
 			}
 			if(!isAdd) {
 				lPost.ref.removeLink(pNum);
