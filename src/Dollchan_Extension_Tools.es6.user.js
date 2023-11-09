@@ -4,7 +4,7 @@
 'use strict';
 
 const version = '23.9.19.0';
-const commit = '26863c8';
+const commit = 'cf9c7b4';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -964,6 +964,14 @@ const Lng = {
 		['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'],
 		['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.'],
 		['Кожні 30 сек.', 'Щохвилини', 'Кожні 2 хв.', 'Кожні 5 хв.']],
+	moderatePost: [
+		'Модерировать пост',
+		'Moderate a post',
+		'Модерувати допис'],
+	moderateThread: [
+		'Модерировать тред',
+		'Moderate a thread',
+		'Модерувати тред'],
 	reportPost: [
 		'Жалоба на пост',
 		'Report a post',
@@ -1500,6 +1508,14 @@ const Lng = {
 		'Жалоба успешно отправлена',
 		'Succesfully reported',
 		'Скарга успішно відправлена'],
+	alreadyReported: [
+		'Вы уже отправляли жалобу на этот пост!',
+		'You have already sent a report to this post!',
+		'Ви вже відправляли скаргу на цей пост!'],
+	reportError: [
+		'При отправке жалобы произошла ошибка.',
+		'An error occurred while sending the report.',
+		'Під час надсилання скарги сталася помилка.'],
 	errDelete: [
 		'Не могу удалить',
 		'Canʼt delete',
@@ -10464,8 +10480,11 @@ class AbstractPost {
 				}
 				this._addMenu(el, isOutEvent,
 					`<span class="de-menu-item" info="post-reply">${ title }</span>` +
+					(getCookies().atom_access === '1' ? `<a class="de-menu-item" target="_blank" href="/${
+						aib.b }/imgboard.php?manage=&moderate=${ this.num }">${
+						this.isOp ? Lng.moderateThread[lang] : Lng.moderatePost[lang] }</a>` : '') +
 					(aib.reportForm ? `<span class="de-menu-item" info="post-report">${
-						this.num === this.thr.num ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : ''
+						this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : ''
 					) +
 					(Cfg.markMyPosts || Cfg.markMyLinks ? `<span class="de-menu-item" info="post-markmy">${
 						MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang] }</span>` : ''
@@ -15044,15 +15063,57 @@ function getImageBoard(checkDomains) {
 			}
 			return null;
 		}
-		getCaptchaSrc(src) {
-			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
-		}
 		get css() {
 			return '.postarea + hr { display: none; }';
+		}
+		get reportForm() {
+			const value = (pNum, tNum) => ($q('input[type="button"]', $popup(
+				'edit-report',
+				`<input name="reason" value="" placeholder="${
+					pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]
+				}" type="text"> <input value="OK" type="button">`)
+			).onclick = e => {
+				const inpEl = e.target.previousElementSibling;
+				if(!inpEl.value) {
+					inpEl.classList.add('de-input-error');
+					return;
+				}
+				const formData = new FormData();
+				const data = { id: pNum, reason: inpEl.value, json: 1 };
+				for(const key in data) {
+					if($hasProp(data, key)) {
+						formData.append(key, data[key]);
+					}
+				}
+				closePopup('edit-report');
+				$popup('report', Lng.sending[lang], true);
+				const url = this.protocol + '//' + this.host + '/' + this.b +
+					'/imgboard.php?report&addreport&json=1';
+				$ajax(url, {
+					method      : 'POST',
+					data        : formData,
+					success() {},
+					contentType : false,
+					processData : false
+				}).then(xhr => {
+					let obj;
+					try {
+						obj = JSON.parse(xhr.responseText);
+					} catch(err) {}
+					$popup('report', obj.result === 'ok' ? Lng.succReported[lang] :
+						obj.result === 'alreadysent' ? Lng.alreadyReported[lang] :
+						Lng.reportError[lang]);
+				});
+			});
+			Object.defineProperty(this, 'reportForm', { value });
+			return value;
 		}
 		fixFileInputs(el) {
 			const str = ' class="de-file-wrap"><input type="file" name="file[]"></div>';
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+		}
+		getCaptchaSrc(src) {
+			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
 		}
 		getImgRealName(wrap) {
 			return $q('.filesize > a', wrap).textContent;

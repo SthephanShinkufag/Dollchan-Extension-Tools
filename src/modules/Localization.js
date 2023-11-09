@@ -797,6 +797,14 @@ const Lng = {
 		['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'],
 		['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.'],
 		['Кожні 30 сек.', 'Щохвилини', 'Кожні 2 хв.', 'Кожні 5 хв.']],
+	moderatePost: [
+		'Модерировать пост',
+		'Moderate a post',
+		'Модерувати допис'],
+	moderateThread: [
+		'Модерировать тред',
+		'Moderate a thread',
+		'Модерувати тред'],
 	reportPost: [
 		'Жалоба на пост',
 		'Report a post',
@@ -1333,6 +1341,14 @@ const Lng = {
 		'Жалоба успешно отправлена',
 		'Succesfully reported',
 		'Скарга успішно відправлена'],
+	alreadyReported: [
+		'Вы уже отправляли жалобу на этот пост!',
+		'You have already sent a report to this post!',
+		'Ви вже відправляли скаргу на цей пост!'],
+	reportError: [
+		'При отправке жалобы произошла ошибка.',
+		'An error occurred while sending the report.',
+		'Під час надсилання скарги сталася помилка.'],
 	errDelete: [
 		'Не могу удалить',
 		'Canʼt delete',

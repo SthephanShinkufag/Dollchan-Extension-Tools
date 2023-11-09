@@ -226,8 +226,11 @@ class AbstractPost {
 				}
 				this._addMenu(el, isOutEvent,
 					`<span class="de-menu-item" info="post-reply">${ title }</span>` +
+					(getCookies().atom_access === '1' ? `<a class="de-menu-item" target="_blank" href="/${
+						aib.b }/imgboard.php?manage=&moderate=${ this.num }">${
+						this.isOp ? Lng.moderateThread[lang] : Lng.moderatePost[lang] }</a>` : '') +
 					(aib.reportForm ? `<span class="de-menu-item" info="post-report">${
-						this.num === this.thr.num ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : ''
+						this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : ''
 					) +
 					(Cfg.markMyPosts || Cfg.markMyLinks ? `<span class="de-menu-item" info="post-markmy">${
 						MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang] }</span>` : ''

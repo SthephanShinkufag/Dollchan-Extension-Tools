@@ -7176,7 +7176,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '23.9.19.0';
-  var commit = '26863c8';
+  var commit = 'cf9c7b4';
 
 
   var doc = deWindow.document;
@@ -7561,6 +7561,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     ['Скачать весь тред', 'Скачать картинки'], ['Download thread', 'Download images'], ['Завантажити весь тред', 'Завантажити зображення']],
     selAudioNotif: [
     ['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'], ['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.'], ['Кожні 30 сек.', 'Щохвилини', 'Кожні 2 хв.', 'Кожні 5 хв.']],
+    moderatePost: ['Модерировать пост', 'Moderate a post', 'Модерувати допис'],
+    moderateThread: ['Модерировать тред', 'Moderate a thread', 'Модерувати тред'],
     reportPost: ['Жалоба на пост', 'Report a post', 'Скарга на допис'],
     reportThr: ['Жалоба на тред', 'Report a thread', 'Скарга на тред'],
     markMyPost: ['Пометить как мой пост', 'Mark as my post', 'Відмітити як мій допис'],
@@ -7712,6 +7714,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     loadErrors: ['Во время загрузки произошли ошибки:', 'An error occurred during the loading:', 'Під час завантаження сталися помилки:'],
     succDeleted: ['Успешно удалено!', 'Succesfully deleted!', 'Успішно видалено!'],
     succReported: ['Жалоба успешно отправлена', 'Succesfully reported', 'Скарга успішно відправлена'],
+    alreadyReported: ['Вы уже отправляли жалобу на этот пост!', 'You have already sent a report to this post!', 'Ви вже відправляли скаргу на цей пост!'],
+    reportError: ['При отправке жалобы произошла ошибка.', 'An error occurred while sending the report.', 'Під час надсилання скарги сталася помилка.'],
     errDelete: ['Не могу удалить', 'Canʼt delete', 'Не можу видалити'],
     fileCorrupt: ['Файл повреждён', 'File is corrupt', 'Файл пошкоджено'],
     errCorruptData: ['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data', 'Помилка: сервер надіслав пошкоджені дані'],
@@ -18235,7 +18239,7 @@ Spells.addSpell(9, '', false);
                 if (!isOutEvent) {
                   postform.getSelectedText();
                 }
-                this._addMenu(el, isOutEvent, "<span class=\"de-menu-item\" info=\"post-reply\">".concat(title, "</span>") + (aib.reportForm ? "<span class=\"de-menu-item\" info=\"post-report\">".concat(this.num === this.thr.num ? Lng.reportThr[lang] : Lng.reportPost[lang], "</span>") : '') + (Cfg.markMyPosts || Cfg.markMyLinks ? "<span class=\"de-menu-item\" info=\"post-markmy\">".concat(MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang], "</span>") : ''));
+                this._addMenu(el, isOutEvent, "<span class=\"de-menu-item\" info=\"post-reply\">".concat(title, "</span>") + (getCookies().atom_access === '1' ? "<a class=\"de-menu-item\" target=\"_blank\" href=\"/".concat(aib.b, "/imgboard.php?manage=&moderate=").concat(this.num, "\">").concat(this.isOp ? Lng.moderateThread[lang] : Lng.moderatePost[lang], "</a>") : '') + (aib.reportForm ? "<span class=\"de-menu-item\" info=\"post-report\">".concat(this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang], "</span>") : '') + (Cfg.markMyPosts || Cfg.markMyLinks ? "<span class=\"de-menu-item\" info=\"post-markmy\">".concat(MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang], "</span>") : ''));
               }
               return;
             }
@@ -23844,20 +23848,65 @@ Spells.addSpell(9, '', false);
           return null;
         }
       }, {
-        key: "getCaptchaSrc",
-        value: function getCaptchaSrc(src) {
-          return src.replace(/\?[^?]+$|$/, '?' + Math.random());
-        }
-      }, {
         key: "css",
         get: function get() {
           return '.postarea + hr { display: none; }';
+        }
+      }, {
+        key: "reportForm",
+        get: function get() {
+          var _this103 = this;
+          var value = function value(pNum, tNum) {
+            return $q('input[type="button"]', $popup('edit-report', "<input name=\"reason\" value=\"\" placeholder=\"".concat(pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang], "\" type=\"text\"> <input value=\"OK\" type=\"button\">"))).onclick = function (e) {
+              var inpEl = e.target.previousElementSibling;
+              if (!inpEl.value) {
+                inpEl.classList.add('de-input-error');
+                return;
+              }
+              var formData = new FormData();
+              var data = {
+                id: pNum,
+                reason: inpEl.value,
+                json: 1
+              };
+              for (var key in data) {
+                if ($hasProp(data, key)) {
+                  formData.append(key, data[key]);
+                }
+              }
+              closePopup('edit-report');
+              $popup('report', Lng.sending[lang], true);
+              var url = _this103.protocol + '//' + _this103.host + '/' + _this103.b + '/imgboard.php?report&addreport&json=1';
+              $ajax(url, {
+                method: 'POST',
+                data: formData,
+                success: function success() {},
+                contentType: false,
+                processData: false
+              }).then(function (xhr) {
+                var obj;
+                try {
+                  obj = JSON.parse(xhr.responseText);
+                } catch (err) {}
+                $popup('report', obj.result === 'ok' ? Lng.succReported[lang] : obj.result === 'alreadysent' ? Lng.alreadyReported[lang] : Lng.reportError[lang]);
+              });
+            };
+          };
+          Object.defineProperty(this, 'reportForm', {
+            value: value
+          });
+          return value;
         }
       }, {
         key: "fixFileInputs",
         value: function fixFileInputs(el) {
           var str = ' class="de-file-wrap"><input type="file" name="file[]"></div>';
           el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+        }
+      }, {
+        key: "getCaptchaSrc",
+        value: function getCaptchaSrc(src) {
+          return src.replace(/\?[^?]+$|$/, '?' + Math.random());
         }
       }, {
         key: "getImgRealName",
@@ -23897,7 +23946,7 @@ Spells.addSpell(9, '', false);
 
   var DollchanAPI = {
     initAPI: function initAPI() {
-      var _this103 = this;
+      var _this104 = this;
       this.hasListeners = false;
       if (!('MessageChannel' in deWindow)) {
         return;
@@ -23909,7 +23958,7 @@ Spells.addSpell(9, '', false);
       var port = channel.port2;
       doc.defaultView.addEventListener('message', function (e) {
         if (e.data === 'de-request-api-message') {
-          _this103.hasListeners = true;
+          _this104.hasListeners = true;
           doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
         }
       });
