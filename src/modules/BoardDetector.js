@@ -11,6 +11,7 @@ function getImageBoard(checkDomains) {
 
 			this.qDelForm = $id('posts') ? '#posts' : '#delform';
 			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+			this.qPages = '.pagelist';
 			this.qPostImg = 'img.thumb, video.thumb';
 			this.qPostMsg = '.message';
 			this.qPostRef = '.post-reflink';

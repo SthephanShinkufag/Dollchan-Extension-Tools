@@ -523,7 +523,7 @@ class PostForm {
 		(this.pForm = $add('<div id="de-pform" class="de-win-body"></div>'))
 			.append(this.form || '', this.oeForm || '');
 		const html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
-		this.pArea = [$bBegin(DelForm.first.el, html), $aEnd(DelForm.first.el, html)];
+		this.pArea = [$bBegin(DelForm.first.el, html), $aEnd($q(aib.qPages), html)];
 		this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 		this._pBtn[0].firstElementChild.onclick = e => this.showMainReply(false, e);
 		this._pBtn[1].firstElementChild.onclick = e => this.showMainReply(true, e);

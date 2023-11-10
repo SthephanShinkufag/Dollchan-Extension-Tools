@@ -4,7 +4,7 @@
 'use strict';
 
 const version = '23.9.19.0';
-const commit = '0422793';
+const commit = 'd2e7ae4';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -8992,7 +8992,7 @@ class PostForm {
 		(this.pForm = $add('<div id="de-pform" class="de-win-body"></div>'))
 			.append(this.form || '', this.oeForm || '');
 		const html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
-		this.pArea = [$bBegin(DelForm.first.el, html), $aEnd(DelForm.first.el, html)];
+		this.pArea = [$bBegin(DelForm.first.el, html), $aEnd($q(aib.qPages), html)];
 		this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 		this._pBtn[0].firstElementChild.onclick = e => this.showMainReply(false, e);
 		this._pBtn[1].firstElementChild.onclick = e => this.showMainReply(true, e);
@@ -15032,6 +15032,7 @@ function getImageBoard(checkDomains) {
 
 			this.qDelForm = $id('posts') ? '#posts' : '#delform';
 			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+			this.qPages = '.pagelist';
 			this.qPostImg = 'img.thumb, video.thumb';
 			this.qPostMsg = '.message';
 			this.qPostRef = '.post-reflink';
@@ -15890,7 +15891,7 @@ function scriptCSS() {
 	.de-file-wrap { display: flex; align-items: center; }
 
 	/* Reply form */
-	.de-parea { text-align: center; }
+	.de-parea { text-align: center; clear: both; }
 	.de-parea-btn-close::after { content: "${ Lng.hideForm[lang] }"; }
 	.de-parea-btn-thr::after { content: "${ Lng.makeThr[lang] }"; }
 	.de-parea-btn-reply::after { content: "${ Lng.makeReply[lang] }"; }
@@ -15936,6 +15937,7 @@ function scriptCSS() {
 	.de-menu-item:hover { background-color: #222; color: #fff; }
 	.de-omitted { color: grey; }
 	.de-omitted::before { content: "${ Lng.postsOmitted[lang] }"; }
+	.de-page-num { clear: both; }
 	.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }
 	.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }
 	.de-popup-msg { display: inline-block; white-space: pre-wrap; }
