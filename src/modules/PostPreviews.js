@@ -224,6 +224,11 @@ class Pview extends AbstractPost {
 		$Q(`a[href*="${ num }"]`, el).forEach(
 			el => el.textContent.startsWith('>>' + num) && el.classList.add('de-link-pview'));
 	}
+	_menuShowOverBtn(el, html) {
+		super._menuShowOverBtn(el, html);
+		this._menu.onover = () => this.mouseEnter();
+		this._menu.onout = () => Pview.top.markToDel();
+	}
 	async _buildPview(post) {
 		this.el?.remove();
 		const { isOp, num } = this;
@@ -362,11 +367,6 @@ class Pview extends AbstractPost {
 		pv.addEventListener('animationend', this);
 		pv.classList.add('de-pview-anim');
 		style.animationName = uId;
-	}
-	_showMenu(el, html) {
-		super._showMenu(el, html);
-		this._menu.onover = () => this.mouseEnter();
-		this._menu.onout = () => Pview.top.markToDel();
 	}
 	_showPview(el) {
 		['mouseover', 'mouseout'].forEach(e => el.addEventListener(e, this, true));

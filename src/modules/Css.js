@@ -384,7 +384,15 @@ function scriptCSS() {
 	.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }
 	#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }
 	@keyframes de-wait-anim { to { transform: rotate(360deg); } }
-	form > hr { clear: both }`;
+	form > hr { clear: both }
+
+	/* Mobile devices */
+	@media screen and (max-width: 768px) {
+		.de-video-obj {
+			max-width: calc(100vw - 6px);
+			margin: 5px 0;
+		}
+	}`;
 
 	$css(x).id = 'de-css';
 	$css('').id = 'de-css-dynamic';

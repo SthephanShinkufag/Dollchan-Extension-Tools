@@ -8054,7 +8054,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '23.9.19.0';
-  var commit = 'd2e7ae4';
+  var commit = 'b0d3317';
 
 
   var doc = deWindow.document;
@@ -8687,6 +8687,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return val + rules.join(', ' + val);
     }).join(', ');
   }
+  function $contains(containerEl, el) {
+    var _el;
+    el = ((_el = el) === null || _el === void 0 ? void 0 : _el.farthestViewportElement ) || el;
+    return el && (el === containerEl || containerEl.contains(el));
+  }
 
 
   function $bBegin(siblingEl, html) {
@@ -9076,9 +9081,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "removeTempData",
       value: function removeTempData(key) {
-        if (this.data) {
-          this.data["delete"](key);
-        }
+        var _this$data;
+        (_this$data = this.data) === null || _this$data === void 0 || _this$data["delete"](key);
       }
     }]);
     return TemporaryContent;
@@ -9335,19 +9339,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         this.EBML = el;
         offset += el.headSize + el.size;
         while (true) {
-          var _el = new WebmParser.Element(dv, len, offset);
-          if (_el.error) {
+          var _el2 = new WebmParser.Element(dv, len, offset);
+          if (_el2.error) {
             break error;
           }
-          if (_el.id === segmentId) {
-            this.segment = _el;
+          if (_el2.id === segmentId) {
+            this.segment = _el2;
             break; 
-          } else if (_el.id === voidId) {
-            voids.push(_el);
+          } else if (_el2.id === voidId) {
+            voids.push(_el2);
           } else {
             break error;
           }
-          offset += _el.headSize + _el.size;
+          offset += _el2.headSize + _el2.size;
         }
         this.voids = voids;
         this.data = data;
@@ -9960,13 +9964,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var _this8 = this;
         if (this._cacheTO === null) {
           this._cacheTO = setTimeout(function () {
+            var _this8$_onAfterSave;
             if (_this8._cachedStorage) {
               locStorage[_this8.storageName] = JSON.stringify(_this8._cachedStorage);
             }
             _this8.purge();
-            if (_this8._onAfterSave) {
-              _this8._onAfterSave();
-            }
+            (_this8$_onAfterSave = _this8._onAfterSave) === null || _this8$_onAfterSave === void 0 || _this8$_onAfterSave.call(_this8);
           }, 0);
         }
       }
@@ -10211,17 +10214,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       (((_postform = postform) === null || _postform === void 0 ? void 0 : _postform.pArea[0]) || formEl).insertAdjacentHTML('beforebegin', "<div id=\"de-main\">\n\t\t\t<div id=\"de-panel\">\n\t\t\t\t<div id=\"de-panel-logo\" title=\"".concat(Lng.panelBtn.attach[lang], "\">\n\t\t\t\t\t<svg id=\"de-panel-logo-svg\">\n\t\t\t\t\t\t<use xlink:href=\"#de-symbol-panel-logo\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id=\"de-panel-buttons\"").concat(!Cfg.expandPanel ? ' style="display: none;"' : '', ">\n\t\t\t\t").concat(Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (Cfg.embedYTube ? this._getButton('vid') : '') + (!localData ? this._getButton('refresh') + (isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') + (!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') + this._getButton('goup') + this._getButton('godown') + (filesCount ? this._getButton('expimg') + this._getButton('maskimg') : '') + (!localData && !nav.isPresto ? (filesCount && !Cfg.preLoadImgs ? this._getButton('preimg') : '') + (isThr ? this._getButton('savethr') : '') : '') + (!localData && isThr ? this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (!nav.isSafari ? this._getButton('audio-off') : '') : '') + (aib.hasCatalog ? this._getButton('catalog') : '') + this._getButton('enable') + (isThr && Thread.first ? "<span id=\"de-panel-info\">\n\t\t\t\t\t\t<span id=\"de-panel-info-posts\" title=\"".concat(Lng.panelBtn[Cfg.panelCounter !== 2 ? 'postsCount' : 'postsNotHid'][lang], "\">").concat(Thread.first.postsCount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-files\" title=\"").concat(Lng.panelBtn.filesCount[lang], "\">").concat(filesCount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-posters\" title=\"").concat(Lng.panelBtn.postersCount[lang], "\">").concat(aib.postersCount, "</span>\n\t\t\t\t\t</span>") : ''), "\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t").concat(Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">', "\n\t\t</div>"));
       this._el = $id('de-panel');
       this._el.addEventListener('click', this, true);
-      ['mouseover', 'mouseout'].forEach(function (e) {
-        return _this12._el.addEventListener(e, _this12);
-      });
+      if (!nav.isMobile) {
+        ['mouseover', 'mouseout'].forEach(function (e) {
+          return _this12._el.addEventListener(e, _this12);
+        });
+      }
       this._buttons = $id('de-panel-buttons');
     },
     removeMain: function removeMain() {
       var _this13 = this;
       this._el.removeEventListener('click', this, true);
-      ['mouseover', 'mouseout'].forEach(function (e) {
-        return _this13._el.removeEventListener(e, _this13);
-      });
+      if (!nav.isMobile) {
+        ['mouseover', 'mouseout'].forEach(function (e) {
+          return _this13._el.removeEventListener(e, _this13);
+        });
+      }
       delete this._postsCountEl;
       delete this._filesCountEl;
       delete this._postersCountEl;
@@ -10230,8 +10237,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     handleEvent: function handleEvent(e) {
       var _this14 = this;
       return _asyncToGenerator( _regeneratorRuntime().mark(function _callee5() {
-        var _$q, _$q2, _this14$_menu;
-        var el, post, _iterator2, _step2, _el2;
+        var _$q;
+        var el, post, _iterator2, _step2, _el3, _this14$_menu;
         return _regeneratorRuntime().wrap(function _callee5$(_context5) {
           while (1) switch (_context5.prev = _context5.next) {
             case 0:
@@ -10244,7 +10251,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               el = nav.fixEventEl(e.target);
               el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
               _context5.t0 = e.type;
-              _context5.next = _context5.t0 === 'click' ? 7 : _context5.t0 === 'mouseover' ? 57 : 81;
+              _context5.next = _context5.t0 === 'click' ? 7 : _context5.t0 === 'mouseover' ? 67 : 91;
               break;
             case 7:
               if (!(el.tagName.toLowerCase() === 'a')) {
@@ -10255,11 +10262,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             case 9:
               e.preventDefault();
               _context5.t1 = el.id;
-              _context5.next = _context5.t1 === 'de-panel-logo' ? 13 : _context5.t1 === 'de-panel-cfg' ? 17 : _context5.t1 === 'de-panel-hid' ? 19 : _context5.t1 === 'de-panel-fav' ? 21 : _context5.t1 === 'de-panel-vid' ? 23 : _context5.t1 === 'de-panel-refresh' ? 26 : _context5.t1 === 'de-panel-goup' ? 28 : _context5.t1 === 'de-panel-godown' ? 30 : _context5.t1 === 'de-panel-expimg' ? 32 : _context5.t1 === 'de-panel-preimg' ? 37 : _context5.t1 === 'de-panel-maskimg' ? 41 : _context5.t1 === 'de-panel-upd-on' ? 46 : _context5.t1 === 'de-panel-upd-warn' ? 46 : _context5.t1 === 'de-panel-upd-off' ? 46 : _context5.t1 === 'de-panel-audio-on' ? 48 : _context5.t1 === 'de-panel-audio-off' ? 48 : _context5.t1 === 'de-panel-savethr' ? 51 : _context5.t1 === 'de-panel-enable' ? 52 : 56;
+              _context5.next = _context5.t1 === 'de-panel-logo' ? 13 : _context5.t1 === 'de-panel-cfg' ? 17 : _context5.t1 === 'de-panel-hid' ? 19 : _context5.t1 === 'de-panel-fav' ? 21 : _context5.t1 === 'de-panel-vid' ? 23 : _context5.t1 === 'de-panel-refresh' ? 26 : _context5.t1 === 'de-panel-goup' ? 28 : _context5.t1 === 'de-panel-godown' ? 30 : _context5.t1 === 'de-panel-expimg' ? 32 : _context5.t1 === 'de-panel-preimg' ? 37 : _context5.t1 === 'de-panel-maskimg' ? 41 : _context5.t1 === 'de-panel-upd-on' ? 46 : _context5.t1 === 'de-panel-upd-warn' ? 46 : _context5.t1 === 'de-panel-upd-off' ? 46 : _context5.t1 === 'de-panel-audio-on' ? 48 : _context5.t1 === 'de-panel-audio-off' ? 52 : _context5.t1 === 'de-panel-savethr' ? 60 : _context5.t1 === 'de-panel-enable' ? 62 : 66;
               break;
             case 13:
-              if (Cfg.expandPanel && !$q('.de-win-active')) {
-                $hide(_this14._buttons);
+              if (Cfg.expandPanel) {
+                if (!$q('.de-win-active')) {
+                  $hide(_this14._buttons);
+                }
+              } else {
+                $show(_this14._buttons);
               }
               _context5.next = 16;
               return toggleCfg('expandPanel');
@@ -10279,7 +10290,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               toggleWindow('vid', false);
               return _context5.abrupt("return");
             case 26:
-              deWindow.location.reload();
+              if (nav.isMobile && !aib.t) {
+                _this14._menuToggleClickBtn(el);
+              } else {
+                deWindow.location.reload();
+              }
               return _context5.abrupt("return");
             case 28:
               scrollTo(0, 0);
@@ -10300,8 +10315,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               isPreImg = !isPreImg;
               if (!e.ctrlKey) {
                 for (_iterator2 = _createForOfIteratorHelperLoose(DelForm); !(_step2 = _iterator2()).done;) {
-                  _el2 = _step2.value.el;
-                  ContentLoader.preloadImages(_el2);
+                  _el3 = _step2.value.el;
+                  ContentLoader.preloadImages(_el3);
                 }
               }
               return _context5.abrupt("return");
@@ -10316,90 +10331,111 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               updater.toggle();
               return _context5.abrupt("return");
             case 48:
+              if (!nav.isMobile) {
+                _context5.next = 52;
+                break;
+              }
+              updater.toggleAudio(0);
+              el.id = 'de-panel-audio-off';
+              return _context5.abrupt("return");
+            case 52:
+              if (!nav.isMobile) {
+                _context5.next = 57;
+                break;
+              }
+              _this14._menuToggleClickBtn(el);
+              return _context5.abrupt("return");
+            case 57:
               if (updater.toggleAudio(0)) {
                 updater.enableUpdater();
                 el.id = 'de-panel-audio-on';
               } else {
                 el.id = 'de-panel-audio-off';
               }
-              (_$q2 = $q('.de-menu')) === null || _$q2 === void 0 || _$q2.remove();
+            case 58:
+              if (_this14._menu) {
+                _this14._menu.removeMenu();
+                _this14._menu = null;
+              }
               return _context5.abrupt("return");
-            case 51:
+            case 60:
+              if (nav.isMobile) {
+                _this14._menuToggleClickBtn(el);
+              }
               return _context5.abrupt("return");
-            case 52:
-              _context5.next = 54;
+            case 62:
+              _context5.next = 64;
               return toggleCfg('disabled');
-            case 54:
+            case 64:
               deWindow.location.reload();
               return _context5.abrupt("return");
-            case 56:
+            case 66:
               return _context5.abrupt("return");
-            case 57:
+            case 67:
               if (!Cfg.expandPanel) {
                 clearTimeout(_this14._hideTO);
                 $show(_this14._buttons);
               }
               _context5.t2 = el.id;
-              _context5.next = _context5.t2 === 'de-panel-cfg' ? 61 : _context5.t2 === 'de-panel-hid' ? 63 : _context5.t2 === 'de-panel-fav' ? 65 : _context5.t2 === 'de-panel-vid' ? 67 : _context5.t2 === 'de-panel-goback' ? 69 : _context5.t2 === 'de-panel-gonext' ? 71 : _context5.t2 === 'de-panel-maskimg' ? 73 : _context5.t2 === 'de-panel-refresh' ? 75 : _context5.t2 === 'de-panel-savethr' ? 77 : _context5.t2 === 'de-panel-audio-off' ? 77 : 80;
+              _context5.next = _context5.t2 === 'de-panel-cfg' ? 71 : _context5.t2 === 'de-panel-hid' ? 73 : _context5.t2 === 'de-panel-fav' ? 75 : _context5.t2 === 'de-panel-vid' ? 77 : _context5.t2 === 'de-panel-goback' ? 79 : _context5.t2 === 'de-panel-gonext' ? 81 : _context5.t2 === 'de-panel-maskimg' ? 83 : _context5.t2 === 'de-panel-refresh' ? 85 : _context5.t2 === 'de-panel-savethr' ? 87 : _context5.t2 === 'de-panel-audio-off' ? 87 : 90;
               break;
-            case 61:
-              KeyEditListener.setTitle(el, 10);
-              return _context5.abrupt("break", 80);
-            case 63:
-              KeyEditListener.setTitle(el, 7);
-              return _context5.abrupt("break", 80);
-            case 65:
-              KeyEditListener.setTitle(el, 6);
-              return _context5.abrupt("break", 80);
-            case 67:
-              KeyEditListener.setTitle(el, 18);
-              return _context5.abrupt("break", 80);
-            case 69:
-              KeyEditListener.setTitle(el, 4);
-              return _context5.abrupt("break", 80);
             case 71:
-              KeyEditListener.setTitle(el, 17);
-              return _context5.abrupt("break", 80);
+              KeyEditListener.setTitle(el, 10);
+              return _context5.abrupt("break", 90);
             case 73:
-              KeyEditListener.setTitle(el, 9);
-              return _context5.abrupt("break", 80);
+              KeyEditListener.setTitle(el, 7);
+              return _context5.abrupt("break", 90);
             case 75:
-              if (!aib.t) {
-                _context5.next = 77;
-                break;
-              }
-              return _context5.abrupt("return");
+              KeyEditListener.setTitle(el, 6);
+              return _context5.abrupt("break", 90);
             case 77:
-              if (!(((_this14$_menu = _this14._menu) === null || _this14$_menu === void 0 ? void 0 : _this14$_menu.parentEl) === el)) {
-                _context5.next = 79;
+              KeyEditListener.setTitle(el, 18);
+              return _context5.abrupt("break", 90);
+            case 79:
+              KeyEditListener.setTitle(el, 4);
+              return _context5.abrupt("break", 90);
+            case 81:
+              KeyEditListener.setTitle(el, 17);
+              return _context5.abrupt("break", 90);
+            case 83:
+              KeyEditListener.setTitle(el, 9);
+              return _context5.abrupt("break", 90);
+            case 85:
+              if (!aib.t) {
+                _context5.next = 87;
                 break;
               }
               return _context5.abrupt("return");
-            case 79:
+            case 87:
+              if (!(((_this14$_menu = _this14._menu) === null || _this14$_menu === void 0 ? void 0 : _this14$_menu.parentEl) === el)) {
+                _context5.next = 89;
+                break;
+              }
+              return _context5.abrupt("return");
+            case 89:
               _this14._menuTO = setTimeout(function () {
-                _this14._menu = addMenu(el);
+                _this14._menu = Menu.addMenu(el);
                 _this14._menu.onover = function () {
                   return clearTimeout(_this14._hideTO);
                 };
                 _this14._menu.onout = function () {
-                  return _this14._prepareToHide(null);
+                  return _this14._setHideTimeout(null);
                 };
                 _this14._menu.onremove = function () {
                   return _this14._menu = null;
                 };
               }, Cfg.linksOver);
-            case 80:
+            case 90:
               return _context5.abrupt("return");
-            case 81:
-              _this14._prepareToHide(nav.fixEventEl(e.relatedTarget));
+            case 91:
+              _this14._setHideTimeout(nav.fixEventEl(e.relatedTarget));
               switch (el.id) {
                 case 'de-panel-refresh':
                 case 'de-panel-savethr':
                 case 'de-panel-audio-off':
                   clearTimeout(_this14._menuTO);
-                  _this14._menuTO = 0;
               }
-            case 83:
+            case 93:
             case "end":
               return _context5.stop();
           }
@@ -10412,9 +10448,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this._postersCountEl.textContent = postersCount;
     },
     _el: null,
-    _hideTO: 0,
+    _hideTO: null,
     _menu: null,
-    _menuTO: 0,
+    _menuTO: null,
     get _filesCountEl() {
       var value = $id('de-panel-info-files');
       Object.defineProperty(this, '_filesCountEl', {
@@ -10471,9 +10507,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
       return "<".concat(tag, " id=\"de-panel-").concat(id, "\" class=\"de-abtn de-panel-button\"\n\t\t\ttitle=\"").concat(title || Lng.panelBtn[id][lang], "\" ").concat(href ? 'href="' + href + '"' : '', ">\n\t\t\t<svg class=\"de-panel-svg\">\n\t\t\t").concat(id !== 'audio-off' ? "\n\t\t\t\t<use xlink:href=\"#de-symbol-panel-".concat(useId || id, "\"/>") : "\n\t\t\t\t<use class=\"de-use-audio-off\" xlink:href=\"#de-symbol-panel-audio-off\"/>\n\t\t\t\t<use class=\"de-use-audio-on\" xlink:href=\"#de-symbol-panel-audio-on\"/>", "\n\t\t\t</svg>\n\t\t</").concat(tag, ">");
     },
-    _prepareToHide: function _prepareToHide(rt) {
+    _menuToggleClickBtn: function _menuToggleClickBtn(buttonEl) {
+      var _this$_menu;
+      if ((_this$_menu = this._menu) !== null && _this$_menu !== void 0 && _this$_menu.el && this._menu.parentEl === buttonEl) {
+        this._menu.removeMenu();
+        this._menu = null;
+        return;
+      }
+      this._menu = Menu.addMenu(buttonEl);
+    },
+    _setHideTimeout: function _setHideTimeout(targetEl) {
       var _this15 = this;
-      if (!Cfg.expandPanel && !$q('.de-win-active') && (!rt || !this._el.contains(rt.farthestViewportElement || rt))) {
+      if (!Cfg.expandPanel && !$q('.de-win-active') && !$contains(this._el, targetEl)) {
         this._hideTO = setTimeout(function () {
           return $hide(_this15._buttons);
         }, 500);
@@ -11835,7 +11880,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     handleEvent: function handleEvent(e) {
       var _this19 = this;
       return _asyncToGenerator( _regeneratorRuntime().mark(function _callee13() {
-        var type, el, tag, classList, info, _info, isHide, post, _iterator3, _step3, _el3, _info2, _post4, img, _iterator4, _step4, _el4, perf, arr, i, len, _info3, isValidColor, color, image, val;
+        var type, el, tag, classList, info, _info, isHide, post, _iterator3, _step3, _el4, _info2, _post4, img, _iterator4, _step4, _el5, perf, arr, i, len, _info3, isValidColor, color, image, val;
         return _regeneratorRuntime().wrap(function _callee13$(_context14) {
           while (1) switch (_context14.prev = _context14.next) {
             case 0:
@@ -11909,8 +11954,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             case 36:
               if (Cfg.imgNames) {
                 for (_iterator3 = _createForOfIteratorHelperLoose(DelForm); !(_step3 = _iterator3()).done;) {
-                  _el3 = _step3.value.el;
-                  processImgInfoLinks(_el3, 0, Cfg.imgNames);
+                  _el4 = _step3.value.el;
+                  processImgInfoLinks(_el4, 0, Cfg.imgNames);
                 }
               } else {
                 $Q('.de-img-name').forEach(function (el) {
@@ -12022,8 +12067,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             case 88:
               if (Cfg.imgSrcBtns) {
                 for (_iterator4 = _createForOfIteratorHelperLoose(DelForm); !(_step4 = _iterator4()).done;) {
-                  _el4 = _step4.value.el;
-                  processImgInfoLinks(_el4, 1, 0);
+                  _el5 = _step4.value.el;
+                  processImgInfoLinks(_el5, 1, 0);
                   $Q('.de-img-embed').forEach(function (el) {
                     return addImgButtons(el.parentNode.nextSibling.nextSibling);
                   });
@@ -12263,12 +12308,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               e.preventDefault();
               return _context14.abrupt("break", 204);
             case 201:
-              el.odelay = setTimeout(function () {
-                return addMenu(el);
+              el._menuTO = setTimeout(function () {
+                return Menu.addMenu(el);
               }, Cfg.linksOver);
               return _context14.abrupt("break", 204);
             case 203:
-              clearTimeout(el.odelay);
+              clearTimeout(el._menuTO);
             case 204:
               return _context14.abrupt("return");
             case 205:
@@ -12364,16 +12409,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       var els = $Q('.de-cfg-chkbox, .de-cfg-inptxt, .de-cfg-select', newTab.parentNode);
       for (var i = 0, len = els.length; i < len; ++i) {
-        var _el5 = els[i];
-        var _info4 = _el5.getAttribute('info');
-        if (_el5.tagName.toLowerCase() === 'input') {
-          if (_el5.type === 'checkbox') {
-            _el5.checked = !!Cfg[_info4];
+        var _el6 = els[i];
+        var _info4 = _el6.getAttribute('info');
+        if (_el6.tagName.toLowerCase() === 'input') {
+          if (_el6.type === 'checkbox') {
+            _el6.checked = !!Cfg[_info4];
           } else {
-            _el5.value = Cfg[_info4];
+            _el6.value = Cfg[_info4];
           }
         } else {
-          _el5.selectedIndex = Cfg[_info4];
+          _el6.selectedIndex = Cfg[_info4];
         }
       }
     },
@@ -12551,11 +12596,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var style = el.style,
         w = el.offsetWidth,
         h = el.offsetHeight;
+      this.el = el;
       style.left = (isFixed ? 0 : deWindow.pageXOffset) + (cr.left + w < Post.sizing.wWidth ? cr.left : cr.right - w) + 'px';
       style.top = (isFixed ? 0 : deWindow.pageYOffset) + (cr.bottom + h < Post.sizing.wHeight ? cr.bottom - 0.5 : cr.top - h + 0.5) + 'px';
       style.removeProperty('visibility');
       this._clickFn = clickFn;
-      this._el = el;
       this.parentEl = parentEl;
       ['mouseover', 'mouseout'].forEach(function (e) {
         return el.addEventListener(e, _this20, true);
@@ -12582,22 +12627,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             isOverEvent = true;
           case 'mouseout':
             {
-              var _rt;
               clearTimeout(this._closeTO);
-              var rt = nav.fixEventEl(e.relatedTarget);
-              rt = ((_rt = rt) === null || _rt === void 0 ? void 0 : _rt.farthestViewportElement) || rt;
-              if (!rt || rt !== this._el && !this._el.contains(rt)) {
+              var targetEl = nav.fixEventEl(e.relatedTarget);
+              if (!$contains(this.el, targetEl)) {
                 if (isOverEvent) {
-                  if (this.onover) {
-                    this.onover();
-                  }
-                } else if (!rt || rt !== this.parentEl && !this.parentEl.contains(rt)) {
+                  var _this$onover;
+                  (_this$onover = this.onover) === null || _this$onover === void 0 || _this$onover.call(this);
+                } else if (!$contains(this.parentEl, targetEl)) {
+                  var _this$onout;
                   this._closeTO = setTimeout(function () {
                     return _this21.removeMenu();
                   }, 75);
-                  if (this.onout) {
-                    this.onout();
-                  }
+                  (_this$onout = this.onout) === null || _this$onout === void 0 || _this$onout.call(this);
                 }
               }
             }
@@ -12606,22 +12647,61 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "removeMenu",
       value: function removeMenu() {
-        var _this22 = this;
-        if (!this._el) {
+        var _this$onremove,
+          _this22 = this;
+        if (!this.el) {
           return;
         }
-        if (this.onremove) {
-          this.onremove();
-        }
+        (_this$onremove = this.onremove) === null || _this$onremove === void 0 || _this$onremove.call(this);
         ['mouseover', 'mouseout'].forEach(function (e) {
-          return _this22._el.removeEventListener(e, _this22, true);
+          return _this22.el.removeEventListener(e, _this22, true);
         });
         this.parentEl.removeEventListener('mouseout', this);
-        this._el.removeEventListener('click', this);
-        this._el.remove();
-        this._el = null;
+        this.el.removeEventListener('click', this);
+        this.el.remove();
+        this.el = null;
       }
     }], [{
+      key: "addMenu",
+      value: function addMenu(el) {
+        var tags = function tags(a) {
+          return arrTags(a, '<span class="de-menu-item">', '</span>');
+        };
+        switch (el.id) {
+          case 'de-btn-spell-add':
+            return new Menu(el, "<div style=\"display: inline-block; border-right: 1px solid grey;\">".concat(tags('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(',')), "</div><div style=\"display: inline-block;\">").concat(tags('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')), "</div>"), function (_ref10) {
+              var s = _ref10.textContent;
+              return insertText($id('de-spell-txt'), s + (!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : "[".concat(aib.b, ",").concat(aib.t, "]")) + (Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : ''));
+            });
+          case 'de-panel-refresh':
+            return new Menu(el, tags(Lng.selAjaxPages[lang]), function (el) {
+              return Pages.loadPages(Array.prototype.indexOf.call(el.parentNode.children, el) + 1);
+            });
+          case 'de-panel-savethr':
+            return new Menu(el, tags($q(aib.qPostImg, DelForm.first.el) ? Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]), function (el) {
+              if ($id('de-popup-savethr')) {
+                return;
+              }
+              var imgOnly = !!Array.prototype.indexOf.call(el.parentNode.children, el);
+              if (ContentLoader.isLoading) {
+                $popup('savethr', Lng.loading[lang], true);
+                ContentLoader.afterFn = function () {
+                  return ContentLoader.downloadThread(imgOnly);
+                };
+                ContentLoader.popupId = 'savethr';
+              } else {
+                ContentLoader.downloadThread(imgOnly);
+              }
+            });
+          case 'de-panel-audio-off':
+            return new Menu(el, tags(Lng.selAudioNotif[lang]), function (el) {
+              updater.enableUpdater();
+              updater.toggleAudio([3e4, 6e4, 12e4, 3e5][Array.prototype.indexOf.call(el.parentNode.children, el)]);
+              $id('de-panel-audio-off').id = 'de-panel-audio-on';
+            });
+        }
+      }
+    }, {
       key: "getMenuImg",
       value: function getMenuImg(data) {
         var isDlOnly = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
@@ -12630,7 +12710,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         if (typeof data === 'string') {
           p = encodeURIComponent(data) + '" target="_blank">' + Lng.frameSearch[lang];
         } else {
-          var _$q3;
+          var _$q2;
           var link = data.nextSibling;
           var href = link.href;
           var origSrc = link.getAttribute('de-href') || href;
@@ -12657,7 +12737,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             dlLinks += getDlLnk(href, realName, Lng.origName[lang], false);
           }
           var webmTitle;
-          if (isFullImg && (webmTitle = (_$q3 = $q('.de-webm-title', link.parentNode)) === null || _$q3 === void 0 ? void 0 : _$q3.textContent)) {
+          if (isFullImg && (webmTitle = (_$q2 = $q('.de-webm-title', link.parentNode)) === null || _$q2 === void 0 ? void 0 : _$q2.textContent)) {
             dlLinks += getDlLnk(href, webmTitle, Lng.metaName[lang], true);
           }
           dlLinks += getDlLnk(href, name, Lng.boardName[lang], false);
@@ -12667,46 +12747,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }]);
     return Menu;
   }();
-  function addMenu(el) {
-    var fn = function fn(a) {
-      return arrTags(a, '<span class="de-menu-item">', '</span>');
-    };
-    switch (el.id) {
-      case 'de-btn-spell-add':
-        return new Menu(el, "<div style=\"display: inline-block; border-right: 1px solid grey;\">".concat(fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(',')), "</div><div style=\"display: inline-block;\">").concat(fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')), "</div>"), function (_ref10) {
-          var s = _ref10.textContent;
-          return insertText($id('de-spell-txt'), s + (!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : "[".concat(aib.b, ",").concat(aib.t, "]")) + (Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : ''));
-        });
-      case 'de-panel-refresh':
-        return new Menu(el, fn(Lng.selAjaxPages[lang]), function (el) {
-          return Pages.loadPages(Array.prototype.indexOf.call(el.parentNode.children, el) + 1);
-        });
-      case 'de-panel-savethr':
-        return new Menu(el, fn($q(aib.qPostImg, DelForm.first.el) ? Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]), function (el) {
-          if ($id('de-popup-savethr')) {
-            return;
-          }
-          var imgOnly = !!Array.prototype.indexOf.call(el.parentNode.children, el);
-          if (ContentLoader.isLoading) {
-            $popup('savethr', Lng.loading[lang], true);
-            ContentLoader.afterFn = function () {
-              return ContentLoader.downloadThread(imgOnly);
-            };
-            ContentLoader.popupId = 'savethr';
-          } else {
-            ContentLoader.downloadThread(imgOnly);
-          }
-        });
-      case 'de-panel-audio-off':
-        return new Menu(el, fn(Lng.selAudioNotif[lang]), function (el) {
-          updater.enableUpdater();
-          updater.toggleAudio([3e4, 6e4, 12e4, 3e5][Array.prototype.indexOf.call(el.parentNode.children, el)]);
-          $id('de-panel-audio-off').id = 'de-panel-audio-on';
-        });
-    }
-  }
-
-
   var HotKeys = {
     cPost: null,
     enabled: false,
@@ -12721,10 +12761,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     },
     disableHotKeys: function disableHotKeys() {
       if (this.enabled) {
+        var _this$cPost;
         this.enabled = false;
-        if (this.cPost) {
-          this.cPost.unselect();
-        }
+        (_this$cPost = this.cPost) === null || _this$cPost === void 0 || _this$cPost.unselect();
         this.clearCPost();
         this.gKeys = this.ntKeys = this.tKeys = null;
         doc.removeEventListener('keydown', this, true);
@@ -13019,6 +13058,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     },
     _getFirstVisPost: function _getFirstVisPost(getThread, getFull) {
       if (this.lastPageOffset !== deWindow.pageYOffset) {
+        var _this$cPost2;
         var post = getThread ? Thread.first : Thread.first.op;
         while (post.top < 1) {
           var tPost = post.next;
@@ -13027,9 +13067,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
           post = tPost;
         }
-        if (this.cPost) {
-          this.cPost.unselect();
-        }
+        (_this$cPost2 = this.cPost) === null || _this$cPost2 === void 0 || _this$cPost2.unselect();
         this.cPost = getThread ? getFull ? post.op : post.op.prev : getFull ? post : post.prev;
         this.lastPageOffset = deWindow.pageYOffset;
       }
@@ -13683,6 +13721,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "getRPattern",
       value: function getRPattern(txt) {
+        var _this$onRPat;
         var m = txt.match(new RegExp(this.regex));
         if (!m) {
           this.disabled = true;
@@ -13702,9 +13741,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           rPattern += str.substring(j, k) + '_' + p;
           j = k + a.length;
         }
-        if (this.onRPat) {
-          this.onRPat(rPattern);
-        }
+        (_this$onRPat = this.onRPat) === null || _this$onRPat === void 0 || _this$onRPat.call(this, rPattern);
         this.genDateTime = this.genRFunc(rPattern);
         return true;
       }
@@ -14111,9 +14148,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _createClass(VideosParser, [{
       key: "endParser",
       value: function endParser() {
-        if (this._loader) {
-          this._loader.completeTasks();
-        }
+        var _this$_loader;
+        (_this$_loader = this._loader) === null || _this$_loader === void 0 || _this$_loader.completeTasks();
       }
     }, {
       key: "parse",
@@ -16569,8 +16605,8 @@ this.disableSpells();
         if (el.tagName.toLowerCase() !== 'div') {
           el = el.parentNode;
         }
-        var _el6 = el,
-          id = _el6.id;
+        var _el7 = el,
+          id = _el7.id;
         if (!id.startsWith('de-btn')) {
           return;
         }
@@ -16623,10 +16659,9 @@ this.disableSpells();
     }, {
       key: "refreshCap",
       value: function refreshCap() {
+        var _this$cap;
         var isError = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        if (this.cap) {
-          this.cap.refreshCaptcha(isError, isError, this.tNum);
-        }
+        (_this$cap = this.cap) === null || _this$cap === void 0 || _this$cap.refreshCaptcha(isError, isError, this.tNum);
       }
     }, {
       key: "setPlaceholders",
@@ -17059,18 +17094,18 @@ this.disableSpells();
       key: "_toggleQuickReply",
       value: function _toggleQuickReply(tNum) {
         if (this.oeForm) {
-          var _$q4;
-          (_$q4 = $q('input[name="oek_parent"]', this.oeForm)) === null || _$q4 === void 0 || _$q4.remove();
+          var _$q3;
+          (_$q3 = $q('input[name="oek_parent"]', this.oeForm)) === null || _$q3 === void 0 || _$q3.remove();
           if (tNum) {
             this.oeForm.insertAdjacentHTML('afterbegin', "<input type=\"hidden\" value=\"".concat(tNum, "\" name=\"oek_parent\">"));
           }
         }
         if (this.form) {
-          var _$q5;
+          var _$q4;
           if (aib.changeReplyMode && tNum !== this.tNum) {
             aib.changeReplyMode(this.form, tNum);
           }
-          (_$q5 = $q("input[name=\"".concat(aib.formParent, "\"]"), this.form)) === null || _$q5 === void 0 || _$q5.remove();
+          (_$q4 = $q("input[name=\"".concat(aib.formParent, "\"]"), this.form)) === null || _$q4 === void 0 || _$q4.remove();
           if (tNum) {
             this.form.insertAdjacentHTML('afterbegin', "<input type=\"hidden\" name=\"".concat(aib.formParent, "\" value=\"").concat(tNum, "\">"));
           }
@@ -18051,7 +18086,7 @@ this.disableSpells();
     }, {
       key: "changeMode",
       value: function changeMode(showThumbs) {
-        var _$q6;
+        var _$q5;
         $toggle(this._input, !Cfg.fileInputs);
         this._input.toggleAttribute('multiple', aib.multiFile && Cfg.fileInputs);
         $toggle(this._btnRen, Cfg.fileInputs && this.hasFile);
@@ -18069,7 +18104,7 @@ this.disableSpells();
           deWindow.URL.revokeObjectURL(this._mediaEl.src);
         }
         this._toggleDragEvents(this._thumb, false);
-        (_$q6 = $q('.de-file-txt-area')) === null || _$q6 === void 0 || _$q6.remove();
+        (_$q5 = $q('.de-file-txt-area')) === null || _$q5 === void 0 || _$q5.remove();
         this._thumb.remove();
         this._thumb = this._mediaEl = null;
       }
@@ -18362,13 +18397,12 @@ this.disableSpells();
     }, {
       key: "_onFileChange",
       value: function _onFileChange(hasImgFile) {
+        var _this$_parent$onchang, _this$_parent;
         this._txtInput.value = hasImgFile ? this.imgFile.name : this._input.files[0].name;
         if (!hasImgFile) {
           this.imgFile = null;
         }
-        if (this._parent.onchange) {
-          this._parent.onchange();
-        }
+        (_this$_parent$onchang = (_this$_parent = this._parent).onchange) === null || _this$_parent$onchang === void 0 || _this$_parent$onchang.call(_this$_parent);
         if (FileInput._isThumbMode) {
           this._showFileThumb();
         }
@@ -18741,9 +18775,9 @@ this.disableSpells();
       this.ref = new RefMap(this);
       this.thr = thr;
       this._hasEvents = false;
-      this._linkDelay = 0;
+      this._linkTO = null;
       this._menu = null;
-      this._menuDelay = 0;
+      this._menuTO = null;
     }
     _createClass(AbstractPost, [{
       key: "btnFav",
@@ -18876,7 +18910,7 @@ this.disableSpells();
             default:
               return;
           }
-          if (this._menu) {
+          if (this._menu && el.classList.contains('de-menu-item')) {
             this._menu.removeMenu();
             this._menu = null;
           }
@@ -18939,7 +18973,11 @@ this.disableSpells();
           }
           switch (el.classList[0]) {
             case 'de-btn-expthr':
-              this.thr.loadPosts('all');
+              if (nav.isMobile) {
+                this._menuToggleClickBtn(el, arrTags(Lng.selExpandThr[lang], '<span class="de-menu-item" info="thr-exp">', '</span>'));
+              } else {
+                this.thr.loadPosts('all');
+              }
               return;
             case 'de-btn-fav':
               this.thr.toggleFavState(true, isPview ? this : null);
@@ -18951,15 +18989,27 @@ this.disableSpells();
             case 'de-btn-hide-user':
             case 'de-btn-unhide':
             case 'de-btn-unhide-user':
-              this.setUserVisib(!this.isHidden);
+              if (nav.isMobile && Cfg.showHideBtn === 1) {
+                this._menuToggleClickBtn(el, (this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
+              } else {
+                this.setUserVisib(!this.isHidden);
+              }
               return;
             case 'de-btn-img':
-              postform.quotedText = aib.getImgRealName(aib.getImgWrap(el));
-              postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+              if (nav.isMobile) {
+                this._menuToggleClickBtn(el, Menu.getMenuImg(el));
+              } else {
+                postform.quotedText = aib.getImgRealName(aib.getImgWrap(el));
+                postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+              }
               return;
             case 'de-btn-reply':
-              postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
-              postform.quotedText = '';
+              if (nav.isMobile && Cfg.showRepBtn === 1) {
+                this._menuToggleClickBtn(el, this._getMenuReply());
+              } else {
+                postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+                postform.quotedText = '';
+              }
               return;
             case 'de-btn-sage':
 Spells.addSpell(9, '', false);
@@ -18988,7 +19038,9 @@ Spells.addSpell(9, '', false);
         switch (el.classList[0]) {
           case 'de-btn-expthr':
             this.btns.title = Lng.expandThr[lang];
-            this._addMenu(el, isOutEvent, arrTags(Lng.selExpandThr[lang], '<span class="de-menu-item" info="thr-exp">', '</span>'));
+            if (!nav.isMobile) {
+              this._menuToggleOverBtn(el, isOutEvent, arrTags(Lng.selExpandThr[lang], '<span class="de-menu-item" info="thr-exp">', '</span>'));
+            }
             return;
           case 'de-btn-fav':
             this.btns.title = Lng.addFav[lang];
@@ -19001,23 +19053,22 @@ Spells.addSpell(9, '', false);
           case 'de-btn-unhide':
           case 'de-btn-unhide-user':
             this.btns.title = this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang];
-            if (Cfg.showHideBtn === 1) {
-              this._addMenu(el, isOutEvent, (this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
+            if (!nav.isMobile && Cfg.showHideBtn === 1) {
+              this._menuToggleOverBtn(el, isOutEvent, (this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
             }
             return;
           case 'de-btn-img':
-            if (el.parentNode.className !== 'de-fullimg-info') {
-              this._addMenu(el, isOutEvent, Menu.getMenuImg(el));
+            if (!nav.isMobile && el.parentNode.className !== 'de-fullimg-info') {
+              this._menuToggleOverBtn(el, isOutEvent, Menu.getMenuImg(el));
             }
             return;
           case 'de-btn-reply':
             {
-              var title = this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang];
-              if (Cfg.showRepBtn === 1) {
+              if (!nav.isMobile && Cfg.showRepBtn === 1) {
                 if (!isOutEvent) {
                   postform.getSelectedText();
                 }
-                this._addMenu(el, isOutEvent, "<span class=\"de-menu-item\" info=\"post-reply\">".concat(title, "</span>") + (getCookies().atom_access === '1' ? "<a class=\"de-menu-item\" target=\"_blank\" href=\"/".concat(aib.b, "/imgboard.php?manage=&moderate=").concat(this.num, "\">").concat(this.isOp ? Lng.moderateThread[lang] : Lng.moderatePost[lang], "</a>") : '') + (aib.reportForm ? "<span class=\"de-menu-item\" info=\"post-report\">".concat(this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang], "</span>") : '') + (Cfg.markMyPosts || Cfg.markMyLinks ? "<span class=\"de-menu-item\" info=\"post-markmy\">".concat(MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang], "</span>") : ''));
+                this._menuToggleOverBtn(el, isOutEvent, this._getMenuReply());
               }
               return;
             }
@@ -19045,14 +19096,14 @@ Spells.addSpell(9, '', false);
               return;
             }
             if (isOutEvent) {
-              clearTimeout(this._linkDelay);
+              clearTimeout(this._linkTO);
               if (!(aib.getPostOfEl(nav.fixEventEl(e.relatedTarget)) instanceof Pview) && Pview.top) {
                 Pview.top.markToDel(); 
               } else if (this.kid) {
                 this.kid.markToDel(); 
               }
             } else {
-              this._linkDelay = setTimeout(function () {
+              this._linkTO = setTimeout(function () {
                 return _this61.kid = Pview.showPview(_this61, el);
               }, Cfg.linksOver);
             }
@@ -19063,13 +19114,10 @@ Spells.addSpell(9, '', false);
     }, {
       key: "toggleFavBtn",
       value: function toggleFavBtn(isEnable) {
+        var _this$btnFav, _this$thr$btnFav;
         var elClass = isEnable ? 'de-btn-fav-sel' : 'de-btn-fav';
-        if (this.btnFav) {
-          this.btnFav.setAttribute('class', elClass);
-        }
-        if (this.thr.btnFav) {
-          this.thr.btnFav.setAttribute('class', elClass);
-        }
+        (_this$btnFav = this.btnFav) === null || _this$btnFav === void 0 || _this$btnFav.setAttribute('class', elClass);
+        (_this$thr$btnFav = this.thr.btnFav) === null || _this$thr$btnFav === void 0 || _this$thr$btnFav.setAttribute('class', elClass);
       }
     }, {
       key: "updateMsg",
@@ -19119,20 +19167,6 @@ Spells.addSpell(9, '', false);
         });
       }
     }, {
-      key: "_addMenu",
-      value: function _addMenu(el, isOutEvent, html) {
-        var _this63 = this;
-        if (!this.menu || this.menu.parentEl !== el) {
-          if (isOutEvent) {
-            clearTimeout(this._menuDelay);
-          } else {
-            this._menuDelay = setTimeout(function () {
-              return _this63._showMenu(el, html);
-            }, Cfg.linksOver);
-          }
-        }
-      }
-    }, {
       key: "_clickImage",
       value: function _clickImage(el, e) {
         var image = this.images.getImageByEl(el);
@@ -19144,17 +19178,97 @@ Spells.addSpell(9, '', false);
         e.stopPropagation();
       }
     }, {
-      key: "_clickMenu",
+      key: "_downloadImageByLink",
       value: function () {
-        var _clickMenu2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee34(el, e) {
-          var isHide, num, _this$_selRange, start, end, inMsgSel, _this$images$firstAtt, w, wi, h, hash, words, post, isAdd, isPview, task;
+        var _downloadImageByLink2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee34(el, e) {
+          var url, data;
           return _regeneratorRuntime().wrap(function _callee34$(_context37) {
             while (1) switch (_context37.prev = _context37.next) {
               case 0:
+                e.preventDefault();
+                $popup('file-loading', Lng.loading[lang], true);
+                url = el.href;
+                _context37.next = 5;
+                return ContentLoader.loadImgData(url, false);
+              case 5:
+                data = _context37.sent;
+                if (data) {
+                  _context37.next = 9;
+                  break;
+                }
+                $popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
+                return _context37.abrupt("return");
+              case 9:
+                closePopup('file-loading');
+                downloadBlob(new Blob([data], {
+                  type: getFileMime(url)
+                }), el.getAttribute('download'));
+              case 11:
+              case "end":
+                return _context37.stop();
+            }
+          }, _callee34);
+        }));
+        function _downloadImageByLink(_x24, _x25) {
+          return _downloadImageByLink2.apply(this, arguments);
+        }
+        return _downloadImageByLink;
+      }()
+    }, {
+      key: "_getFullMsg",
+      value: function _getFullMsg(truncEl, isInit) {
+        var _this63 = this;
+        if (aib.deleteTruncMsg) {
+          aib.deleteTruncMsg(this, truncEl, isInit);
+          return;
+        }
+        if (!isInit) {
+          $popup('load-fullmsg', Lng.loading[lang], true);
+        }
+        ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(function (form) {
+          var sourceEl;
+          var maybeSpells = new Maybe(SpellsRunner);
+          if (_this63.isOp) {
+            sourceEl = form;
+          } else {
+            var posts = $Q(aib.qPost, form);
+            for (var i = 0, len = posts.length; i < len; ++i) {
+              var post = posts[i];
+              if (_this63.num === aib.getPNum(post)) {
+                sourceEl = post;
+                break;
+              }
+            }
+          }
+          if (sourceEl) {
+            _this63.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
+            truncEl.remove();
+          }
+          if (maybeSpells.hasValue) {
+            maybeSpells.value.endSpells();
+          }
+        }, Function.prototype);
+      }
+    }, {
+      key: "_menuAdd",
+      value: function _menuAdd(el, html) {
+        var _this64 = this;
+        return new Menu(el, html, function (el, e) {
+          return (_this64 instanceof Pview ? pByNum.get(_this64.num) || _this64 : _this64)._menuClickOnOptions(el, e);
+        }, false);
+      }
+    }, {
+      key: "_menuClickOnOptions",
+      value: function () {
+        var _menuClickOnOptions2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee35(el, e) {
+          var isHide, num, _this$_selRange, start, end, inMsgSel, _this$images$firstAtt, w, wi, h, hash, words, post, isAdd, isPview, task;
+          return _regeneratorRuntime().wrap(function _callee35$(_context38) {
+            while (1) switch (_context38.prev = _context38.next) {
+              case 0:
                 isHide = !this.isHidden;
                 num = this.num;
-                _context37.t0 = el.getAttribute('info');
-                _context37.next = _context37.t0 === 'hide-sel' ? 5 : _context37.t0 === 'hide-name' ? 24 : _context37.t0 === 'hide-trip' ? 27 : _context37.t0 === 'hide-img' ? 30 : _context37.t0 === 'hide-imgn' ? 34 : _context37.t0 === 'hide-ihash' ? 37 : _context37.t0 === 'hide-noimg' ? 44 : _context37.t0 === 'hide-text' ? 47 : _context37.t0 === 'hide-notext' ? 50 : _context37.t0 === 'hide-refs' ? 53 : _context37.t0 === 'hide-refsonly' ? 56 : _context37.t0 === 'img-load' ? 59 : _context37.t0 === 'post-markmy' ? 61 : _context37.t0 === 'post-reply' ? 65 : _context37.t0 === 'post-report' ? 69 : _context37.t0 === 'thr-exp' ? 71 : 73;
+                _context38.t0 = el.getAttribute('info');
+                _context38.next = _context38.t0 === 'hide-sel' ? 5 : _context38.t0 === 'hide-name' ? 24 : _context38.t0 === 'hide-trip' ? 27 : _context38.t0 === 'hide-img' ? 30 : _context38.t0 === 'hide-imgn' ? 34 : _context38.t0 === 'hide-ihash' ? 37 : _context38.t0 === 'hide-noimg' ? 44 : _context38.t0 === 'hide-text' ? 47 : _context38.t0 === 'hide-notext' ? 50 : _context38.t0 === 'hide-refs' ? 53 : _context38.t0 === 'hide-refsonly' ? 56 : _context38.t0 === 'img-load' ? 59 : _context38.t0 === 'post-markmy' ? 61 : _context38.t0 === 'post-reply' ? 65 : _context38.t0 === 'post-report' ? 69 : _context38.t0 === 'thr-exp' ? 71 : 73;
                 break;
               case 5:
                 _this$_selRange = this._selRange, start = _this$_selRange.startContainer, end = _this$_selRange.endContainer;
@@ -19166,93 +19280,93 @@ Spells.addSpell(9, '', false);
                 }
                 inMsgSel = "".concat(aib.qPostMsg, ", ").concat(aib.qPostMsg, " *");
                 if (!(nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel) || nav.matchesSelector(start, aib.qPostSubj) && nav.matchesSelector(end, aib.qPostSubj))) {
-                  _context37.next = 19;
+                  _context38.next = 19;
                   break;
                 }
                 if (!this._selText.includes('\n')) {
-                  _context37.next = 15;
+                  _context38.next = 15;
                   break;
                 }
-                _context37.next = 13;
+                _context38.next = 13;
                 return Spells.addSpell(1 , "/".concat(escapeRegExp(this._selText).replace(/\r?\n/g, '\\n'), "/"), false);
               case 13:
-                _context37.next = 17;
+                _context38.next = 17;
                 break;
               case 15:
-                _context37.next = 17;
+                _context38.next = 17;
                 return Spells.addSpell(0 , this._selText.toLowerCase(), false);
               case 17:
-                _context37.next = 23;
+                _context38.next = 23;
                 break;
               case 19:
                 dummy.innerHTML = '';
                 dummy.append(this._selRange.cloneContents());
-                _context37.next = 23;
+                _context38.next = 23;
                 return Spells.addSpell(2 , "/".concat(escapeRegExp(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')), "/"), false);
               case 23:
-                return _context37.abrupt("return");
+                return _context38.abrupt("return");
               case 24:
-                _context37.next = 26;
+                _context38.next = 26;
                 return Spells.addSpell(6 , this.posterName, false);
               case 26:
-                return _context37.abrupt("return");
+                return _context38.abrupt("return");
               case 27:
-                _context37.next = 29;
+                _context38.next = 29;
                 return Spells.addSpell(7 , this.posterTrip, false);
               case 29:
-                return _context37.abrupt("return");
+                return _context38.abrupt("return");
               case 30:
                 _this$images$firstAtt = this.images.firstAttach, w = _this$images$firstAtt.weight, wi = _this$images$firstAtt.width, h = _this$images$firstAtt.height;
-                _context37.next = 33;
+                _context38.next = 33;
                 return Spells.addSpell(8 , [0, [w, w], [wi, wi, h, h]], false);
               case 33:
-                return _context37.abrupt("return");
+                return _context38.abrupt("return");
               case 34:
-                _context37.next = 36;
+                _context38.next = 36;
                 return Spells.addSpell(3 , "/".concat(escapeRegExp(this.images.firstAttach.name), "/"), false);
               case 36:
-                return _context37.abrupt("return");
+                return _context38.abrupt("return");
               case 37:
-                _context37.next = 39;
+                _context38.next = 39;
                 return ImagesHashStorage.getHash(this.images.firstAttach);
               case 39:
-                hash = _context37.sent;
+                hash = _context38.sent;
                 if (!(hash !== -1)) {
-                  _context37.next = 43;
+                  _context38.next = 43;
                   break;
                 }
-                _context37.next = 43;
+                _context38.next = 43;
                 return Spells.addSpell(4 , hash, false);
               case 43:
-                return _context37.abrupt("return");
+                return _context38.abrupt("return");
               case 44:
-                _context37.next = 46;
+                _context38.next = 46;
                 return Spells.addSpell(0x108 , '', true);
               case 46:
-                return _context37.abrupt("return");
+                return _context38.abrupt("return");
               case 47:
                 words = Post.getWrds(this.text);
                 for (post = Thread.first.op; post; post = post.next) {
                   Post.findSameText(num, !isHide, words, post);
                 }
-                return _context37.abrupt("return");
+                return _context38.abrupt("return");
               case 50:
-                _context37.next = 52;
+                _context38.next = 52;
                 return Spells.addSpell(0x10B , '', true);
               case 52:
-                return _context37.abrupt("return");
+                return _context38.abrupt("return");
               case 53:
                 this.ref.toggleRef(isHide, true);
                 this.setUserVisib(isHide);
-                return _context37.abrupt("return");
+                return _context38.abrupt("return");
               case 56:
-                _context37.next = 58;
+                _context38.next = 58;
                 return Spells.addSpell(0 , '>>' + num, false);
               case 58:
-                return _context37.abrupt("return");
+                return _context38.abrupt("return");
               case 59:
                 this._downloadImageByLink(el, e);
-                return _context37.abrupt("return");
+                return _context38.abrupt("return");
               case 61:
                 isAdd = !MyPosts.has(num);
                 if (isAdd) {
@@ -19261,114 +19375,66 @@ Spells.addSpell(9, '', false);
                   MyPosts.removeStorage(num);
                 }
                 this.changeMyMark(isAdd);
-                return _context37.abrupt("return");
+                return _context38.abrupt("return");
               case 65:
                 isPview = this instanceof Pview;
                 postform.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
                 postform.quotedText = '';
-                return _context37.abrupt("return");
+                return _context38.abrupt("return");
               case 69:
                 aib.reportForm(num, this.thr.num);
-                return _context37.abrupt("return");
+                return _context38.abrupt("return");
               case 71:
                 task = +el.textContent.match(/\d+/);
                 this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
               case 73:
               case "end":
-                return _context37.stop();
-            }
-          }, _callee34, this);
-        }));
-        function _clickMenu(_x24, _x25) {
-          return _clickMenu2.apply(this, arguments);
-        }
-        return _clickMenu;
-      }()
-    }, {
-      key: "_downloadImageByLink",
-      value: function () {
-        var _downloadImageByLink2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee35(el, e) {
-          var url, data;
-          return _regeneratorRuntime().wrap(function _callee35$(_context38) {
-            while (1) switch (_context38.prev = _context38.next) {
-              case 0:
-                e.preventDefault();
-                $popup('file-loading', Lng.loading[lang], true);
-                url = el.href;
-                _context38.next = 5;
-                return ContentLoader.loadImgData(url, false);
-              case 5:
-                data = _context38.sent;
-                if (data) {
-                  _context38.next = 9;
-                  break;
-                }
-                $popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
-                return _context38.abrupt("return");
-              case 9:
-                closePopup('file-loading');
-                downloadBlob(new Blob([data], {
-                  type: getFileMime(url)
-                }), el.getAttribute('download'));
-              case 11:
-              case "end":
                 return _context38.stop();
             }
-          }, _callee35);
+          }, _callee35, this);
         }));
-        function _downloadImageByLink(_x26, _x27) {
-          return _downloadImageByLink2.apply(this, arguments);
+        function _menuClickOnOptions(_x26, _x27) {
+          return _menuClickOnOptions2.apply(this, arguments);
         }
-        return _downloadImageByLink;
+        return _menuClickOnOptions;
       }()
     }, {
-      key: "_getFullMsg",
-      value: function _getFullMsg(truncEl, isInit) {
-        var _this64 = this;
-        if (aib.deleteTruncMsg) {
-          aib.deleteTruncMsg(this, truncEl, isInit);
-          return;
-        }
-        if (!isInit) {
-          $popup('load-fullmsg', Lng.loading[lang], true);
-        }
-        ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(function (form) {
-          var sourceEl;
-          var maybeSpells = new Maybe(SpellsRunner);
-          if (_this64.isOp) {
-            sourceEl = form;
-          } else {
-            var posts = $Q(aib.qPost, form);
-            for (var i = 0, len = posts.length; i < len; ++i) {
-              var post = posts[i];
-              if (_this64.num === aib.getPNum(post)) {
-                sourceEl = post;
-                break;
-              }
-            }
-          }
-          if (sourceEl) {
-            _this64.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
-            truncEl.remove();
-          }
-          if (maybeSpells.hasValue) {
-            maybeSpells.value.endSpells();
-          }
-        }, Function.prototype);
-      }
-    }, {
-      key: "_showMenu",
-      value: function _showMenu(el, html) {
-        var _this65 = this;
-        if (this._menu) {
-          this._menu.removeMenu();
-        }
-        this._menu = new Menu(el, html, function (el, e) {
-          return (_this65 instanceof Pview ? pByNum.get(_this65.num) || _this65 : _this65)._clickMenu(el, e);
-        }, false);
+      key: "_menuShowOverBtn",
+      value: function _menuShowOverBtn(el, html) {
+        var _this$_menu2,
+          _this65 = this;
+        (_this$_menu2 = this._menu) === null || _this$_menu2 === void 0 || _this$_menu2.removeMenu();
+        this._menu = this._menuAdd(el, html);
         this._menu.onremove = function () {
           return _this65._menu = null;
         };
+      }
+    }, {
+      key: "_menuToggleClickBtn",
+      value: function _menuToggleClickBtn(el, html) {
+        var _this$_menu3;
+        if ((_this$_menu3 = this._menu) !== null && _this$_menu3 !== void 0 && _this$_menu3.el && this._menu.parentEl === el) {
+          this._menu.removeMenu();
+          this._menu = null;
+          return;
+        }
+        this._menu = this._menuAdd(el, html);
+      }
+    }, {
+      key: "_menuToggleOverBtn",
+      value: function _menuToggleOverBtn(el, isOutEvent, html) {
+        var _this$_menu4,
+          _this66 = this;
+        if (((_this$_menu4 = this._menu) === null || _this$_menu4 === void 0 ? void 0 : _this$_menu4.parentEl) === el) {
+          return;
+        }
+        if (isOutEvent) {
+          clearTimeout(this._menuTO);
+        } else {
+          this._menuTO = setTimeout(function () {
+            return _this66._menuShowOverBtn(el, html);
+          }, Cfg.linksOver);
+        }
       }
     }]);
     return AbstractPost;
@@ -19377,41 +19443,41 @@ Spells.addSpell(9, '', false);
     _inherits(Post, _AbstractPost);
     var _super4 = _createSuper(Post);
     function Post(el, thr, num, count, isOp, prev) {
-      var _this66;
+      var _this67;
       _classCallCheck(this, Post);
-      _this66 = _super4.call(this, thr, num, isOp);
-      _this66.count = count;
-      _this66.el = el;
-      _this66.isDeleted = false;
-      _this66.isHidden = false;
-      _this66.isOmitted = false;
-      _this66.isViewed = false;
-      _this66.next = null;
-      _this66.prev = prev;
-      _this66.spellHidden = false;
-      _this66.userToggled = false;
-      _this66._selRange = null;
-      _this66._selText = '';
+      _this67 = _super4.call(this, thr, num, isOp);
+      _this67.count = count;
+      _this67.el = el;
+      _this67.isDeleted = false;
+      _this67.isHidden = false;
+      _this67.isOmitted = false;
+      _this67.isViewed = false;
+      _this67.next = null;
+      _this67.prev = prev;
+      _this67.spellHidden = false;
+      _this67.userToggled = false;
+      _this67._selRange = null;
+      _this67._selText = '';
       if (prev) {
-        prev.next = _assertThisInitialized(_this66);
+        prev.next = _assertThisInitialized(_this67);
       }
-      pByEl.set(el, _assertThisInitialized(_this66));
-      pByNum.set(num, _assertThisInitialized(_this66));
+      pByEl.set(el, _assertThisInitialized(_this67));
+      pByNum.set(num, _assertThisInitialized(_this67));
       var isMyPost = MyPosts.has(num);
       if (isMyPost) {
-        _this66.el.classList.add('de-mypost');
-      } else if (localData && _this66.el.classList.contains('de-mypost')) {
+        _this67.el.classList.add('de-mypost');
+      } else if (localData && _this67.el.classList.contains('de-mypost')) {
         MyPosts.set(num, thr.num);
         isMyPost = true;
       }
       el.classList.add(isOp ? 'de-oppost' : 'de-reply');
-      _this66.btns = $aEnd(_this66._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) + (_this66.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + (isOp ? '' : "<span class=\"de-post-counter\">".concat(count + 1, "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '') + '</span>');
-      _this66.counterEl = isOp ? null : $q('.de-post-counter', _this66.btns);
-      if (Cfg.expandTrunc && _this66.trunc) {
-        _this66._getFullMsg(_this66.trunc, true);
+      _this67.btns = $aEnd(_this67._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) + (_this67.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + (isOp ? '' : "<span class=\"de-post-counter\">".concat(count + 1, "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '') + '</span>');
+      _this67.counterEl = isOp ? null : $q('.de-post-counter', _this67.btns);
+      if (Cfg.expandTrunc && _this67.trunc) {
+        _this67._getFullMsg(_this67.trunc, true);
       }
-      el.addEventListener('mouseover', _assertThisInitialized(_this66), true);
-      return _this66;
+      el.addEventListener('mouseover', _assertThisInitialized(_this67), true);
+      return _this67;
     }
     _createClass(Post, [{
       key: "banned",
@@ -19599,8 +19665,8 @@ Spells.addSpell(9, '', false);
           HotKeys.cPost = this;
           HotKeys.lastPageOffset = deWindow.pageYOffset;
         } else {
-          var _$q7;
-          (_$q7 = $q('.de-selected')) === null || _$q7 === void 0 || _$q7.unselect();
+          var _$q6;
+          (_$q6 = $q('.de-selected')) === null || _$q6 === void 0 || _$q6.unselect();
         }
         this.select();
       }
@@ -19641,7 +19707,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "setVisib",
       value: function setVisib(isHide) {
-        var _this67 = this;
+        var _this68 = this;
         var note = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
         if (this.isHidden === isHide) {
           if (isHide && note) {
@@ -19657,14 +19723,14 @@ Spells.addSpell(9, '', false);
           } else {
             this._pref.onmouseover = this._pref.onmouseout = !isHide ? null : function (e) {
               var yOffset = deWindow.pageYOffset;
-              _this67.hideContent(e.type === 'mouseout');
+              _this68.hideContent(e.type === 'mouseout');
               scrollTo(deWindow.pageXOffset, yOffset);
             };
           }
         }
         if (Cfg.strikeHidd) {
           setTimeout(function () {
-            return _this67._strikePostNum(isHide);
+            return _this68._strikePostNum(isHide);
           }, 50);
         }
         if (isHide) {
@@ -19732,6 +19798,11 @@ Spells.addSpell(9, '', false);
           this._selRange = sel.getRangeAt(0);
         }
         return "".concat(ssel ? item('sel') : '').concat(this.posterName ? item('name') : '').concat(this.posterTrip ? item('trip') : '').concat(this.images.hasAttachments ? item('img') + item('imgn') + item('ihash') : item('noimg')).concat(this.text ? item('text') : item('notext')).concat(!Cfg.hideRefPsts && this.ref.hasMap ? item('refs') : '').concat(item('refsonly'));
+      }
+    }, {
+      key: "_getMenuReply",
+      value: function _getMenuReply() {
+        return "<span class=\"de-menu-item\" info=\"post-reply\">".concat(this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang], "</span>") + (getCookies().atom_access === '1' ? "<a class=\"de-menu-item\" target=\"_blank\" href=\"/".concat(aib.b, "/imgboard.php?manage=&moderate=").concat(this.num, "\">").concat(this.isOp ? Lng.moderateThread[lang] : Lng.moderatePost[lang], "</a>") : '') + (aib.reportForm ? "<span class=\"de-menu-item\" info=\"post-report\">".concat(this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang], "</span>") : '') + (Cfg.markMyPosts || Cfg.markMyLinks ? "<span class=\"de-menu-item\" info=\"post-markmy\">".concat(MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang], "</span>") : '');
       }
     }, {
       key: "_strikePostNum",
@@ -19857,16 +19928,16 @@ Spells.addSpell(9, '', false);
     _inherits(PostContent, _TemporaryContent);
     var _super5 = _createSuper(PostContent);
     function PostContent(post) {
-      var _this68;
+      var _this69;
       _classCallCheck(this, PostContent);
-      _this68 = _super5.call(this, post);
-      if (_this68._isInited) {
-        return _possibleConstructorReturn(_this68);
+      _this69 = _super5.call(this, post);
+      if (_this69._isInited) {
+        return _possibleConstructorReturn(_this69);
       }
-      _this68._isInited = true;
-      _this68.el = post.el;
-      _this68.post = post;
-      return _this68;
+      _this69._isInited = true;
+      _this69.el = post.el;
+      _this69.post = post;
+      return _this69;
     }
     _createClass(PostContent, [{
       key: "headerEl",
@@ -19981,16 +20052,16 @@ Spells.addSpell(9, '', false);
     }, {
       key: "set",
       value: function set(note) {
-        var _this69 = this;
+        var _this70 = this;
         this.text = note;
         var text;
         if (this.isHideThr) {
           this._aEl.onmouseover = this._aEl.onmouseout = function (e) {
-            return _this69._post.hideContent(e.type === 'mouseout');
+            return _this70._post.hideContent(e.type === 'mouseout');
           };
           this._aEl.onclick = function (e) {
             e.preventDefault();
-            _this69._post.setUserVisib(!_this69._post.isHidden);
+            _this70._post.setUserVisib(!_this70._post.isHidden);
           };
           text = (this._post.title ? "(".concat(this._post.title, ") ") : '') + (note ? "[autohide: ".concat(note, "]") : '');
         } else {
@@ -20061,44 +20132,44 @@ Spells.addSpell(9, '', false);
     _inherits(Pview, _AbstractPost2);
     var _super6 = _createSuper(Pview);
     function Pview(parent, link, pNum, tNum) {
-      var _this70;
+      var _this71;
       _classCallCheck(this, Pview);
-      _this70 = _super6.call(this, parent.thr, pNum, pNum === tNum);
-      _this70.isSticky = false;
-      _this70.parent = parent;
-      _this70.remoteThr = null;
-      _this70.tNum = tNum;
-      _this70._isCached = false;
-      _this70._isLeft = false;
-      _this70._isTop = false;
-      _this70._link = link;
-      _this70._newPos = null;
-      _this70._offsetTop = 0;
-      _this70._readDelay = 0;
+      _this71 = _super6.call(this, parent.thr, pNum, pNum === tNum);
+      _this71.isSticky = false;
+      _this71.parent = parent;
+      _this71.remoteThr = null;
+      _this71.tNum = tNum;
+      _this71._isCached = false;
+      _this71._isLeft = false;
+      _this71._isTop = false;
+      _this71._link = link;
+      _this71._newPos = null;
+      _this71._offsetTop = 0;
+      _this71._readDelay = 0;
       var post = pByNum.get(pNum);
       if (post && (!post.isOp || !(parent instanceof Pview) || !parent._isCached)) {
-        _this70._buildPview(post);
-        return _possibleConstructorReturn(_this70);
+        _this71._buildPview(post);
+        return _possibleConstructorReturn(_this71);
       }
-      _this70._isCached = true;
-      _this70.board = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
-      if (PviewsCache.has(_this70.board + tNum)) {
-        post = PviewsCache.get(_this70.board + tNum).getPost(pNum);
+      _this71._isCached = true;
+      _this71.board = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+      if (PviewsCache.has(_this71.board + tNum)) {
+        post = PviewsCache.get(_this71.board + tNum).getPost(pNum);
         if (post) {
-          _this70._buildPview(post);
+          _this71._buildPview(post);
         } else {
-          _this70._showPview(_this70.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t\t\t").concat(Lng.postNotFound[lang], "</div>")));
+          _this71._showPview(_this71.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t\t\t").concat(Lng.postNotFound[lang], "</div>")));
         }
-        return _possibleConstructorReturn(_this70);
+        return _possibleConstructorReturn(_this71);
       }
-      _this70._showPview(_this70.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t<svg class=\"de-wait\"><use xlink:href=\"#de-symbol-wait\"/></svg>").concat(Lng.loading[lang], "</div>")));
+      _this71._showPview(_this71.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t<svg class=\"de-wait\"><use xlink:href=\"#de-symbol-wait\"/></svg>").concat(Lng.loading[lang], "</div>")));
 
-      _this70._loadPromise = ajaxPostsLoad(_this70.board, tNum, false, false).then(function (pBuilder) {
-        return _this70._onload(pBuilder);
+      _this71._loadPromise = ajaxPostsLoad(_this71.board, tNum, false, false).then(function (pBuilder) {
+        return _this71._onload(pBuilder);
       }, function (err) {
-        return _this70._onerror(err);
+        return _this71._onerror(err);
       });
-      return _this70;
+      return _this71;
     }
     _createClass(Pview, [{
       key: "stickBtn",
@@ -20196,10 +20267,10 @@ Spells.addSpell(9, '', false);
     }, {
       key: "markToDel",
       value: function markToDel() {
-        var _this71 = this;
+        var _this72 = this;
         clearTimeout(Pview._delTO);
         Pview._delTO = setTimeout(function () {
-          return _this71.deleteNonSticky();
+          return _this72.deleteNonSticky();
         }, Cfg.linksOut);
       }
     }, {
@@ -20230,11 +20301,23 @@ Spells.addSpell(9, '', false);
         this.isSticky = isEnabled;
       }
     }, {
+      key: "_menuShowOverBtn",
+      value: function _menuShowOverBtn(el, html) {
+        var _this73 = this;
+        _get(_getPrototypeOf(Pview.prototype), "_menuShowOverBtn", this).call(this, el, html);
+        this._menu.onover = function () {
+          return _this73.mouseEnter();
+        };
+        this._menu.onout = function () {
+          return Pview.top.markToDel();
+        };
+      }
+    }, {
       key: "_buildPview",
       value: function () {
         var _buildPview2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee36(post) {
           var _this$el, _yield$readFavorites$;
-          var isOp, num, pv, isMyPost, isFav, isCached, postsCountHtml, pText, _$q8, btnsEl, link;
+          var isOp, num, pv, isMyPost, isFav, isCached, postsCountHtml, pText, _$q7, btnsEl, link;
           return _regeneratorRuntime().wrap(function _callee36$(_context39) {
             while (1) switch (_context39.prev = _context39.next) {
               case 0:
@@ -20313,7 +20396,7 @@ Spells.addSpell(9, '', false);
                   processImgInfoLinks(this);
                 } else {
                   btnsEl = this.btns = $q('.de-post-btns', pv);
-                  (_$q8 = $q('.de-post-counter', btnsEl)) === null || _$q8 === void 0 || _$q8.remove();
+                  (_$q7 = $q('.de-post-counter', btnsEl)) === null || _$q7 === void 0 || _$q7.remove();
                   if (post.isHidden) {
                     btnsEl.classList.add('de-post-hide');
                   }
@@ -20427,23 +20510,11 @@ Spells.addSpell(9, '', false);
         style.animationName = uId;
       }
     }, {
-      key: "_showMenu",
-      value: function _showMenu(el, html) {
-        var _this72 = this;
-        _get(_getPrototypeOf(Pview.prototype), "_showMenu", this).call(this, el, html);
-        this._menu.onover = function () {
-          return _this72.mouseEnter();
-        };
-        this._menu.onout = function () {
-          return Pview.top.markToDel();
-        };
-      }
-    }, {
       key: "_showPview",
       value: function _showPview(el) {
-        var _this73 = this;
+        var _this74 = this;
         ['mouseover', 'mouseout'].forEach(function (e) {
-          return el.addEventListener(e, _this73, true);
+          return el.addEventListener(e, _this74, true);
         });
         this.thr.form.el.append(el);
         this._setPosition(this._link, false);
@@ -20614,7 +20685,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "thr",
       get: function get() {
-        var _this74 = this;
+        var _this75 = this;
         var value = null;
         if (this.isOp) {
           var postsCount = this._pBuilder.length;
@@ -20624,7 +20695,7 @@ Spells.addSpell(9, '', false);
           };
           Object.defineProperty(value, 'title', {
             get: function get() {
-              return _this74.title;
+              return _this75.title;
             }
           });
         }
@@ -20640,13 +20711,13 @@ Spells.addSpell(9, '', false);
     _inherits(PviewsCache, _TemporaryContent2);
     var _super7 = _createSuper(PviewsCache);
     function PviewsCache(pBuilder, board, tNum) {
-      var _this75;
+      var _this76;
       _classCallCheck(this, PviewsCache);
-      _this75 = _super7.call(this, board + tNum);
-      if (_this75._isInited) {
-        return _possibleConstructorReturn(_this75);
+      _this76 = _super7.call(this, board + tNum);
+      if (_this76._isInited) {
+        return _possibleConstructorReturn(_this76);
       }
-      _this75._isInited = true;
+      _this76._isInited = true;
       var lPByNum = new Map();
       var thrUrl = aib.getThrUrl(board, tNum);
       lPByNum.set(tNum, new CacheItem(pBuilder, thrUrl, 0));
@@ -20654,12 +20725,12 @@ Spells.addSpell(9, '', false);
         lPByNum.set(pBuilder.getPNum(i), new CacheItem(pBuilder, thrUrl, i + 1));
       }
       DelForm.tNums.add(tNum);
-      _this75._b = board;
-      _this75._posts = lPByNum;
+      _this76._b = board;
+      _this76._posts = lPByNum;
       if (Cfg.linksNavig) {
         RefMap.gen(lPByNum);
       }
-      return _this75;
+      return _this76;
     }
     _createClass(PviewsCache, [{
       key: "getPost",
@@ -20692,7 +20763,7 @@ Spells.addSpell(9, '', false);
       this.autoBtn = _ref37[2];
       this._btns = btns;
       this._btnsStyle = btns.style;
-      this._hideTmt = 0;
+      this._hideTO = null;
       this._isHidden = true;
       this._oldX = -1;
       this._oldY = -1;
@@ -20703,7 +20774,7 @@ Spells.addSpell(9, '', false);
     _createClass(ImagesNavigBtns, [{
       key: "handleEvent",
       value: function handleEvent(e) {
-        var _this76 = this;
+        var _this77 = this;
         switch (e.type) {
           case 'mousemove':
             {
@@ -20720,17 +20791,17 @@ Spells.addSpell(9, '', false);
             if (!this.hasEvents) {
               this.hasEvents = true;
               ['mouseout', 'click'].forEach(function (e) {
-                return _this76._btns.addEventListener(e, _this76);
+                return _this77._btns.addEventListener(e, _this77);
               });
             }
             if (!this._isHidden) {
-              clearTimeout(this._hideTmt);
+              clearTimeout(this._hideTO);
               KeyEditListener.setTitle(this.prevBtn, 4);
               KeyEditListener.setTitle(this.nextBtn, 17);
             }
             return;
           case 'mouseout':
-            this._setHideTmt();
+            this._setHideTimeout();
             return;
           case 'click':
             {
@@ -20767,7 +20838,7 @@ Spells.addSpell(9, '', false);
       value: function removeBtns() {
         this._btns.remove();
         doc.defaultView.removeEventListener('mousemove', this);
-        clearTimeout(this._hideTmt);
+        clearTimeout(this._hideTO);
       }
     }, {
       key: "showBtns",
@@ -20775,16 +20846,16 @@ Spells.addSpell(9, '', false);
         if (this._isHidden) {
           this._btnsStyle.removeProperty('display');
           this._isHidden = false;
-          this._setHideTmt();
+          this._setHideTimeout();
         }
       }
     }, {
-      key: "_setHideTmt",
-      value: function _setHideTmt() {
-        var _this77 = this;
-        clearTimeout(this._hideTmt);
-        this._hideTmt = setTimeout(function () {
-          return _this77.hideBtns();
+      key: "_setHideTimeout",
+      value: function _setHideTimeout() {
+        var _this78 = this;
+        clearTimeout(this._hideTO);
+        this._hideTO = setTimeout(function () {
+          return _this78.hideBtns();
         }, 2e3);
       }
     }]);
@@ -20819,7 +20890,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "handleEvent",
       value: function handleEvent(e) {
-        var _this78 = this;
+        var _this79 = this;
         switch (e.type) {
           case 'mousedown':
             if (this.data.isVideo && ExpandableImage.isControlClick(e)) {
@@ -20828,7 +20899,7 @@ Spells.addSpell(9, '', false);
             this._oldX = e.clientX;
             this._oldY = e.clientY;
             ['mousemove', 'mouseup'].forEach(function (e) {
-              return doc.body.addEventListener(e, _this78, true);
+              return doc.body.addEventListener(e, _this79, true);
             });
             break;
           case 'mousemove':
@@ -20848,7 +20919,7 @@ Spells.addSpell(9, '', false);
             }
           case 'mouseup':
             ['mousemove', 'mouseup'].forEach(function (e) {
-              return doc.body.removeEventListener(e, _this78, true);
+              return doc.body.removeEventListener(e, _this79, true);
             });
             return;
           case 'click':
@@ -21044,16 +21115,16 @@ Spells.addSpell(9, '', false);
     }, {
       key: "_showFullImg",
       value: function _showFullImg(data) {
-        var _this79 = this;
+        var _this80 = this;
         var _data$computeFullSize = data.computeFullSize(),
           _data$computeFullSize2 = _slicedToArray(_data$computeFullSize, 3),
           width = _data$computeFullSize2[0],
           height = _data$computeFullSize2[1],
           minSize = _data$computeFullSize2[2];
         this._fullEl = data.getFullImg(false, function (el) {
-          return _this79._resizeFullImg(el);
+          return _this80._resizeFullImg(el);
         }, function (el) {
-          return _this79._rotateFullImg(el);
+          return _this80._rotateFullImg(el);
         });
         this._width = width;
         this._height = height;
@@ -21071,7 +21142,7 @@ Spells.addSpell(9, '', false);
         this.data = data;
         this._parentEl = el;
         ['onwheel' in el ? 'wheel' : 'mousewheel', 'mousedown', 'click'].forEach(function (e) {
-          return el.addEventListener(e, _this79, true);
+          return el.addEventListener(e, _this80, true);
         });
         data.srcBtnEvents(this);
         if (data.inPview && !data.post.isSticky) {
@@ -21174,17 +21245,17 @@ Spells.addSpell(9, '', false);
     }, {
       key: "checkForRedirect",
       value: function checkForRedirect(fullEl) {
-        var _this80 = this;
+        var _this81 = this;
         if (!aib.getImgRedirectSrc || this.redirected) {
           return;
         }
         aib.getImgRedirectSrc(this.src).then(function (newSrc) {
-          _this80.redirected = true;
-          Object.defineProperty(_this80, 'src', {
+          _this81.redirected = true;
+          Object.defineProperty(_this81, 'src', {
             value: newSrc
           });
-          $q('img, video', fullEl).src = _this80.el.src = _this80.el.parentNode.href = getImgNameLink(_this80.el).href = newSrc;
-          if (!_this80.isVideo) {
+          $q('img, video', fullEl).src = _this81.el.src = _this81.el.parentNode.href = getImgNameLink(_this81.el).href = newSrc;
+          if (!_this81.isVideo) {
             $q('a', fullEl).href = newSrc;
           }
         });
@@ -21265,7 +21336,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "expandImg",
       value: function expandImg(inPost, e) {
-        var _this81 = this;
+        var _this82 = this;
         if (e && !e.bubbles) {
           return;
         }
@@ -21291,7 +21362,7 @@ Spells.addSpell(9, '', false);
         (aib.hasPicWrap ? this._getImageParent : this.el.parentNode).insertAdjacentHTML('afterend', '<div class="de-fullimg-after"></div>');
         var fullEl = this._fullEl = this.getFullImg(true, null, null);
         fullEl.addEventListener('click', function (e) {
-          return _this81.collapseImg(e);
+          return _this82.collapseImg(e);
         }, true);
         this.srcBtnEvents(this);
         var parent = this.el.parentNode;
@@ -21332,7 +21403,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "getFullImg",
       value: function getFullImg(inPost, onsizechange, onrotate) {
-        var _this82 = this;
+        var _this83 = this;
         var wrapEl, name, origSrc;
         var src = this._getImageSrc();
         var parent = this._getImageParent;
@@ -21363,10 +21434,10 @@ Spells.addSpell(9, '', false);
             var newW = img.naturalWidth,
               newH = img.naturalHeight,
               scrollWidth = img.scrollWidth;
-            var ar = _this82._size ? _this82._size[1] / _this82._size[0] : newH / newW;
+            var ar = _this83._size ? _this83._size[1] / _this83._size[0] : newH / newW;
             var isRotated = scrollWidth ? img.scrollHeight / scrollWidth > 1 ? ar < 1 : ar > 1 : false;
-            if (!_this82._size || isRotated) {
-              _this82._size = isRotated ? [newH, newW] : [newW, newH];
+            if (!_this83._size || isRotated) {
+              _this83._size = isRotated ? [newH, newW] : [newW, newH];
             }
             var parentEl = img.parentNode.parentNode;
             var waitEl = $q('.de-fullimg-load', parentEl);
@@ -21412,7 +21483,7 @@ Spells.addSpell(9, '', false);
         if (!this._size) {
           videoEl.addEventListener('loadedmetadata', function (_ref40) {
             var el = _ref40.target;
-            _this82._size = [el.videoWidth, el.videoHeight];
+            _this83._size = [el.videoWidth, el.videoHeight];
             onsizechange(wrapEl);
           });
         }
@@ -21474,7 +21545,7 @@ Spells.addSpell(9, '', false);
               }
             }
             var loadedTitle = decodeURIComponent(escape(str));
-            _this82.el.setAttribute('de-metatitle', loadedTitle);
+            _this83.el.setAttribute('de-metatitle', loadedTitle);
             if (str) {
               $q('.de-webm-title', wrapEl).textContent = videoEl.title = loadedTitle.replaceAll('.', ' ');
             }
@@ -21510,22 +21581,29 @@ Spells.addSpell(9, '', false);
     }, {
       key: "srcBtnEvents",
       value: function srcBtnEvents(_ref43) {
-        var _this83 = this;
+        var _this84 = this;
         var _fullEl = _ref43._fullEl;
         if (!Cfg.imgSrcBtns) {
           return;
         }
         var srcBtnEl = $q('.de-btn-img', _fullEl);
-        srcBtnEl.addEventListener('mouseover', function () {
-          return srcBtnEl.odelay = setTimeout(function () {
-            var menuHtml = !_this83.isVideo ? Menu.getMenuImg(srcBtnEl) : Menu.getMenuImg(srcBtnEl, true) + "<span class=\"de-menu-item de-menu-getframe\">".concat(Lng.getFrameLinks[lang], "</span>");
-            new Menu(srcBtnEl, menuHtml, !_this83.isVideo ? Function.prototype : function (optiontEl) {
+        var event = nav.isMobile ? 'click' : 'mouseover';
+        srcBtnEl.addEventListener(event, function () {
+          return srcBtnEl._menuTO = setTimeout(function () {
+            var _srcBtnEl$_menu, _srcBtnEl$_menu2;
+            if (nav.isMobile && (_srcBtnEl$_menu = srcBtnEl._menu) !== null && _srcBtnEl$_menu !== void 0 && _srcBtnEl$_menu.el && ((_srcBtnEl$_menu2 = srcBtnEl._menu) === null || _srcBtnEl$_menu2 === void 0 ? void 0 : _srcBtnEl$_menu2.parentEl) === srcBtnEl) {
+              srcBtnEl._menu.el.remove();
+              srcBtnEl._menu = null;
+              return;
+            }
+            var menuHtml = !_this84.isVideo ? Menu.getMenuImg(srcBtnEl) : Menu.getMenuImg(srcBtnEl, true) + "<span class=\"de-menu-item de-menu-getframe\">".concat(Lng.getFrameLinks[lang], "</span>");
+            srcBtnEl._menu = new Menu(srcBtnEl, menuHtml, !_this84.isVideo ? Function.prototype : function (optiontEl) {
               if (!optiontEl.classList.contains('de-menu-getframe')) {
                 return;
               }
               ContentLoader.getDataFromImg($q('video', _fullEl)).then(function (arr) {
                 $popup('upload', Lng.sending[lang], true);
-                var name = cutFileExt(_this83.name) + '.png';
+                var name = cutFileExt(_this84.name) + '.png';
                 var blob = new Blob([arr], {
                   type: 'image/png'
                 });
@@ -21559,7 +21637,7 @@ Spells.addSpell(9, '', false);
           }, Cfg.linksOver);
         });
         srcBtnEl.addEventListener('mouseout', function (e) {
-          return clearTimeout(e.target.odelay);
+          return clearTimeout(e.target._menuTO);
         });
       }
     }, {
@@ -21718,9 +21796,9 @@ Spells.addSpell(9, '', false);
       if (Cfg.addImgs || localData) {
         els = $Q('.de-img-embed', post.el);
         for (var _i13 = 0, _len6 = els.length; _i13 < _len6; ++_i13) {
-          var _el7 = els[_i13];
-          last = new EmbeddedImage(post, _el7, last);
-          filesMap.set(_el7, last);
+          var _el8 = els[_i13];
+          last = new EmbeddedImage(post, _el8, last);
+          filesMap.set(_el8, last);
           if (!first) {
             first = last;
           }
@@ -21856,18 +21934,18 @@ Spells.addSpell(9, '', false);
       };
     },
     _getHashHelper: function _getHashHelper(_ref46) {
-      var _this84 = this;
+      var _this85 = this;
       return _asyncToGenerator( _regeneratorRuntime().mark(function _callee38() {
         var el, src, data, val, w, h, cnv, ctx, buffer;
         return _regeneratorRuntime().wrap(function _callee38$(_context42) {
           while (1) switch (_context42.prev = _context42.next) {
             case 0:
               el = _ref46.el, src = _ref46.src;
-              if (!(src in _this84._storage)) {
+              if (!(src in _this85._storage)) {
                 _context42.next = 3;
                 break;
               }
-              return _context42.abrupt("return", _this84._storage[src]);
+              return _context42.abrupt("return", _this85._storage[src]);
             case 3:
               if (el.complete) {
                 _context42.next = 6;
@@ -21889,7 +21967,7 @@ Spells.addSpell(9, '', false);
             case 9:
               val = -1;
               w = el.naturalWidth, h = el.naturalHeight;
-              cnv = _this84._canvas;
+              cnv = _this85._canvas;
               cnv.width = w;
               cnv.height = h;
               ctx = cnv.getContext('2d');
@@ -21901,7 +21979,7 @@ Spells.addSpell(9, '', false);
               }
               _context42.next = 20;
               return new Promise(function (resolve) {
-                return _this84._workers.runWorker([buffer, w, h], [buffer], function (val) {
+                return _this85._workers.runWorker([buffer, w, h], [buffer], function (val) {
                   return resolve(val);
                 });
               });
@@ -21911,7 +21989,7 @@ Spells.addSpell(9, '', false);
                 val = data.hash;
               }
             case 22:
-              _this84._storage[src] = val;
+              _this85._storage[src] = val;
               return _context42.abrupt("return", val);
             case 24:
             case "end":
@@ -22356,8 +22434,8 @@ Spells.addSpell(9, '', false);
   }();
   var Thread = function () {
     function Thread(el, num, prev, form) {
-      var _$q9,
-        _this85 = this;
+      var _$q8,
+        _this86 = this;
       _classCallCheck(this, Thread);
       this.hasNew = false;
       this.hiddenCount = 0;
@@ -22368,7 +22446,7 @@ Spells.addSpell(9, '', false);
       this.num = num;
       var els = $Q(aib.qPost, el);
       var len = els.length;
-      var omitted = (!aib.t && +((_$q9 = $q(aib.qOmitted, el)) === null || _$q9 === void 0 || (_$q9 = _$q9.textContent) === null || _$q9 === void 0 ? void 0 : _$q9.match(/\d+/)) || 0) + 1;
+      var omitted = (!aib.t && +((_$q8 = $q(aib.qOmitted, el)) === null || _$q8 === void 0 || (_$q8 = _$q8.textContent) === null || _$q8 === void 0 ? void 0 : _$q8.match(/\d+/)) || 0) + 1;
       this.postsCount = omitted + len;
       this.el = el;
       this.prev = prev;
@@ -22391,7 +22469,7 @@ Spells.addSpell(9, '', false);
       }
       this.btns = $bEnd(el, "<div class=\"de-thr-buttons\">".concat(Post.getPostBtns(true, true), "\n\t\t\t<span class=\"de-thr-updater\">[<a class=\"de-thr-updater-link de-abtn\" href=\"#\"></a>") + (!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>') + '</div>');
       ['click', 'mouseover'].forEach(function (e) {
-        return _this85.btns.addEventListener(e, _this85);
+        return _this86.btns.addEventListener(e, _this86);
       });
       var _ref47 = _toConsumableArray(this.btns.children);
       this.btnHide = _ref47[0];
@@ -22544,14 +22622,14 @@ Spells.addSpell(9, '', false);
     }, {
       key: "loadPosts",
       value: function loadPosts(task) {
-        var _this86 = this;
+        var _this87 = this;
         var isSmartScroll = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var isInformUser = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
         if (isInformUser) {
           $popup('load-thr', Lng.loading[lang], true);
         }
         return ajaxPostsLoad(aib.b, this.num, false).then(function (pBuilder) {
-          return _this86._loadFromBuilder(task, isSmartScroll, pBuilder);
+          return _this87._loadFromBuilder(task, isSmartScroll, pBuilder);
         }, function (err) {
           return $popup('load-thr', getErrorMessage(err));
         });
@@ -22559,9 +22637,9 @@ Spells.addSpell(9, '', false);
     }, {
       key: "loadNewPosts",
       value: function loadNewPosts() {
-        var _this87 = this;
+        var _this88 = this;
         return ajaxPostsLoad(aib.b, this.num, true).then(function (pBuilder) {
-          return pBuilder ? _this87._loadNewFromBuilder(pBuilder) : {
+          return pBuilder ? _this88._loadNewFromBuilder(pBuilder) : {
             newCount: 0,
             locked: false
           };
@@ -22717,7 +22795,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "_loadFromBuilder",
       value: function _loadFromBuilder(last, smartScroll, pBuilder) {
-        var _$q10;
+        var _$q9;
         var nextCoord;
         var maybeSpells = new Maybe(SpellsRunner);
         if (smartScroll) {
@@ -22729,7 +22807,7 @@ Spells.addSpell(9, '', false);
         }
         var op = this.op,
           thrEl = this.el;
-        (_$q10 = $q(aib.qOmitted + ', .de-omitted', thrEl)) === null || _$q10 === void 0 || _$q10.remove();
+        (_$q9 = $q(aib.qOmitted + ', .de-omitted', thrEl)) === null || _$q9 === void 0 || _$q9.remove();
         if (this.loadCount === 0) {
           if (op.trunc) {
             op.updateMsg(pBuilder.getOpMessage(), maybeSpells.value);
@@ -22955,8 +23033,8 @@ Spells.addSpell(9, '', false);
     }, {
       key: "_toggleReplies",
       value: function _toggleReplies() {
-        var _this88 = this,
-          _$q11;
+        var _this89 = this,
+          _$q10;
         var isHide = !this.last.isOmitted;
         var post = this.op;
         var i = 0;
@@ -22966,9 +23044,9 @@ Spells.addSpell(9, '', false);
         }
         this.btnReplies.firstElementChild.className = "".concat(isHide ? 'de-replies-show' : 'de-replies-hide', " de-abtn");
         _toConsumableArray(this.btns.children).forEach(function (el) {
-          return el !== _this88.btnReplies && $toggle(el, !isHide);
+          return el !== _this89.btnReplies && $toggle(el, !isHide);
         });
-        (_$q11 = $q(aib.qOmitted + ', .de-omitted', this.el)) === null || _$q11 === void 0 || _$q11.remove();
+        (_$q10 = $q(aib.qOmitted + ', .de-omitted', this.el)) === null || _$q10 === void 0 || _$q10.remove();
         i = this.postsCount - 1 - (isHide ? 0 : i);
         if (i) {
           this.op.el.insertAdjacentHTML('afterend', "<span class=\"de-omitted\">".concat(i, "</span> "));
@@ -23003,11 +23081,11 @@ Spells.addSpell(9, '', false);
       }
     },
     handleEvent: function handleEvent(e) {
-      var _this89 = this;
+      var _this90 = this;
       switch (e.type) {
         case 'scroll':
           deWindow.requestAnimationFrame(function () {
-            return _this89._checkThreads();
+            return _this90._checkThreads();
           });
           break;
         case 'mouseover':
@@ -23022,10 +23100,10 @@ Spells.addSpell(9, '', false);
       }
     },
     initThrNav: function initThrNav() {
-      var _this90 = this;
+      var _this91 = this;
       var el = $bEnd(doc.body, "\n\t\t<div id=\"de-thr-navpanel\" class=\"de-thr-navpanel-hidden\" style=\"display: none;\">\n\t\t\t<svg id=\"de-thr-navarrow\"><use xlink:href=\"#de-symbol-thr-nav-arrow\"/></svg>\n\t\t\t<div id=\"de-thr-navup\">\n\t\t\t\t<svg viewBox=\"0 0 24 24\"><use xlink:href=\"#de-symbol-thr-nav-up\"/></svg>\n\t\t\t</div>\n\t\t\t<div id=\"de-thr-navdown\">\n\t\t\t\t<svg viewBox=\"0 0 24 24\"><use xlink:href=\"#de-symbol-thr-nav-down\"/></svg>\n\t\t\t</div>\n\t\t</div>");
       ['mouseover', 'mouseout', 'click'].forEach(function (e) {
-        return el.addEventListener(e, _this90, true);
+        return el.addEventListener(e, _this91, true);
       });
       this._el = el;
       this._thrs = new Set();
@@ -23041,7 +23119,7 @@ Spells.addSpell(9, '', false);
     },
     _currentThr: null,
     _el: null,
-    _toggleTO: 0,
+    _toggleTO: null,
     _thrs: null,
     _visible: false,
     _checkThreads: function _checkThreads() {
@@ -23055,26 +23133,26 @@ Spells.addSpell(9, '', false);
         this._toggleNavPanel(true);
       }
     },
-    _expandCollapse: function _expandCollapse(isExpand, rt) {
-      var _this91 = this;
-      if (!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
+    _expandCollapse: function _expandCollapse(isExpand, targetEl) {
+      var _this92 = this;
+      if (!$contains(this._el, targetEl)) {
         clearTimeout(this._toggleTO);
         this._toggleTO = setTimeout(function () {
-          return _this91._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
+          return _this92._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
         }, Cfg.linksOver);
       }
     },
     _findCurrentThread: function _findCurrentThread() {
-      var _this92 = this;
+      var _this93 = this;
       Object.defineProperty(this, '_findCurrentThread', {
         value: 'elementsFromPoint' in doc ? function () {
           return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2).find(function (el) {
-            return _this92._thrs.has(el);
+            return _this93._thrs.has(el);
           });
         } : function () {
           var el = doc.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
           while (el) {
-            if (_this92._thrs.has(el)) {
+            if (_this93._thrs.has(el)) {
               return el;
             }
             el = el.parentElement;
@@ -23124,14 +23202,14 @@ Spells.addSpell(9, '', false);
         }
       },
       playAudio: function playAudio() {
-        var _this93 = this;
+        var _this94 = this;
         this.stopAudio();
         if (this.repeatMS === 0) {
           this._el.play();
           return;
         }
         this._playInterval = setInterval(function () {
-          return _this93._el.play();
+          return _this94._el.play();
         }, this.repeatMS);
       },
       stopAudio: function stopAudio() {
@@ -23152,10 +23230,10 @@ Spells.addSpell(9, '', false);
     };
     var counter = {
       count: function count(delayMS, useCounter, callback) {
-        var _this94 = this;
+        var _this95 = this;
         if (!this._enabled || !useCounter) {
           this._countingTO = setTimeout(function () {
-            _this94._countingTO = null;
+            _this95._countingTO = null;
             callback();
           }, delayMS);
           return;
@@ -23165,10 +23243,10 @@ Spells.addSpell(9, '', false);
         this._countingIV = setInterval(function () {
           seconds--;
           if (seconds === 0) {
-            _this94._stopCounter();
+            _this95._stopCounter();
             callback();
           } else {
-            _this94._set(seconds);
+            _this95._set(seconds);
           }
         }, 1e3);
       },
@@ -23219,7 +23297,7 @@ Spells.addSpell(9, '', false);
         return this._iconEl ? this._iconEl.href : null;
       },
       initIcons: function initIcons() {
-        var _this95 = this;
+        var _this96 = this;
         if (this._isInited) {
           return;
         }
@@ -23227,7 +23305,7 @@ Spells.addSpell(9, '', false);
         var icon = new Image();
         icon.onload = function (e) {
           try {
-            _this95._initIconsHelper(e.target);
+            _this96._initIconsHelper(e.target);
           } catch (err) {
             console.warn('Icon error:', err);
           }
@@ -23235,7 +23313,7 @@ Spells.addSpell(9, '', false);
         icon.src = this._iconEl.href;
       },
       startBlink: function startBlink(isError) {
-        var _this96 = this;
+        var _this97 = this;
         var iconUrl = !this._hasIcons ? this._emptyIcon : isError ? this._iconError : repliesToYou.size ? this._getIconYou(newPosts) : this._getIconNew(newPosts);
         if (this._blinkInterv) {
           if (this._currentIcon === iconUrl) {
@@ -23245,8 +23323,8 @@ Spells.addSpell(9, '', false);
         }
         this._currentIcon = iconUrl;
         this._blinkInterv = setInterval(function () {
-          _this96._isOrigIcon = !_this96._isOrigIcon;
-          _this96._setIcon(_this96._isOrigIcon ? _this96.originalIcon : _this96._currentIcon);
+          _this97._isOrigIcon = !_this97._isOrigIcon;
+          _this97._setIcon(_this97._isOrigIcon ? _this97.originalIcon : _this97._currentIcon);
         }, this._blinkMS);
       },
       stopBlink: function stopBlink() {
@@ -23328,7 +23406,7 @@ Spells.addSpell(9, '', false);
         return canvas.toDataURL('image/png');
       },
       _initIconsHelper: function _initIconsHelper(icon) {
-        var _this97 = this;
+        var _this98 = this;
         var canvas = doc.createElement('canvas');
         var ctx = canvas.getContext('2d');
         var wh = Math.max(icon.naturalHeight, 16 * (deWindow.devicePixelRatio || 1));
@@ -23347,11 +23425,11 @@ Spells.addSpell(9, '', false);
         var iconYouCircle = ctx.getImageData(0, 0, wh, wh);
         this._getIconNew = function (newPosts) {
           var id = newPosts < 10 ? newPosts : 0;
-          return _this97._iconsNew[id] || (_this97._iconsNew[id] = _this97._drawIconsNewYou(ctx, canvas, id, iconNewCircle, scale));
+          return _this98._iconsNew[id] || (_this98._iconsNew[id] = _this98._drawIconsNewYou(ctx, canvas, id, iconNewCircle, scale));
         };
         this._getIconYou = function (newPosts) {
           var id = newPosts < 10 ? newPosts : 0;
-          return _this97._iconsYou[id] || (_this97._iconsYou[id] = _this97._drawIconsNewYou(ctx, canvas, id, iconYouCircle, scale));
+          return _this98._iconsYou[id] || (_this98._iconsYou[id] = _this98._drawIconsNewYou(ctx, canvas, id, iconYouCircle, scale));
         };
         this._hasIcons = true;
       },
@@ -23365,7 +23443,7 @@ Spells.addSpell(9, '', false);
         return Cfg.desktNotif && this._granted;
       },
       checkPermission: function checkPermission() {
-        var _this98 = this;
+        var _this99 = this;
         return _asyncToGenerator( _regeneratorRuntime().mark(function _callee39() {
           return _regeneratorRuntime().wrap(function _callee39$(_context45) {
             while (1) switch (_context45.prev = _context45.next) {
@@ -23378,7 +23456,7 @@ Spells.addSpell(9, '', false);
                 _context45.next = _context45.t0 === 'default' ? 4 : _context45.t0 === 'denied' ? 6 : 8;
                 break;
               case 4:
-                _this98._requestPermission();
+                _this99._requestPermission();
                 return _context45.abrupt("break", 8);
               case 6:
                 _context45.next = 8;
@@ -23397,7 +23475,7 @@ Spells.addSpell(9, '', false);
         }
       },
       showNotif: function showNotif() {
-        var _this99 = this;
+        var _this100 = this;
         var lngQuantity = function lngQuantity(num) {
           var new10 = num % 10;
           return lang === 1 ? +(num !== 1) : new10 > 4 || new10 === 0 || (num % 100 / 10 | 0) === 1 ? 2 : new10 === 1 ? 0 : 1;
@@ -23411,7 +23489,7 @@ Spells.addSpell(9, '', false);
         });
         notif.onshow = function () {
           return setTimeout(function () {
-            return notif === _this99._notifEl && _this99.closeNotif();
+            return notif === _this100._notifEl && _this100.closeNotif();
           }, 12e3);
         };
         notif.onclick = function () {
@@ -23419,15 +23497,14 @@ Spells.addSpell(9, '', false);
         };
         notif.onerror = function () {
           deWindow.focus();
-          _this99._requestPermission();
+          _this100._requestPermission();
         };
         this._notifEl = notif;
       },
-      _closeTO: null,
       _granted: true,
       _notifEl: null,
       _requestPermission: function _requestPermission() {
-        var _this100 = this;
+        var _this101 = this;
         this._granted = false;
         Notification.requestPermission( function () {
           var _ref48 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee40(state) {
@@ -23444,7 +23521,7 @@ Spells.addSpell(9, '', false);
                   _context46.next = 6;
                   break;
                 case 5:
-                  _this100._granted = true;
+                  _this101._granted = true;
                 case 6:
                 case "end":
                   return _context46.stop();
@@ -23552,7 +23629,7 @@ Spells.addSpell(9, '', false);
         this._makeStep();
       },
       _makeStep: function _makeStep() {
-        var _this101 = this;
+        var _this102 = this;
         var needSleep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
         while (true) {
           switch (this._state) {
@@ -23560,7 +23637,7 @@ Spells.addSpell(9, '', false);
               if (needSleep) {
                 this._state = 1;
                 counter.count(this._delay, !doc.hidden, function () {
-                  return _this101._makeStep();
+                  return _this102._makeStep();
                 });
                 return;
               }
@@ -23570,9 +23647,9 @@ Spells.addSpell(9, '', false);
               this._loadPromise = Thread.first.loadNewPosts().then(function (_ref49) {
                 var newCount = _ref49.newCount,
                   locked = _ref49.locked;
-                return _this101._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
+                return _this102._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
               }, function (err) {
-                return _this101._handleNewPosts(0, err);
+                return _this102._handleNewPosts(0, err);
               });
               return;
             case 2:
@@ -23971,10 +24048,11 @@ Spells.addSpell(9, '', false);
       isESNext: typeof deMainFuncOuter === 'undefined',
       isFirefox: isFirefox,
       isMsEdge: ua.includes('Edge/'),
+      isMobile: /Android|iPhone/i.test(ua),
       isPresto: !!deWindow.opera,
       isSafari: isSafari,
       isWebkit: isWebkit,
-      ua: navigator.userAgent + (isFirefox ? " [".concat(navigator.buildID, "]") : ''),
+      ua: ua + (isFirefox ? " [".concat(navigator.buildID, "]") : ''),
       get canPlayMP3() {
         var value = !!new Audio().canPlayType('audio/mpeg;');
         Object.defineProperty(this, 'canPlayMP3', {
@@ -24568,23 +24646,23 @@ Spells.addSpell(9, '', false);
       _inherits(Dollchan, _BaseBoard);
       var _super10 = _createSuper(Dollchan);
       function Dollchan() {
-        var _this102;
+        var _this103;
         _classCallCheck(this, Dollchan);
         for (var _len7 = arguments.length, args = new Array(_len7), _key4 = 0; _key4 < _len7; _key4++) {
           args[_key4] = arguments[_key4];
         }
-        _this102 = _super10.call.apply(_super10, [this].concat(args));
-        _this102.qDelForm = $id('posts') ? '#posts' : '#delform';
-        _this102.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
-        _this102.qPages = '.pagelist';
-        _this102.qPostImg = 'img.thumb, video.thumb';
-        _this102.qPostMsg = '.message';
-        _this102.qPostRef = '.post-reflink';
-        _this102.hasCatalog = true;
-        _this102.markupBB = true;
-        _this102.multiFile = true;
-        _this102.timePattern = 'yy+nn+dd+w+hh+ii+ss';
-        return _this102;
+        _this103 = _super10.call.apply(_super10, [this].concat(args));
+        _this103.qDelForm = $id('posts') ? '#posts' : '#delform';
+        _this103.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+        _this103.qPages = '.pagelist';
+        _this103.qPostImg = 'img.thumb, video.thumb';
+        _this103.qPostMsg = '.message';
+        _this103.qPostRef = '.post-reflink';
+        _this103.hasCatalog = true;
+        _this103.markupBB = true;
+        _this103.multiFile = true;
+        _this103.timePattern = 'yy+nn+dd+w+hh+ii+ss';
+        return _this103;
       }
       _createClass(Dollchan, [{
         key: "captchaInit",
@@ -24620,7 +24698,7 @@ Spells.addSpell(9, '', false);
       }, {
         key: "reportForm",
         get: function get() {
-          var _this103 = this;
+          var _this104 = this;
           var value = function value(pNum, tNum) {
             return $q('input[type="button"]', $popup('edit-report', "<input name=\"reason\" value=\"\" placeholder=\"".concat(pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang], "\" type=\"text\"> <input value=\"OK\" type=\"button\">"))).onclick = function (e) {
               var inpEl = e.target.previousElementSibling;
@@ -24641,7 +24719,7 @@ Spells.addSpell(9, '', false);
               }
               closePopup('edit-report');
               $popup('report', Lng.sending[lang], true);
-              var url = _this103.protocol + '//' + _this103.host + '/' + _this103.b + '/imgboard.php?report&addreport&json=1';
+              var url = _this104.protocol + '//' + _this104.host + '/' + _this104.b + '/imgboard.php?report&addreport&json=1';
               $ajax(url, {
                 method: 'POST',
                 data: formData,
@@ -24711,7 +24789,7 @@ Spells.addSpell(9, '', false);
 
   var DollchanAPI = {
     initAPI: function initAPI() {
-      var _this104 = this;
+      var _this105 = this;
       this.hasListeners = false;
       if (!('MessageChannel' in deWindow)) {
         return;
@@ -24723,7 +24801,7 @@ Spells.addSpell(9, '', false);
       var port = channel.port2;
       doc.defaultView.addEventListener('message', function (e) {
         if (e.data === 'de-request-api-message') {
-          _this104.hasListeners = true;
+          _this105.hasListeners = true;
           doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
         }
       });
@@ -24948,7 +25026,7 @@ Spells.addSpell(9, '', false);
       Cfg.animation = 0;
     }
     var p = Math.max(Cfg.minImgSize || 0, 50);
-    x += "\n\t/* Full images */\n\t.de-img-embed, .de-fullimg { border: none; outline: none; cursor: pointer; image-orientation: from-image; }\n\t.de-img-embed { max-width: 200px; max-height: 200px; }\n\t.de-fullimg { display: block; }\n\t.de-fullimg, .de-fullimg-wrap-link { flex: 0 0 auto; transition: none !important; max-width: none; max-height: none; }\n\t.de-fullimg-after { clear: left; }\n\t.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-fullimg-info { position: absolute; bottom: -22px; left: 50%; padding: 1px 4px; transform: translateX(-50%); background-color: rgba(64,64,64,.8); white-space: nowrap; line-height: 17px; }\n\t.de-fullimg-info > .de-btn-img { color: #fff; }\n\t.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }\n\t.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }\n\t.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\n\t.de-fullimg-rotated { transform-origin: top left; width: auto !important; max-width: none !important; }\n\t.de-fullimg-scale { color: #fff; font: bold 12px tahoma; cursor: default; }\n\t.de-fullimg-video-hack { width: 100%; height: calc(100% - 40px); position: absolute; z-index: 1; cursor: pointer; }\n\t.de-fullimg-wrap { position: relative; margin-bottom: 24px; }\n\t.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: 100%; height: 100%; max-height: 100%; }\n\t.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }\n\t.de-fullimg-wrap-inpost { min-width: ".concat(p, "px; min-height: ").concat(p, "px; float: left; ").concat(aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ', " }\n\t.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }\n\t.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }\n\t.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }\n\t#de-img-btn-auto { right: 0; margin-top: 58px; }\n\t.de-img-btn-auto-on { color: #ffe100; }\n\t#de-img-btn-next { right: 0; margin-top: -18px; }\n\t.de-img-btn-none { display: none; }\n\t#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }\n\t#de-img-btn-rotate { right: 0; margin-top: 20px; }\n\t.de-webm-title { color: #ffe100 !important; font: bold 12px tahoma; }\n\n\t/* Embedders */\n\t").concat(contentIcon('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico'), "\n\t").concat(contentIcon('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico'), "\n\t").concat(contentIcon('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw=='), "\n\t").concat(contentIcon('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw=='), "\n\t.de-current::after { content: \" \u25CF\"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }\n\t#de-video-buttons > a:not(:hover) { color: inherit; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; color: inherit; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: \"\u2795\"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC\"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: \" [\" attr(de-time) \"]\"; color: red; }\n\t.de-video-title[de-time].de-current::after { content: \" [\" attr(de-time) \"] \u25CF\"; color: red; }\n\t.de-vocaroo { display: block; }\n\tvideo { background: black; }\n\n\t/* File inputs */\n\t.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ").concat(p = aib.multiFile ? 90 : 130, "px; width: ").concat(p, "px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }\n\t.de-file > .de-file-img > div { display: flex; justify-content: center; align-items: center; height: ").concat(p, "px; cursor: pointer; }\n\t.de-file > .de-file-utils { display: none; height: 18px; margin-top: -20px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; -moz-box-sizing: initial; box-sizing: initial; }\n\t.de-file > .de-file-utils > .de-file-rarmsg { display: block; position: absolute; bottom: 20px; width: 100%; margin: 0; background: rgba(64,64,64,.6); color: #fff; }\n\t#de-file-area { margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }\n\timg.de-file-img, video.de-file-img { max-width: ").concat(p, "px; max-height: ").concat(p, "px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-input + .de-file-utils { margin-left: 4px; }\n\t.de-file-off > .de-file-img > div::after { content: \"").concat(Lng.dropFileHere[lang], "\"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }\n\t.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { margin: 0 1px; width: 16px; height: 16px; cursor: pointer; }\n\t.de-file-btn-del > svg, .de-file-btn-rar > svg, .de-file-btn-ren > svg, .de-file-btn-txt > svg { width: 16px; height: 16px; }\n\t.de-file-spoil { margin: 0 3px; vertical-align: 1px; }\n\t.de-file-txt-add { margin-left: 2px; padding: 0 !important; width: 22px; font-weight: bold; }\n\t.de-file-txt-input { flex-grow: 1; border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }\n\t.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }\n\t.de-file-txt-wrap { display: inline-flex; width: 100%; }\n\t.de-file-utils { display: inline-flex; float: none; align-items: center; }\n\t.de-file-wrap { display: flex; align-items: center; }\n\n\t/* Reply form */\n\t.de-parea { text-align: center; clear: both; }\n\t.de-parea-btn-close::after { content: \"").concat(Lng.hideForm[lang], "\"; }\n\t.de-parea-btn-thr::after { content: \"").concat(Lng.makeThr[lang], "\"; }\n\t.de-parea-btn-reply::after { content: \"").concat(Lng.makeReply[lang], "\"; }\n\t#de-pform > form { padding: 0; margin: 0; border: none; }\n\t#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ").concat(nav.isPresto ? '-2px -10px' : '0 0 -2px -10px', "; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\n\t.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\n\t.de-win-inpost > .de-resizer { display: none; }\n\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\n\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\n\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\n\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\n\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\n\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\n\t#de-sagebtn { display: inline-block; margin: 3px 4px 0 4px !important; cursor: pointer; }\n\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }\n\n\t/* Thread navigation */\n\t#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px; }\n\t#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\n\t.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\n\t.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\n\t#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\n\t#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\n\t#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\n\t:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }\n\n\t/* Other */\n\t.de-abtn { text-decoration: none !important; outline: none; }\n\t.de-button { flex: none; padding: 0 ").concat(nav.isFirefox ? 2 : 4, "px !important; margin: 1px 2px; min-width: auto !iportant; height: 24px; font: 13px arial; }\n\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\n\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\n\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\n\tinput[type=\"text\"].de-input-selected { background: rgba(255,255,150,0.4) !important }\n\t.de-link-backref { text-decoration: none; }\n\t.de-link-parent { outline: 1px dotted !important; }\n\t.de-link-pview { font-weight: bold; }\n\t.de-list { padding-top: 4px; }\n\t.de-list::before { content: \"\u25CF\"; margin-right: 4px; }\n\t.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }\n\t.de-logo > svg { width: 130px; height: 130px; }\n\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }\n\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\n\t.de-menu-item:hover { background-color: #222; color: #fff; }\n\t.de-omitted { color: grey; }\n\t.de-omitted::before { content: \"").concat(Lng.postsOmitted[lang], "\"; }\n\t.de-page-num { clear: both; }\n\t.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }\n\t.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }\n\t.de-popup-msg { display: inline-block; white-space: pre-wrap; }\n\t.de-popup-msg > hr { margin: 0 !important; }\n\t.de-post-hiddencontent { display: none !important; }\n\t.de-pview { position: absolute !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\n\t.de-pview-info { padding: 3px 6px !important; }\n\t.de-ref-del::after { content: \" (Del)\"; }\n\t.de-ref-op::after { content: \" (OP)\"; }\n\t.de-refcomma:last-child { display: none; }\n\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\n\t.de-refmap::before { content: \"").concat(Lng.replies[lang], " \"; }\n\t.de-replies-hide::after { content: \"").concat(Lng.hidePosts[lang], "\"; }\n\t.de-replies-show::after { content: \"").concat(Lng.showPosts[lang], "\"; }\n\t.de-thr-buttons { clear: left; margin-top: 5px; }\n\t").concat(aib.t ? '.de-thr-buttons > .de-btn-reply { display: none; }' : '', "\n\t.de-thr-collapse-link::after { content: \"").concat(Lng.collapseThr[lang], "\"; }\n\t.de-thr-hid { display: block; padding: 2px; }\n\t.de-thr-updater-link::after { content: \"").concat(Lng.getNewPosts[lang], "\"; }\n\t#de-updater-count::before { content: \": \"; }\n\t.de-viewed { color: #747488 !important; }\n\t.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }\n\t.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\n\t#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\n\t@keyframes de-wait-anim { to { transform: rotate(360deg); } }\n\tform > hr { clear: both }");
+    x += "\n\t/* Full images */\n\t.de-img-embed, .de-fullimg { border: none; outline: none; cursor: pointer; image-orientation: from-image; }\n\t.de-img-embed { max-width: 200px; max-height: 200px; }\n\t.de-fullimg { display: block; }\n\t.de-fullimg, .de-fullimg-wrap-link { flex: 0 0 auto; transition: none !important; max-width: none; max-height: none; }\n\t.de-fullimg-after { clear: left; }\n\t.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-fullimg-info { position: absolute; bottom: -22px; left: 50%; padding: 1px 4px; transform: translateX(-50%); background-color: rgba(64,64,64,.8); white-space: nowrap; line-height: 17px; }\n\t.de-fullimg-info > .de-btn-img { color: #fff; }\n\t.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }\n\t.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }\n\t.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\n\t.de-fullimg-rotated { transform-origin: top left; width: auto !important; max-width: none !important; }\n\t.de-fullimg-scale { color: #fff; font: bold 12px tahoma; cursor: default; }\n\t.de-fullimg-video-hack { width: 100%; height: calc(100% - 40px); position: absolute; z-index: 1; cursor: pointer; }\n\t.de-fullimg-wrap { position: relative; margin-bottom: 24px; }\n\t.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: 100%; height: 100%; max-height: 100%; }\n\t.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }\n\t.de-fullimg-wrap-inpost { min-width: ".concat(p, "px; min-height: ").concat(p, "px; float: left; ").concat(aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ', " }\n\t.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }\n\t.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }\n\t.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }\n\t#de-img-btn-auto { right: 0; margin-top: 58px; }\n\t.de-img-btn-auto-on { color: #ffe100; }\n\t#de-img-btn-next { right: 0; margin-top: -18px; }\n\t.de-img-btn-none { display: none; }\n\t#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }\n\t#de-img-btn-rotate { right: 0; margin-top: 20px; }\n\t.de-webm-title { color: #ffe100 !important; font: bold 12px tahoma; }\n\n\t/* Embedders */\n\t").concat(contentIcon('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico'), "\n\t").concat(contentIcon('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico'), "\n\t").concat(contentIcon('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw=='), "\n\t").concat(contentIcon('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw=='), "\n\t.de-current::after { content: \" \u25CF\"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }\n\t#de-video-buttons > a:not(:hover) { color: inherit; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; color: inherit; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: \"\u2795\"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC\"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: \" [\" attr(de-time) \"]\"; color: red; }\n\t.de-video-title[de-time].de-current::after { content: \" [\" attr(de-time) \"] \u25CF\"; color: red; }\n\t.de-vocaroo { display: block; }\n\tvideo { background: black; }\n\n\t/* File inputs */\n\t.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ").concat(p = aib.multiFile ? 90 : 130, "px; width: ").concat(p, "px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }\n\t.de-file > .de-file-img > div { display: flex; justify-content: center; align-items: center; height: ").concat(p, "px; cursor: pointer; }\n\t.de-file > .de-file-utils { display: none; height: 18px; margin-top: -20px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; -moz-box-sizing: initial; box-sizing: initial; }\n\t.de-file > .de-file-utils > .de-file-rarmsg { display: block; position: absolute; bottom: 20px; width: 100%; margin: 0; background: rgba(64,64,64,.6); color: #fff; }\n\t#de-file-area { margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }\n\timg.de-file-img, video.de-file-img { max-width: ").concat(p, "px; max-height: ").concat(p, "px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-input + .de-file-utils { margin-left: 4px; }\n\t.de-file-off > .de-file-img > div::after { content: \"").concat(Lng.dropFileHere[lang], "\"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }\n\t.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { margin: 0 1px; width: 16px; height: 16px; cursor: pointer; }\n\t.de-file-btn-del > svg, .de-file-btn-rar > svg, .de-file-btn-ren > svg, .de-file-btn-txt > svg { width: 16px; height: 16px; }\n\t.de-file-spoil { margin: 0 3px; vertical-align: 1px; }\n\t.de-file-txt-add { margin-left: 2px; padding: 0 !important; width: 22px; font-weight: bold; }\n\t.de-file-txt-input { flex-grow: 1; border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }\n\t.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }\n\t.de-file-txt-wrap { display: inline-flex; width: 100%; }\n\t.de-file-utils { display: inline-flex; float: none; align-items: center; }\n\t.de-file-wrap { display: flex; align-items: center; }\n\n\t/* Reply form */\n\t.de-parea { text-align: center; clear: both; }\n\t.de-parea-btn-close::after { content: \"").concat(Lng.hideForm[lang], "\"; }\n\t.de-parea-btn-thr::after { content: \"").concat(Lng.makeThr[lang], "\"; }\n\t.de-parea-btn-reply::after { content: \"").concat(Lng.makeReply[lang], "\"; }\n\t#de-pform > form { padding: 0; margin: 0; border: none; }\n\t#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ").concat(nav.isPresto ? '-2px -10px' : '0 0 -2px -10px', "; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\n\t.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\n\t.de-win-inpost > .de-resizer { display: none; }\n\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\n\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\n\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\n\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\n\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\n\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\n\t#de-sagebtn { display: inline-block; margin: 3px 4px 0 4px !important; cursor: pointer; }\n\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }\n\n\t/* Thread navigation */\n\t#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px; }\n\t#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\n\t.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\n\t.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\n\t#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\n\t#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\n\t#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\n\t:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }\n\n\t/* Other */\n\t.de-abtn { text-decoration: none !important; outline: none; }\n\t.de-button { flex: none; padding: 0 ").concat(nav.isFirefox ? 2 : 4, "px !important; margin: 1px 2px; min-width: auto !iportant; height: 24px; font: 13px arial; }\n\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\n\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\n\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\n\tinput[type=\"text\"].de-input-selected { background: rgba(255,255,150,0.4) !important }\n\t.de-link-backref { text-decoration: none; }\n\t.de-link-parent { outline: 1px dotted !important; }\n\t.de-link-pview { font-weight: bold; }\n\t.de-list { padding-top: 4px; }\n\t.de-list::before { content: \"\u25CF\"; margin-right: 4px; }\n\t.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }\n\t.de-logo > svg { width: 130px; height: 130px; }\n\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }\n\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\n\t.de-menu-item:hover { background-color: #222; color: #fff; }\n\t.de-omitted { color: grey; }\n\t.de-omitted::before { content: \"").concat(Lng.postsOmitted[lang], "\"; }\n\t.de-page-num { clear: both; }\n\t.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }\n\t.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }\n\t.de-popup-msg { display: inline-block; white-space: pre-wrap; }\n\t.de-popup-msg > hr { margin: 0 !important; }\n\t.de-post-hiddencontent { display: none !important; }\n\t.de-pview { position: absolute !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\n\t.de-pview-info { padding: 3px 6px !important; }\n\t.de-ref-del::after { content: \" (Del)\"; }\n\t.de-ref-op::after { content: \" (OP)\"; }\n\t.de-refcomma:last-child { display: none; }\n\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\n\t.de-refmap::before { content: \"").concat(Lng.replies[lang], " \"; }\n\t.de-replies-hide::after { content: \"").concat(Lng.hidePosts[lang], "\"; }\n\t.de-replies-show::after { content: \"").concat(Lng.showPosts[lang], "\"; }\n\t.de-thr-buttons { clear: left; margin-top: 5px; }\n\t").concat(aib.t ? '.de-thr-buttons > .de-btn-reply { display: none; }' : '', "\n\t.de-thr-collapse-link::after { content: \"").concat(Lng.collapseThr[lang], "\"; }\n\t.de-thr-hid { display: block; padding: 2px; }\n\t.de-thr-updater-link::after { content: \"").concat(Lng.getNewPosts[lang], "\"; }\n\t#de-updater-count::before { content: \": \"; }\n\t.de-viewed { color: #747488 !important; }\n\t.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }\n\t.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\n\t#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\n\t@keyframes de-wait-anim { to { transform: rotate(360deg); } }\n\tform > hr { clear: both }\n\n\t/* Mobile devices */\n\t@media screen and (max-width: 768px) {\n\t\t.de-video-obj {\n\t\t\tmax-width: calc(100vw - 6px);\n\t\t\tmargin: 5px 0;\n\t\t}\n\t}");
     $css(x).id = 'de-css';
     $css('').id = 'de-css-dynamic';
     $css('').id = 'de-css-user';

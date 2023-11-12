@@ -80,17 +80,56 @@ class Menu {
 			isFixed ? 'fixed' : 'absolute' }; left: 0px; top: 0px; visibility: hidden;">${ html }</div>`);
 		const cr = parentEl.getBoundingClientRect();
 		const { style, offsetWidth: w, offsetHeight: h } = el;
+		this.el = el;
 		style.left = (isFixed ? 0 : deWindow.pageXOffset) +
 			(cr.left + w < Post.sizing.wWidth ? cr.left : cr.right - w) + 'px';
 		style.top = (isFixed ? 0 : deWindow.pageYOffset) +
 			(cr.bottom + h < Post.sizing.wHeight ? cr.bottom - 0.5 : cr.top - h + 0.5) + 'px';
 		style.removeProperty('visibility');
 		this._clickFn = clickFn;
-		this._el = el;
 		this.parentEl = parentEl;
 		['mouseover', 'mouseout'].forEach(e => el.addEventListener(e, this, true));
 		el.addEventListener('click', this);
 		parentEl.addEventListener('mouseout', this);
+	}
+	static addMenu(el) {
+		const tags = a => arrTags(a, '<span class="de-menu-item">', '</span>');
+		switch(el.id) {
+		case 'de-btn-spell-add':
+			return new Menu(el, `<div style="display: inline-block; border-right: 1px solid grey;">${
+				tags('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(','))
+			}</div><div style="display: inline-block;">${
+				tags('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')) }</div>`,
+			({ textContent: s }) => insertText($id('de-spell-txt'), s +
+				(!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : `[${ aib.b },${ aib.t }]`) +
+				(Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : '')));
+		case 'de-panel-refresh':
+			return new Menu(el, tags(Lng.selAjaxPages[lang]),
+				el => Pages.loadPages(Array.prototype.indexOf.call(el.parentNode.children, el) + 1));
+		case 'de-panel-savethr':
+			return new Menu(el, tags($q(aib.qPostImg, DelForm.first.el) ?
+				Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]),
+			el => {
+				if($id('de-popup-savethr')) {
+					return;
+				}
+				const imgOnly = !!Array.prototype.indexOf.call(el.parentNode.children, el);
+				if(ContentLoader.isLoading) {
+					$popup('savethr', Lng.loading[lang], true);
+					ContentLoader.afterFn = () => ContentLoader.downloadThread(imgOnly);
+					ContentLoader.popupId = 'savethr';
+				} else {
+					ContentLoader.downloadThread(imgOnly);
+				}
+			});
+		case 'de-panel-audio-off':
+			return new Menu(el, tags(Lng.selAudioNotif[lang]), el => {
+				updater.enableUpdater();
+				updater.toggleAudio(
+					[3e4, 6e4, 12e4, 3e5][Array.prototype.indexOf.call(el.parentNode.children, el)]);
+				$id('de-panel-audio-off').id = 'de-panel-audio-on';
+			});
+		}
 	}
 	static getMenuImg(data, isDlOnly = false) {
 		let p;
@@ -157,74 +196,27 @@ class Menu {
 			/* falls through */
 		case 'mouseout': {
 			clearTimeout(this._closeTO);
-			let rt = nav.fixEventEl(e.relatedTarget);
-			rt = rt?.farthestViewportElement || rt;
-			if(!rt || (rt !== this._el && !this._el.contains(rt))) {
+			const targetEl = nav.fixEventEl(e.relatedTarget);
+			if(!$contains(this.el, targetEl)) {
 				if(isOverEvent) {
-					if(this.onover) {
-						this.onover();
-					}
-				} else if(!rt || (rt !== this.parentEl && !this.parentEl.contains(rt))) {
+					this.onover?.();
+				} else if(!$contains(this.parentEl, targetEl)) {
 					this._closeTO = setTimeout(() => this.removeMenu(), 75);
-					if(this.onout) {
-						this.onout();
-					}
+					this.onout?.();
 				}
 			}
 		}
 		}
 	}
 	removeMenu() {
-		if(!this._el) {
+		if(!this.el) {
 			return;
 		}
-		if(this.onremove) {
-			this.onremove();
-		}
-		['mouseover', 'mouseout'].forEach(e => this._el.removeEventListener(e, this, true));
+		this.onremove?.();
+		['mouseover', 'mouseout'].forEach(e => this.el.removeEventListener(e, this, true));
 		this.parentEl.removeEventListener('mouseout', this);
-		this._el.removeEventListener('click', this);
-		this._el.remove();
-		this._el = null;
-	}
-}
-
-function addMenu(el) {
-	const fn = a => arrTags(a, '<span class="de-menu-item">', '</span>');
-	switch(el.id) {
-	case 'de-btn-spell-add':
-		return new Menu(el, `<div style="display: inline-block; border-right: 1px solid grey;">${
-			fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(','))
-		}</div><div style="display: inline-block;">${
-			fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')) }</div>`,
-		({ textContent: s }) => insertText($id('de-spell-txt'), s +
-			(!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : `[${ aib.b },${ aib.t }]`) +
-			(Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : '')));
-	case 'de-panel-refresh':
-		return new Menu(el, fn(Lng.selAjaxPages[lang]),
-			el => Pages.loadPages(Array.prototype.indexOf.call(el.parentNode.children, el) + 1));
-	case 'de-panel-savethr':
-		return new Menu(el, fn($q(aib.qPostImg, DelForm.first.el) ?
-			Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]),
-		el => {
-			if($id('de-popup-savethr')) {
-				return;
-			}
-			const imgOnly = !!Array.prototype.indexOf.call(el.parentNode.children, el);
-			if(ContentLoader.isLoading) {
-				$popup('savethr', Lng.loading[lang], true);
-				ContentLoader.afterFn = () => ContentLoader.downloadThread(imgOnly);
-				ContentLoader.popupId = 'savethr';
-			} else {
-				ContentLoader.downloadThread(imgOnly);
-			}
-		});
-	case 'de-panel-audio-off':
-		return new Menu(el, fn(Lng.selAudioNotif[lang]), el => {
-			updater.enableUpdater();
-			updater.toggleAudio(
-				[3e4, 6e4, 12e4, 3e5][Array.prototype.indexOf.call(el.parentNode.children, el)]);
-			$id('de-panel-audio-off').id = 'de-panel-audio-on';
-		});
+		this.el.removeEventListener('click', this);
+		this.el.remove();
+		this.el = null;
 	}
 }

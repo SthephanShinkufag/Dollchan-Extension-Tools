@@ -17,9 +17,7 @@ const HotKeys = {
 	disableHotKeys() {
 		if(this.enabled) {
 			this.enabled = false;
-			if(this.cPost) {
-				this.cPost.unselect();
-			}
+			this.cPost?.unselect();
 			this.clearCPost();
 			this.gKeys = this.ntKeys = this.tKeys = null;
 			doc.removeEventListener('keydown', this, true);
@@ -326,9 +324,7 @@ const HotKeys = {
 				}
 				post = tPost;
 			}
-			if(this.cPost) {
-				this.cPost.unselect();
-			}
+			this.cPost?.unselect();
 			this.cPost = getThread ? getFull ? post.op : post.op.prev : getFull ? post : post.prev;
 			this.lastPageOffset = deWindow.pageYOffset;
 		}

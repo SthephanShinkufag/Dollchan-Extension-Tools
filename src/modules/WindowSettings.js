@@ -485,8 +485,8 @@ const CfgWindow = {
 			if(el.id === 'de-btn-spell-add') {
 				switch(e.type) {
 				case 'click': e.preventDefault(); break;
-				case 'mouseover': el.odelay = setTimeout(() => addMenu(el), Cfg.linksOver); break;
-				case 'mouseout': clearTimeout(el.odelay);
+				case 'mouseover': el._menuTO = setTimeout(() => Menu.addMenu(el), Cfg.linksOver); break;
+				case 'mouseout': clearTimeout(el._menuTO);
 				}
 				return;
 			}

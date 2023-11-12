@@ -18,7 +18,7 @@ class ImagesNavigBtns {
 		[this.prevBtn, this.nextBtn, this.autoBtn] = [...btns.children];
 		this._btns = btns;
 		this._btnsStyle = btns.style;
-		this._hideTmt = 0;
+		this._hideTO = null;
 		this._isHidden = true;
 		this._oldX = -1;
 		this._oldY = -1;
@@ -43,12 +43,12 @@ class ImagesNavigBtns {
 				['mouseout', 'click'].forEach(e => this._btns.addEventListener(e, this));
 			}
 			if(!this._isHidden) {
-				clearTimeout(this._hideTmt);
+				clearTimeout(this._hideTO);
 				KeyEditListener.setTitle(this.prevBtn, 4);
 				KeyEditListener.setTitle(this.nextBtn, 17);
 			}
 			return;
-		case 'mouseout': this._setHideTmt(); return;
+		case 'mouseout': this._setHideTimeout(); return;
 		case 'click': {
 			const parent = e.target.parentNode;
 			const viewer = this._viewer;
@@ -73,19 +73,19 @@ class ImagesNavigBtns {
 	removeBtns() {
 		this._btns.remove();
 		doc.defaultView.removeEventListener('mousemove', this);
-		clearTimeout(this._hideTmt);
+		clearTimeout(this._hideTO);
 	}
 	showBtns() {
 		if(this._isHidden) {
 			this._btnsStyle.removeProperty('display');
 			this._isHidden = false;
-			this._setHideTmt();
+			this._setHideTimeout();
 		}
 	}
 
-	_setHideTmt() {
-		clearTimeout(this._hideTmt);
-		this._hideTmt = setTimeout(() => this.hideBtns(), 2e3);
+	_setHideTimeout() {
+		clearTimeout(this._hideTO);
+		this._hideTO = setTimeout(() => this.hideBtns(), 2e3);
 	}
 }
 
@@ -734,11 +734,17 @@ class ExpandableImage {
 			return;
 		}
 		const srcBtnEl = $q('.de-btn-img', _fullEl);
-		srcBtnEl.addEventListener('mouseover', () => (srcBtnEl.odelay = setTimeout(() => {
+		const event = nav.isMobile ? 'click' : 'mouseover';
+		srcBtnEl.addEventListener(event, () => (srcBtnEl._menuTO = setTimeout(() => {
+			if(nav.isMobile && srcBtnEl._menu?.el && srcBtnEl._menu?.parentEl === srcBtnEl) {
+				srcBtnEl._menu.el.remove();
+				srcBtnEl._menu = null;
+				return;
+			}
 			const menuHtml = !this.isVideo ? Menu.getMenuImg(srcBtnEl) :
-				Menu.getMenuImg(srcBtnEl, true) + `<span class="de-menu-item de-menu-getframe">${
-					Lng.getFrameLinks[lang] }</span>`;
-			new Menu(srcBtnEl, menuHtml, !this.isVideo ? Function.prototype : optiontEl => {
+				Menu.getMenuImg(srcBtnEl, true) +
+					`<span class="de-menu-item de-menu-getframe">${ Lng.getFrameLinks[lang] }</span>`;
+			srcBtnEl._menu = new Menu(srcBtnEl, menuHtml, !this.isVideo ? Function.prototype : optiontEl => {
 				if(!optiontEl.classList.contains('de-menu-getframe')) {
 					return;
 				}
@@ -768,7 +774,7 @@ class ExpandableImage {
 				}, Function.prototype);
 			});
 		}, Cfg.linksOver)));
-		srcBtnEl.addEventListener('mouseout', e => clearTimeout(e.target.odelay));
+		srcBtnEl.addEventListener('mouseout', e => clearTimeout(e.target._menuTO));
 	}
 
 	get _size() {

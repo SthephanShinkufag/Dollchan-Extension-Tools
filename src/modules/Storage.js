@@ -395,9 +395,7 @@ class PostsStorage {
 					locStorage[this.storageName] = JSON.stringify(this._cachedStorage);
 				}
 				this.purge();
-				if(this._onAfterSave) {
-					this._onAfterSave();
-				}
+				this._onAfterSave?.();
 			}, 0);
 		}
 	}

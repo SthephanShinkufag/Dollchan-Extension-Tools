@@ -449,9 +449,7 @@ class FileInput {
 		if(!hasImgFile) {
 			this.imgFile = null;
 		}
-		if(this._parent.onchange) {
-			this._parent.onchange();
-		}
+		this._parent.onchange?.();
 		if(FileInput._isThumbMode) {
 			this._showFileThumb();
 		}

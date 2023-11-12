@@ -302,9 +302,7 @@ class VideosParser {
 		this._loader = Videos._getTitlesLoader();
 	}
 	endParser() {
-		if(this._loader) {
-			this._loader.completeTasks();
-		}
+		this._loader?.completeTasks();
 	}
 	parse(data) {
 		const isPost = data instanceof AbstractPost;
