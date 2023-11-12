@@ -49,12 +49,16 @@ const Panel = Object.create({
 		</div>`);
 		this._el = $id('de-panel');
 		this._el.addEventListener('click', this, true);
-		['mouseover', 'mouseout'].forEach(e => this._el.addEventListener(e, this));
+		if(!nav.isMobile) {
+			['mouseover', 'mouseout'].forEach(e => this._el.addEventListener(e, this));
+		}
 		this._buttons = $id('de-panel-buttons');
 	},
 	removeMain() {
 		this._el.removeEventListener('click', this, true);
-		['mouseover', 'mouseout'].forEach(e => this._el.removeEventListener(e, this));
+		if(!nav.isMobile) {
+			['mouseover', 'mouseout'].forEach(e => this._el.removeEventListener(e, this));
+		}
 		delete this._postsCountEl;
 		delete this._filesCountEl;
 		delete this._postersCountEl;
@@ -74,8 +78,12 @@ const Panel = Object.create({
 			e.preventDefault();
 			switch(el.id) {
 			case 'de-panel-logo':
-				if(Cfg.expandPanel && !$q('.de-win-active')) {
-					$hide(this._buttons);
+				if(Cfg.expandPanel) {
+					if(!$q('.de-win-active')) {
+						$hide(this._buttons);
+					}
+				} else {
+					$show(this._buttons);
 				}
 				await toggleCfg('expandPanel');
 				return;
@@ -86,7 +94,13 @@ const Panel = Object.create({
 				this.isVidEnabled = !this.isVidEnabled;
 				toggleWindow('vid', false);
 				return;
-			case 'de-panel-refresh': deWindow.location.reload(); return;
+			case 'de-panel-refresh':
+				if(nav.isMobile && !aib.t) {
+					this._menuToggleClickBtn(el);
+				} else {
+					deWindow.location.reload();
+				}
+				return;
 			case 'de-panel-goup': scrollTo(0, 0); return;
 			case 'de-panel-godown': scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight); return;
 			case 'de-panel-expimg':
@@ -117,16 +131,33 @@ const Panel = Object.create({
 				updater.toggle();
 				return;
 			case 'de-panel-audio-on':
-			case 'de-panel-audio-off':
-				if(updater.toggleAudio(0)) {
+				if(nav.isMobile) {
+					updater.toggleAudio(0);
+					el.id = 'de-panel-audio-off';
+					return;
+				}
+				/* falls through */
+			case 'de-panel-audio-off': {
+				if(nav.isMobile) {
+					this._menuToggleClickBtn(el);
+					return;
+				} else if(updater.toggleAudio(0)) {
 					updater.enableUpdater();
 					el.id = 'de-panel-audio-on';
 				} else {
 					el.id = 'de-panel-audio-off';
 				}
-				$q('.de-menu')?.remove();
+				if(this._menu) {
+					this._menu.removeMenu();
+					this._menu = null;
+				}
 				return;
-			case 'de-panel-savethr': return;
+			}
+			case 'de-panel-savethr':
+				if(nav.isMobile) {
+					this._menuToggleClickBtn(el);
+				}
+				return;
 			case 'de-panel-enable':
 				await toggleCfg('disabled');
 				deWindow.location.reload();
@@ -152,26 +183,25 @@ const Panel = Object.create({
 				}
 				/* falls through */
 			case 'de-panel-savethr':
-			case 'de-panel-audio-off':
+			case 'de-panel-audio-off': {
 				if(this._menu?.parentEl === el) {
 					return;
 				}
 				this._menuTO = setTimeout(() => {
-					this._menu = addMenu(el);
+					this._menu = Menu.addMenu(el);
 					this._menu.onover = () => clearTimeout(this._hideTO);
-					this._menu.onout = () => this._prepareToHide(null);
+					this._menu.onout = () => this._setHideTimeout(null);
 					this._menu.onremove = () => (this._menu = null);
 				}, Cfg.linksOver);
 			}
+			}
 			return;
 		default: // mouseout
-			this._prepareToHide(nav.fixEventEl(e.relatedTarget));
+			this._setHideTimeout(nav.fixEventEl(e.relatedTarget));
 			switch(el.id) {
 			case 'de-panel-refresh':
 			case 'de-panel-savethr':
-			case 'de-panel-audio-off':
-				clearTimeout(this._menuTO);
-				this._menuTO = 0;
+			case 'de-panel-audio-off': clearTimeout(this._menuTO);
 			}
 		}
 	},
@@ -190,9 +220,9 @@ const Panel = Object.create({
 	},
 
 	_el     : null,
-	_hideTO : 0,
+	_hideTO : null,
 	_menu   : null,
-	_menuTO : 0,
+	_menuTO : null,
 	get _filesCountEl() {
 		const value = $id('de-panel-info-files');
 		Object.defineProperty(this, '_filesCountEl', { value, configurable: true });
@@ -249,10 +279,16 @@ const Panel = Object.create({
 			</svg>
 		</${ tag }>`;
 	},
-	_prepareToHide(rt) {
-		if(!Cfg.expandPanel && !$q('.de-win-active') &&
-			(!rt || !this._el.contains(rt.farthestViewportElement || rt))
-		) {
+	_menuToggleClickBtn(buttonEl) {
+		if(this._menu?.el && this._menu.parentEl === buttonEl) {
+			this._menu.removeMenu();
+			this._menu = null;
+			return;
+		}
+		this._menu = Menu.addMenu(buttonEl);
+	},
+	_setHideTimeout(targetEl) {
+		if(!Cfg.expandPanel && !$q('.de-win-active') && !$contains(this._el, targetEl)) {
 			this._hideTO = setTimeout(() => $hide(this._buttons), 500);
 		}
 	}

@@ -10,9 +10,9 @@ class AbstractPost {
 		this.ref = new RefMap(this);
 		this.thr = thr;
 		this._hasEvents = false;
-		this._linkDelay = 0;
+		this._linkTO = null;
 		this._menu = null;
-		this._menuDelay = 0;
+		this._menuTO = null;
 	}
 	get btnFav() {
 		const value = $q('.de-btn-fav, .de-btn-fav-sel', this.btns);
@@ -86,7 +86,7 @@ class AbstractPost {
 			default: return;
 			}
 			// Hide the dropdown menu after the click on its option
-			if(this._menu) {
+			if(this._menu && el.classList.contains('de-menu-item')) {
 				this._menu.removeMenu();
 				this._menu = null;
 			}
@@ -158,20 +158,42 @@ class AbstractPost {
 			}
 			// Click on post buttons
 			switch(el.classList[0]) {
-			case 'de-btn-expthr': this.thr.loadPosts('all'); return;
+			case 'de-btn-expthr':
+				if(nav.isMobile) {
+					this._menuToggleClickBtn(el, arrTags(Lng.selExpandThr[lang],
+						'<span class="de-menu-item" info="thr-exp">', '</span>'));
+				} else {
+					this.thr.loadPosts('all');
+				}
+				return;
 			case 'de-btn-fav': this.thr.toggleFavState(true, isPview ? this : null); return;
 			case 'de-btn-fav-sel': this.thr.toggleFavState(false, isPview ? this : null); return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':
-			case 'de-btn-unhide-user': this.setUserVisib(!this.isHidden); return;
+			case 'de-btn-unhide-user':
+				if(nav.isMobile && Cfg.showHideBtn === 1) {
+					this._menuToggleClickBtn(el,
+						(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
+				} else {
+					this.setUserVisib(!this.isHidden);
+				}
+				return;
 			case 'de-btn-img':
-				postform.quotedText = aib.getImgRealName(aib.getImgWrap(el));
-				postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+				if(nav.isMobile) {
+					this._menuToggleClickBtn(el, Menu.getMenuImg(el));
+				} else {
+					postform.quotedText = aib.getImgRealName(aib.getImgWrap(el));
+					postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+				}
 				return;
 			case 'de-btn-reply':
-				postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
-				postform.quotedText = '';
+				if(nav.isMobile && Cfg.showRepBtn === 1) {
+					this._menuToggleClickBtn(el, this._getMenuReply());
+				} else {
+					postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+					postform.quotedText = '';
+				}
 				return;
 			case 'de-btn-sage': /* await */ Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.toggleSticky(true); return;
@@ -198,8 +220,10 @@ class AbstractPost {
 		switch(el.classList[0]) {
 		case 'de-btn-expthr':
 			this.btns.title = Lng.expandThr[lang];
-			this._addMenu(el, isOutEvent, arrTags(Lng.selExpandThr[lang],
-				'<span class="de-menu-item" info="thr-exp">', '</span>'));
+			if(!nav.isMobile) {
+				this._menuToggleOverBtn(el, isOutEvent, arrTags(Lng.selExpandThr[lang],
+					'<span class="de-menu-item" info="thr-exp">', '</span>'));
+			}
 			return;
 		case 'de-btn-fav': this.btns.title = Lng.addFav[lang]; return;
 		case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
@@ -208,30 +232,22 @@ class AbstractPost {
 		case 'de-btn-unhide':
 		case 'de-btn-unhide-user':
 			this.btns.title = this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang];
-			if(Cfg.showHideBtn === 1) {
-				this._addMenu(el, isOutEvent,
+			if(!nav.isMobile && Cfg.showHideBtn === 1) {
+				this._menuToggleOverBtn(el, isOutEvent,
 					(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
 			}
 			return;
 		case 'de-btn-img':
-			if(el.parentNode.className !== 'de-fullimg-info') {
-				this._addMenu(el, isOutEvent, Menu.getMenuImg(el));
+			if(!nav.isMobile && el.parentNode.className !== 'de-fullimg-info') {
+				this._menuToggleOverBtn(el, isOutEvent, Menu.getMenuImg(el));
 			}
 			return;
 		case 'de-btn-reply': {
-			const title = this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang];
-			if(Cfg.showRepBtn === 1) {
+			if(!nav.isMobile && Cfg.showRepBtn === 1) {
 				if(!isOutEvent) {
 					postform.getSelectedText();
 				}
-				this._addMenu(el, isOutEvent,
-					`<span class="de-menu-item" info="post-reply">${ title }</span>` +
-					(aib.reportForm ? `<span class="de-menu-item" info="post-report">${
-						this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : ''
-					) +
-					(Cfg.markMyPosts || Cfg.markMyLinks ? `<span class="de-menu-item" info="post-markmy">${
-						MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang] }</span>` : ''
-					));
+				this._menuToggleOverBtn(el, isOutEvent, this._getMenuReply());
 			}
 			return;
 		}
@@ -256,14 +272,14 @@ class AbstractPost {
 				return;
 			}
 			if(isOutEvent) { // Mouseout - We need to delete previews
-				clearTimeout(this._linkDelay);
+				clearTimeout(this._linkTO);
 				if(!(aib.getPostOfEl(nav.fixEventEl(e.relatedTarget)) instanceof Pview) && Pview.top) {
 					Pview.top.markToDel(); // If cursor is not over one of previews - delete all previews
 				} else if(this.kid) {
 					this.kid.markToDel(); // If cursor is over any preview - delete its kids
 				}
 			} else { // Mouseover - we need to show a preview for this link
-				this._linkDelay = setTimeout(() => (this.kid = Pview.showPview(this, el)), Cfg.linksOver);
+				this._linkTO = setTimeout(() => (this.kid = Pview.showPview(this, el)), Cfg.linksOver);
 			}
 			e.preventDefault();
 			e.stopPropagation();
@@ -271,12 +287,8 @@ class AbstractPost {
 	}
 	toggleFavBtn(isEnable) {
 		const elClass = isEnable ? 'de-btn-fav-sel' : 'de-btn-fav';
-		if(this.btnFav) {
-			this.btnFav.setAttribute('class', elClass);
-		}
-		if(this.thr.btnFav) {
-			this.thr.btnFav.setAttribute('class', elClass);
-		}
+		this.btnFav?.setAttribute('class', elClass);
+		this.thr.btnFav?.setAttribute('class', elClass);
 	}
 	updateMsg(newMsg, sRunner) {
 		let videoExt, videoLinks;
@@ -315,15 +327,6 @@ class AbstractPost {
 		});
 	}
 
-	_addMenu(el, isOutEvent, html) {
-		if(!this.menu || this.menu.parentEl !== el) {
-			if(isOutEvent) {
-				clearTimeout(this._menuDelay);
-			} else {
-				this._menuDelay = setTimeout(() => this._showMenu(el, html), Cfg.linksOver);
-			}
-		}
-	}
 	_clickImage(el, e) {
 		const image = this.images.getImageByEl(el);
 		if(!image || (!image.isImage && !image.isVideo)) {
@@ -333,7 +336,55 @@ class AbstractPost {
 		e.preventDefault();
 		e.stopPropagation();
 	}
-	async _clickMenu(el, e) {
+	async _downloadImageByLink(el, e) {
+		e.preventDefault();
+		$popup('file-loading', Lng.loading[lang], true);
+		const url = el.href;
+		const data = await ContentLoader.loadImgData(url, false);
+		if(!data) {
+			$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
+			return;
+		}
+		closePopup('file-loading');
+		downloadBlob(new Blob([data], { type: getFileMime(url) }), el.getAttribute('download'));
+	}
+	_getFullMsg(truncEl, isInit) {
+		if(aib.deleteTruncMsg) {
+			aib.deleteTruncMsg(this, truncEl, isInit);
+			return;
+		}
+		if(!isInit) {
+			$popup('load-fullmsg', Lng.loading[lang], true);
+		}
+		ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(form => {
+			let sourceEl;
+			const maybeSpells = new Maybe(SpellsRunner);
+			if(this.isOp) {
+				sourceEl = form;
+			} else {
+				const posts = $Q(aib.qPost, form);
+				for(let i = 0, len = posts.length; i < len; ++i) {
+					const post = posts[i];
+					if(this.num === aib.getPNum(post)) {
+						sourceEl = post;
+						break;
+					}
+				}
+			}
+			if(sourceEl) {
+				this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
+				truncEl.remove();
+			}
+			if(maybeSpells.hasValue) {
+				maybeSpells.value.endSpells();
+			}
+		}, Function.prototype);
+	}
+	_menuAdd(el, html) {
+		return new Menu(el, html, (el, e) =>
+			(this instanceof Pview ? pByNum.get(this.num) || this : this)._menuClickOnOptions(el, e), false);
+	}
+	async _menuClickOnOptions(el, e) {
 		const isHide = !this.isHidden;
 		const { num } = this;
 		switch(el.getAttribute('info')) {
@@ -419,57 +470,28 @@ class AbstractPost {
 		}
 		}
 	}
-	async _downloadImageByLink(el, e) {
-		e.preventDefault();
-		$popup('file-loading', Lng.loading[lang], true);
-		const url = el.href;
-		const data = await ContentLoader.loadFileData(url, false);
-		if(!data) {
-			$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
-			return;
-		}
-		closePopup('file-loading');
-		downloadBlob(new Blob([data], { type: getFileMime(url) }), el.getAttribute('download'));
-	}
-	_getFullMsg(truncEl, isInit) {
-		if(aib.deleteTruncMsg) {
-			aib.deleteTruncMsg(this, truncEl, isInit);
-			return;
-		}
-		if(!isInit) {
-			$popup('load-fullmsg', Lng.loading[lang], true);
-		}
-		ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(form => {
-			let sourceEl;
-			const maybeSpells = new Maybe(SpellsRunner);
-			if(this.isOp) {
-				sourceEl = form;
-			} else {
-				const posts = $Q(aib.qPost, form);
-				for(let i = 0, len = posts.length; i < len; ++i) {
-					const post = posts[i];
-					if(this.num === aib.getPNum(post)) {
-						sourceEl = post;
-						break;
-					}
-				}
-			}
-			if(sourceEl) {
-				this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
-				truncEl.remove();
-			}
-			if(maybeSpells.hasValue) {
-				maybeSpells.value.endSpells();
-			}
-		}, Function.prototype);
-	}
-	_showMenu(el, html) {
-		if(this._menu) {
-			this._menu.removeMenu();
-		}
-		this._menu = new Menu(el, html, (el, e) =>
-			(this instanceof Pview ? pByNum.get(this.num) || this : this)._clickMenu(el, e), false);
+	_menuShowOverBtn(el, html) {
+		this._menu?.removeMenu();
+		this._menu = this._menuAdd(el, html);
 		this._menu.onremove = () => (this._menu = null);
+	}
+	_menuToggleClickBtn(el, html) {
+		if(this._menu?.el && this._menu.parentEl === el) {
+			this._menu.removeMenu();
+			this._menu = null;
+			return;
+		}
+		this._menu = this._menuAdd(el, html);
+	}
+	_menuToggleOverBtn(el, isOutEvent, html) {
+		if(this._menu?.parentEl === el) {
+			return;
+		}
+		if(isOutEvent) {
+			clearTimeout(this._menuTO);
+		} else {
+			this._menuTO = setTimeout(() => this._menuShowOverBtn(el, html), Cfg.linksOver);
+		}
 	}
 }
 
@@ -845,6 +867,20 @@ class Post extends AbstractPost {
 			this.text ? item('text') : item('notext') }${
 			!Cfg.hideRefPsts && this.ref.hasMap ? item('refs') : '' }${
 			item('refsonly') }`;
+	}
+	_getMenuReply() {
+		return `<span class="de-menu-item" info="post-reply">${
+			this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang]
+		}</span>` +
+		(getCookies().atom_access === '1' ? `<a class="de-menu-item" target="_blank" href="/${
+			aib.b }/imgboard.php?manage=&moderate=${ this.num }">${
+			this.isOp ? Lng.moderateThread[lang] : Lng.moderatePost[lang] }</a>` : '') +
+		(aib.reportForm ? `<span class="de-menu-item" info="post-report">${
+			this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : '') +
+		(Cfg.markMyPosts || Cfg.markMyLinks ?
+			`<span class="de-menu-item" info="post-markmy">${
+				MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang]
+			}</span>` : '');
 	}
 	_strikePostNum(isHide) {
 		const { num } = this;

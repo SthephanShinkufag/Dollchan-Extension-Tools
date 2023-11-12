@@ -74,9 +74,7 @@ class DateTime {
 			rPattern += str.substring(j, k) + '_' + p;
 			j = k + a.length;
 		}
-		if(this.onRPat) {
-			this.onRPat(rPattern);
-		}
+		this.onRPat?.(rPattern);
 		this.genDateTime = this.genRFunc(rPattern);
 		return true;
 	}

@@ -20,6 +20,11 @@ function $match(parentStr, ...rules) {
 	return parentStr.split(', ').map(val => val + rules.join(', ' + val)).join(', ');
 }
 
+function $contains(containerEl, el) {
+	el = el?.farthestViewportElement /* for SVG */ || el;
+	return el && (el === containerEl || containerEl.contains(el));
+}
+
 // DOM MODIFIERS
 
 function $bBegin(siblingEl, html) {
@@ -390,9 +395,7 @@ class TemporaryContent {
 		this.data = null;
 	}
 	static removeTempData(key) {
-		if(this.data) {
-			this.data.delete(key);
-		}
+		this.data?.delete(key);
 	}
 }
 TemporaryContent.purgeSecs = 6e4;

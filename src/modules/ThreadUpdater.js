@@ -308,7 +308,6 @@ function initThreadUpdater(title, enableUpdate) {
 			this._notifEl = notif;
 		},
 
-		_closeTO : null,
 		_granted : true,
 		_notifEl : null,
 		_requestPermission() {

@@ -239,9 +239,7 @@ class PostForm {
 		e.stopPropagation();
 	}
 	refreshCap(isError = false) {
-		if(this.cap) {
-			this.cap.refreshCaptcha(isError, isError, this.tNum);
-		}
+		this.cap?.refreshCaptcha(isError, isError, this.tNum);
 	}
 	setPlaceholders() {
 		if(aib.formHeaders || !aib.multiFile && Cfg.fileInputs === 2) {

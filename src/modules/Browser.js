@@ -102,13 +102,14 @@ function initNavFuncs() {
 		isESNext         : typeof deMainFuncOuter === 'undefined',
 		isFirefox,
 		isMsEdge         : ua.includes('Edge/'),
+		isMobile         : /Android|iPhone/i.test(ua),
 		isPresto         : !!deWindow.opera,
 		isSafari,
 		isTampermonkey   : scriptHandler.startsWith('Tampermonkey'),
 		isViolentmonkey  : scriptHandler.startsWith('Violentmonkey'),
 		isWebkit,
 		scriptHandler,
-		ua               : navigator.userAgent + (isFirefox ? ` [${ navigator.buildID }]` : ''),
+		ua               : ua + (isFirefox ? ` [${ navigator.buildID }]` : ''),
 
 		get canPlayMP3() {
 			const value = !!new Audio().canPlayType('audio/mpeg;');
