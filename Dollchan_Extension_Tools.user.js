@@ -8054,7 +8054,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '23.9.19.0';
-  var commit = 'e5edd4e';
+  var commit = '14928d2';
 
 
   var doc = deWindow.document;
@@ -12429,7 +12429,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return "<div id=\"de-cfg-posts\" class=\"de-cfg-unvis\">\n\t\t\t".concat(localData ? '' : "".concat(this._getBox('ajaxUpdThr'), "\n\t\t\t\t").concat(this._getInp('updThrDelay'), "\n\t\t\t\t<div class=\"de-depend\">\n\t\t\t\t\t").concat(this._getBox('updCount'), "<br>\n\t\t\t\t\t").concat(this._getBox('favIcoBlink'), "<br>\n\t\t\t\t\t").concat('Notification' in deWindow ? this._getBox('desktNotif') + '<br>' : '', "\n\t\t\t\t\t").concat(this._getBox('markNewPosts'), "\n\t\t\t\t</div>"), "\n\t\t\t").concat(this._getBox('markMyPosts'), "<br>\n\t\t\t").concat(!localData ? "".concat(this._getBox('expandTrunc', true), "<br>") : '', "\n\t\t\t").concat(this._getBox('widePosts'), "<br>\n\t\t\t").concat(this._getInp('limitPostMsg', true, 5), "<br>\n\t\t\t").concat(this._getSel('showHideBtn'), "<br>\n\t\t\t").concat(!localData ? this._getSel('showRepBtn') : '', "<br>\n\t\t\t").concat(this._getSel('postBtnsCSS'), "\n\t\t\t").concat(this._getInp('postBtnsBack', false, 8), "<br>\n\t\t\t").concat(!localData ? this._getSel('thrBtns') : '', "<br>\n\t\t\t").concat(this._getSel('noSpoilers'), "<br>\n\t\t\t").concat(this._getBox('noPostNames'), "<br>\n\t\t\t").concat(this._getBox('correctTime', true), "\n\t\t\t").concat(this._getInp('timeOffset', true, 1), "\n\t\t\t<a class=\"de-abtn\" target=\"_blank\" href=\"").concat(gitWiki, "Settings-time-") + "".concat(lang ? 'en' : 'ru', "\">[?]</a>\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('timePattern', true, 24), "<br>\n\t\t\t\t").concat(this._getInp('timeRPattern', true, 24), "\n\t\t\t</div>\n\t\t</div>");
     },
     _getCfgImages: function _getCfgImages() {
-      return "<div id=\"de-cfg-images\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getSel('expandImgs'), "<br>\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getBox('imgNavBtns'), "<br>\n\t\t\t\t").concat(this._getBox('imgInfoLink'), "<br>\n\t\t\t\t").concat(this._getSel('resizeImgs'), "<br>\n\t\t\t\t").concat(Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '', "\n\t\t\t\t").concat(this._getInp('minImgSize')).concat(this._getInp('maxImgSize'), "<br>\n\t\t\t\t").concat(this._getInp('zoomFactor'), "<br>\n\t\t\t\t").concat(this._getBox('webmControl'), "<br>\n\t\t\t\t").concat(this._getBox('webmTitles'), "<br>\n\t\t\t\t").concat(this._getInp('webmVolume'), "<br>\n\t\t\t\t").concat(this._getInp('minWebmWidth'), "\n\t\t\t</div>\n\t\t\t").concat(nav.isPresto ? '' : this._getSel('preLoadImgs', true) + '<br>', "\n\t\t\t").concat(nav.isPresto ? '' : "<div class=\"de-depend\">\n\t\t\t\t".concat(this._getBox('findImgFile', true), "\n\t\t\t</div>"), "\n\t\t\t").concat(this._getSel('openImgs', true), "<br>\n\t\t\t").concat(this._getBox('imgSrcBtns'), "<br>\n\t\t\t").concat(this._getSel('imgNames'), "<br>\n\t\t\t").concat(this._getInp('maskVisib'), "\n\t\t</div>");
+      return "<div id=\"de-cfg-images\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getSel('expandImgs'), "<br>\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getBox('imgNavBtns'), "<br>\n\t\t\t\t").concat(this._getBox('imgInfoLink'), "<br>\n\t\t\t\t").concat(this._getSel('resizeImgs'), "<br>\n\t\t\t\t").concat(Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '', "\n\t\t\t\t").concat(this._getInp('minImgSize')).concat(this._getInp('maxImgSize'), "<br>\n\t\t\t\t").concat(!nav.isMobile ? this._getInp('zoomFactor') : '', "<br>\n\t\t\t\t").concat(this._getBox('webmControl'), "<br>\n\t\t\t\t").concat(this._getBox('webmTitles'), "<br>\n\t\t\t\t").concat(this._getInp('webmVolume'), "<br>\n\t\t\t\t").concat(this._getInp('minWebmWidth'), "\n\t\t\t</div>\n\t\t\t").concat(nav.isPresto ? '' : this._getSel('preLoadImgs', true) + '<br>', "\n\t\t\t").concat(nav.isPresto ? '' : "<div class=\"de-depend\">\n\t\t\t\t".concat(this._getBox('findImgFile', true), "\n\t\t\t</div>"), "\n\t\t\t").concat(this._getSel('openImgs', true), "<br>\n\t\t\t").concat(this._getBox('imgSrcBtns'), "<br>\n\t\t\t").concat(this._getSel('imgNames'), "<br>\n\t\t\t").concat(this._getInp('maskVisib'), "\n\t\t</div>");
     },
     _getCfgLinks: function _getCfgLinks() {
       return "<div id=\"de-cfg-links\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getBox('linksNavig', true), "\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('linksOver'), "\n\t\t\t\t").concat(this._getInp('linksOut'), "<br>\n\t\t\t\t").concat(this._getBox('markViewed'), "<br>\n\t\t\t\t").concat(this._getBox('strikeHidd'), "\n\t\t\t\t<div class=\"de-depend\">").concat(this._getBox('removeHidd'), "</div>\n\t\t\t\t").concat(this._getBox('noNavigHidd'), "\n\t\t\t</div>\n\t\t\t").concat(this._getBox('markMyLinks'), "<br>\n\t\t\t").concat(this._getBox('crossLinks', true), "<br>\n\t\t\t").concat(this._getBox('decodeLinks', true), "<br>\n\t\t\t").concat(this._getBox('insertNum'), "<br>\n\t\t\t").concat(!localData ? "".concat(this._getBox('addOPLink'), "<br>\n\t\t\t\t").concat(this._getBox('addImgs', true), "<br>") : '', "\n\t\t\t<div>\n\t\t\t\t").concat(this._getBox('addMP3', true), "\n\t\t\t\t").concat(this._getBox('addVocaroo', true), "\n\t\t\t</div>\n\t\t\t").concat(this._getSel('embedYTube', true), "\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('YTubeWidth', false), "\xD7\n\t\t\t\t").concat(this._getInp('YTubeHeigh', false), "(px)<br>\n\t\t\t\t").concat(this._getBox('YTubeTitles', true), "<br>\n\t\t\t\t").concat(this._getInp('ytApiKey', true, 25), "<br>\n\t\t\t\t").concat(this._getBox('addVimeo', true), "\n\t\t\t</div>\n\t\t</div>");
@@ -20901,7 +20901,9 @@ Spells.addSpell(9, '', false);
       this._oldX = 0;
       this._oldY = 0;
       this._parentEl = null;
+      this._touchDistStart = 0;
       this._width = 0;
+      this._zoomed = false;
       this._showFullImg(data);
     }
     _createClass(ImagesViewer, [{
@@ -20917,6 +20919,25 @@ Spells.addSpell(9, '', false);
       value: function handleEvent(e) {
         var _this79 = this;
         switch (e.type) {
+          case 'click':
+            {
+              var el = e.target;
+              var tag = el.tagName.toLowerCase();
+              if (this.data.isVideo && ExpandableImage.isControlClick(e) || tag !== 'img' && tag !== 'video' && !el.classList.contains('de-fullimg-wrap') && !el.classList.contains('de-fullimg-wrap-link') && !el.classList.contains('de-fullimg-video-hack') && el.className !== 'de-fullimg-load') {
+                return;
+              }
+              if (e.button === 0) {
+                if (this._moved && !nav.isMobile) {
+                  this._moved = false;
+                } else {
+                  this.closeImgViewer(e);
+                  AttachedImage.viewer = null;
+                }
+                e.stopPropagation();
+                break;
+              }
+              return;
+            }
           case 'mousedown':
             if (this.data.isVideo && ExpandableImage.isControlClick(e)) {
               return;
@@ -20928,49 +20949,52 @@ Spells.addSpell(9, '', false);
             });
             break;
           case 'mousemove':
-            {
-              var curX = e.clientX,
-                curY = e.clientY;
-              if (curX !== this._oldX || curY !== this._oldY) {
-                this._oldL = parseInt(this._elStyle.left, 10) + curX - this._oldX;
-                this._elStyle.left = this._oldL + 'px';
-                this._oldT = parseInt(this._elStyle.top, 10) + curY - this._oldY;
-                this._elStyle.top = this._oldT + 'px';
-                this._oldX = curX;
-                this._oldY = curY;
-                this._moved = true;
-              }
-              return;
-            }
+            this._moveFullImg(e.clientX, e.clientY);
+            return;
           case 'mouseup':
             ['mousemove', 'mouseup'].forEach(function (e) {
               return doc.body.removeEventListener(e, _this79, true);
             });
             return;
-          case 'click':
+          case 'mousewheel':
+            this._handleZoom(e.clientX, e.clientY, -1 / 40 * ('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta));
+            break;
+          case 'touchend':
+            if (e.targetTouches.length === 0) {
+              this._zoomed = false;
+              return;
+            }
+          case 'touchmove':
             {
-              var el = e.target;
-              var tag = el.tagName.toLowerCase();
-              if (this.data.isVideo && ExpandableImage.isControlClick(e) || tag !== 'img' && tag !== 'video' && !el.classList.contains('de-fullimg-wrap') && !el.classList.contains('de-fullimg-wrap-link') && !el.classList.contains('de-fullimg-video-hack') && el.className !== 'de-fullimg-load') {
-                return;
+              var touchesLen = e.targetTouches.length;
+              if (touchesLen === 1 && !this._zoomed) {
+                this._moveFullImg(e.touches[0].clientX, e.touches[0].clientY);
+              } else if (touchesLen === 2 && e.changedTouches.length === 2) {
+                var finger0X = e.touches[0].clientX;
+                var finger1X = e.touches[1].clientX;
+                var finger0Y = e.touches[0].clientY;
+                var finger1Y = e.touches[1].clientY;
+                this._handleZoom((finger0X + finger1X) / 2, (finger0Y + finger1Y) / 2, this._touchDistStart - (this._touchDistStart = Math.hypot(finger0X - finger1X, finger0Y - finger1Y)));
+                this._zoomed = true;
               }
-              if (e.button === 0) {
-                if (this._moved) {
-                  this._moved = false;
-                } else {
-                  this.closeImgViewer(e);
-                  AttachedImage.viewer = null;
+              break;
+            }
+          case 'touchstart':
+            {
+              var _touchesLen = e.targetTouches.length; 
+              if (_touchesLen === 1) {
+                if (this.data.isVideo && ExpandableImage.isControlClick(e)) {
+                  return;
                 }
-                e.stopPropagation();
-                break;
+                this._oldX = e.touches[0].clientX;
+                this._oldY = e.touches[0].clientY;
+              } else if (_touchesLen === 2) {
+                this._touchDistStart = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
               }
               return;
             }
-          case 'mousewheel':
-            this._handleWheelEvent(e.clientX, e.clientY, -1 / 40 * ('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta));
-            break;
-          default:
-            this._handleWheelEvent(e.clientX, e.clientY, e.deltaY);
+          case 'wheel':
+            this._handleZoom(e.clientX, e.clientY, e.deltaY);
         }
         e.preventDefault();
       }
@@ -21039,23 +21063,27 @@ Spells.addSpell(9, '', false);
         return value;
       }
     }, {
-      key: "_handleWheelEvent",
-      value: function _handleWheelEvent(clientX, clientY, delta) {
+      key: "_handleZoom",
+      value: function _handleZoom(clientX, clientY, delta) {
         if (delta === 0) {
           return;
         }
         var width, height;
         var oldW = this._width,
           oldH = this._height;
-        if (delta > 0) {
+        if (nav.isMobile) {
+          var wh = oldW / oldH;
+          width = oldW - 1.5 * delta;
+          height = width / wh;
+        } else if (delta > 0) {
           width = oldW / this._zoomFactor;
           height = oldH / this._zoomFactor;
-          if (width <= this._minSize && height <= this._minSize) {
-            return;
-          }
         } else {
           width = oldW * this._zoomFactor;
           height = oldH * this._zoomFactor;
+        }
+        if (width <= this._minSize && height <= this._minSize) {
+          return;
         }
         this._width = width;
         this._height = height;
@@ -21067,6 +21095,19 @@ Spells.addSpell(9, '', false);
         this._elStyle.top = this._oldT + 'px';
         var scale = 100 * width / this.data.width;
         $q('.de-fullimg-scale', this._fullEl).textContent = scale === 100 ? '' : "".concat(parseInt(scale, 10), "%");
+      }
+    }, {
+      key: "_moveFullImg",
+      value: function _moveFullImg(curX, curY) {
+        if (curX !== this._oldX || curY !== this._oldY) {
+          this._oldL = parseInt(this._elStyle.left, 10) + curX - this._oldX;
+          this._elStyle.left = this._oldL + 'px';
+          this._oldT = parseInt(this._elStyle.top, 10) + curY - this._oldY;
+          this._elStyle.top = this._oldT + 'px';
+          this._oldX = curX;
+          this._oldY = curY;
+          this._moved = true;
+        }
       }
     }, {
       key: "_removeFullImg",
@@ -21166,7 +21207,8 @@ Spells.addSpell(9, '', false);
         this._elStyle = el.style;
         this.data = data;
         this._parentEl = el;
-        ['onwheel' in el ? 'wheel' : 'mousewheel', 'mousedown', 'click'].forEach(function (e) {
+        var events = nav.isMobile ? ['click', 'touchend', 'touchmove', 'touchstart'] : ['click', 'mousedown', 'onwheel' in el ? 'wheel' : 'mousewheel'];
+        events.forEach(function (e) {
           return el.addEventListener(e, _this80, true);
         });
         data.srcBtnEvents(this);

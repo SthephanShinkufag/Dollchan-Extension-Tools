@@ -641,7 +641,7 @@ const CfgWindow = {
 				${ this._getSel('resizeImgs') }<br>
 				${ Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '' }
 				${ this._getInp('minImgSize') }${ this._getInp('maxImgSize') }<br>
-				${ this._getInp('zoomFactor') }<br>
+				${ !nav.isMobile ? this._getInp('zoomFactor') : '' }<br>
 				${ this._getBox('webmControl') }<br>
 				${ this._getBox('webmTitles') }<br>
 				${ this._getInp('webmVolume') }<br>
