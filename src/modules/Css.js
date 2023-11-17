@@ -52,7 +52,7 @@ function scriptCSS() {
 		#de-panel-buttons { border-color: #c15dad; }`
 	][Cfg.scriptStyle] }
 	.de-logo { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #121212 60%, #1f2740 100%) }
-	.de-panel-svg:hover, #de-panel-logo-svg:hover { margin: -2px; width: 29px; height: 29px; color: ${ Cfg.scriptStyle === 1 || Cfg.scriptStyle === 5 ? '#fffeb4' : '#d0e7ff' } !important; }
+	.de-panel-svg:hover, #de-panel-logo-svg:hover { margin: -2px; width: 29px; height: 29px; color: #d0e7ff !important; }
 	.de-panel-button:hover { background-color: rgba(255,255,255,.15) !important; box-shadow: 0 0 3px rgba(200,200,200,0.5); color: inherit !important; }\r\n`;
 
 	if(Cfg.disabled) {
@@ -71,7 +71,7 @@ function scriptCSS() {
 	.de-win > .de-win-head { cursor: move; }
 	.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }
 	.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }
-	.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); color: ${ Cfg.scriptStyle === 1 || Cfg.scriptStyle === 5 ? '#fffeb4' : '#d0e7ff' }; }
+	.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); color: #d0e7ff; }
 	.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); color: inherit; }
 	#de-win-cfg { width: 355px; }
 	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: calc(100vh - 25px); overflow-x: hidden; overflow-y: auto; }
@@ -86,7 +86,7 @@ function scriptCSS() {
 	.de-block { display: block; }
 	#de-btn-spell-add { margin-left: auto; }
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }
-	.de-cfg-body { min-height: 354px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }
+	.de-cfg-body { min-height: 355px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }
 	.de-cfg-button { padding: 0 ${ nav.isFirefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
 	#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }
@@ -95,7 +95,7 @@ function scriptCSS() {
 	.de-cfg-chkbox { ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
 	#de-cfg-info { display: flex; flex-direction: column; }
 	input[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; border-width: 1px; }
-	.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }
+	.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline-block; width: auto; height: 19px !important; font: 13px/15px arial !important; }
 	.de-cfg-label { padding: 0; margin: 0; }
 	.de-cfg-needreload::after  { content: "* "; color: red; }
 	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; float: none; appearance: auto; }

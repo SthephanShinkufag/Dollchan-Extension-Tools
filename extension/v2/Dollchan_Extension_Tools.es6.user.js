@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '0a7e85c';
+const commit = 'e2ecc39';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -262,9 +262,9 @@ const Lng = {
 			'Show countdown to thread update',
 			'Зворотній відлік оновлення треду'],
 		favIcoBlink: [
-			'Мигать фавиконом при появлении новых постов',
+			'Мигать фавиконом при новых постах',
 			'Blink the favicon on new posts',
-			'Блимати фавіконом в разі появи нових дописів'],
+			'Блимати фавіконом при нових дописах'],
 		desktNotif: [
 			'Уведомлять о новых постах на рабочем столе',
 			'Desktop notifications for new posts',
@@ -345,9 +345,9 @@ const Lng = {
 			'Hide poster names',
 			'Ховати імена в дописах'],
 		correctTime: [
-			'Коррекция времени в постах',
-			'Time correction in posts',
-			'Корекція часу в дописах'],
+			'Коррекция времени',
+			'Time correction',
+			'Корекція часу'],
 		timeOffset: [
 			'разница (ч) ',
 			'time offset (h) ',
@@ -401,7 +401,7 @@ const Lng = {
 		maxImgSize: [
 			'макс. размер раскрытия (px)',
 			'max expansion size (px)',
-			'макс. розмір розгортання (px)'],
+			'макс. розмір (px)'],
 		zoomFactor: [
 			'Чувствительность зума картинок [1-100%]',
 			'Images zoom sensibility [1-100%]',
@@ -435,7 +435,7 @@ const Lng = {
 		findImgFile: [
 			'Распознавать файлы, встроенные в картинках',
 			'Detect embedded files in images',
-			'Розпізнавати файли, що вбудовані в зображення'],
+			'Розпізнавати файли, вбудовані в зображення'],
 		openImgs: {
 			sel: [
 				['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'],
@@ -706,7 +706,7 @@ const Lng = {
 		loadPages: [
 			'Количество страниц, загружаемых по F5',
 			'Number of pages that are loaded on F5 ',
-			'Кількість сторінок, що завантажуються по F5'],
+			'Кількість сторінок, оновлюваних по F5'],
 		panelCounter: {
 			sel: [
 				['Откл.', 'Все посты', 'Без скрытых'],
@@ -10522,6 +10522,8 @@ class AbstractPost {
 		const { type } = e;
 		const isOutEvent = type === 'mouseout';
 		const isPview = this instanceof Pview;
+
+		// Click event
 		if(type === 'click') {
 			if(aib.handlePostClick) {
 				aib.handlePostClick(this, el, e);
@@ -10573,6 +10575,8 @@ class AbstractPost {
 						} else {
 							deWindow.location.assign(el.href.replace(/#i/, '#'));
 						}
+					} else if(nav.isMobile) {
+						break;
 					} else if((temp = el.textContent)[0] === '>' &&
 						temp[1] === '>' && !temp[2].includes('/')
 					) { // Click on >>link - scroll to the referenced post
@@ -10646,9 +10650,35 @@ class AbstractPost {
 			case 'de-btn-sage': /* await */ Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.toggleSticky(true); return;
 			case 'de-btn-stick-on': this.toggleSticky(false); return;
+			// Mobile devices: Click on >>links - show/delete post previews
+			default:
+				if(!nav.isMobile || !Cfg.linksNavig || el.tagName.toLowerCase() !== 'a' || el.isNotRefLink) {
+					return;
+				}
+				if(!el.textContent.startsWith('>>')) {
+					el.isNotRefLink = true;
+					return;
+				}
+				// Donʼt use classList here, 'de-link-postref ' should be first
+				el.className = 'de-link-postref ' + el.className;
+				/* falls through */
+			case 'de-link-backref':
+			case 'de-link-postref':
+				if(!Cfg.linksNavig) {
+					return;
+				}
+				if(this.kid) {
+					this.kid.markToDel();
+				} else {
+					this.kid = Pview.showPview(this, el);
+				}
+				e.preventDefault();
+				e.stopPropagation();
 			}
 			return;
 		}
+
+		// Mouseover/mouseout events
 		if(!this._hasEvents) {
 			this._hasEvents = true;
 			['click', 'mouseout'].forEach(e => this.el.addEventListener(e, this, true));
@@ -10704,7 +10734,7 @@ class AbstractPost {
 		case 'de-post-btns': el.removeAttribute('title'); return;
 		// Mouseover/mouseout on >>links - show/delete post previews
 		default:
-			if(!Cfg.linksNavig || el.tagName.toLowerCase() !== 'a' || el.isNotRefLink) {
+			if(nav.isMobile || !Cfg.linksNavig || el.tagName.toLowerCase() !== 'a' || el.isNotRefLink) {
 				return;
 			}
 			if(!el.textContent.startsWith('>>')) {
@@ -18225,7 +18255,7 @@ function scriptCSS() {
 		#de-panel-buttons { border-color: #c15dad; }`
 	][Cfg.scriptStyle] }
 	.de-logo { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #121212 60%, #1f2740 100%) }
-	.de-panel-svg:hover, #de-panel-logo-svg:hover { margin: -2px; width: 29px; height: 29px; color: ${ Cfg.scriptStyle === 1 || Cfg.scriptStyle === 5 ? '#fffeb4' : '#d0e7ff' } !important; }
+	.de-panel-svg:hover, #de-panel-logo-svg:hover { margin: -2px; width: 29px; height: 29px; color: #d0e7ff !important; }
 	.de-panel-button:hover { background-color: rgba(255,255,255,.15) !important; box-shadow: 0 0 3px rgba(200,200,200,0.5); color: inherit !important; }\r\n`;
 
 	if(Cfg.disabled) {
@@ -18244,7 +18274,7 @@ function scriptCSS() {
 	.de-win > .de-win-head { cursor: move; }
 	.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }
 	.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }
-	.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); color: ${ Cfg.scriptStyle === 1 || Cfg.scriptStyle === 5 ? '#fffeb4' : '#d0e7ff' }; }
+	.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); color: #d0e7ff; }
 	.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); color: inherit; }
 	#de-win-cfg { width: 355px; }
 	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: calc(100vh - 25px); overflow-x: hidden; overflow-y: auto; }
@@ -18259,7 +18289,7 @@ function scriptCSS() {
 	.de-block { display: block; }
 	#de-btn-spell-add { margin-left: auto; }
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }
-	.de-cfg-body { min-height: 354px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }
+	.de-cfg-body { min-height: 355px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }
 	.de-cfg-button { padding: 0 ${ nav.isFirefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
 	#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }
@@ -18268,7 +18298,7 @@ function scriptCSS() {
 	.de-cfg-chkbox { ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
 	#de-cfg-info { display: flex; flex-direction: column; }
 	input[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; border-width: 1px; }
-	.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }
+	.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline-block; width: auto; height: 19px !important; font: 13px/15px arial !important; }
 	.de-cfg-label { padding: 0; margin: 0; }
 	.de-cfg-needreload::after  { content: "* "; color: red; }
 	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; float: none; appearance: auto; }
