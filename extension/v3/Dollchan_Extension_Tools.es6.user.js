@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = 'e2ecc39';
+const commit = '2e92f8d';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -5002,7 +5002,7 @@ const CfgWindow = {
 				${ this._getSel('resizeImgs') }<br>
 				${ Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '' }
 				${ this._getInp('minImgSize') }${ this._getInp('maxImgSize') }<br>
-				${ this._getInp('zoomFactor') }<br>
+				${ !nav.isMobile ? this._getInp('zoomFactor') : '' }<br>
 				${ this._getBox('webmControl') }<br>
 				${ this._getBox('webmTitles') }<br>
 				${ this._getInp('webmVolume') }<br>
@@ -12106,7 +12106,9 @@ class ImagesViewer {
 		this._oldX = 0;
 		this._oldY = 0;
 		this._parentEl = null;
+		this._touchDistStart = 0;
 		this._width = 0;
+		this._zoomed = false;
 		this._showFullImg(data);
 	}
 	closeImgViewer(e) {
@@ -12117,30 +12119,6 @@ class ImagesViewer {
 	}
 	handleEvent(e) {
 		switch(e.type) {
-		case 'mousedown':
-			if(this.data.isVideo && ExpandableImage.isControlClick(e)) {
-				return;
-			}
-			this._oldX = e.clientX;
-			this._oldY = e.clientY;
-			['mousemove', 'mouseup'].forEach(e => doc.body.addEventListener(e, this, true));
-			break;
-		case 'mousemove': {
-			const { clientX: curX, clientY: curY } = e;
-			if(curX !== this._oldX || curY !== this._oldY) {
-				this._oldL = parseInt(this._elStyle.left, 10) + curX - this._oldX;
-				this._elStyle.left = this._oldL + 'px';
-				this._oldT = parseInt(this._elStyle.top, 10) + curY - this._oldY;
-				this._elStyle.top = this._oldT + 'px';
-				this._oldX = curX;
-				this._oldY = curY;
-				this._moved = true;
-			}
-			return;
-		}
-		case 'mouseup':
-			['mousemove', 'mouseup'].forEach(e => doc.body.removeEventListener(e, this, true));
-			return;
 		case 'click': {
 			const el = e.target;
 			const tag = el.tagName.toLowerCase();
@@ -12154,7 +12132,7 @@ class ImagesViewer {
 				return;
 			}
 			if(e.button === 0) {
-				if(this._moved) {
+				if(this._moved && !nav.isMobile) {
 					this._moved = false;
 				} else {
 					this.closeImgViewer(e);
@@ -12165,12 +12143,61 @@ class ImagesViewer {
 			}
 			return;
 		}
+		case 'mousedown':
+			if(this.data.isVideo && ExpandableImage.isControlClick(e)) {
+				return;
+			}
+			this._oldX = e.clientX;
+			this._oldY = e.clientY;
+			['mousemove', 'mouseup'].forEach(e => doc.body.addEventListener(e, this, true));
+			break;
+		case 'mousemove': this._moveFullImg(e.clientX, e.clientY); return;
+		case 'mouseup':
+			['mousemove', 'mouseup'].forEach(e => doc.body.removeEventListener(e, this, true));
+			return;
+
 		case 'mousewheel':
-			this._handleWheelEvent(e.clientX, e.clientY,
+			this._handleZoom(e.clientX, e.clientY,
 				-1 / 40 * ('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta));
 			break;
-		default: // 'wheel' event
-			this._handleWheelEvent(e.clientX, e.clientY, e.deltaY);
+		case 'touchend':
+			if(e.targetTouches.length === 0) {
+				this._zoomed = false;
+				return;
+			}
+		case 'touchmove': {
+			const touchesLen = e.targetTouches.length;
+			if(touchesLen === 1 && !this._zoomed) {
+				this._moveFullImg(e.touches[0].clientX, e.touches[0].clientY);
+			} else if(touchesLen === 2 && e.changedTouches.length === 2) {
+				const finger0X = e.touches[0].clientX;
+				const finger1X = e.touches[1].clientX;
+				const finger0Y = e.touches[0].clientY;
+				const finger1Y = e.touches[1].clientY;
+				this._handleZoom(
+					(finger0X + finger1X) / 2, (finger0Y + finger1Y) / 2, this._touchDistStart -
+						(this._touchDistStart = Math.hypot(finger0X - finger1X, finger0Y - finger1Y)));
+				this._zoomed = true;
+			}
+			break;
+		}
+		case 'touchstart': {
+			const touchesLen = e.targetTouches.length; // Number of fingers touched screen
+			if(touchesLen === 1) {
+				if(this.data.isVideo && ExpandableImage.isControlClick(e)) {
+					return;
+				}
+				this._oldX = e.touches[0].clientX;
+				this._oldY = e.touches[0].clientY;
+			} else if(touchesLen === 2) {
+				// Distance between two fingers
+				this._touchDistStart = Math.hypot(
+					e.touches[0].clientX - e.touches[1].clientX,
+					e.touches[0].clientY - e.touches[1].clientY);
+			}
+			return;
+		}
+		case 'wheel': this._handleZoom(e.clientX, e.clientY, e.deltaY);
 		}
 		e.preventDefault();
 	}
@@ -12222,25 +12249,29 @@ class ImagesViewer {
 		return value;
 	}
 	get _zoomFactor() {
-		const value = 1 + (Cfg.zoomFactor / 100);
+		const value = 1 + Cfg.zoomFactor / 100;
 		Object.defineProperty(this, '_zoomFactor', { value });
 		return value;
 	}
-	_handleWheelEvent(clientX, clientY, delta) {
+	_handleZoom(clientX, clientY, delta) {
 		if(delta === 0) {
 			return;
 		}
 		let width, height;
 		const { _width: oldW, _height: oldH } = this;
-		if(delta > 0) {
+		if(nav.isMobile) {
+			const wh = oldW / oldH;
+			width = oldW - 1.5 * delta;
+			height = width / wh;
+		} else if(delta > 0) {
 			width = oldW / this._zoomFactor;
 			height = oldH / this._zoomFactor;
-			if(width <= this._minSize && height <= this._minSize) {
-				return;
-			}
 		} else {
 			width = oldW * this._zoomFactor;
 			height = oldH * this._zoomFactor;
+		}
+		if(width <= this._minSize && height <= this._minSize) {
+			return;
 		}
 		this._width = width;
 		this._height = height;
@@ -12252,6 +12283,17 @@ class ImagesViewer {
 		this._elStyle.top = this._oldT + 'px';
 		const scale = 100 * width / this.data.width;
 		$q('.de-fullimg-scale', this._fullEl).textContent = scale === 100 ? '' : `${ parseInt(scale, 10) }%`;
+	}
+	_moveFullImg(curX, curY) {
+		if(curX !== this._oldX || curY !== this._oldY) {
+			this._oldL = parseInt(this._elStyle.left, 10) + curX - this._oldX;
+			this._elStyle.left = this._oldL + 'px';
+			this._oldT = parseInt(this._elStyle.top, 10) + curY - this._oldY;
+			this._elStyle.top = this._oldT + 'px';
+			this._oldX = curX;
+			this._oldY = curY;
+			this._moved = true;
+		}
 	}
 	_removeFullImg(e) {
 		const { data } = this;
@@ -12335,8 +12377,9 @@ class ImagesViewer {
 		this._elStyle = el.style;
 		this.data = data;
 		this._parentEl = el;
-		['onwheel' in el ? 'wheel' : 'mousewheel', 'mousedown', 'click'].forEach(
-			e => el.addEventListener(e, this, true));
+		const events = nav.isMobile ? ['click', 'touchend', 'touchmove', 'touchstart'] :
+			['click', 'mousedown', 'onwheel' in el ? 'wheel' : 'mousewheel'];
+		events.forEach(e => el.addEventListener(e, this, true));
 		data.srcBtnEvents(this);
 		if(data.inPview && !data.post.isSticky) {
 			data.post.toggleSticky(true);
