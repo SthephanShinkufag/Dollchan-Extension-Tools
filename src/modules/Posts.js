@@ -74,6 +74,8 @@ class AbstractPost {
 		const { type } = e;
 		const isOutEvent = type === 'mouseout';
 		const isPview = this instanceof Pview;
+
+		// Click event
 		if(type === 'click') {
 			if(aib.handlePostClick) {
 				aib.handlePostClick(this, el, e);
@@ -125,6 +127,8 @@ class AbstractPost {
 						} else {
 							deWindow.location.assign(el.href.replace(/#i/, '#'));
 						}
+					} else if(nav.isMobile) {
+						break;
 					} else if((temp = el.textContent)[0] === '>' &&
 						temp[1] === '>' && !temp[2].includes('/')
 					) { // Click on >>link - scroll to the referenced post
@@ -198,9 +202,35 @@ class AbstractPost {
 			case 'de-btn-sage': /* await */ Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.toggleSticky(true); return;
 			case 'de-btn-stick-on': this.toggleSticky(false); return;
+			// Mobile devices: Click on >>links - show/delete post previews
+			default:
+				if(!nav.isMobile || !Cfg.linksNavig || el.tagName.toLowerCase() !== 'a' || el.isNotRefLink) {
+					return;
+				}
+				if(!el.textContent.startsWith('>>')) {
+					el.isNotRefLink = true;
+					return;
+				}
+				// Donʼt use classList here, 'de-link-postref ' should be first
+				el.className = 'de-link-postref ' + el.className;
+				/* falls through */
+			case 'de-link-backref':
+			case 'de-link-postref':
+				if(!Cfg.linksNavig) {
+					return;
+				}
+				if(this.kid) {
+					this.kid.markToDel();
+				} else {
+					this.kid = Pview.showPview(this, el);
+				}
+				e.preventDefault();
+				e.stopPropagation();
 			}
 			return;
 		}
+
+		// Mouseover/mouseout events
 		if(!this._hasEvents) {
 			this._hasEvents = true;
 			['click', 'mouseout'].forEach(e => this.el.addEventListener(e, this, true));
@@ -256,7 +286,7 @@ class AbstractPost {
 		case 'de-post-btns': el.removeAttribute('title'); return;
 		// Mouseover/mouseout on >>links - show/delete post previews
 		default:
-			if(!Cfg.linksNavig || el.tagName.toLowerCase() !== 'a' || el.isNotRefLink) {
+			if(nav.isMobile || !Cfg.linksNavig || el.tagName.toLowerCase() !== 'a' || el.isNotRefLink) {
 				return;
 			}
 			if(!el.textContent.startsWith('>>')) {
