@@ -4,7 +4,7 @@
 'use strict';
 
 const version = '23.9.19.0';
-const commit = '14928d2';
+const commit = '955be50';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -5208,7 +5208,7 @@ class Menu {
 		const { style, offsetWidth: w, offsetHeight: h } = el;
 		this.el = el;
 		style.left = (isFixed ? 0 : deWindow.pageXOffset) +
-			(cr.left + w < Post.sizing.wWidth ? cr.left : cr.right - w) + 'px';
+			(cr.left + w < Post.sizing.wWidth || w > .8 * Post.sizing.wWidth ? cr.left : cr.right - w) + 'px';
 		style.top = (isFixed ? 0 : deWindow.pageYOffset) +
 			(cr.bottom + h < Post.sizing.wHeight ? cr.bottom - 0.5 : cr.top - h + 0.5) + 'px';
 		style.removeProperty('visibility');
@@ -15877,7 +15877,7 @@ function scriptCSS() {
 
 	/* Post panel */
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }
-	.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user, .de-win-btn-clear, .de-win-btn-close, .de-win-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }${
+	.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user, .de-win-btn-clear, .de-win-btn-close, .de-win-btn-toggle { margin: 0 2px 0 0 !important; cursor: pointer; width: 16px; height: 16px; vertical-align: -3px; }${
 	!postform.form && !postform.oeForm ? '.de-btn-reply { display: none; }' : '' }
 	.de-btn-img { vertical-align: top; }
 	.de-post-btns { margin-left: 4px; }
@@ -16096,10 +16096,8 @@ function scriptCSS() {
 
 	/* Mobile devices */
 	@media screen and (max-width: 768px) {
-		.de-video-obj {
-			max-width: calc(100vw - 6px);
-			margin: 5px 0;
-		}
+		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user, .de-win-btn-clear, .de-win-btn-close, .de-win-btn-toggle { width: 19px; height: 19px; vertical-align: -5px; }
+		.de-video-obj { max-width: calc(100vw - 6px); margin: 5px 0; }
 	}`;
 
 	$css(x).id = 'de-css';
