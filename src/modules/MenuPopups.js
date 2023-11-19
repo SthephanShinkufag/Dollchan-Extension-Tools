@@ -82,7 +82,7 @@ class Menu {
 		const { style, offsetWidth: w, offsetHeight: h } = el;
 		this.el = el;
 		style.left = (isFixed ? 0 : deWindow.pageXOffset) +
-			(cr.left + w < Post.sizing.wWidth ? cr.left : cr.right - w) + 'px';
+			(cr.left + w < Post.sizing.wWidth || w > .8 * Post.sizing.wWidth ? cr.left : cr.right - w) + 'px';
 		style.top = (isFixed ? 0 : deWindow.pageYOffset) +
 			(cr.bottom + h < Post.sizing.wHeight ? cr.bottom - 0.5 : cr.top - h + 0.5) + 'px';
 		style.removeProperty('visibility');
