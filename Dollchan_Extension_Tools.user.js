@@ -8054,7 +8054,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '23.9.19.0';
-  var commit = '955be50';
+  var commit = '67fa459';
 
 
   var doc = deWindow.document;
@@ -19293,7 +19293,7 @@ Spells.addSpell(9, '', false);
                 isHide = !this.isHidden;
                 num = this.num;
                 _context38.t0 = el.getAttribute('info');
-                _context38.next = _context38.t0 === 'hide-sel' ? 5 : _context38.t0 === 'hide-name' ? 24 : _context38.t0 === 'hide-trip' ? 27 : _context38.t0 === 'hide-img' ? 30 : _context38.t0 === 'hide-imgn' ? 34 : _context38.t0 === 'hide-ihash' ? 37 : _context38.t0 === 'hide-noimg' ? 44 : _context38.t0 === 'hide-text' ? 47 : _context38.t0 === 'hide-notext' ? 50 : _context38.t0 === 'hide-refs' ? 53 : _context38.t0 === 'hide-refsonly' ? 56 : _context38.t0 === 'img-load' ? 59 : _context38.t0 === 'post-markmy' ? 61 : _context38.t0 === 'post-reply' ? 65 : _context38.t0 === 'post-report' ? 69 : _context38.t0 === 'thr-exp' ? 71 : 73;
+                _context38.next = _context38.t0 === 'hide-sel' ? 5 : _context38.t0 === 'hide-name' ? 24 : _context38.t0 === 'hide-trip' ? 27 : _context38.t0 === 'hide-img' ? 30 : _context38.t0 === 'hide-imgn' ? 34 : _context38.t0 === 'hide-ihash' ? 37 : _context38.t0 === 'hide-noimg' ? 44 : _context38.t0 === 'hide-post' ? 47 : _context38.t0 === 'hide-text' ? 49 : _context38.t0 === 'hide-notext' ? 52 : _context38.t0 === 'hide-refs' ? 55 : _context38.t0 === 'hide-refsonly' ? 58 : _context38.t0 === 'img-load' ? 61 : _context38.t0 === 'post-markmy' ? 63 : _context38.t0 === 'post-reply' ? 67 : _context38.t0 === 'post-report' ? 71 : _context38.t0 === 'thr-exp' ? 73 : 75;
                 break;
               case 5:
                 _this$_selRange = this._selRange, start = _this$_selRange.startContainer, end = _this$_selRange.endContainer;
@@ -19370,29 +19370,32 @@ Spells.addSpell(9, '', false);
               case 46:
                 return _context38.abrupt("return");
               case 47:
+                this.setUserVisib(!this.isHidden);
+                return _context38.abrupt("break", 75);
+              case 49:
                 words = Post.getWrds(this.text);
                 for (post = Thread.first.op; post; post = post.next) {
                   Post.findSameText(num, !isHide, words, post);
                 }
                 return _context38.abrupt("return");
-              case 50:
-                _context38.next = 52;
-                return Spells.addSpell(0x10B , '', true);
               case 52:
+                _context38.next = 54;
+                return Spells.addSpell(0x10B , '', true);
+              case 54:
                 return _context38.abrupt("return");
-              case 53:
+              case 55:
                 this.ref.toggleRef(isHide, true);
                 this.setUserVisib(isHide);
                 return _context38.abrupt("return");
-              case 56:
-                _context38.next = 58;
-                return Spells.addSpell(0 , '>>' + num, false);
               case 58:
-                return _context38.abrupt("return");
-              case 59:
-                this._downloadImageByLink(el, e);
+                _context38.next = 60;
+                return Spells.addSpell(0 , '>>' + num, false);
+              case 60:
                 return _context38.abrupt("return");
               case 61:
+                this._downloadImageByLink(el, e);
+                return _context38.abrupt("return");
+              case 63:
                 isAdd = !MyPosts.has(num);
                 if (isAdd) {
                   MyPosts.set(num, this.thr.num);
@@ -19401,18 +19404,18 @@ Spells.addSpell(9, '', false);
                 }
                 this.changeMyMark(isAdd);
                 return _context38.abrupt("return");
-              case 65:
+              case 67:
                 isPview = this instanceof Pview;
                 postform.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
                 postform.quotedText = '';
                 return _context38.abrupt("return");
-              case 69:
+              case 71:
                 aib.reportForm(num, this.thr.num);
                 return _context38.abrupt("return");
-              case 71:
+              case 73:
                 task = +el.textContent.match(/\d+/);
                 this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
-              case 73:
+              case 75:
               case "end":
                 return _context38.stop();
             }
@@ -19822,7 +19825,7 @@ Spells.addSpell(9, '', false);
           this._selText = ssel;
           this._selRange = sel.getRangeAt(0);
         }
-        return "".concat(ssel ? item('sel') : '').concat(this.posterName ? item('name') : '').concat(this.posterTrip ? item('trip') : '').concat(this.images.hasAttachments ? item('img') + item('imgn') + item('ihash') : item('noimg')).concat(this.text ? item('text') : item('notext')).concat(!Cfg.hideRefPsts && this.ref.hasMap ? item('refs') : '').concat(item('refsonly'));
+        return "".concat(nav.isMobile ? "<span info=\"hide-post\" class=\"de-menu-item\">".concat(this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang], "</span>") : '').concat(ssel ? item('sel') : '').concat(this.posterName ? item('name') : '').concat(this.posterTrip ? item('trip') : '').concat(this.images.hasAttachments ? item('img') + item('imgn') + item('ihash') : item('noimg')).concat(this.text ? item('text') : item('notext')).concat(!Cfg.hideRefPsts && this.ref.hasMap ? item('refs') : '').concat(item('refsonly'));
       }
     }, {
       key: "_getMenuReply",
