@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = 'ffd64f3';
+const commit = '40c4468';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -10911,6 +10911,7 @@ class AbstractPost {
 			return;
 		}
 		case 'hide-noimg': await Spells.addSpell(0x108 /* (#all & !#img) */, '', true); return;
+		case 'hide-post': this.setUserVisib(!this.isHidden); break;
 		case 'hide-text': {
 			const words = Post.getWrds(this.text);
 			for(let post = Thread.first.op; post; post = post.next) {
@@ -11338,7 +11339,9 @@ class Post extends AbstractPost {
 			this._selText = ssel;
 			this._selRange = sel.getRangeAt(0);
 		}
-		return `${ ssel ? item('sel') : '' }${
+		return `${ nav.isMobile ? `<span info="hide-post" class="de-menu-item">${
+			this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang] }</span>` : '' }${
+			ssel ? item('sel') : '' }${
 			this.posterName ? item('name') : '' }${
 			this.posterTrip ? item('trip') : '' }${
 			this.images.hasAttachments ? item('img') + item('imgn') + item('ihash') : item('noimg') }${
