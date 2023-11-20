@@ -99,7 +99,7 @@ async function runMain(checkDomains, dataPromise) {
 	Logger.log('Apply CSS');
 	$show(doc.body);
 	Logger.log('Display page');
-	toggleInfinityScroll();
+	Pages.toggleInfinityScroll();
 	Logger.log('Infinity scroll');
 	const { firstThr } = DelForm.first;
 	if(firstThr) {

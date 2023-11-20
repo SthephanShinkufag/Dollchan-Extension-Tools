@@ -4,7 +4,7 @@
 'use strict';
 
 const version = '23.9.19.0';
-const commit = '67fa459';
+const commit = '50a3c03';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -4618,7 +4618,7 @@ const CfgWindow = {
 			case 'noPassword': $toggle(postform.passw.closest(aib.qFormTr)); break;
 			case 'noName': PostForm.hideField(postform.name); break;
 			case 'noSubj': PostForm.hideField(postform.subj); break;
-			case 'inftyScroll': toggleInfinityScroll(); break;
+			case 'inftyScroll': Pages.toggleInfinityScroll(); break;
 			case 'hotKeys':
 				if(Cfg.hotKeys) {
 					HotKeys.enableHotKeys();
@@ -7036,6 +7036,22 @@ const Pages = {
 			}
 		});
 	},
+	handleEvent(e) {
+		let needLoad = false;
+		switch(e.type) {
+		case 'mousewheel': needLoad = -('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta) > 0; break;
+		case 'touchmove': needLoad = this._scrollY > e.touches[0].clientY; break; // Swipe down
+		case 'touchstart': this._scrollY = e.touches[0].clientY; break;
+		case 'wheel': needLoad = e.deltaY; break;
+		}
+		if(needLoad) {
+			deWindow.requestAnimationFrame(() => {
+				if(Thread.last.bottom - 150 < Post.sizing.wHeight) {
+					Pages.addPage();
+				}
+			});
+		}
+	},
 	async loadPages(count) {
 		$popup('load-pages', Lng.loading[lang], true);
 		if(this._addingPromise) {
@@ -7076,9 +7092,22 @@ const Pages = {
 			closePopup('load-pages');
 		}
 	},
+	toggleInfinityScroll() {
+		if(aib.t) {
+			return;
+		}
+		if(nav.isMobile) {
+			['touchmove', 'touchstart'].forEach(e =>
+				doc.defaultView[Cfg.inftyScroll ? 'addEventListener' : 'removeEventListener'](e, this));
+		} else {
+			doc.defaultView[Cfg.inftyScroll ? 'addEventListener' : 'removeEventListener'](
+				'onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', this);
+		}
+	},
 
-	_isAdding      : false,
 	_addingPromise : null,
+	_isAdding      : false,
+	_scrollY       : 0,
 	_addForm(formEl, pageNum) {
 		formEl = doc.adoptNode(formEl);
 		$hide(formEl = aib.fixHTML(formEl));
@@ -7107,22 +7136,6 @@ const Pages = {
 		if(HotKeys.enabled) {
 			HotKeys.clearCPost();
 		}
-	}
-};
-
-function toggleInfinityScroll() {
-	if(!aib.t) {
-		doc.defaultView[Cfg.inftyScroll ? 'addEventListener' : 'removeEventListener'](
-			'onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', toggleInfinityScroll.onwheel);
-	}
-}
-toggleInfinityScroll.onwheel = e => {
-	if((e.type === 'wheel' ? e.deltaY : -('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta)) > 0) {
-		deWindow.requestAnimationFrame(() => {
-			if(Thread.last.bottom - 150 < Post.sizing.wHeight) {
-				Pages.addPage();
-			}
-		});
 	}
 };
 
@@ -16287,7 +16300,7 @@ async function runMain(checkDomains, dataPromise) {
 	Logger.log('Apply CSS');
 	$show(doc.body);
 	Logger.log('Display page');
-	toggleInfinityScroll();
+	Pages.toggleInfinityScroll();
 	Logger.log('Infinity scroll');
 	const { firstThr } = DelForm.first;
 	if(firstThr) {

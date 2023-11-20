@@ -359,7 +359,7 @@ const CfgWindow = {
 			case 'noPassword': $toggle(postform.passw.closest(aib.qFormTr)); break;
 			case 'noName': PostForm.hideField(postform.name); break;
 			case 'noSubj': PostForm.hideField(postform.subj); break;
-			case 'inftyScroll': toggleInfinityScroll(); break;
+			case 'inftyScroll': Pages.toggleInfinityScroll(); break;
 			case 'hotKeys':
 				if(Cfg.hotKeys) {
 					HotKeys.enableHotKeys();
