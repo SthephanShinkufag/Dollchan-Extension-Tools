@@ -4,7 +4,7 @@
 'use strict';
 
 const version = '23.11.21.0';
-const commit = 'e7f6da8';
+const commit = 'efff818';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -2999,7 +2999,7 @@ const Panel = Object.create({
 					</span>` : '') }
 				</span>
 			</div>
-			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">' }
+			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div>' }
 		</div>`);
 		this._el = $id('de-panel');
 		this._el.addEventListener('click', this, true);
@@ -9023,8 +9023,8 @@ class PostForm {
 	_makeHideableContainer() {
 		(this.pForm = $add('<div id="de-pform" class="de-win-body"></div>'))
 			.append(this.form || '', this.oeForm || '');
-		const html = '<div class="de-parea"><div><a href="#"></a></div><hr></div>';
-		this.pArea = [$bBegin(DelForm.first.el, html), $aEnd($q(aib.qPages), html)];
+		const html = '<div class="de-parea"><div><a href="#"></a></div></div>';
+		this.pArea = [$aEnd($q('.postarea'), html), $aEnd($q(aib.qPages), html)];
 		this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 		this._pBtn[0].firstElementChild.onclick = e => this.showMainReply(false, e);
 		this._pBtn[1].firstElementChild.onclick = e => this.showMainReply(true, e);
@@ -15209,9 +15209,6 @@ function getImageBoard(checkDomains) {
 			}
 			return null;
 		}
-		get css() {
-			return '.postarea + hr { display: none; }';
-		}
 		get reportForm() {
 			const value = (pNum, tNum) => ($q('input[type="button"]', $popup(
 				'edit-report',
@@ -16192,7 +16189,8 @@ function updateCSS() {
 	${ Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ' }
 	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
 	${ !aib.formHeaders && (aib.multiFile || Cfg.fileInputs !== 2) ?
-		'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '' }body > hr, .postarea, .theader { display: none !important; }\r\n`;
+		'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '' }
+	.postarea, .theader { display: none !important; }\r\n`;
 	$id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 }

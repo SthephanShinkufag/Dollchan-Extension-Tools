@@ -43,9 +43,6 @@ function getImageBoard(checkDomains) {
 			}
 			return null;
 		}
-		get css() {
-			return '.postarea + hr { display: none; }';
-		}
 		get reportForm() {
 			const value = (pNum, tNum) => ($q('input[type="button"]', $popup(
 				'edit-report',

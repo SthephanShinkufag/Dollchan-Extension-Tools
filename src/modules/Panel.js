@@ -45,7 +45,7 @@ const Panel = Object.create({
 					</span>` : '') }
 				</span>
 			</div>
-			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">' }
+			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div>' }
 		</div>`);
 		this._el = $id('de-panel');
 		this._el.addEventListener('click', this, true);
