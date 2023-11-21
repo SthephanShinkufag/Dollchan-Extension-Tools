@@ -288,7 +288,7 @@ class PostForm {
 			this.isQuick = true;
 			this.setReply(true, false);
 			$q('a', this._pBtn[+this.isBottom]).className =
-				`de-abtn de-parea-btn-${ aib.t ? 'reply' : 'thr' }`;
+				`link-button de-parea-btn-${ aib.t ? 'reply' : 'thr' }`;
 		} else if(isCloseReply && !this.quotedText && post.wrap.nextElementSibling === this.qArea) {
 			this.closeReply();
 			return;
@@ -337,7 +337,7 @@ class PostForm {
 		}
 	}
 	updatePAreaBtns() {
-		const txt = 'de-abtn de-parea-btn-';
+		const txt = 'link-button de-parea-btn-';
 		const rep = aib.t ? 'reply' : 'thr';
 		$q('a', this._pBtn[+this.isBottom]).className = txt + (!this.pForm.style.display ? 'close' : rep);
 		$q('a', this._pBtn[+!this.isBottom]).className = txt + rep;
@@ -520,7 +520,7 @@ class PostForm {
 	_makeHideableContainer() {
 		(this.pForm = $add('<div id="de-pform" class="de-win-body"></div>'))
 			.append(this.form || '', this.oeForm || '');
-		const html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
+		const html = '<div class="de-parea"><div><a href="#"></a></div><hr></div>';
 		this.pArea = [$bBegin(DelForm.first.el, html), $aEnd($q(aib.qPages), html)];
 		this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 		this._pBtn[0].firstElementChild.onclick = e => this.showMainReply(false, e);

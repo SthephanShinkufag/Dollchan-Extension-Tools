@@ -8053,8 +8053,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   'use strict';
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
-  var version = '23.9.19.0';
-  var commit = '50a3c03';
+  var version = '23.11.21.0';
+  var commit = 'e7f6da8';
 
 
   var doc = deWindow.document;
@@ -16742,7 +16742,7 @@ this.disableSpells();
         if (!this.isQuick) {
           this.isQuick = true;
           this.setReply(true, false);
-          $q('a', this._pBtn[+this.isBottom]).className = "de-abtn de-parea-btn-".concat(aib.t ? 'reply' : 'thr');
+          $q('a', this._pBtn[+this.isBottom]).className = "link-button de-parea-btn-".concat(aib.t ? 'reply' : 'thr');
         } else if (isCloseReply && !this.quotedText && post.wrap.nextElementSibling === this.qArea) {
           this.closeReply();
           return;
@@ -16790,7 +16790,7 @@ this.disableSpells();
     }, {
       key: "updatePAreaBtns",
       value: function updatePAreaBtns() {
-        var txt = 'de-abtn de-parea-btn-';
+        var txt = 'link-button de-parea-btn-';
         var rep = aib.t ? 'reply' : 'thr';
         $q('a', this._pBtn[+this.isBottom]).className = txt + (!this.pForm.style.display ? 'close' : rep);
         $q('a', this._pBtn[+!this.isBottom]).className = txt + rep;
@@ -17023,7 +17023,7 @@ this.disableSpells();
       value: function _makeHideableContainer() {
         var _this49 = this;
         (this.pForm = $add('<div id="de-pform" class="de-win-body"></div>')).append(this.form || '', this.oeForm || '');
-        var html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
+        var html = '<div class="de-parea"><div><a href="#"></a></div><hr></div>';
         this.pArea = [$bBegin(DelForm.first.el, html), $aEnd($q(aib.qPages), html)];
         this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
         this._pBtn[0].firstElementChild.onclick = function (e) {
@@ -22561,7 +22561,7 @@ Spells.addSpell(9, '', false);
       if (localData) {
         return;
       }
-      this.btns = $bEnd(el, "<div class=\"de-thr-buttons\">".concat(Post.getPostBtns(true, true), "\n\t\t\t<span class=\"de-thr-updater\">[<a class=\"de-thr-updater-link de-abtn\" href=\"#\"></a>") + (!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>') + '</div>');
+      this.btns = $bEnd(el, "<div class=\"de-thr-buttons\">".concat(Post.getPostBtns(true, true), "\n\t\t\t<span class=\"de-thr-updater\"><a class=\"de-thr-updater-link link-button\" href=\"#\"></a>") + (!aib.t ? '</span>' : '<span id="de-updater-count" style="display: none;"></span></span>') + '</div>');
       ['click', 'mouseover'].forEach(function (e) {
         return _this87.btns.addEventListener(e, _this87);
       });
@@ -22570,7 +22570,7 @@ Spells.addSpell(9, '', false);
       this.btnFav = _ref47[2];
       this.btnUpd = _ref47[3];
       if (!aib.t && Cfg.hideReplies) {
-        this.btnReplies = $bEnd(this.btns, ' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
+        this.btnReplies = $bEnd(this.btns, ' <span class="de-btn-replies"><a class="link-button" href="#"></a></span>');
         this._toggleReplies();
       }
     }
@@ -22981,7 +22981,7 @@ Spells.addSpell(9, '', false);
         }
         var btns = this._moveBtnsToEnd();
         if (!$q('.de-thr-collapse', btns)) {
-          btns.insertAdjacentHTML('beforeend', "<span class=\"de-thr-collapse\"> [<a class=\"de-thr-collapse-link de-abtn\" href=\"".concat(aib.getThrUrl(aib.b, this.num), "\"></a>]</span>"));
+          btns.insertAdjacentHTML('beforeend', "<span class=\"de-thr-collapse\">&nbsp;<a class=\"de-thr-collapse-link link-button\" href=\"".concat(aib.getThrUrl(aib.b, this.num), "\"></a></span>"));
         }
         if (needToShow > Thread.visPosts) {
           thrNavPanel.addThr(this);
@@ -22998,7 +22998,7 @@ Spells.addSpell(9, '', false);
         }
         Pview.updatePosition(false);
         if (Cfg.hideReplies) {
-          this.btnReplies.firstElementChild.className = 'de-replies-hide de-abtn';
+          this.btnReplies.firstElementChild.className = 'de-replies-hide link-button';
           if (Cfg.updThrBtns) {
             $show(this.btnUpd);
           }
@@ -23136,7 +23136,7 @@ Spells.addSpell(9, '', false);
           (post = post.next).isOmitted = isHide;
           post.wrap.classList.toggle('de-hidden', isHide);
         }
-        this.btnReplies.firstElementChild.className = "".concat(isHide ? 'de-replies-show' : 'de-replies-hide', " de-abtn");
+        this.btnReplies.firstElementChild.className = "".concat(isHide ? 'de-replies-show' : 'de-replies-hide', " link-button");
         _toConsumableArray(this.btns.children).forEach(function (el) {
           return el !== _this90.btnReplies && $toggle(el, !isHide);
         });

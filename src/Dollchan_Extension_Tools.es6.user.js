@@ -3,8 +3,8 @@
 (function deMainFuncInner(deWindow, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '23.9.19.0';
-const commit = '50a3c03';
+const version = '23.11.21.0';
+const commit = 'e7f6da8';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -8791,7 +8791,7 @@ class PostForm {
 			this.isQuick = true;
 			this.setReply(true, false);
 			$q('a', this._pBtn[+this.isBottom]).className =
-				`de-abtn de-parea-btn-${ aib.t ? 'reply' : 'thr' }`;
+				`link-button de-parea-btn-${ aib.t ? 'reply' : 'thr' }`;
 		} else if(isCloseReply && !this.quotedText && post.wrap.nextElementSibling === this.qArea) {
 			this.closeReply();
 			return;
@@ -8840,7 +8840,7 @@ class PostForm {
 		}
 	}
 	updatePAreaBtns() {
-		const txt = 'de-abtn de-parea-btn-';
+		const txt = 'link-button de-parea-btn-';
 		const rep = aib.t ? 'reply' : 'thr';
 		$q('a', this._pBtn[+this.isBottom]).className = txt + (!this.pForm.style.display ? 'close' : rep);
 		$q('a', this._pBtn[+!this.isBottom]).className = txt + rep;
@@ -9023,7 +9023,7 @@ class PostForm {
 	_makeHideableContainer() {
 		(this.pForm = $add('<div id="de-pform" class="de-win-body"></div>'))
 			.append(this.form || '', this.oeForm || '');
-		const html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
+		const html = '<div class="de-parea"><div><a href="#"></a></div><hr></div>';
 		this.pArea = [$bBegin(DelForm.first.el, html), $aEnd($q(aib.qPages), html)];
 		this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 		this._pBtn[0].firstElementChild.onclick = e => this.showMainReply(false, e);
@@ -13281,14 +13281,14 @@ class Thread {
 			return;
 		}
 		this.btns = $bEnd(el, `<div class="de-thr-buttons">${ Post.getPostBtns(true, true) }
-			<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>` +
-			(!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>') +
+			<span class="de-thr-updater"><a class="de-thr-updater-link link-button" href="#"></a>` +
+			(!aib.t ? '</span>' : '<span id="de-updater-count" style="display: none;"></span></span>') +
 			'</div>');
 		['click', 'mouseover'].forEach(e => this.btns.addEventListener(e, this));
 		[this.btnHide,, this.btnFav, this.btnUpd] = [...this.btns.children];
 		if(!aib.t && Cfg.hideReplies) {
 			this.btnReplies = $bEnd(this.btns,
-				' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
+				' <span class="de-btn-replies"><a class="link-button" href="#"></a></span>');
 			this._toggleReplies();
 		}
 	}
@@ -13647,8 +13647,8 @@ class Thread {
 		const btns = this._moveBtnsToEnd();
 		if(!$q('.de-thr-collapse', btns)) {
 			btns.insertAdjacentHTML('beforeend',
-				`<span class="de-thr-collapse"> [<a class="de-thr-collapse-link de-abtn" href="${
-					aib.getThrUrl(aib.b, this.num) }"></a>]</span>`);
+				`<span class="de-thr-collapse">&nbsp;<a class="de-thr-collapse-link link-button" href="${
+					aib.getThrUrl(aib.b, this.num) }"></a></span>`);
 		}
 		if(needToShow > Thread.visPosts) {
 			thrNavPanel.addThr(this);
@@ -13665,7 +13665,7 @@ class Thread {
 		}
 		Pview.updatePosition(false);
 		if(Cfg.hideReplies) {
-			this.btnReplies.firstElementChild.className = 'de-replies-hide de-abtn';
+			this.btnReplies.firstElementChild.className = 'de-replies-hide link-button';
 			if(Cfg.updThrBtns) {
 				$show(this.btnUpd);
 			}
@@ -13791,7 +13791,7 @@ class Thread {
 			post.wrap.classList.toggle('de-hidden', isHide);
 		}
 		this.btnReplies.firstElementChild.className =
-			`${ isHide ? 'de-replies-show' : 'de-replies-hide' } de-abtn`;
+			`${ isHide ? 'de-replies-show' : 'de-replies-hide' } link-button`;
 		[...this.btns.children].forEach(el => el !== this.btnReplies && $toggle(el, !isHide));
 		$q(aib.qOmitted + ', .de-omitted', this.el)?.remove();
 		i = this.postsCount - 1 - (isHide ? 0 : i);
