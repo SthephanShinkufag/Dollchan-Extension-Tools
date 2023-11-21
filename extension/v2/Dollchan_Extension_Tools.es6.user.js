@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '4b8c257';
+const commit = 'a9d5bb8';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -10677,11 +10677,11 @@ class AbstractPost {
 				/* falls through */
 			case 'de-link-backref':
 			case 'de-link-postref':
-				if(!Cfg.linksNavig) {
+				if(!nav.isMobile || !Cfg.linksNavig) {
 					return;
 				}
 				if(this.kid) {
-					this.kid.markToDel();
+					this.kid.deletePview();
 				} else {
 					this.kid = Pview.showPview(this, el);
 				}
@@ -10770,6 +10770,9 @@ class AbstractPost {
 					this.kid.markToDel(); // If cursor is over any preview - delete its kids
 				}
 			} else { // Mouseover - we need to show a preview for this link
+				if(nav.isMobile) {
+					return;
+				}
 				this._linkTO = setTimeout(() => (this.kid = Pview.showPview(this, el)), Cfg.linksOver);
 			}
 			e.preventDefault();
@@ -11740,7 +11743,7 @@ class Pview extends AbstractPost {
 	}
 	markToDel() {
 		clearTimeout(Pview._delTO);
-		Pview._delTO = setTimeout(() => this.deleteNonSticky(), Cfg.linksOut);
+		Pview._delTO = setTimeout(() => this.deleteNonSticky(), nav.isMobile ? 0 : Cfg.linksOut);
 	}
 	mouseEnter() {
 		if(this.kid) {

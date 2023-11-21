@@ -195,7 +195,7 @@ class Pview extends AbstractPost {
 	}
 	markToDel() {
 		clearTimeout(Pview._delTO);
-		Pview._delTO = setTimeout(() => this.deleteNonSticky(), Cfg.linksOut);
+		Pview._delTO = setTimeout(() => this.deleteNonSticky(), nav.isMobile ? 0 : Cfg.linksOut);
 	}
 	mouseEnter() {
 		if(this.kid) {
