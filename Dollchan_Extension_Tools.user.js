@@ -8053,8 +8053,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   'use strict';
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
-  var version = '23.11.21.0';
-  var commit = 'efff818';
+  var version = '23.11.21.2';
+  var commit = 'a876a7e';
 
 
   var doc = deWindow.document;
@@ -19058,11 +19058,11 @@ Spells.addSpell(9, '', false);
               el.className = 'de-link-postref ' + el.className;
             case 'de-link-backref':
             case 'de-link-postref':
-              if (!Cfg.linksNavig) {
+              if (!nav.isMobile || !Cfg.linksNavig) {
                 return;
               }
               if (this.kid) {
-                this.kid.markToDel();
+                this.kid.deletePview();
               } else {
                 this.kid = Pview.showPview(this, el);
               }
@@ -19152,6 +19152,9 @@ Spells.addSpell(9, '', false);
                 this.kid.markToDel(); 
               }
             } else {
+              if (nav.isMobile) {
+                return;
+              }
               this._linkTO = setTimeout(function () {
                 return _this62.kid = Pview.showPview(_this62, el);
               }, Cfg.linksOver);
@@ -20323,7 +20326,7 @@ Spells.addSpell(9, '', false);
         clearTimeout(Pview._delTO);
         Pview._delTO = setTimeout(function () {
           return _this73.deleteNonSticky();
-        }, Cfg.linksOut);
+        }, nav.isMobile ? 0 : Cfg.linksOut);
       }
     }, {
       key: "mouseEnter",
