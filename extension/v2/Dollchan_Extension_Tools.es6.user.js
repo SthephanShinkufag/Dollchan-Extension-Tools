@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = 'a9d5bb8';
+const commit = '7ae0d0c';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -18334,18 +18334,19 @@ function scriptCSS() {
 	.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }
 	.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }
 	.de-win > .de-win-head { cursor: move; }
-	.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }
+	.de-win-buttons { margin: 0 2px 0 0; font-size: 0; white-space: nowrap; cursor: pointer; }
 	.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }
 	.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); color: #d0e7ff; }
 	.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); color: inherit; }
 	#de-win-cfg { width: 355px; }
-	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: calc(100vh - 25px); overflow-x: hidden; overflow-y: auto; }
+	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-width: calc(100vw - (100vw - 100%)); max-height: calc(100vh - 25px); overflow-x: hidden; overflow-y: auto; }
 	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0 !important; margin: 0 !important; border: none; }
 	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 6px; border: 1px solid gray; }
 	#de-win-hid { max-width: 60%; }
+	.de-win-title { width: 100%; }
 	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }
 	#de-win-vid .de-entry { white-space: normal; }
-	.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }
+	.de-win-head { display: flex; height: 16px; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }
 
 	/* Settings window */
 	.de-block { display: block; }
