@@ -193,7 +193,7 @@ function scriptCSS() {
 
 	/* Text markup buttons */
 	.de-markup-back { fill: #f0f0f0; stroke: #808080; }
-	#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }
+	#de-txt-panel { display: block; font-weight: bold; white-space: nowrap; cursor: pointer; }
 	#de-txt-panel > div { display: inline-block; }
 	#de-txt-panel > div > button { margin-right: 2px; min-width: 23px; }
 	#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 1px; }\r\n`;
@@ -246,7 +246,9 @@ function scriptCSS() {
 	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
 	.de-fullimg-rotated { transform-origin: top left; width: auto !important; max-width: none !important; }
 	.de-fullimg-scale { color: #fff; font: bold 12px tahoma; cursor: default; }
-	.de-fullimg-video-hack { width: 100%; height: calc(100% - 40px); position: absolute; z-index: 1; cursor: pointer; }
+	.de-fullimg-video-hack { ${ nav.isWebkit && nav.isMobile ?
+		'width: 30px; top: 0; right: 0; color: #fff; font-size: 2em;' :
+		'width: 100%;' } height: calc(100% - 40px); position: absolute; z-index: 1; cursor: pointer; }
 	.de-fullimg-wrap { position: relative; margin-bottom: 24px; }
 	.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: 100%; height: 100%; max-height: 100%; }
 	.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }
@@ -343,7 +345,7 @@ function scriptCSS() {
 	/* Other */
 	.de-abtn { text-decoration: none !important; outline: none; }
 	.de-button { flex: none; padding: 0 ${ nav.isFirefox ? 2 : 4 }px !important; margin: 1px 2px; min-width: auto !iportant; height: 24px; font: 13px arial; }
-	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }
+	.de-editor { display: block; width: 600px; height: 300px; max-width: calc(100vw - 20px); font: 12px courier new; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }
 	.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }
 	input[type="text"].de-input-selected { background: rgba(255,255,150,0.4) !important }
@@ -360,10 +362,9 @@ function scriptCSS() {
 	.de-omitted { color: grey; }
 	.de-omitted::before { content: "${ Lng.postsOmitted[lang] }"; }
 	.de-page-num { clear: both; }
-	.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }
-	.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }
-	.de-popup-msg { display: inline-block; white-space: pre-wrap; }
-	.de-popup-msg > hr { margin: 0 !important; }
+	.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; white-space: pre-wrap; }
+	.de-popup-btn { display: inline-block; vertical-align: -1px; color: green; font-size: 1.5em; line-height: 16px; cursor: pointer; }
+	.de-popup > hr { margin: 0 !important; }
 	.de-post-hiddencontent { display: none !important; }
 	.de-pview { position: absolute !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }
 	.de-pview-info { padding: 3px 6px !important; }
@@ -383,7 +384,7 @@ function scriptCSS() {
 	.de-viewed { color: #747488 !important; }
 	.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }
 	.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }
-	#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }
+	#de-wrapper-popup { max-width: calc(100vw - (100vw - 100%)); overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }
 	@keyframes de-wait-anim { to { transform: rotate(360deg); } }
 	form > hr { clear: both }
 
