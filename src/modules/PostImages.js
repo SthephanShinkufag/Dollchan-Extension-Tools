@@ -672,7 +672,9 @@ class ExpandableImage {
 		const hasTitle = needTitle && this.el.hasAttribute('de-metatitle');
 		const title = hasTitle ? this.el.getAttribute('de-metatitle') : '';
 		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>${
-			nav.firefoxVer < 59 ? '' : '<div class="de-fullimg-video-hack"></div>' }
+			nav.firefoxVer >= 59 || nav.isMobile ? `<div class="de-fullimg-video-hack">${
+				nav.isMobile && nav.isWebkit ? '\u00D7' : ''
+			}</div>` : '' }
 			<video src="${ src }" ` +
 				`${ hasTitle && title ? `title="${ title }" ` : '' }loop autoplay ` +
 				`${ Cfg.webmControl ? 'controls ' : '' }` +

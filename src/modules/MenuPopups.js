@@ -16,18 +16,17 @@ function closePopup(data) {
 
 function $popup(id, txt, isWait = false) {
 	let el = $id('de-popup-' + id);
-	const buttonHTML = isWait ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '\u2716 ';
+	const html = `<span class="de-popup-btn">${
+		isWait ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '\u2716 '
+	}</span>${ txt.trim() }`;
 	if(el) {
-		$q('div', el).innerHTML = txt.trim();
-		$q('span', el).innerHTML = buttonHTML;
+		el.innerHTML = html;
 		if(!isWait && Cfg.animation) {
 			$animate(el, 'de-blink');
 		}
 	} else {
-		el = $bEnd($id('de-wrapper-popup'), `<div class="${ aib.cReply } de-popup" id="de-popup-${ id }">
-			<span class="de-popup-btn">${ buttonHTML }</span>
-			<div class="de-popup-msg">${ txt.trim() }</div>
-		</div>`);
+		el = $bEnd($id('de-wrapper-popup'),
+			`<div class="${ aib.cReply } de-popup" id="de-popup-${ id }">${ html }</div>`);
 		el.onclick = e => {
 			let el = nav.fixEventEl(e.target);
 			el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
@@ -42,7 +41,7 @@ function $popup(id, txt, isWait = false) {
 	if(Cfg.closePopups && !isWait && !id.includes('edit') && !id.includes('cfg')) {
 		el.closeTimeout = setTimeout(closePopup, 6e3, el);
 	}
-	return el.lastElementChild;
+	return el;
 }
 
 // Adds button that calls a popup with the text editor. Useful to edit settings.

@@ -401,8 +401,9 @@ const CfgWindow = {
 				for(let i = 0, len = arr.length; i < len; ++i) {
 					perf[arr[i][0]] = arr[i][1];
 				}
-				$popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>'
-				).firstElementChild.value = JSON.stringify({
+				$popup('cfg-debug',
+					Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>'
+				).lastChild.value = JSON.stringify({
 					version  : version + '.' + commit,
 					location : String(deWindow.location),
 					nav,

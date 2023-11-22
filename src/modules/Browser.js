@@ -25,8 +25,7 @@ function initNavFuncs() {
 	const ua = navigator.userAgent;
 	const isFirefox = ua.includes('Gecko/');
 	const isWebkit = ua.includes('WebKit/');
-	const isChrome = isWebkit && ua.includes('Chrome/');
-	const isSafari = isWebkit && !isChrome;
+	const isSafari = isWebkit && !ua.includes('Chrome/');
 	const canUseFetch = 'AbortController' in deWindow; // Firefox 57+, Chrome 66+, Safari 11.1+
 	if(!('requestAnimationFrame' in deWindow)) { // XXX: Opera Presto
 		deWindow.requestAnimationFrame = fn => setTimeout(fn, 0);
