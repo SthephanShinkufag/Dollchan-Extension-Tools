@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = 'c05e06f';
+const commit = '92f5268';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -10738,7 +10738,9 @@ class AbstractPost {
 				if(!nav.isMobile || !Cfg.linksNavig) {
 					return;
 				}
-				if(this.kid) {
+				if(this.kid && this.kid.parent.num === this.num &&
+					this.kid.num === +el.textContent.match(/\d+/g)?.[0]
+				) {
 					this.kid.deletePview();
 				} else {
 					this.kid = Pview.showPview(this, el);
@@ -11650,9 +11652,8 @@ class Pview extends AbstractPost {
 		return Pview.top ? Pview.top.parent : null;
 	}
 	static showPview(parent, link) {
-		const tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [0, aib.getPostOfEl(link).tNum])[1];
-		let pNum = link.textContent.match(/\d+/g);
-		pNum = pNum ? +pNum.pop() : tNum;
+		const tNum = +link.pathname.match(/.+?\/[^\d]*(\d+)/)?.[1] || aib.getPostOfEl(link).tNum;
+		const pNum = +link.textContent.match(/\d+/g)?.[0] || tNum;
 		const isTop = !(parent instanceof Pview);
 		let pv = isTop ? Pview.top : parent.kid;
 		clearTimeout(Pview._delTO);

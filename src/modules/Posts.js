@@ -219,7 +219,9 @@ class AbstractPost {
 				if(!nav.isMobile || !Cfg.linksNavig) {
 					return;
 				}
-				if(this.kid) {
+				if(this.kid && this.kid.parent.num === this.num &&
+					this.kid.num === +el.textContent.match(/\d+/g)?.[0]
+				) {
 					this.kid.deletePview();
 				} else {
 					this.kid = Pview.showPview(this, el);

@@ -8132,7 +8132,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = 'c05e06f';
+  var commit = '92f5268';
 
 
   var doc = deWindow.document;
@@ -19237,6 +19237,7 @@ this.disableSpells();
       key: "handleEvent",
       value: function handleEvent(e) {
         var _temp,
+          _el$textContent$match,
           _this63 = this;
         var temp;
         var el = nav.fixEventEl(e.target);
@@ -19382,7 +19383,7 @@ Spells.addSpell(9, '', false);
               if (!nav.isMobile || !Cfg.linksNavig) {
                 return;
               }
-              if (this.kid) {
+              if (this.kid && this.kid.parent.num === this.num && this.kid.num === +((_el$textContent$match = el.textContent.match(/\d+/g)) === null || _el$textContent$match === void 0 ? void 0 : _el$textContent$match[0])) {
                 this.kid.deletePview();
               } else {
                 this.kid = Pview.showPview(this, el);
@@ -20905,9 +20906,9 @@ Spells.addSpell(9, '', false);
     }, {
       key: "showPview",
       value: function showPview(parent, link) {
-        var tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [0, aib.getPostOfEl(link).tNum])[1];
-        var pNum = link.textContent.match(/\d+/g);
-        pNum = pNum ? +pNum.pop() : tNum;
+        var _link$pathname$match, _link$textContent$mat;
+        var tNum = +((_link$pathname$match = link.pathname.match(/.+?\/[^\d]*(\d+)/)) === null || _link$pathname$match === void 0 ? void 0 : _link$pathname$match[1]) || aib.getPostOfEl(link).tNum;
+        var pNum = +((_link$textContent$mat = link.textContent.match(/\d+/g)) === null || _link$textContent$mat === void 0 ? void 0 : _link$textContent$mat[0]) || tNum;
         var isTop = !(parent instanceof Pview);
         var pv = isTop ? Pview.top : parent.kid;
         clearTimeout(Pview._delTO);
