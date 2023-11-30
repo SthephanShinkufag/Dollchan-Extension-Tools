@@ -76,10 +76,14 @@ function getImageBoard(checkDomains) {
 					let obj;
 					try {
 						obj = JSON.parse(xhr.responseText);
-					} catch(err) {}
+					} catch(err) {
+						$popup('report', Lng.reportError[lang] + ':<br>' + xhr.responseText);
+						return;
+					}
 					$popup('report', obj.result === 'ok' ? Lng.succReported[lang] :
 						obj.result === 'alreadysent' ? Lng.alreadyReported[lang] :
-						Lng.reportError[lang]);
+						Lng.reportError[lang] +
+							(obj.result === 'error' && obj.message ? ':<br>' + obj.message : ''));
 				});
 			});
 			Object.defineProperty(this, 'reportForm', { value });

@@ -8053,8 +8053,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   'use strict';
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
-  var version = '23.11.23.0';
-  var commit = '5259ac9';
+  var version = '23.11.30.0';
+  var commit = '5ad0f6d';
 
 
   var doc = deWindow.document;
@@ -24821,8 +24821,11 @@ Spells.addSpell(9, '', false);
                 var obj;
                 try {
                   obj = JSON.parse(xhr.responseText);
-                } catch (err) {}
-                $popup('report', obj.result === 'ok' ? Lng.succReported[lang] : obj.result === 'alreadysent' ? Lng.alreadyReported[lang] : Lng.reportError[lang]);
+                } catch (err) {
+                  $popup('report', Lng.reportError[lang] + ':<br>' + xhr.responseText);
+                  return;
+                }
+                $popup('report', obj.result === 'ok' ? Lng.succReported[lang] : obj.result === 'alreadysent' ? Lng.alreadyReported[lang] : Lng.reportError[lang] + (obj.result === 'error' && obj.message ? ':<br>' + obj.message : ''));
               });
             };
           };

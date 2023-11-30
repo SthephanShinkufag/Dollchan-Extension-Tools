@@ -3,8 +3,8 @@
 (function deMainFuncInner(deWindow, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '23.11.23.0';
-const commit = '5259ac9';
+const version = '23.11.30.0';
+const commit = '5ad0f6d';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -15247,10 +15247,14 @@ function getImageBoard(checkDomains) {
 					let obj;
 					try {
 						obj = JSON.parse(xhr.responseText);
-					} catch(err) {}
+					} catch(err) {
+						$popup('report', Lng.reportError[lang] + ':<br>' + xhr.responseText);
+						return;
+					}
 					$popup('report', obj.result === 'ok' ? Lng.succReported[lang] :
 						obj.result === 'alreadysent' ? Lng.alreadyReported[lang] :
-						Lng.reportError[lang]);
+						Lng.reportError[lang] +
+							(obj.result === 'error' && obj.message ? ':<br>' + obj.message : ''));
 				});
 			});
 			Object.defineProperty(this, 'reportForm', { value });
