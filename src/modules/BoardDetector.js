@@ -1503,15 +1503,16 @@ function getImageBoard(checkDomains, checkEngines) {
 				const src = $q('a', el).href;
 				$bBegin(el, `<a href="${ src }">${ src }</a>`).nextSibling.remove();
 			});
+			this._hasNewAPI = false;
 			return false;
 		}
 
-		getSubmitData(data) {
-			const doc = $createDoc(data);
-			const error = $q('#errorLabel', doc)?.innerText;
-			const link = $q('#linkRedirect', doc)?.href;
-			const postNum = link?.match(/\d+$/);
-			return { postNum, error };
+		getSubmitData(jsonString) {
+			const { status, data } = JSON.parse(jsonString);
+			return {
+				error   : status === 'error' ? data : null,
+				postNum : status === 'ok' ? +data : null
+			};
 		}
 	}
 	ibDomains['endchan.net'] = ibDomains['endchan.gg'] = ibDomains['endchan.org'] =
