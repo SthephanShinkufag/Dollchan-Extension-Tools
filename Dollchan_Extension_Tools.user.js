@@ -8132,7 +8132,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = '92f5268';
+  var commit = '857b7e5';
 
 
   var doc = deWindow.document;
@@ -17600,7 +17600,7 @@ this.disableSpells();
   }
   function _checkSubmit() {
     _checkSubmit = _asyncToGenerator(_regeneratorRuntime().mark(function _callee55(data) {
-      var error, postNum, isDocument, _aib$captchaAfterSubm, _aib3, _data, _aib$getSubmitData, _postform2, tNum, _pByNum$get, thr, statsParam, dForm;
+      var error, postNum, isDocument, _aib$captchaAfterSubm, _aib3, _data, _aib$getSubmitData, _postform2, tNum, _pByNum$get3, thr, statsParam, dForm;
       return _regeneratorRuntime().wrap(function _callee55$(_context63) {
         while (1) switch (_context63.prev = _context63.next) {
           case 0:
@@ -17651,7 +17651,7 @@ this.disableSpells();
             }
             if (Cfg.favOnReply && !Cfg.sageReply) {
               if (tNum) {
-                _pByNum$get = pByNum.get(tNum), thr = _pByNum$get.thr;
+                _pByNum$get3 = pByNum.get(tNum), thr = _pByNum$get3.thr;
                 if (!thr.isFav) {
                   thr.toggleFavState(true);
                 }
@@ -19270,11 +19270,12 @@ this.disableSpells();
               }
               if (((_temp = temp = el.firstElementChild) === null || _temp === void 0 ? void 0 : _temp.tagName.toLowerCase()) !== 'img') {
                 temp = el.parentNode;
+                var text = el.textContent;
                 if (temp === this.trunc) {
                   this._getFullMsg(temp, false);
                   e.preventDefault();
                   e.stopPropagation();
-                } else if (Cfg.insertNum && postform.form && (this._pref === temp || this._pref === el) && !/Reply|Ответ/.test(el.textContent)) {
+                } else if (Cfg.insertNum && postform.form && (this._pref === temp || this._pref === el) && !/Reply|Ответ|№/.test(text)) {
                   e.preventDefault();
                   e.stopPropagation();
                   if (!Cfg.showRepBtn) {
@@ -19288,15 +19289,16 @@ this.disableSpells();
                     var isOnNewLine = formText === '' || formText.slice(-1) === '\n';
                     insertText(postform.txta, ">>".concat(this.num).concat(isOnNewLine ? '\n' : ''));
                   } else {
-                    deWindow.location.assign(el.href.replace(/#i/, '#'));
+                    deWindow.location.assign(el.href);
                   }
+                } else if (text === '№') {
+                  var _pByNum$get;
+                  (_pByNum$get = pByNum.get(+el.href.match(/#(\d+)/)[1])) === null || _pByNum$get === void 0 || _pByNum$get.selectAndScrollTo();
                 } else if (nav.isMobile) {
                   break;
-                } else if ((temp = el.textContent)[0] === '>' && temp[1] === '>' && !temp[2].includes('/')) {
-                  var post = pByNum.get(+temp.match(/\d+/));
-                  if (post) {
-                    post.selectAndScrollTo();
-                  }
+                } else if (text[0] === '>' && text[1] === '>' && !text[2].includes('/')) {
+                  var _pByNum$get2;
+                  (_pByNum$get2 = pByNum.get(+text.match(/\d+/))) === null || _pByNum$get2 === void 0 || _pByNum$get2.selectAndScrollTo();
                 }
                 return;
               }
@@ -19354,7 +19356,7 @@ this.disableSpells();
               return;
             case 'de-btn-reply':
               if (nav.isMobile && Cfg.showRepBtn === 1) {
-                this._menuToggleClickBtn(el, this._getMenuReply());
+                this._menuToggleClickBtn(el, (this instanceof Pview ? pByNum.get(this.num) : this)._getMenuReply());
               } else {
                 postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
                 postform.quotedText = '';
@@ -19439,7 +19441,7 @@ Spells.addSpell(9, '', false);
                 if (!isOutEvent) {
                   postform.getSelectedText();
                 }
-                this._menuToggleOverBtn(el, isOutEvent, this._getMenuReply());
+                this._menuToggleOverBtn(el, isOutEvent, (this instanceof Pview ? pByNum.get(this.num) : this)._getMenuReply());
               }
               return;
             }
