@@ -3,8 +3,8 @@
 (function deMainFuncInner(deWindow, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '23.11.30.0';
-const commit = '5ad0f6d';
+const version = '23.12.16.0';
+const commit = '91e2025';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -10388,12 +10388,13 @@ class AbstractPost {
 				// Check if the link is not an image container
 				if((temp = el.firstElementChild)?.tagName.toLowerCase() !== 'img') {
 					temp = el.parentNode;
+					const text = el.textContent;
 					if(temp === this.trunc) { // Click on "truncated message" link
 						this._getFullMsg(temp, false);
 						e.preventDefault();
 						e.stopPropagation();
 					} else if(Cfg.insertNum && postform.form && (this._pref === temp || this._pref === el) &&
-						!/Reply|Ответ/.test(el.textContent)
+						!/Reply|Ответ|№/.test(text)
 					) { // Click on post number link - show quick reply or redirect with an #anchor
 						e.preventDefault();
 						e.stopPropagation();
@@ -10409,17 +10410,15 @@ class AbstractPost {
 							const isOnNewLine = formText === '' || formText.slice(-1) === '\n';
 							insertText(postform.txta, `>>${ this.num }${ isOnNewLine ? '\n' : '' }`);
 						} else {
-							deWindow.location.assign(el.href.replace(/#i/, '#'));
+							deWindow.location.assign(el.href);
 						}
+					} else if(text === '№') {
+						pByNum.get(+el.href.match(/#(\d+)/)[1])?.selectAndScrollTo();
 					} else if(nav.isMobile) {
 						break;
-					} else if((temp = el.textContent)[0] === '>' &&
-						temp[1] === '>' && !temp[2].includes('/')
-					) { // Click on >>link - scroll to the referenced post
-						const post = pByNum.get(+temp.match(/\d+/));
-						if(post) {
-							post.selectAndScrollTo();
-						}
+					} else if(text[0] === '>' && text[1] === '>' && !text[2].includes('/')) {
+						// Click on >>link - scroll to the referenced post
+						pByNum.get(+text.match(/\d+/))?.selectAndScrollTo();
 					}
 					return;
 				}
@@ -10477,7 +10476,8 @@ class AbstractPost {
 				return;
 			case 'de-btn-reply':
 				if(nav.isMobile && Cfg.showRepBtn === 1) {
-					this._menuToggleClickBtn(el, this._getMenuReply());
+					this._menuToggleClickBtn(el,
+						(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuReply());
 				} else {
 					postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 					postform.quotedText = '';
@@ -10563,7 +10563,8 @@ class AbstractPost {
 				if(!isOutEvent) {
 					postform.getSelectedText();
 				}
-				this._menuToggleOverBtn(el, isOutEvent, this._getMenuReply());
+				this._menuToggleOverBtn(el, isOutEvent,
+					(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuReply());
 			}
 			return;
 		}
