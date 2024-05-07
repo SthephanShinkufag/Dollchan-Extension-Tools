@@ -1456,7 +1456,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(getCookies().passcode === '1') {
 				$ajax(this.protocol + '//' + this.host + '/' + this.b + '/imgboard.php?passcode&check').then(
 					xhr => switchCaptcha(xhr.responseText === 'OK' ? 'validpasscode' : 'invalidpasscode'),
-					err => switchCaptcha('invalidpasscode'));
+					() => switchCaptcha('invalidpasscode'));
 			} else {
 				switchCaptcha('showcaptcha');
 			}
@@ -1666,7 +1666,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['iichan.hk'] = ibDomains['ii.yakuji.moe'] = Iichan;
+	ibDomains['iichan.hk'] = ibDomains['iichan.lol'] =
+		ibDomains['iichan.moe'] = ibDomains['ii.yakuji.moe'] = Iichan;
 
 	class Kohlchan extends Lynxchan {
 		constructor(...args) {

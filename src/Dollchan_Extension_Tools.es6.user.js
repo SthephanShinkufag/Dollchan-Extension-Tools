@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '23.9.19.0';
-const commit = '335b491';
+const commit = '5787536';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -17114,7 +17114,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(getCookies().passcode === '1') {
 				$ajax(this.protocol + '//' + this.host + '/' + this.b + '/imgboard.php?passcode&check').then(
 					xhr => switchCaptcha(xhr.responseText === 'OK' ? 'validpasscode' : 'invalidpasscode'),
-					err => switchCaptcha('invalidpasscode'));
+					() => switchCaptcha('invalidpasscode'));
 			} else {
 				switchCaptcha('showcaptcha');
 			}
@@ -17161,15 +17161,16 @@ function getImageBoard(checkDomains, checkEngines) {
 				const src = $q('a', el).href;
 				$bBegin(el, `<a href="${ src }">${ src }</a>`).nextSibling.remove();
 			});
+			this._hasNewAPI = false;
 			return false;
 		}
 
-		getSubmitData(data) {
-			const doc = $createDoc(data);
-			const error = $q('#errorLabel', doc)?.innerText;
-			const link = $q('#linkRedirect', doc)?.href;
-			const postNum = link?.match(/\d+$/);
-			return { postNum, error };
+		getSubmitData(jsonString) {
+			const { status, data } = JSON.parse(jsonString);
+			return {
+				error   : status === 'error' ? data : null,
+				postNum : status === 'ok' ? +data : null
+			};
 		}
 	}
 	ibDomains['endchan.net'] = ibDomains['endchan.gg'] = ibDomains['endchan.org'] =
@@ -17323,7 +17324,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['iichan.hk'] = ibDomains['ii.yakuji.moe'] = Iichan;
+	ibDomains['iichan.hk'] = ibDomains['iichan.lol'] =
+		ibDomains['iichan.moe'] = ibDomains['ii.yakuji.moe'] = Iichan;
 
 	class Kohlchan extends Lynxchan {
 		constructor(...args) {

@@ -8078,7 +8078,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '23.9.19.0';
-  var commit = '335b491';
+  var commit = '5787536';
 
 
   var doc = deWindow.document;
@@ -27149,7 +27149,7 @@ Spells.addSpell(9, '', false);
           if (getCookies().passcode === '1') {
             $ajax(this.protocol + '//' + this.host + '/' + this.b + '/imgboard.php?passcode&check').then(function (xhr) {
               return switchCaptcha(xhr.responseText === 'OK' ? 'validpasscode' : 'invalidpasscode');
-            }, function (err) {
+            }, function () {
               return switchCaptcha('invalidpasscode');
             });
           } else {
@@ -27217,19 +27217,18 @@ Spells.addSpell(9, '', false);
             var src = $q('a', el).href;
             $bBegin(el, "<a href=\"".concat(src, "\">").concat(src, "</a>")).nextSibling.remove();
           });
+          this._hasNewAPI = false;
           return false;
         }
       }, {
         key: "getSubmitData",
-        value: function getSubmitData(data) {
-          var _$q15, _$q16;
-          var doc = $createDoc(data);
-          var error = (_$q15 = $q('#errorLabel', doc)) === null || _$q15 === void 0 ? void 0 : _$q15.innerText;
-          var link = (_$q16 = $q('#linkRedirect', doc)) === null || _$q16 === void 0 ? void 0 : _$q16.href;
-          var postNum = link === null || link === void 0 ? void 0 : link.match(/\d+$/);
+        value: function getSubmitData(jsonString) {
+          var _JSON$parse = JSON.parse(jsonString),
+            status = _JSON$parse.status,
+            data = _JSON$parse.data;
           return {
-            postNum: postNum,
-            error: error
+            error: status === 'error' ? data : null,
+            postNum: status === 'ok' ? +data : null
           };
         }
       }]);
@@ -27442,7 +27441,7 @@ Spells.addSpell(9, '', false);
       }]);
       return Iichan;
     }(BaseBoard);
-    ibDomains['iichan.hk'] = ibDomains['ii.yakuji.moe'] = Iichan;
+    ibDomains['iichan.hk'] = ibDomains['iichan.lol'] = ibDomains['iichan.moe'] = ibDomains['ii.yakuji.moe'] = Iichan;
     var Kohlchan = function (_Lynxchan2) {
       _inherits(Kohlchan, _Lynxchan2);
       var _super32 = _createSuper(Kohlchan);
