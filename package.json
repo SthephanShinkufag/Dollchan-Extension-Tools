@@ -35,7 +35,7 @@
 		"element-polyfill": "^1.1.0",
 		"eslint": "^8.53.0",
 		"eslint-config-google": "^0.14.0",
-		"gulp": "^4.0.2",
+		"gulp": "^5.0.0",
 		"gulp-file": "^0.4.0",
 		"gulp-headerfooter": "^1.0.3",
 		"gulp-replace": "^1.1.4",
