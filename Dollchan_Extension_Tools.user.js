@@ -8054,7 +8054,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '23.12.16.0';
-  var commit = '91e2025';
+  var commit = '7d02efa';
 
 
   var doc = deWindow.document;
@@ -16588,7 +16588,7 @@ this.disableSpells();
             html += "<div id=\"de-btn-".concat(id[i], "\" de-title=\"").concat(Lng.txtBtn[i][lang], "\" de-tag=\"").concat(tag, "\">").concat(mode === 2 ? "".concat(!html ? '[' : '', "&nbsp;<a class=\"de-abtn\" href=\"#\">").concat(val[i], "</a> /") : mode === 3 ? "<button type=\"button\" style=\"font-weight: bold;\">".concat(val[i], "</button>") : "<svg><use xlink:href=\"#de-symbol-markup-".concat(id[i], "\"/></svg>"), "</div>");
           }
         }
-        el.innerHTML = "".concat(html, "<div id=\"de-btn-quote\" de-title=\"").concat(Lng.txtBtn[8][lang], "\" de-tag=\"q\">").concat(mode === 2 ? '&nbsp;<a class="de-abtn" href="#">&gt;</a> ]' : mode === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' : '<svg><use xlink:href="#de-symbol-markup-quote"/></svg>', "</span>");
+        el.innerHTML = "".concat(html, "<div id=\"de-btn-quote\" de-title=\"").concat(Lng.txtBtn[8][lang], "\" de-tag=\"q\">").concat(mode === 2 ? '&nbsp;<a class="de-abtn" href="#">&gt;</a> ]' : mode === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' : '<svg><use xlink:href="#de-symbol-markup-quote"/></svg>', "</div> <a href=\"/markup/\" target=\"_blank\" style=\"font-weight: bold; ").concat(mode === 1 ? 'vertical-align: super;' : '', "\">?</a>");
       }
     }, {
       key: "clearForm",

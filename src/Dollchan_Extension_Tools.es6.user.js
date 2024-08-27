@@ -4,7 +4,7 @@
 'use strict';
 
 const version = '23.12.16.0';
-const commit = '91e2025';
+const commit = '7d02efa';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -8668,7 +8668,9 @@ class PostForm {
 			mode === 2 ? '&nbsp;<a class="de-abtn" href="#">&gt;</a> ]' :
 			mode === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' :
 			'<svg><use xlink:href="#de-symbol-markup-quote"/></svg>'
-		}</span>`;
+		}</div> <a href="/markup/" target="_blank" style="font-weight: bold; ${
+			mode === 1 ? 'vertical-align: super;' : ''
+		}">?</a>`;
 	}
 	clearForm() {
 		if(this.txta) {
