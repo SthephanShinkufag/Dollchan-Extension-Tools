@@ -423,7 +423,7 @@ class AbstractPost {
 		e.preventDefault();
 		$popup('file-loading', Lng.loading[lang], true);
 		const url = el.href;
-		const data = await ContentLoader.loadImgData(url, false);
+		const data = await ContentLoader.loadFileData(url, false);
 		if(!data) {
 			$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
 			return;

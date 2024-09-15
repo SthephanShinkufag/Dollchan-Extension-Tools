@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '23.9.19.0';
-const commit = 'bdfc7b0';
+const commit = '744ffdb';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -6029,7 +6029,7 @@ const ContentLoader = {
 		let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
 		let count = els.length;
 		const delSymbols = (str, r = '') => str.replace(/[\\/:*?"<>|]/g, r);
-		this._thrPool = new TasksPool(4, (num, data) => this.loadImgData(data[0]).then(imgData => {
+		this._thrPool = new TasksPool(4, (num, data) => this.loadFileData(data[0]).then(fileData => {
 			const [url, fName, el, parentLink] = data;
 			let safeName = delSymbols(fName, '_');
 			progress.value = counter.innerHTML = current++;
@@ -6039,11 +6039,11 @@ const ContentLoader = {
 					thumbName = 'thumb-' + thumbName;
 				} else {
 					thumbName = 'thumbs/' + thumbName;
-					safeName = imgData ? 'images/' + safeName : thumbName;
+					safeName = fileData ? 'images/' + safeName : thumbName;
 					parentLink.href = getImgNameLink(el).href = safeName;
 				}
-				if(imgData) {
-					tar.addFile(safeName, imgData);
+				if(fileData) {
+					tar.addFile(safeName, fileData);
 				} else {
 					warnings += `<br>${ Lng.cantLoad[lang] } <a href="${ url }">${ url }</a>` +
 						`<br>${ Lng.willSavePview[lang] }`;
@@ -6053,16 +6053,15 @@ const ContentLoader = {
 							tar.addFile(thumbName, data), Function.prototype);
 					}
 				}
-				return imgOnly ? null : this.getDataFromImg(el).then(data => {
-					el.src = thumbName;
-					tar.addFile(thumbName, data);
-				}, () => (el.src = safeName));
-			} else if(imgData?.length) {
-				tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
+				return imgOnly ? null : this.getDataFromImg(el).then(
+					data => tar.addFile(el.src = thumbName, data),
+					() => (el.src = safeName));
+			} else if(fileData?.length) {
+				tar.addFile(el.href = el.src = 'data/' + safeName, fileData);
 			} else {
 				el.remove();
 			}
-		}), () => {
+		}), async () => {
 			const docName = `${ aib.domain }-${ delSymbols(aib.b) }-${ aib.t }`;
 			if(!imgOnly) {
 				$q('head', dc).insertAdjacentHTML('beforeend',
@@ -6076,9 +6075,22 @@ const ContentLoader = {
 					`(${ String(/* global deMainFuncOuter */ deMainFuncOuter) })(`
 				}${ JSON.stringify({ domain: aib.domain, b: aib.b, t: aib.t }) });`);
 				const dt = doc.doctype;
-				tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name +
-					(dt.publicId ? ` PUBLIC "${ dt.publicId }"` : dt.systemId ? ' SYSTEM' : '') +
-					(dt.systemId ? ` "${ dt.systemId }"` : '') + '>' + dc.outerHTML);
+				let html = dc.outerHTML;
+				if(aib._4chan) {
+					html = html.replace('</head>', `<style type="text/css">
+						.flag { background-image: url(data/flags-country.png); }
+						.bfl { background-image: url(data/flags-pol.png); }
+					</style></head>`);
+					tar.addFile('data/flags-country.png',
+						await this.loadFileData('https://s.4cdn.org/image/flags.8.png', false));
+					if(aib.b === 'pol') {
+						tar.addFile('data/flags-pol.png',
+							await this.loadFileData('https://s.4cdn.org/image/flags/pol/flags.png?2', false));
+					}
+				}
+				tar.addString(docName + '.html', `<!DOCTYPE ${ dt.name }${
+					dt.publicId ? ` PUBLIC "${ dt.publicId }"` : dt.systemId ? ' SYSTEM' : '' }${
+					dt.systemId ? ` "${ dt.systemId }"` : '' }>${ html }`);
 			}
 			const title = delSymbols(Thread.first.op.title.trim());
 			downloadBlob(tar.get(), `${ docName }${ imgOnly ? '-images' : '' }${
@@ -6152,7 +6164,7 @@ const ContentLoader = {
 		new Uint8Array(atob(el.toDataURL('image/png').split(',')[1]).split('').map(a => a.charCodeAt())),
 	getDataFromImg(el) {
 		if(el.getAttribute('loading') === 'lazy') {
-			return this.loadImgData(el.src);
+			return this.loadFileData(el.src);
 		}
 		try {
 			const cnv = this._canvas || (this._canvas = doc.createElement('canvas'));
@@ -6161,20 +6173,19 @@ const ContentLoader = {
 			cnv.getContext('2d').drawImage(el, 0, 0);
 			return Promise.resolve(this.getDataFromCanvas(cnv));
 		} catch(err) {
-			return this.loadImgData(el.src);
+			return this.loadFileData(el.src);
 		}
 	},
-	loadImgData: (url, repeatOnError = true) => $ajax(
-		url, { responseType: 'arraybuffer' }, !url.startsWith('blob')
-	).then(xhr => {
-		if('response' in xhr) {
-			try {
-				return nav.getUnsafeUint8Array(xhr.response);
-			} catch(err) {}
-		}
-		const txt = xhr.responseText;
-		return new Uint8Array(txt.length).map((val, i) => txt.charCodeAt(i) & 0xFF);
-	}, err => err.code !== 404 && repeatOnError ? ContentLoader.loadImgData(url, false) : null),
+	loadFileData: (url, repeatOnError = true) =>
+		$ajax(url, { responseType: 'arraybuffer' }, !url.startsWith('blob')).then(xhr => {
+			if('response' in xhr) {
+				try {
+					return nav.getUnsafeUint8Array(xhr.response);
+				} catch(err) {}
+			}
+			const txt = xhr.responseText;
+			return new Uint8Array(txt.length).map((val, i) => txt.charCodeAt(i) & 0xFF);
+		}, err => err.code !== 404 && repeatOnError ? this.loadFileData(url, false) : null),
 	preloadImages(data) {
 		if(!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
 			return;
@@ -6188,9 +6199,9 @@ const ContentLoader = {
 			const mReqs = isPost ? 1 : 4;
 			const rarJpgFinder = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, this._detectImgFile,
 				err => console.error('File detector error:', `line: ${ err.lineno } - ${ err.message }`));
-			preloadPool = new TasksPool(mReqs, (num, data) => this.loadImgData(data[0]).then(imageData => {
+			preloadPool = new TasksPool(mReqs, (num, data) => this.loadFileData(data[0]).then(fileData => {
 				const [url, parentLink, iType, isRepToOrig, el, isVideo] = data;
-				if(imageData) {
+				if(fileData) {
 					const fName = decodeURIComponent(getFileName(url));
 					const nameLink = getImgNameLink(el);
 					parentLink.setAttribute('download', fName);
@@ -6199,7 +6210,7 @@ const ContentLoader = {
 						nameLink.setAttribute('de-href', nameLink.href);
 					}
 					parentLink.href = nameLink.href =
-						deWindow.URL.createObjectURL(new Blob([imageData], { type: iType }));
+						deWindow.URL.createObjectURL(new Blob([fileData], { type: iType }));
 					if(isVideo) {
 						el.setAttribute('de-video', '');
 					}
@@ -6207,7 +6218,7 @@ const ContentLoader = {
 						el.src = parentLink.href;
 					}
 					if(rarJpgFinder) {
-						rarJpgFinder.runWorker(imageData.buffer, [imageData.buffer],
+						rarJpgFinder.runWorker(fileData.buffer, [fileData.buffer],
 							info => this._addImgFileIcon(nameLink, fName, info));
 					}
 				}
@@ -9807,7 +9818,7 @@ class FileInput {
 			return Promise.reject(new Error('URL is null'));
 		}
 		$popup('file-loading', Lng.loading[lang], true);
-		return await ContentLoader.loadImgData(url, false).then(data => {
+		return await ContentLoader.loadFileData(url, false).then(data => {
 			if(file) {
 				deWindow.URL.revokeObjectURL(url);
 			}
@@ -10843,7 +10854,7 @@ class AbstractPost {
 		e.preventDefault();
 		$popup('file-loading', Lng.loading[lang], true);
 		const url = el.href;
-		const data = await ContentLoader.loadImgData(url, false);
+		const data = await ContentLoader.loadFileData(url, false);
 		if(!data) {
 			$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
 			return;
@@ -12595,7 +12606,7 @@ class ExpandableImage {
 		}
 		// Get webm title: load file and parse its metadata
 		if(needTitle && !hasTitle) {
-			this._webmTitleLoad = ContentLoader.loadImgData(videoEl.src, false).then(data => {
+			this._webmTitleLoad = ContentLoader.loadFileData(videoEl.src, false).then(data => {
 				$hide($q('.de-wait', wrapEl));
 				if(!data) {
 					return;

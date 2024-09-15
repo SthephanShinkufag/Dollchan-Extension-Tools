@@ -687,7 +687,7 @@ class ExpandableImage {
 		}
 		// Get webm title: load file and parse its metadata
 		if(needTitle && !hasTitle) {
-			this._webmTitleLoad = ContentLoader.loadImgData(videoEl.src, false).then(data => {
+			this._webmTitleLoad = ContentLoader.loadFileData(videoEl.src, false).then(data => {
 				$hide($q('.de-wait', wrapEl));
 				if(!data) {
 					return;

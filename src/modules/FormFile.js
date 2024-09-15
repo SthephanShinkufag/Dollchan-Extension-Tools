@@ -122,7 +122,7 @@ class FileInput {
 			return Promise.reject(new Error('URL is null'));
 		}
 		$popup('file-loading', Lng.loading[lang], true);
-		return await ContentLoader.loadImgData(url, false).then(data => {
+		return await ContentLoader.loadFileData(url, false).then(data => {
 			if(file) {
 				deWindow.URL.revokeObjectURL(url);
 			}
