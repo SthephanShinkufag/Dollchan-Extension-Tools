@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '23.9.19.0';
-const commit = 'c47f445';
+const commit = '42b0038';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -17203,6 +17203,68 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['iichan.hk'] = ibDomains['iichan.lol'] =
 		ibDomains['iichan.moe'] = ibDomains['ii.yakuji.moe'] = Iichan;
+
+	class Ivchan extends BaseBoard {
+		constructor(...args) {
+			super(...args);
+
+			this.qClosed = 'img[src="/images/locked.png"]';
+			this.qDelForm = 'form[action*="delete"]';
+			this.qError = '.post-error, h2';
+			this.qFormRedir = 'select[name="goto"]';
+			this.qOmitted = '.abbrev > span:last-of-type';
+			this.qPages = '.pages > tbody > tr > td';
+			this.qPostImgInfo = '.fileinfo';
+			this.qPostMsg = '.postbody';
+			this.qPostSubj = '.replytitle';
+			this.qTrunc = '.abbrev > span:first-of-type';
+
+			this.anchor = '#i';
+			this.captchaRu = true;
+			this.formParent = 'thread_id';
+			this.hasPicWrap = true;
+			this.multiFile = true;
+			this.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+		}
+		get css() {
+			return `.de-video-obj-inline { margin-left: 5px; }
+				.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none; }
+				.delete { background: none; }
+				.delete_checkbox { position: static !important; }`;
+		}
+		deleteTruncMsg(post, el, isInit) {
+			el.previousSibling?.remove();
+			el.nextSibling?.remove();
+			el.remove();
+			if(isInit) {
+				post.msg.replaceWith($q('.alternate', post.el));
+			} else {
+				const sRunner = new SpellsRunner();
+				post.updateMsg($q('.alternate', post.el), sRunner);
+				sRunner.endSpells();
+			}
+			post.msg.classList.remove('alternate');
+		}
+		getImgSrcLink(img) {
+			// There can be a censored <img> without <a> parent
+			const el = img.parentNode;
+			return el.tagName.toLowerCase() === 'a' ? el :
+				$q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
+		}
+		getImgWrap(img) {
+			const el = img.parentNode;
+			return el.tagName.toLowerCase() === 'a' ?
+				(el.previousElementSibling ? el : el.parentNode).parentNode :
+				img.previousElementSibling ? el : el.parentNode;
+		}
+		getPageUrl(board, page) {
+			return fixBoardName(board) + (page > 0 ? page + this.docExt : 'index.xhtml');
+		}
+		getTNum(thr) {
+			return +$q('a[name]', thr).name.match(/\d+/);
+		}
+	}
+	ibDomains['ivchan.net'] = Ivchan;
 
 	class Kohlchan extends Lynxchan {
 		constructor(...args) {
