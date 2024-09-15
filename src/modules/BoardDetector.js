@@ -1669,7 +1669,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.kohlchan = true;
 
 			this.qFormRules = '#rules_row';
-			this.qPostImg = '.imgLink > img, .de-img-link > img';
+			this.qPostImg = '.uploadCell > a > img';
 
 			this.hasTextLinks = true;
 			this.markupBB = true;
@@ -1752,6 +1752,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			updater.sendErrNotif();
 			updater.continueUpdater();
 			return true;
+		}
+		fixHTMLHelper(str) {
+			return str.replace(/imgLink/g, '');
 		}
 		getImgRealName(wrap) {
 			return $q('.originalNameLink', wrap).title;

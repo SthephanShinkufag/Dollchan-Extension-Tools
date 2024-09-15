@@ -8131,7 +8131,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '23.9.19.0';
-  var commit = 'e030b5c';
+  var commit = 'bdfc7b0';
 
 
   var doc = deWindow.document;
@@ -27400,7 +27400,7 @@ Spells.addSpell(9, '', false);
         _this128 = _callSuper(this, Kohlchan, [].concat(args));
         _this128.kohlchan = true;
         _this128.qFormRules = '#rules_row';
-        _this128.qPostImg = '.imgLink > img, .de-img-link > img';
+        _this128.qPostImg = '.uploadCell > a > img';
         _this128.hasTextLinks = true;
         _this128.markupBB = true;
         _this128.timePattern = 'yyyy+nn+dd+hh+ii+ss';
@@ -27487,6 +27487,11 @@ Spells.addSpell(9, '', false);
           updater.sendErrNotif();
           updater.continueUpdater();
           return true;
+        }
+      }, {
+        key: "fixHTMLHelper",
+        value: function fixHTMLHelper(str) {
+          return str.replace(/imgLink/g, '');
         }
       }, {
         key: "getImgRealName",
