@@ -608,7 +608,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostSubj = '.post__title';
 			this.qTrunc = null;
 
-			this.captchaUpdPromise = null;
 			this.formParent = 'thread';
 			this.hasArchive = true;
 			this.hasCatalog = true;
@@ -637,9 +636,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `.js-post-findimg, .js-post-saveimg, .media-expand-button, .media-thumbnail, .newpost,
 					.post__btn:not(.icon_type_active), .post__number, .post__refmap
 					{ display: none !important; }
-				.captcha { align-items: start; flex-direction: column; }
-				.captcha__image { cursor: pointer; }
-				.captcha__val { width: 270px; margin-top: 4px; padding: 4px; }
+				._captcha-container { margin: 0 !important; }
+				._captcha-keyboard-button { width: 35px !important; height: 35px !important;
+					padding: 0 !important; }
+				._captcha-keyboard-selected-stub { display: none !important; }
 				.de-fullimg-wrap-inpost { margin-right: 16px; }
 				.de-refmap { margin: 0 16px 4px; }
 				.de-pview > .post__details { margin-left: 4px; }
@@ -723,82 +723,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			Object.defineProperty(this, 'reportForm', { value });
 			return value;
 		}
-		captchaInit(cap) {
-			cap.parentEl.innerHTML = `<div class="captcha__image"></div>
-				<input class="captcha__val input" name="2chcaptcha_value" type="text" maxlength="6">
-				<input class="captcha__key" name="2chcaptcha_id" type="hidden">`;
-			const [imgParent, inputEl] = [...cap.parentEl.children];
-			imgParent.onclick = () => this.captchaUpdate(cap);
-			inputEl.tabIndex = 999;
-			cap.textEl = inputEl;
-			return this.captchaUpdate(cap);
+		captchaInit() {
+			$script(`const loadCapFn =
+				() => new EmojiCaptcha({ createWarningFn: generateWarning }).requestController();`);
+			return null;
 		}
-		captchaUpdate(cap, isError, isFocus = true) {
-			if(this._captchaTimer) {
-				clearInterval(this._captchaTimer);
-				this._captchaTimer = null;
-			}
-			const captchaError = text => {
-				$popup('err-captcha', `Captcha error: ${ text }`);
-				$q('.captcha__image').innerHTML = '<button class="captcha__loadtext">Обновить</button>';
-			};
-			const imgParent = $q('.captcha__image', cap.parentEl);
-			if(imgParent) {
-				imgParent.innerHTML = '<span class="captcha__loadtext">Загрузка...</span>';
-			}
-			const url = `/api/captcha/2chcaptcha/id?board=${ this.b }&thread=${
-				postform.tNum || 0 }&nocache=${ Math.floor(Math.random() * 1e12) }`;
-			return cap.updateHelper(url, ({ responseText }) => {
-				let data;
-				try {
-					data = JSON.parse(responseText);
-				} catch(err) {
-					captchaError(responseText);
-					return;
-				}
-				if(data.warning) {
-					$popup('warning', `Предупреждение!<br>${ decodeURIComponent(data.warning.message) }` +
-						`<br>Вот за <a href="${ data.warning.path }" target="_blank" >ЭТО</a>.`);
-					return;
-				} else if(data.banned) {
-					$popup('banned', `Banned!<br>${ data.banned.message }<br>Вот за <a href="${
-						data.banned.path }" target="_blank" >ЭТО</a>.<br>Купить пасскод и получить ` +
-						'мгновенный разбан можно <a href="/static/market.html" target="_blank">тут</a>');
-					return;
-				}
-				switch(data.result) {
-				case 0: cap.parentEl.textContent = 'Пасскод недействителен. Перелогиньтесь.'; break;
-				case 2: cap.parentEl.textContent = 'Вы - пасскодобоярин.'; break;
-				case 3: $hide(cap.parentEl); break; // Captcha is disabled
-				case 1: { // Captcha is enabled
-					let time = 90;
-					imgParent.innerHTML = `<img src="/api/captcha/2chcaptcha/show?id=${ data.id }">
-						<button class="captcha__loadtext" style="display: none;">Обновить</button>
-						<span class="captcha__timer">${ time }</span>`;
-					const timerEl = $q('.captcha__timer', cap.parentEl);
-					this._captchaTimer = setInterval(() => {
-						timerEl.innerHTML = --time;
-						if(!time) {
-							if(doc.hasFocus()) {
-								clearInterval(this._captchaTimer);
-								this.captchaUpdate(cap, false, false);
-							} else {
-								$hide(timerEl);
-								$show($q('.captcha__loadtext', cap.parentEl));
-							}
-						}
-					}, 1e3);
-					$q('.captcha__key', cap.parentEl).value = data.id;
-					const inputEl = $q('.captcha__val', cap.parentEl);
-					inputEl.value = '';
-					if(isFocus) {
-						inputEl.focus();
-					}
-					break;
-				}
-				default: captchaError(responseText);
-				}
-			});
+		captchaUpdate() {
+			$script('loadCapFn();');
+			return null;
 		}
 		clearFileInputs() {
 			$delAll('.sticker-input, .postform__sticker-img');

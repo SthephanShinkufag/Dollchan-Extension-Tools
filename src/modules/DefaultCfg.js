@@ -4,7 +4,7 @@
 
 const defaultCfg = {
 	disabled     : 0,    // Dollchan enabled by default
-	language     : 0,    // Dollchan language [0=ru, 1=en, 2=ua]
+	language     : 1,    // Dollchan language [0=ru, 1=en, 2=ua]
 	// FILTERS
 	hideBySpell  : 1,    // hide posts by spells
 	spells       : null, // user defined spells
@@ -93,7 +93,7 @@ const defaultCfg = {
 	sageReply    : 0,    //    reply with sage
 	altCaptcha   : 0,    // use alternative captcha (if available)
 	capUpdTime   : 300,  // captcha update interval (sec)
-	captchaLang  : 1,    // forced captcha input language [0=off, 1=en, 2=ru]
+	captchaLang  : 0,    // forced captcha input language [0=off, 1=en, 2=ru]
 	addTextBtns  : 1,    // text markup buttons [0=off, 1=graphics, 2=text, 3=usual]
 	txtBtnsLoc   : 1,    //    located at [0=top, 1=bottom]
 	userPassw    : 1,    // user password

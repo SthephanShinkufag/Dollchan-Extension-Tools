@@ -27,14 +27,15 @@
 		]
 	},
 	"devDependencies": {
-		"@babel/core": "^7.23.3",
-		"@babel/preset-env": "^7.23.3",
+		"@babel/core": "^7.25.2",
+		"@babel/preset-env": "^7.25.4",
+		"@eslint/js": "^9.10.0",
 		"babelify": "^10.0.0",
 		"browserify": "^17.0.0",
-		"core-js": "^3.33.2",
+		"core-js": "^3.38.1",
 		"element-polyfill": "^1.1.0",
-		"eslint": "^8.53.0",
-		"eslint-config-google": "^0.14.0",
+		"eslint": "^9.10.0",
+		"globals": "^15.9.0",
 		"gulp": "^5.0.0",
 		"gulp-file": "^0.4.0",
 		"gulp-headerfooter": "^1.0.3",
@@ -42,7 +43,7 @@
 		"gulp-streamify": "^1.0.2",
 		"gulp-strip-comments": "^2.6.0",
 		"gulp-tap": "^2.0.0",
-		"regenerator-runtime": "^0.14.0",
+		"regenerator-runtime": "^0.14.1",
 		"vinyl-source-stream": "^2.0.0"
 	}
 }

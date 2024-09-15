@@ -567,7 +567,7 @@ class KeyEditListener {
 // Browsers have different codes for these keys (see HotKeys.readKeys):
 //    Firefox - '-' - 173, '=' - 61, ';' - 59
 //    Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
-/* eslint-disable comma-spacing, comma-style, no-sparse-arrays */
+/* eslint-disable comma-spacing, no-sparse-arrays */
 KeyEditListener.keyCodes = [
 	'',,,,,,,,'Backspace','Tab',,,,'Enter',,,'Shift','Ctrl','Alt',/* Pause/Break */,/* Caps Lock */,,,,,,,
 	/* Esc */,,,,,'Space',/* PgUp */,/* PgDn */,/* End */,/* Home */,'←','↑','→','↓',,,,,/* Insert */,
@@ -578,4 +578,4 @@ KeyEditListener.keyCodes = [
 	/* F9 */,/* F10 */,/* F11 */,/* F12 */,,,,,,,,,,,,,,,,,,,,,/* Num Lock */,/* Scroll Lock */,,,,,,,,,,,,,,,
 	,,,,,,,,,,,,,'-',,,,,,,,,,,,,';','=',',','-','.','/','`',,,,,,,,,,,,,,,,,,,,,,,,,,,'[','\\',']','\''
 ];
-/* eslint-enable comma-spacing, comma-style, no-sparse-arrays */
+/* eslint-enable comma-spacing, no-sparse-arrays */
