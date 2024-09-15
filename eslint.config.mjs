@@ -40,10 +40,7 @@ export default [
 				}
 			}],
 			'linebreak-style': ['error', 'windows'],
-			'max-len': ['error', 110, {
-				ignoreRegExpLiterals: true,
-				ignoreUrls: true
-			}],
+			'max-len': ['error', 110, { ignoreRegExpLiterals: true, ignoreUrls: true }],
 			'new-cap': ['error', {
 				capIsNewExceptions: [
 					'GM_getValue',
@@ -86,6 +83,7 @@ export default [
 			quotes: ['error', 'single'],
 			'quote-props': ['error', 'as-needed'],
 			'require-jsdoc': 'off',
+			semi: ['error', 'always'],
 			'space-in-parens': ['error', 'never'],
 			'template-curly-spacing': ['error', 'always']
 		}

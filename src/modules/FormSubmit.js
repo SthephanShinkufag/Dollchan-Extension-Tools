@@ -28,7 +28,7 @@ function showSubmitError(error) {
 async function checkSubmit(data) {
 	let error = null;
 	let postNum = null;
-	const isDocument = data instanceof HTMLDocument;
+	const isDocument = data instanceof Document;
 	if(aib.getSubmitData) {
 		if(aib.jsonSubmit) {
 			if(aib.captchaAfterSubmit?.(data)) {
@@ -38,7 +38,7 @@ async function checkSubmit(data) {
 			try {
 				data = JSON.parse(_data);
 			} catch(err) {
-				error = getSubmitError(_data);
+				error = getSubmitError(isDocument ? data : $createDoc(data));
 			}
 		}
 		if(!error) {
@@ -102,7 +102,7 @@ async function checkSubmit(data) {
 }
 
 async function checkDelete(data) {
-	const err = getSubmitError(data instanceof HTMLDocument ? data : $createDoc(data));
+	const err = getSubmitError(data instanceof Document ? data : $createDoc(data));
 	if(err) {
 		$popup('delete', Lng.errDelete[lang] + ':\n' + err);
 		updater.sendErrNotif();

@@ -8131,7 +8131,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
 
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '23.9.19.0';
-  var commit = '42b0038';
+  var commit = 'e030b5c';
 
 
   var doc = deWindow.document;
@@ -17515,7 +17515,7 @@ this.disableSpells();
           case 0:
             error = null;
             postNum = null;
-            isDocument = data instanceof HTMLDocument;
+            isDocument = data instanceof Document;
             if (!aib.getSubmitData) {
               _context62.next = 12;
               break;
@@ -17534,7 +17534,7 @@ this.disableSpells();
             try {
               data = JSON.parse(_data);
             } catch (err) {
-              error = getSubmitError(_data);
+              error = getSubmitError(isDocument ? data : $createDoc(data));
             }
           case 9:
             if (!error) {
@@ -17636,7 +17636,7 @@ this.disableSpells();
       return _regeneratorRuntime().wrap(function _callee55$(_context63) {
         while (1) switch (_context63.prev = _context63.next) {
           case 0:
-            err = getSubmitError(data instanceof HTMLDocument ? data : $createDoc(data));
+            err = getSubmitError(data instanceof Document ? data : $createDoc(data));
             if (!err) {
               _context63.next = 5;
               break;
@@ -25508,7 +25508,7 @@ Spells.addSpell(9, '', false);
       }, {
         key: "fixHTMLHelper",
         value: function fixHTMLHelper(str) {
-          return str.replace(/"\/player\.php\?v=([^&]+)&[^"]+"/g, '"$1"');
+          return str.replace(/"(?:\/vichan)?\/player\.php\?v=([^&]+)&[^"]+"/g, '"$1"');
         }
       }, {
         key: "init",
@@ -27441,24 +27441,6 @@ Spells.addSpell(9, '', false);
           return ['b', 'i', 'u', 's', 'spoiler', 'code'];
         }
       }, {
-        key: "sendHTML5Post",
-        value: function sendHTML5Post(form, data, needProgress, hasFiles) {
-          var oekakiEl = $id('wPaint');
-          if (oekakiEl !== null && oekakiEl !== void 0 && oekakiEl.hasChildNodes() && oekakiEl.style.display !== 'none') {
-            hasFiles = true;
-            var mime = {
-              type: 'image/png'
-            };
-            var files = [new File([new Blob([ContentLoader.getDataFromCanvas($q('.wPaint-canvas', oekakiEl))], mime)], 'oekaki.png', mime)].concat(_toConsumableArray(data.getAll('files').slice(0, -1)));
-            data["delete"]('files');
-            for (var _iterator34 = _createForOfIteratorHelperLoose(files), _step34; !(_step34 = _iterator34()).done;) {
-              var file = _step34.value;
-              data.append('files', file);
-            }
-          }
-          return _superPropGet(Kohlchan, "sendHTML5Post", this, 3)([form, data, needProgress, hasFiles]);
-        }
-      }, {
         key: "captchaAfterSubmit",
         value: function captchaAfterSubmit(data) {
           if (data !== '{"status":"bypassable"}') {
@@ -27533,6 +27515,24 @@ Spells.addSpell(9, '', false);
             return el.className = 'de-img-link imgLink';
           });
           return _superPropGet(Kohlchan, "init", this, 3)([]);
+        }
+      }, {
+        key: "sendHTML5Post",
+        value: function sendHTML5Post(form, data, needProgress, hasFiles) {
+          var oekakiEl = $id('wPaint');
+          if (oekakiEl !== null && oekakiEl !== void 0 && oekakiEl.hasChildNodes() && oekakiEl.style.display !== 'none') {
+            hasFiles = true;
+            var mime = {
+              type: 'image/png'
+            };
+            var files = [new File([new Blob([ContentLoader.getDataFromCanvas($q('.wPaint-canvas', oekakiEl))], mime)], 'oekaki.png', mime)].concat(_toConsumableArray(data.getAll('files').slice(0, -1)));
+            data["delete"]('files');
+            for (var _iterator34 = _createForOfIteratorHelperLoose(files), _step34; !(_step34 = _iterator34()).done;) {
+              var file = _step34.value;
+              data.append('files', file);
+            }
+          }
+          return _superPropGet(Kohlchan, "sendHTML5Post", this, 3)([form, data, needProgress, hasFiles]);
         }
       }]);
     }(Lynxchan);

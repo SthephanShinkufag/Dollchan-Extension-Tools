@@ -214,7 +214,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			).join('');
 		}
 		fixHTMLHelper(str) {
-			return str.replace(/"\/player\.php\?v=([^&]+)&[^"]+"/g, '"$1"');
+			return str.replace(/"(?:\/vichan)?\/player\.php\?v=([^&]+)&[^"]+"/g, '"$1"');
 		}
 		init() {
 			super.init();
@@ -1705,21 +1705,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
 		}
-		sendHTML5Post(form, data, needProgress, hasFiles) {
-			const oekakiEl = $id('wPaint');
-			if(oekakiEl?.hasChildNodes() && oekakiEl.style.display !== 'none') {
-				hasFiles = true;
-				const mime = { type: 'image/png' };
-				const files = [new File([
-					new Blob([ContentLoader.getDataFromCanvas($q('.wPaint-canvas', oekakiEl))], mime)
-				], 'oekaki.png', mime), ...data.getAll('files').slice(0, -1)];
-				data.delete('files');
-				for(const file of files) {
-					data.append('files', file);
-				}
-			}
-			return super.sendHTML5Post(form, data, needProgress, hasFiles);
-		}
 		captchaAfterSubmit(data) {
 			if(data !== '{"status":"bypassable"}') {
 				return false;
@@ -1788,6 +1773,21 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			$Q('.imgLink').forEach(el => (el.className = 'de-img-link imgLink'));
 			return super.init();
+		}
+		sendHTML5Post(form, data, needProgress, hasFiles) {
+			const oekakiEl = $id('wPaint');
+			if(oekakiEl?.hasChildNodes() && oekakiEl.style.display !== 'none') {
+				hasFiles = true;
+				const mime = { type: 'image/png' };
+				const files = [new File([
+					new Blob([ContentLoader.getDataFromCanvas($q('.wPaint-canvas', oekakiEl))], mime)
+				], 'oekaki.png', mime), ...data.getAll('files').slice(0, -1)];
+				data.delete('files');
+				for(const file of files) {
+					data.append('files', file);
+				}
+			}
+			return super.sendHTML5Post(form, data, needProgress, hasFiles);
 		}
 	}
 	ibDomains['kohlchan.net'] = ibDomains['kohlchan.top'] = ibDomains['kohlchanagb7ih5g.onion'] =
