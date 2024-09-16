@@ -163,6 +163,7 @@ class ImagesViewer {
 				this._zoomed = false;
 				return;
 			}
+			/* falls through */
 		case 'touchmove': {
 			const touchesLen = e.targetTouches.length;
 			if(touchesLen === 1 && !this._zoomed) {
@@ -717,7 +718,7 @@ class ExpandableImage {
 		}
 		// Get webm title: load file and parse its metadata
 		if(needTitle && !hasTitle) {
-			this._webmTitleLoad = ContentLoader.loadImgData(videoEl.src, false).then(data => {
+			this._webmTitleLoad = ContentLoader.loadFileData(videoEl.src, false).then(data => {
 				$hide($q('.de-wait', wrapEl));
 				if(!data) {
 					return;

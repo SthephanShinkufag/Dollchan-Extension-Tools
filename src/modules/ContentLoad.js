@@ -16,7 +16,7 @@ const ContentLoader = {
 		let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
 		let count = els.length;
 		const delSymbols = (str, r = '') => str.replace(/[\\/:*?"<>|]/g, r);
-		this._thrPool = new TasksPool(4, (num, data) => this.loadImgData(data[0]).then(imgData => {
+		this._thrPool = new TasksPool(4, (num, data) => this.loadFileData(data[0]).then(fileData => {
 			const [url, fName, el, parentLink] = data;
 			let safeName = delSymbols(fName, '_');
 			progress.value = counter.innerHTML = current++;
@@ -26,11 +26,11 @@ const ContentLoader = {
 					thumbName = 'thumb-' + thumbName;
 				} else {
 					thumbName = 'thumbs/' + thumbName;
-					safeName = imgData ? 'images/' + safeName : thumbName;
+					safeName = fileData ? 'images/' + safeName : thumbName;
 					parentLink.href = getImgNameLink(el).href = safeName;
 				}
-				if(imgData) {
-					tar.addFile(safeName, imgData);
+				if(fileData) {
+					tar.addFile(safeName, fileData);
 				} else {
 					warnings += `<br>${ Lng.cantLoad[lang] } <a href="${ url }">${ url }</a>` +
 						`<br>${ Lng.willSavePview[lang] }`;
@@ -40,12 +40,11 @@ const ContentLoader = {
 							tar.addFile(thumbName, data), Function.prototype);
 					}
 				}
-				return imgOnly ? null : this.getDataFromImg(el).then(data => {
-					el.src = thumbName;
-					tar.addFile(thumbName, data);
-				}, () => (el.src = safeName));
-			} else if(imgData?.length) {
-				tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
+				return imgOnly ? null : this.getDataFromImg(el).then(
+					data => tar.addFile(el.src = thumbName, data),
+					() => (el.src = safeName));
+			} else if(fileData?.length) {
+				tar.addFile(el.href = el.src = 'data/' + safeName, fileData);
 			} else {
 				el.remove();
 			}
@@ -63,9 +62,9 @@ const ContentLoader = {
 					`(${ String(/* global deMainFuncOuter */ deMainFuncOuter) })(`
 				}${ JSON.stringify({ domain: aib.domain, b: aib.b, t: aib.t }) });`);
 				const dt = doc.doctype;
-				tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name +
-					(dt.publicId ? ` PUBLIC "${ dt.publicId }"` : dt.systemId ? ' SYSTEM' : '') +
-					(dt.systemId ? ` "${ dt.systemId }"` : '') + '>' + dc.outerHTML);
+				tar.addString(docName + '.html', `<!DOCTYPE ${ dt.name }${
+					dt.publicId ? ` PUBLIC "${ dt.publicId }"` : dt.systemId ? ' SYSTEM' : '' }${
+					dt.systemId ? ` "${ dt.systemId }"` : '' }>${ dc.outerHTML }`);
 			}
 			const title = delSymbols(Thread.first.op.title.trim());
 			downloadBlob(tar.get(), `${ docName }${ imgOnly ? '-images' : '' }${
@@ -139,7 +138,7 @@ const ContentLoader = {
 		new Uint8Array(atob(el.toDataURL('image/png').split(',')[1]).split('').map(a => a.charCodeAt())),
 	getDataFromImg(el) {
 		if(el.getAttribute('loading') === 'lazy') {
-			return this.loadImgData(el.src);
+			return this.loadFileData(el.src);
 		}
 		try {
 			const cnv = this._canvas || (this._canvas = doc.createElement('canvas'));
@@ -148,20 +147,19 @@ const ContentLoader = {
 			cnv.getContext('2d').drawImage(el, 0, 0);
 			return Promise.resolve(this.getDataFromCanvas(cnv));
 		} catch(err) {
-			return this.loadImgData(el.src);
+			return this.loadFileData(el.src);
 		}
 	},
-	loadImgData: (url, repeatOnError = true) => $ajax(
-		url, { responseType: 'arraybuffer' }, !url.startsWith('blob')
-	).then(xhr => {
-		if('response' in xhr) {
-			try {
-				return new Uint8Array(xhr.response);
-			} catch(err) {}
-		}
-		const txt = xhr.responseText;
-		return new Uint8Array(txt.length).map((val, i) => txt.charCodeAt(i) & 0xFF);
-	}, err => err.code !== 404 && repeatOnError ? ContentLoader.loadImgData(url, false) : null),
+	loadFileData: (url, repeatOnError = true) =>
+		$ajax(url, { responseType: 'arraybuffer' }, !url.startsWith('blob')).then(xhr => {
+			if('response' in xhr) {
+				try {
+					return nav.getUnsafeUint8Array(xhr.response);
+				} catch(err) {}
+			}
+			const txt = xhr.responseText;
+			return new Uint8Array(txt.length).map((val, i) => txt.charCodeAt(i) & 0xFF);
+		}, err => err.code !== 404 && repeatOnError ? this.loadFileData(url, false) : null),
 	preloadImages(data) {
 		if(!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
 			return;
@@ -175,9 +173,9 @@ const ContentLoader = {
 			const mReqs = isPost ? 1 : 4;
 			const rarJpgFinder = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, this._detectImgFile,
 				err => console.error('File detector error:', `line: ${ err.lineno } - ${ err.message }`));
-			preloadPool = new TasksPool(mReqs, (num, data) => this.loadImgData(data[0]).then(imageData => {
+			preloadPool = new TasksPool(mReqs, (num, data) => this.loadFileData(data[0]).then(fileData => {
 				const [url, parentLink, iType, isRepToOrig, el, isVideo] = data;
-				if(imageData) {
+				if(fileData) {
 					const fName = decodeURIComponent(getFileName(url));
 					const nameLink = getImgNameLink(el);
 					parentLink.setAttribute('download', fName);
@@ -186,7 +184,7 @@ const ContentLoader = {
 						nameLink.setAttribute('de-href', nameLink.href);
 					}
 					parentLink.href = nameLink.href =
-						deWindow.URL.createObjectURL(new Blob([imageData], { type: iType }));
+						deWindow.URL.createObjectURL(new Blob([fileData], { type: iType }));
 					if(isVideo) {
 						el.setAttribute('de-video', '');
 					}
@@ -194,7 +192,7 @@ const ContentLoader = {
 						el.src = parentLink.href;
 					}
 					if(rarJpgFinder) {
-						rarJpgFinder.runWorker(imageData.buffer, [imageData.buffer],
+						rarJpgFinder.runWorker(fileData.buffer, [fileData.buffer],
 							info => this._addImgFileIcon(nameLink, fName, info));
 					}
 				}
