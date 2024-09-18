@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '53bc83d';
+const commit = 'd2abe22';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -2422,8 +2422,7 @@ WebmParser.Element = function(elData, dataLength, offset) {
 // Gets data from the global storage
 async function getStored(id) {
 	if(nav.hasNewGM) {
-		const value = await GM.getValue(id);
-		return value;
+		return await GM.getValue(id);
 	} else if(nav.hasOldGM) {
 		return GM_getValue(id);
 	} else if(nav.hasWebStorage) {
@@ -2442,10 +2441,9 @@ async function getStored(id) {
 }
 
 // Saves data into the global storage
-// FIXME: make async?
-function setStored(id, value) {
+async function setStored(id, value) {
 	if(nav.hasNewGM) {
-		return GM.setValue(id, value);
+		return await GM.setValue(id, value);
 	} else if(nav.hasOldGM) {
 		GM_setValue(id, value);
 	} else if(nav.hasWebStorage) {
@@ -6129,14 +6127,14 @@ const ContentLoader = {
 				let html = dc.outerHTML;
 				if(aib._4chan) {
 					html = html.replace('</head>', `<style type="text/css">
-						.flag { background-image: url(data/flags-country.png); }
 						.bfl { background-image: url(data/flags-pol.png); }
+						.flag { background-image: url(data/flags-country.png); }
 					</style></head>`);
 					tar.addFile('data/flags-country.png',
-						await this.loadFileData('https://s.4cdn.org/image/flags.8.png', false));
+						await this.loadFileData('//s.4cdn.org/image/flags.8.png', false));
 					if(aib.b === 'pol') {
 						tar.addFile('data/flags-pol.png',
-							await this.loadFileData('https://s.4cdn.org/image/flags/pol/flags.png?2', false));
+							await this.loadFileData('//s.4cdn.org/image/flags/pol/flags.png?2', false));
 					}
 				}
 				tar.addString(docName + '.html', `<!DOCTYPE ${ dt.name }${

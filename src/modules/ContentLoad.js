@@ -65,14 +65,14 @@ const ContentLoader = {
 				let html = dc.outerHTML;
 				if(aib._4chan) {
 					html = html.replace('</head>', `<style type="text/css">
-						.flag { background-image: url(data/flags-country.png); }
 						.bfl { background-image: url(data/flags-pol.png); }
+						.flag { background-image: url(data/flags-country.png); }
 					</style></head>`);
 					tar.addFile('data/flags-country.png',
-						await this.loadFileData('https://s.4cdn.org/image/flags.8.png', false));
+						await this.loadFileData('//s.4cdn.org/image/flags.8.png', false));
 					if(aib.b === 'pol') {
 						tar.addFile('data/flags-pol.png',
-							await this.loadFileData('https://s.4cdn.org/image/flags/pol/flags.png?2', false));
+							await this.loadFileData('//s.4cdn.org/image/flags/pol/flags.png?2', false));
 					}
 				}
 				tar.addString(docName + '.html', `<!DOCTYPE ${ dt.name }${

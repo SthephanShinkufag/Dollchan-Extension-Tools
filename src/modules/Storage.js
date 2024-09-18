@@ -5,8 +5,7 @@
 // Gets data from the global storage
 async function getStored(id) {
 	if(nav.hasNewGM) {
-		const value = await GM.getValue(id);
-		return value;
+		return await GM.getValue(id);
 	} else if(nav.hasOldGM) {
 		return GM_getValue(id);
 	} else if(nav.hasWebStorage) {
@@ -25,10 +24,9 @@ async function getStored(id) {
 }
 
 // Saves data into the global storage
-// FIXME: make async?
-function setStored(id, value) {
+async function setStored(id, value) {
 	if(nav.hasNewGM) {
-		return GM.setValue(id, value);
+		return await GM.setValue(id, value);
 	} else if(nav.hasOldGM) {
 		GM_setValue(id, value);
 	} else if(nav.hasWebStorage) {
