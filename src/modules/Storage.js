@@ -24,9 +24,9 @@ async function getStored(id) {
 }
 
 // Saves data into the global storage
-async function setStored(id, value) {
+function setStored(id, value) {
 	if(nav.hasNewGM) {
-		return await GM.setValue(id, value);
+		return GM.setValue(id, value);
 	} else if(nav.hasOldGM) {
 		GM_setValue(id, value);
 	} else if(nav.hasWebStorage) {
@@ -129,7 +129,7 @@ const CfgSaver = {
 			delete val[domain];
 		}
 		const rv = setStored('DESU_Config', JSON.stringify(val));
-		if(rv) {
+		if(nav.hasWebStorage && rv) {
 			await rv;
 		}
 	},

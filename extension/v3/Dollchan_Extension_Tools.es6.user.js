@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = 'd2abe22';
+const commit = '987a9ab';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -2441,9 +2441,9 @@ async function getStored(id) {
 }
 
 // Saves data into the global storage
-async function setStored(id, value) {
+function setStored(id, value) {
 	if(nav.hasNewGM) {
-		return await GM.setValue(id, value);
+		return GM.setValue(id, value);
 	} else if(nav.hasOldGM) {
 		GM_setValue(id, value);
 	} else if(nav.hasWebStorage) {
@@ -2546,7 +2546,7 @@ const CfgSaver = {
 			delete val[domain];
 		}
 		const rv = setStored('DESU_Config', JSON.stringify(val));
-		if(rv) {
+		if(nav.hasWebStorage && rv) {
 			await rv;
 		}
 	},
