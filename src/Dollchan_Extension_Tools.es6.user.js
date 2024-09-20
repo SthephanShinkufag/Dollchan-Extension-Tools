@@ -2441,6 +2441,7 @@ async function getStored(id) {
 }
 
 // Saves data into the global storage
+// FIXME: make async?
 function setStored(id, value) {
 	if(nav.hasNewGM) {
 		return GM.setValue(id, value);
@@ -2546,7 +2547,8 @@ const CfgSaver = {
 			delete val[domain];
 		}
 		const rv = setStored('DESU_Config', JSON.stringify(val));
-		if(nav.hasWebStorage && rv) {
+		// Violentmonkey bug: GM.setValue promise is not fulfilled.
+		if(rv && !nav.isViolentmonkey) {
 			await rv;
 		}
 	},
@@ -16941,7 +16943,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qDelBtn = null;
 			this.qDelForm = 'body > .container-fluid';
 			this.qDelPassw = null;
-			this.qPost = '.post[postid]:not([postid=""])';
+			this.qPost = '.post[postid]:not(:first-child)';
 			this.qPostHeader = '.post_head';
 			this.qPostImg = '.post_image > img';
 			this.qPostMsg = '.post_comment_body';
@@ -17017,7 +17019,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['arhivach.top'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
+	ibDomains['arhivach.top'] = ibDomains['arhivach.xyz'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
 	class Dobrochan extends Vichan {
 		get css() {
