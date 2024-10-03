@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '987a9ab';
+const commit = '0993553';
 
 /* ==[ GlobalVars.js ]== */
 

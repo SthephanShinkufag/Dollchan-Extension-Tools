@@ -8132,7 +8132,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = '987a9ab';
+  var commit = '0993553';
 
 
   var doc = deWindow.document;
@@ -9751,8 +9751,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
               } else {
                 delete val[domain];
               }
-              rv = setStored('DESU_Config', JSON.stringify(val));
-              if (!(nav.hasWebStorage && rv)) {
+              rv = setStored('DESU_Config', JSON.stringify(val)); 
+              if (!(rv && !nav.isViolentmonkey)) {
                 _context3.next = 9;
                 break;
               }
@@ -26905,7 +26905,7 @@ Spells.addSpell(9, '', false);
         _this120.qDelBtn = null;
         _this120.qDelForm = 'body > .container-fluid';
         _this120.qDelPassw = null;
-        _this120.qPost = '.post[postid]:not([postid=""])';
+        _this120.qPost = '.post[postid]:not(:first-child)';
         _this120.qPostHeader = '.post_head';
         _this120.qPostImg = '.post_image > img';
         _this120.qPostMsg = '.post_comment_body';
@@ -27007,7 +27007,7 @@ Spells.addSpell(9, '', false);
         }
       }]);
     }(BaseBoard);
-    ibDomains['arhivach.top'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
+    ibDomains['arhivach.top'] = ibDomains['arhivach.xyz'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
     var Dobrochan = function (_Vichan2) {
       function Dobrochan() {
         _classCallCheck(this, Dobrochan);

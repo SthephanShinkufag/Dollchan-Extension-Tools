@@ -1271,7 +1271,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qDelBtn = null;
 			this.qDelForm = 'body > .container-fluid';
 			this.qDelPassw = null;
-			this.qPost = '.post[postid]:not([postid=""])';
+			this.qPost = '.post[postid]:not(:first-child)';
 			this.qPostHeader = '.post_head';
 			this.qPostImg = '.post_image > img';
 			this.qPostMsg = '.post_comment_body';
@@ -1347,7 +1347,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['arhivach.top'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
+	ibDomains['arhivach.top'] = ibDomains['arhivach.xyz'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
 	class Dobrochan extends Vichan {
 		get css() {

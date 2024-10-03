@@ -24,6 +24,7 @@ async function getStored(id) {
 }
 
 // Saves data into the global storage
+// FIXME: make async?
 function setStored(id, value) {
 	if(nav.hasNewGM) {
 		return GM.setValue(id, value);
@@ -129,7 +130,8 @@ const CfgSaver = {
 			delete val[domain];
 		}
 		const rv = setStored('DESU_Config', JSON.stringify(val));
-		if(nav.hasWebStorage && rv) {
+		// Violentmonkey bug: GM.setValue promise is not fulfilled.
+		if(rv && !nav.isViolentmonkey) {
 			await rv;
 		}
 	},
