@@ -9,7 +9,7 @@
 	"applications": {
 		"gecko": {
 			"id": "dollchan_extension@dollchan.net",
-			"strict_min_version": "56.0"
+			"strict_min_version": "79.0"
 		}
 	},
 	"background": {

@@ -9,6 +9,9 @@
 		"type": "git",
 		"url": "https://github.com/SthephanShinkufag/Dollchan-Extension-Tools.git"
 	},
+	"scripts": {
+		"start:firefox": "web-ext run --source-dir ./extension/v2"
+	},
 	"bugs": {
 		"url": "https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/issues"
 	},
@@ -44,6 +47,7 @@
 		"gulp-strip-comments": "^2.6.0",
 		"gulp-tap": "^2.0.0",
 		"regenerator-runtime": "^0.14.1",
-		"vinyl-source-stream": "^2.0.0"
+		"vinyl-source-stream": "^2.0.0",
+		"web-ext": "^8.3.0"
 	}
 }

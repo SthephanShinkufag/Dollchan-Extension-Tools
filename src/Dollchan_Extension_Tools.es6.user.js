@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '0993553';
+const commit = '16a4389';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -73,7 +73,7 @@ const defaultCfg = {
 	postBtnsCSS  : 2,    // post buttons style [0=simple, 1=gradient grey, 2=custom]
 	postBtnsBack : '#8c8c8c', //    custom background color
 	thrBtns      : 1,    // buttons under threads [0=off, 1=all, 2=all (on board), 3='New posts' on board]
-	noSpoilers   : 0,    // text spoilers expansion [0=off, 1=grey, 2=native]
+	noSpoilers   : 1,    // text spoilers expansion [0=off, 1=grey, 2=native]
 	noPostNames  : 0,    // hide poster names
 	correctTime  : 0,    // time correction in posts
 	timeOffset   : '+0', //    time offset (h)
@@ -10716,7 +10716,7 @@ class AbstractPost {
 				this._addMenu(el, isOutEvent,
 					`<span class="de-menu-item" info="post-reply">${ title }</span>` +
 					(aib.reportForm ? `<span class="de-menu-item" info="post-report">${
-						this.num === this.thr.num ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : ''
+						this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : ''
 					) +
 					(Cfg.markMyPosts || Cfg.markMyLinks ? `<span class="de-menu-item" info="post-markmy">${
 						MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang] }</span>` : ''
@@ -17040,6 +17040,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 
+			this.qPages = '.pagelist';
 			this.markupBB = true;
 			this.multiFile = true;
 			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
@@ -18483,7 +18484,7 @@ function scriptCSS() {
 	.de-file-wrap { display: flex; align-items: center; }
 
 	/* Reply form */
-	.de-parea { text-align: center; }
+	.de-parea { text-align: center; clear: both; }
 	.de-parea-btn-close::after { content: "${ Lng.hideForm[lang] }"; }
 	.de-parea-btn-thr::after { content: "${ Lng.makeThr[lang] }"; }
 	.de-parea-btn-reply::after { content: "${ Lng.makeReply[lang] }"; }
@@ -18529,6 +18530,7 @@ function scriptCSS() {
 	.de-menu-item:hover { background-color: #222; color: #fff; }
 	.de-omitted { color: grey; }
 	.de-omitted::before { content: "${ Lng.postsOmitted[lang] }"; }
+	.de-page-num { clear: both; }
 	.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }
 	.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }
 	.de-popup-msg { display: inline-block; white-space: pre-wrap; }

@@ -227,7 +227,7 @@ class AbstractPost {
 				this._addMenu(el, isOutEvent,
 					`<span class="de-menu-item" info="post-reply">${ title }</span>` +
 					(aib.reportForm ? `<span class="de-menu-item" info="post-report">${
-						this.num === this.thr.num ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : ''
+						this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : ''
 					) +
 					(Cfg.markMyPosts || Cfg.markMyLinks ? `<span class="de-menu-item" info="post-markmy">${
 						MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang] }</span>` : ''
