@@ -47,7 +47,6 @@
 		"gulp-strip-comments": "^2.6.0",
 		"gulp-tap": "^2.0.0",
 		"regenerator-runtime": "^0.14.1",
-		"vinyl-source-stream": "^2.0.0",
-		"web-ext": "^8.3.0"
+		"vinyl-source-stream": "^2.0.0"
 	}
 }

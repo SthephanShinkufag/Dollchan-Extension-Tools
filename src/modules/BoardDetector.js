@@ -1395,10 +1395,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return null;
 		}
-		get css() {
-			return `${ super.css }
-				.postarea + hr { display: none; }`;
-		}
 		get fixHTMLHelper() {
 			return null;
 		}

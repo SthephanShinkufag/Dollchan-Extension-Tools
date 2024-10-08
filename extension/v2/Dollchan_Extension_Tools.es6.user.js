@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '857b7e5';
+const commit = 'd5ee609';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -10837,7 +10837,7 @@ class AbstractPost {
 		e.preventDefault();
 		$popup('file-loading', Lng.loading[lang], true);
 		const url = el.href;
-		const data = await ContentLoader.loadImgData(url, false);
+		const data = await ContentLoader.loadFileData(url, false);
 		if(!data) {
 			$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
 			return;
@@ -17165,10 +17165,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return null;
 		}
-		get css() {
-			return `${ super.css }
-				.postarea + hr { display: none; }`;
-		}
 		get fixHTMLHelper() {
 			return null;
 		}
@@ -18740,7 +18736,8 @@ function updateCSS() {
 	${ Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ' }
 	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
 	${ !aib.formHeaders && (aib.multiFile || Cfg.fileInputs !== 2) ?
-		'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '' }body > hr, .postarea, .theader { display: none !important; }\r\n`;
+		'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '' }
+	body > hr, .postarea, .theader { display: none !important; }\r\n`;
 	$id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 }
