@@ -8132,7 +8132,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = 'd5ee609';
+  var commit = '22c86cf';
 
 
   var doc = deWindow.document;
@@ -28064,9 +28064,10 @@ Spells.addSpell(9, '', false);
         _this138 = _callSuper(this, Warosu, [].concat(args));
         _this138.qDelForm = '.content';
         _this138.qForm = '.subreply';
-        _this138.qPostImgInfo = 'span';
+        _this138.qFormSubm = '.g-recaptcha';
+        _this138.qPostImgInfo = '.fileinfo';
         _this138.qPostRef = '.js';
-        _this138.qOPost = 'div[itemscope]';
+        _this138.qOPost = '.comment';
         _this138.res = 'thread/';
         return _this138;
       }
@@ -28079,12 +28080,7 @@ Spells.addSpell(9, '', false);
       }, {
         key: "getTNum",
         value: function getTNum(thr) {
-          return +$q('div[itemscope]', thr).id.match(/\d+/);
-        }
-      }, {
-        key: "fixHTMLHelper",
-        value: function fixHTMLHelper(str) {
-          return str.replace(/\/post\/(\d+)"/g, '/#$1"');
+          return +$q('.comment', thr).id.match(/\d+/);
         }
       }]);
     }(BaseBoard);

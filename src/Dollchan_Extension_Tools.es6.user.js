@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = 'd5ee609';
+const commit = '22c86cf';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -17839,9 +17839,10 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.qDelForm = '.content';
 			this.qForm = '.subreply';
-			this.qPostImgInfo = 'span';
+			this.qFormSubm = '.g-recaptcha';
+			this.qPostImgInfo = '.fileinfo';
 			this.qPostRef = '.js';
-			this.qOPost = 'div[itemscope]';
+			this.qOPost = '.comment';
 
 			this.res = 'thread/';
 		}
@@ -17849,10 +17850,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.quoted-by { display: none !important; }';
 		}
 		getTNum(thr) {
-			return +$q('div[itemscope]', thr).id.match(/\d+/);
-		}
-		fixHTMLHelper(str) {
-			return str.replace(/\/post\/(\d+)"/g, '/#$1"');
+			return +$q('.comment', thr).id.match(/\d+/);
 		}
 	}
 	ibDomains['warosu.org'] = Warosu;
