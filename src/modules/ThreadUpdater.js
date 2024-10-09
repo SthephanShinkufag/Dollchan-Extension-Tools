@@ -375,7 +375,8 @@ function initThreadUpdater(title, enableUpdate) {
 				}
 				lastECode = eCode;
 				// Updating Favorites: failed thread loading
-				updateFavorites(aib.t, getErrorMessage(err), 'error');
+				updateFavorites(aib.t, getErrorMessage(err),
+					aib.qClosed && $q(aib.qClosed) ? 'closed' : 'error');
 				return;
 			}
 			if(lastECode !== 200) {

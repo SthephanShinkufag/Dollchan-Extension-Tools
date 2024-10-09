@@ -4,7 +4,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '7431716';
+const commit = 'c439e15';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -3771,6 +3771,7 @@ function updateFavorites(num, value, mode) {
 		}
 		let isUpdate = false;
 		switch(mode) {
+		case 'closed':
 		case 'error':
 			if(entry.err !== value) {
 				entry.err = value;
@@ -3818,19 +3819,22 @@ function updateFavWindow(host, board, num, value, mode) {
 		return;
 	}
 	const [iconEl, youEl, newEl, oldEl] = [...el.children];
-	$toggle(newEl, value[1]);
-	$toggle(youEl, value[2]);
-	if(mode === 'error') {
-		iconEl.firstElementChild.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
+	if(Array.isArray(value)) {
+		$toggle(newEl, value[1]);
+		$toggle(youEl, value[2]);
+		oldEl.textContent = value[0];
+		newEl.textContent = value[1];
+		youEl.textContent = value[2];
+	}
+	if(mode === 'error' || mode === 'closed') {
+		iconEl.firstElementChild.setAttribute('class', 'de-fav-inf-icon ' +
+			(mode === 'closed' ? 'de-fav-closed' : 'de-fav-unavail'));
 		iconEl.title = value;
 		return;
 	} else if(mode === 'update') {
 		iconEl.firstElementChild.setAttribute('class', 'de-fav-inf-icon');
 		iconEl.removeAttribute('title');
 	}
-	oldEl.textContent = value[0];
-	newEl.textContent = value[1];
-	youEl.textContent = value[2];
 }
 
 // Removing previously marked entries from Favorites
@@ -3850,6 +3854,7 @@ async function remove404Favorites(favObj) {
 		const num = +el.getAttribute('de-num');
 		removeFavEntry(favObj, host, board, num);
 		toggleThrFavBtn(host, board, num, false);
+		Thread.removeSavedData(board, num); // Not working yet
 	}
 	saveRenewFavorites(favObj);
 }
@@ -3872,7 +3877,6 @@ function isPostRefToYou(post, myPosts) {
 // Checking threads for availability and new posts
 async function refreshFavorites(needClear404) {
 	let isUpdate = false;
-	let isLast404 = false;
 	const favObj = await readFavorites();
 	const myPosts = JSON.parse(locStorage['de-myposts'] || '{}');
 	const parentEl = $q('.de-fav-table');
@@ -3905,24 +3909,18 @@ async function refreshFavorites(needClear404) {
 					} else {
 						titleEl.removeAttribute('title');
 					}
-					isLast404 = false;
 					if(entry.err && entry.err !== 'Closed') {
 						delete entry.err;
 						isUpdate = true;
 					}
 				} catch(err) {
-					if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
-						if(!isLast404) {
-							isLast404 = true;
-							--i; // Repeat this cycle again
-							continue;
-						}
-						Thread.removeSavedData(board, num); // Not working yet
+					if(!(err instanceof AjaxError) || err.code === 0) {
+						$popup('fav-refresh', Lng.noConnect[lang]);
+					} else if(err.code === 404) {
+						entryEl.setAttribute('de-removed', ''); // Mark an entry as deleted
 					}
-					entryEl.setAttribute('de-removed', ''); // Mark an entry as deleted
 					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 					titleEl.title = entry.err = getErrorMessage(err);
-					isLast404 = false;
 					isUpdate = true;
 				}
 			}
@@ -3937,22 +3935,16 @@ async function refreshFavorites(needClear404) {
 			} else {
 				formEl = await ajaxLoad(url);
 			}
-			isLast404 = false;
 		} catch(err) {
-			if((err instanceof AjaxError) && err.code === 404) {
-				if(!isLast404) {
-					isLast404 = true;
-					--i;
-					continue;
-				}
-				Thread.removeSavedData(board, num);
+			if(!(err instanceof AjaxError) || err.code === 0) {
+				$popup('fav-refresh', Lng.noConnect[lang]);
+			} else if(err.code === 404) {
+				entryEl.setAttribute('de-removed', '');
 			}
 			$hide(newEl);
 			$hide(youEl);
-			entryEl.setAttribute('de-removed', '');
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 			titleEl.title = entry.err = getErrorMessage(err);
-			isLast404 = false;
 			isUpdate = true;
 			continue;
 		}
@@ -6079,7 +6071,7 @@ const ContentLoader = {
 		$ajax(url, { responseType: 'arraybuffer' }, !url.startsWith('blob')).then(xhr => {
 			if('response' in xhr) {
 				try {
-					return nav.getUnsafeUint8Array(xhr.response);
+					return new Uint8Array(xhr.response);
 				} catch(err) {}
 			}
 			const txt = xhr.responseText;
@@ -14288,7 +14280,8 @@ function initThreadUpdater(title, enableUpdate) {
 				}
 				lastECode = eCode;
 				// Updating Favorites: failed thread loading
-				updateFavorites(aib.t, getErrorMessage(err), 'error');
+				updateFavorites(aib.t, getErrorMessage(err),
+					aib.qClosed && $q(aib.qClosed) ? 'closed' : 'error');
 				return;
 			}
 			if(lastECode !== 200) {

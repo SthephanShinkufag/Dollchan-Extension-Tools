@@ -154,7 +154,7 @@ const ContentLoader = {
 		$ajax(url, { responseType: 'arraybuffer' }, !url.startsWith('blob')).then(xhr => {
 			if('response' in xhr) {
 				try {
-					return nav.getUnsafeUint8Array(xhr.response);
+					return new Uint8Array(xhr.response);
 				} catch(err) {}
 			}
 			const txt = xhr.responseText;
