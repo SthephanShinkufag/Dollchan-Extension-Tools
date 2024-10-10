@@ -210,11 +210,11 @@ const Panel = Object.create({
 		this._filesCountEl.textContent = filesCount;
 		this._postersCountEl.textContent = postersCount;
 		if(aib.makaba) {
-			$Q('span[title="Всего постов в треде"]').forEach(
+			$Q('.tn__item > span[title="Всего постов в треде"]').forEach(
 				el => el.innerHTML = el.innerHTML.replace(/\d+$/, postCount));
-			$Q('span[title="Всего файлов в треде"]').forEach(
+			$Q('.tn__item > span[title="Всего файлов в треде"]').forEach(
 				el => el.innerHTML = el.innerHTML.replace(/\d+$/, filesCount));
-			$Q('span[title="Постеры"]').forEach(
+			$Q('.tn__item > span[title="Постеры"]').forEach(
 				el => el.innerHTML = el.innerHTML.replace(/\d+$/, postersCount));
 		}
 	},

@@ -8132,7 +8132,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = '7bdd555';
+  var commit = '8b70c12';
 
 
   var doc = deWindow.document;
@@ -10618,13 +10618,13 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       this._filesCountEl.textContent = filesCount;
       this._postersCountEl.textContent = postersCount;
       if (aib.makaba) {
-        $Q('span[title="Всего постов в треде"]').forEach(function (el) {
+        $Q('.tn__item > span[title="Всего постов в треде"]').forEach(function (el) {
           return el.innerHTML = el.innerHTML.replace(/\d+$/, postCount);
         });
-        $Q('span[title="Всего файлов в треде"]').forEach(function (el) {
+        $Q('.tn__item > span[title="Всего файлов в треде"]').forEach(function (el) {
           return el.innerHTML = el.innerHTML.replace(/\d+$/, filesCount);
         });
-        $Q('span[title="Постеры"]').forEach(function (el) {
+        $Q('.tn__item > span[title="Постеры"]').forEach(function (el) {
           return el.innerHTML = el.innerHTML.replace(/\d+$/, postersCount);
         });
       }
