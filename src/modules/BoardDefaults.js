@@ -32,9 +32,10 @@ class BaseBoard {
 		this.qPostImgInfo = '.filesize';
 		this.qPostMsg = 'blockquote';
 		this.qPostName = '.postername, .commentpostername';
+		this.qPostRef = '.reflink';
 		this.qPostSubj = '.filetitle';
 		this.qPostTrip = '.postertrip';
-		this.qPostRef = '.reflink';
+		this.qPostUid = null;
 		this.qPostsParent = null;
 		this.qTrunc = '.abbrev, .abbr, .shortened';
 

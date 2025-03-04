@@ -41,7 +41,7 @@ const Spells = Object.create({
 	get names() {
 		return [
 			'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen',
-			'all', 'video', 'wipe', 'num', 'vauthor', '//'
+			'all', 'video', 'wipe', 'num', 'vauthor', '//', 'uid'
 		];
 	},
 	get needArg() {
@@ -49,7 +49,7 @@ const Spells = Object.create({
 			/* words */ true, /* exp */ true, /* exph */ true, /* imgn */ true, /* ihash */ true,
 			/* subj */ false, /* name */ false, /* trip */ false, /* img */ false, /* sage */ false,
 			/* op */ false, /* tlen */ false, /* all */ false, /* video */ false, /* wipe */ false,
-			/* num */ true, /* vauthor */ true, /* // */ false
+			/* num */ true, /* vauthor */ true, /* // comment */ false, /* uid */ true
 		];
 	},
 	get outreps() {
@@ -202,6 +202,7 @@ const Spells = Object.create({
 		case 0: // #words
 		case 6: // #name
 		case 7: // #trip
+		case 18: // #uid
 		case 16: return `${ spell }(${ val.replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') })`; // #vauthor
 		case 17: return '//' + String(val); // comment
 		default: return `${ spell }(${ String(val) })`;
@@ -815,6 +816,7 @@ class SpellsCodegen {
 		case 10: // #op
 		case 12: // #all
 		case 16: // #vauthor
+		case 18: // #uid
 			m = SpellsCodegen._getText(str, true);
 			if(m) {
 				return [i + m[0], [spellType, spellIdx === 0 ? m[1].toLowerCase() : m[1], scope]];
@@ -1108,6 +1110,7 @@ class SpellsInterpreter {
 			this.hasNumSpell = true;
 			return this._num(val);
 		case 16: return this._vauthor(val);
+		case 18: return this._uid(val);
 		}
 	}
 
@@ -1206,6 +1209,10 @@ class SpellsInterpreter {
 	_trip(val) {
 		const pTrip = this._post.posterTrip;
 		return pTrip ? !val || pTrip.includes(val) : false;
+	}
+	_uid(val) {
+		const pUid = this._post.posterUid;
+		return pUid ? pUid.includes(val) : false;
 	}
 	_vauthor(val) {
 		return this._videoVauthor(val, true);

@@ -414,7 +414,7 @@ class CacheItem {
 		return value;
 	}
 	get title() {
-		return new Post.Сontent(this).title;
+		return new Post.Content(this).title;
 	}
 	get el() {
 		const value = this.isOp ? this._pBuilder.getOpEl() : this._pBuilder.getPostEl(this.count - 1);

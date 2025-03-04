@@ -15,6 +15,7 @@ function getImageBoard(checkDomains) {
 			this.qPostImg = 'img.thumb, video.thumb';
 			this.qPostMsg = '.message';
 			this.qPostRef = '.post-reflink';
+			this.qPostUid = '.posteruid';
 
 			this.hasCatalog = true;
 			this.markupBB = true;

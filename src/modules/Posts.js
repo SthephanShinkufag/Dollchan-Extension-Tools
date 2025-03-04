@@ -337,7 +337,7 @@ class AbstractPost {
 			msg   : { configurable: true, value: newMsg },
 			trunc : { configurable: true, value: null }
 		});
-		Post.Сontent.removeTempData(this);
+		Post.Content.removeTempData(this);
 		if(Cfg.embedYTube) {
 			this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
 			if(videoExt) {
@@ -453,6 +453,7 @@ class AbstractPost {
 		}
 		case 'hide-name': await Spells.addSpell(6 /* #name */, this.posterName, false); return;
 		case 'hide-trip': await Spells.addSpell(7 /* #trip */, this.posterTrip, false); return;
+		case 'hide-uid': await Spells.addSpell(18 /* #uid */, this.posterUid, false); return;
 		case 'hide-img': {
 			const { weight: w, width: wi, height: h } = this.images.firstAttach;
 			await Spells.addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
@@ -666,10 +667,10 @@ class Post extends AbstractPost {
 			.getBoundingClientRect().bottom;
 	}
 	get headerEl() {
-		return new Post.Сontent(this).headerEl;
+		return new Post.Content(this).headerEl;
 	}
 	get html() {
-		return new Post.Сontent(this).html;
+		return new Post.Content(this).html;
 	}
 	get nextInThread() {
 		const post = this.next;
@@ -688,10 +689,13 @@ class Post extends AbstractPost {
 		return value;
 	}
 	get posterName() {
-		return new Post.Сontent(this).posterName;
+		return new Post.Content(this).posterName;
 	}
 	get posterTrip() {
-		return new Post.Сontent(this).posterTrip;
+		return new Post.Content(this).posterTrip;
+	}
+	get posterUid() {
+		return new Post.Content(this).posterUid;
 	}
 	get sage() {
 		const value = aib.getSage(this.el);
@@ -699,13 +703,13 @@ class Post extends AbstractPost {
 		return value;
 	}
 	get subj() {
-		return new Post.Сontent(this).subj;
+		return new Post.Content(this).subj;
 	}
 	get text() {
-		return new Post.Сontent(this).text;
+		return new Post.Content(this).text;
 	}
 	get title() {
-		return new Post.Сontent(this).title;
+		return new Post.Content(this).title;
 	}
 	get tNum() {
 		return this.thr.num;
@@ -715,7 +719,7 @@ class Post extends AbstractPost {
 			.getBoundingClientRect().top;
 	}
 	get wrap() {
-		return new Post.Сontent(this).wrap;
+		return new Post.Content(this).wrap;
 	}
 	addFuncs() {
 		super.addFuncs();
@@ -902,6 +906,7 @@ class Post extends AbstractPost {
 			ssel ? item('sel') : '' }${
 			this.posterName ? item('name') : '' }${
 			this.posterTrip ? item('trip') : '' }${
+			this.posterUid ? item('uid') : '' }${
 			this.images.hasAttachments ? item('img') + item('imgn') + item('ihash') : item('noimg') }${
 			this.text ? item('text') : item('notext') }${
 			!Cfg.hideRefPsts && this.ref.hasMap ? item('refs') : '' }${
@@ -941,7 +946,7 @@ class Post extends AbstractPost {
 }
 Post.hasNew = false;
 Post.hiddenNums = new Set();
-Post.Сontent = class PostContent extends TemporaryContent {
+Post.Content = class PostContent extends TemporaryContent {
 	constructor(post) {
 		super(post);
 		if(this._isInited) {
@@ -971,6 +976,12 @@ Post.Сontent = class PostContent extends TemporaryContent {
 		const pTrip = $q(aib.qPostTrip, this.el);
 		const value = pTrip ? pTrip.textContent : '';
 		Object.defineProperty(this, 'posterTrip', { value });
+		return value;
+	}
+	get posterUid() {
+		const pUid = $q(aib.qPostUid, this.el);
+		const value = pUid ? pUid.textContent : '';
+		Object.defineProperty(this, 'qPostUid', { value });
 		return value;
 	}
 	get subj() {
