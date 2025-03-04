@@ -62,7 +62,7 @@ Dollchan has both cross-browser and cross-board working scope. A list of support
 1. Go to the extensions page by typing `chrome://extensions/` in your browser's address bar,<br>
 disable your existing Dollchan extension if available.
 2. Set the `"Developer's mode"` checkbox, press the `"Load unpacked extension"` button.
-3. Select the path to `/extension` directory in your Dollchan repo.<br>
+3. Select the path to `/extension/v3` directory in your Dollchan repo.<br>
 If you don't have a Dollchan repo, download and unpack the [repository archive](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/archive/master.zip) from the last state.
 4. Done.
 
@@ -70,7 +70,7 @@ If you don't have a Dollchan repo, download and unpack the [repository archive](
 1. Go to the extensions page by typing `about:addons` in your browser's address bar,<br>
 disable your existing Dollchan extension if available.
 2. Go to `about:debugging#addons` page, press the `"Download temporary add-on…"` button.
-3. Open the `/extension` directory in your Dollchan repo and select the path to `manifest.json` file.<br>
+3. Open the `/extension/v3` directory in your Dollchan repo and select the path to `manifest.json` file.<br>
 If you don't have a Dollchan repo, download and unpack the [repository archive](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/archive/master.zip) from the last state.
 4. Done.
 
@@ -84,7 +84,7 @@ If you don't have a Dollchan repo, download and unpack the [repository archive](
 When prompted, allow USB debugging for the connection.
 6. In the settings view for Firefox for Android Nightly, enable "Remote debugging via USB."
 7. Run with Git:<br>
-`web-ext run -t firefox-android --source-dir ./extension/v2 --adb-device XXX --firefox-apk org.mozilla.fenix`<br>
+`web-ext run -t firefox-android --source-dir ./extension/v3 --adb-device XXX --firefox-apk org.mozilla.fenix`<br>
 where `XXX` is the name of your device (it will be displayed if you enter `XXX` instead of the name, replace `XXX` with the given name and run the command again)
 
 ---
