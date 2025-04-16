@@ -1681,7 +1681,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(locStorage.unixFilenames === 'true') {
 				value = post => {
 					const containerEl = $q('div.panelUploads', post.el);
-					const imgLinks = $Q('a.imgLink:not(.unixLink)', containerEl);
+					const imgLinks = $Q('.de-img-link:not(.unixLink)', containerEl);
 					let timetext = new Date(containerEl.parentElement.parentElement
 						.querySelectorAll('span.labelCreated')[0].textContent.replaceAll('-', '/')).getTime();
 					timetext = timetext + timetext % 999;
@@ -1750,9 +1750,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			updater.continueUpdater();
 			return true;
 		}
-		fixHTMLHelper(str) {
-			return str.replace(/imgLink/g, '');
-		}
 		getImgRealName(wrap) {
 			return $q('.originalNameLink', wrap).title;
 		}
@@ -1771,7 +1768,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				deWindow.location.reload();
 				return true;
 			}
-			$Q('.imgLink').forEach(el => (el.className = 'de-img-link imgLink'));
+			$Q('.imgLink').forEach(el => (el.className = 'de-img-link'));
 			return super.init();
 		}
 		sendHTML5Post(form, data, needProgress, hasFiles) {
