@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '2805a05';
+const commit = '44dbfcf';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -17008,6 +17008,19 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['7chan.org'] = _7chan;
 
+	class _8chan extends Lynxchan {
+		get css() {
+			return `${ super.css }
+				.reloadCaptchaButton { display: none !important; }
+				${ Cfg.addSageBtn ? '#useSageSpan { display: none; }' : '' }`;
+		}
+		captchaUpdate() {
+			$script('captchaUtils.reloadCaptcha();');
+			return null;
+		}
+	}
+	ibDomains['8chan.moe'] = _8chan;
+
 	class _8kun extends Vichan {
 		getEmptyFile(field, name) {
 			return {
@@ -18724,7 +18737,7 @@ function updateCSS() {
 	${ Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ' }
 	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
 	${ !aib.formHeaders && (aib.multiFile || Cfg.fileInputs !== 2) ?
-		'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '' }
+		'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form table > tbody > tr > th:first-child, ' : '' }
 	body > hr, .postarea, .theader { display: none !important; }\r\n`;
 	$id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';

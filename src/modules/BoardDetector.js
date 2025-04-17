@@ -1245,6 +1245,19 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['7chan.org'] = _7chan;
 
+	class _8chan extends Lynxchan {
+		get css() {
+			return `${ super.css }
+				.reloadCaptchaButton { display: none !important; }
+				${ Cfg.addSageBtn ? '#useSageSpan { display: none; }' : '' }`;
+		}
+		captchaUpdate() {
+			$script('captchaUtils.reloadCaptcha();');
+			return null;
+		}
+	}
+	ibDomains['8chan.moe'] = _8chan;
+
 	class _8kun extends Vichan {
 		getEmptyFile(field, name) {
 			return {

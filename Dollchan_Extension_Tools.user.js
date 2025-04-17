@@ -1702,7 +1702,6 @@ module.exports = !fails(function () {
 var NATIVE_BIND = require('../internals/function-bind-native');
 
 var call = Function.prototype.call;
-
 module.exports = NATIVE_BIND ? call.bind(call) : function () {
   return call.apply(call, arguments);
 };
@@ -3888,7 +3887,19 @@ var createSetLike = function (size) {
   };
 };
 
-module.exports = function (name) {
+var createSetLikeWithInfinitySize = function (size) {
+  return {
+    size: size,
+    has: function () {
+      return true;
+    },
+    keys: function () {
+      throw new Error('e');
+    }
+  };
+};
+
+module.exports = function (name, callback) {
   var Set = getBuiltIn('Set');
   try {
     new Set()[name](createSetLike(0));
@@ -3896,7 +3907,16 @@ module.exports = function (name) {
       new Set()[name](createSetLike(-1));
       return false;
     } catch (error2) {
-      return true;
+      if (!callback) return true;
+      try {
+        new Set()[name](createSetLikeWithInfinitySize(-Infinity));
+        return false;
+      } catch (error) {
+        var set = new Set();
+        set.add(1);
+        set.add(2);
+        return callback(set[name](createSetLikeWithInfinitySize(Infinity)));
+      }
     }
   } catch (error) {
     return false;
@@ -4009,10 +4029,10 @@ var SHARED = '__core-js_shared__';
 var store = module.exports = globalThis[SHARED] || defineGlobalProperty(SHARED, {});
 
 (store.versions || (store.versions = [])).push({
-  version: '3.39.0',
+  version: '3.41.0',
   mode: IS_PURE ? 'pure' : 'global',
-  copyright: '© 2014-2024 Denis Pushkarev (zloirock.ru)',
-  license: 'https://github.com/zloirock/core-js/blob/v3.39.0/LICENSE',
+  copyright: '© 2014-2025 Denis Pushkarev (zloirock.ru)',
+  license: 'https://github.com/zloirock/core-js/blob/v3.41.0/LICENSE',
   source: 'https://github.com/zloirock/core-js'
 });
 
@@ -5507,7 +5527,11 @@ var $ = require('../internals/export');
 var difference = require('../internals/set-difference');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('difference') }, {
+var INCORRECT = !setMethodAcceptSetLike('difference', function (result) {
+  return result.size === 0;
+});
+
+$({ target: 'Set', proto: true, real: true, forced: INCORRECT }, {
   difference: difference
 });
 
@@ -5518,7 +5542,9 @@ var fails = require('../internals/fails');
 var intersection = require('../internals/set-intersection');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-var INCORRECT = !setMethodAcceptSetLike('intersection') || fails(function () {
+var INCORRECT = !setMethodAcceptSetLike('intersection', function (result) {
+  return result.size === 2 && result.has(1) && result.has(2);
+}) || fails(function () {
   return String(Array.from(new Set([1, 2, 3]).intersection(new Set([3, 2])))) !== '3,2';
 });
 
@@ -5532,7 +5558,11 @@ var $ = require('../internals/export');
 var isDisjointFrom = require('../internals/set-is-disjoint-from');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('isDisjointFrom') }, {
+var INCORRECT = !setMethodAcceptSetLike('isDisjointFrom', function (result) {
+  return !result;
+});
+
+$({ target: 'Set', proto: true, real: true, forced: INCORRECT }, {
   isDisjointFrom: isDisjointFrom
 });
 
@@ -5542,7 +5572,11 @@ var $ = require('../internals/export');
 var isSubsetOf = require('../internals/set-is-subset-of');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('isSubsetOf') }, {
+var INCORRECT = !setMethodAcceptSetLike('isSubsetOf', function (result) {
+  return result;
+});
+
+$({ target: 'Set', proto: true, real: true, forced: INCORRECT }, {
   isSubsetOf: isSubsetOf
 });
 
@@ -5552,7 +5586,11 @@ var $ = require('../internals/export');
 var isSupersetOf = require('../internals/set-is-superset-of');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('isSupersetOf') }, {
+var INCORRECT = !setMethodAcceptSetLike('isSupersetOf', function (result) {
+  return !result;
+});
+
+$({ target: 'Set', proto: true, real: true, forced: INCORRECT }, {
   isSupersetOf: isSupersetOf
 });
 
@@ -8180,7 +8218,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = '2805a05';
+  var commit = '44dbfcf';
 
 
   var doc = deWindow.document;
@@ -27063,6 +27101,26 @@ Spells.addSpell(9, '', false);
       }]);
     }(Kusaba);
     ibDomains['7chan.org'] = _7chan;
+    var _8chan = function (_Lynxchan) {
+      function _8chan() {
+        _classCallCheck(this, _8chan);
+        return _callSuper(this, _8chan, arguments);
+      }
+      _inherits(_8chan, _Lynxchan);
+      return _createClass(_8chan, [{
+        key: "css",
+        get: function get() {
+          return "".concat(_superPropGet(_8chan, "css", this, 1), "\n\t\t\t\t.reloadCaptchaButton { display: none !important; }\n\t\t\t\t").concat(Cfg.addSageBtn ? '#useSageSpan { display: none; }' : '');
+        }
+      }, {
+        key: "captchaUpdate",
+        value: function captchaUpdate() {
+          $script('captchaUtils.reloadCaptcha();');
+          return null;
+        }
+      }]);
+    }(Lynxchan);
+    ibDomains['8chan.moe'] = _8chan;
     var _8kun = function (_Vichan) {
       function _8kun() {
         _classCallCheck(this, _8kun);
@@ -27302,7 +27360,7 @@ Spells.addSpell(9, '', false);
       }]);
     }(TinyIB);
     ibDomains['dollchan.net'] = Dollchan;
-    var Endchan = function (_Lynxchan) {
+    var Endchan = function (_Lynxchan2) {
       function Endchan() {
         var _this125;
         _classCallCheck(this, Endchan);
@@ -27314,7 +27372,7 @@ Spells.addSpell(9, '', false);
         _this125.jsonSubmit = false;
         return _this125;
       }
-      _inherits(Endchan, _Lynxchan);
+      _inherits(Endchan, _Lynxchan2);
       return _createClass(Endchan, [{
         key: "css",
         get: function get() {
@@ -27623,7 +27681,7 @@ Spells.addSpell(9, '', false);
       }]);
     }(BaseBoard);
     ibDomains['ivchan.net'] = Ivchan;
-    var Kohlchan = function (_Lynxchan2) {
+    var Kohlchan = function (_Lynxchan3) {
       function Kohlchan() {
         var _this131;
         _classCallCheck(this, Kohlchan);
@@ -27639,7 +27697,7 @@ Spells.addSpell(9, '', false);
         _this131.timePattern = 'yyyy+nn+dd+hh+ii+ss';
         return _this131;
       }
-      _inherits(Kohlchan, _Lynxchan2);
+      _inherits(Kohlchan, _Lynxchan3);
       return _createClass(Kohlchan, [{
         key: "css",
         get: function get() {
@@ -28390,7 +28448,7 @@ Spells.addSpell(9, '', false);
     updateCSS();
   }
   function updateCSS() {
-    var x = "\n\t.de-video-obj { width: ".concat(Cfg.YTubeWidth, "px; height: ").concat(Cfg.YTubeHeigh, "px; }\n\t.de-new-post { ").concat(nav.isPresto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)', " !important; }\n\t.de-selected, .de-input-error { ").concat(nav.isPresto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)', " !important; }\n\t").concat(Cfg.markMyPosts ? ".de-mypost { ".concat(nav.isPresto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)', " !important; }\n\t\t.de-mypost-reply:not(.de-pview) { position: relative; }\n\t\t.de-mypost-reply::before { content: \"\"; position: absolute; top: -0; bottom: 0; left: -1px; border-left: 5px dotted rgba(97,107,134,.8) !important; }") : '', "\n\t").concat(Cfg.markMyLinks ? ".de-ref-del.de-ref-you::after { content: \" (Del)(You)\"; }\n\t\t\t.de-ref-op.de-ref-you::after { content: \" (OP)(You)\"; }\n\t\t\t.de-ref-you::after { content: \" (You)\"; }" : '.de-post-counter-you { display: none; }', "\n\t").concat(Cfg.postBtnsCSS === 0 ? ".de-btn-expthr, .de-btn-fav, .de-btn-hide, .de-btn-img, .de-btn-reply, .de-btn-stick, .de-btn-unhide { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t\t.de-btn-fav-sel, .de-btn-hide-user, .de-btn-sage, .de-btn-stick-on, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }" : ".de-btn-expthr, .de-btn-fav, .de-btn-hide, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-unhide { color: #F5F5F5; }\n\t\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user { fill: ".concat(Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack, "; }\n\t\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t\t.de-btn-unhide-user { color: #FFBFBF; }"), "\n\t.de-fullimg-wrap-inpost > .de-fullimg { ").concat(Cfg.resizeImgs ? "max-width: 100%;".concat(Cfg.resizeImgs === 2 ? ' max-height: 96vh;' : '') : 'width: auto;', "; }\n\t").concat(Cfg.maskImgs ? "".concat(aib.qPostImg, ", .de-img-embed, .de-video-obj { opacity: ").concat(Cfg.maskVisib / 100, " !important; }\n\t\t\t").concat(aib.qPostImg.split(', ').join(':hover, '), ":hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }") : '', "\n\t").concat(Cfg.imgNames === 1 ? '.de-img-name { display: inline-block; max-width: 230px; vertical-align: top; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }' : '', "\n\t").concat(Cfg.imgNames === 2 ? '.de-img-name { text-decoration: none !important; text-transform: capitalize; }' : '', "\n\t").concat(Cfg.imgNames === 3 ? '.de-img-name { display: inline-block; max-width: 230px; vertical-align: top; word-wrap: break-word; white-space: break-spaces; }' : '', "\n\t").concat(Cfg.widePosts ? '.de-reply { float: none; width: 99vw; margin-left: 0; }' : '', "\n\t").concat(aib.qPostMsg, " { max-width: ").concat(Cfg.limitPostMsg, "px; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; }\n\t").concat(Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '', "\n\t").concat(Cfg.noSpoilers === 1 ? ".spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }" : '', "\n\t").concat(Cfg.noSpoilers === 2 ? ".spoiler, s { color: inherit !important; }\n\t\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }" : '', "\n\t").concat(Cfg.favFolders ? '' : ".de-fav-entries-hide { display: block; }\n\t\t.de-fav-header { display: none; }\n\t\t.de-fav-link::before { content: attr(de-host) \"/\" attr(de-board) \"/\" }", "\n\t").concat(Cfg.addSageBtn ? '' : '#de-sagebtn, ', "\n\t").concat(Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + hr, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '.de-thr-hid:not([style="display: none;"]) + div + br, ', "\n\t").concat(Cfg.imgNavBtns ? '' : '.de-img-btn, ', "\n\t").concat(Cfg.imgInfoLink ? '' : '.de-fullimg-info, ', "\n\t").concat(Cfg.noPostNames ? "".concat(aib.qPostName, ", ").concat(aib.qPostTrip, ", ") : '', "\n\t").concat(Cfg.noBoardRule ? "".concat(aib.qFormRules, ", ") : '', "\n\t").concat(Cfg.panelCounter ? '' : '#de-panel-info, ', "\n\t").concat(Cfg.removeHidd ? '.de-link-backref.de-link-hid, .de-link-backref.de-link-hid + .de-refcomma, ' : '', "\n\t").concat(Cfg.showHideBtn ? '' : '.de-btn-hide, ', "\n\t").concat(Cfg.showRepBtn ? '' : '.de-btn-reply, ', "\n\t").concat(Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ', "\n\t").concat(Cfg.thrBtns === 1 || Cfg.thrBtns === 2 && !aib.t ? '' : '.de-thr-buttons > svg, ', "\n\t").concat(Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ', "\n\t").concat(Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ', "\n\t").concat(!aib.formHeaders && (aib.multiFile || Cfg.fileInputs !== 2) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '', "\n\tbody > hr, .postarea, .theader { display: none !important; }\r\n");
+    var x = "\n\t.de-video-obj { width: ".concat(Cfg.YTubeWidth, "px; height: ").concat(Cfg.YTubeHeigh, "px; }\n\t.de-new-post { ").concat(nav.isPresto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)', " !important; }\n\t.de-selected, .de-input-error { ").concat(nav.isPresto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)', " !important; }\n\t").concat(Cfg.markMyPosts ? ".de-mypost { ".concat(nav.isPresto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)', " !important; }\n\t\t.de-mypost-reply:not(.de-pview) { position: relative; }\n\t\t.de-mypost-reply::before { content: \"\"; position: absolute; top: -0; bottom: 0; left: -1px; border-left: 5px dotted rgba(97,107,134,.8) !important; }") : '', "\n\t").concat(Cfg.markMyLinks ? ".de-ref-del.de-ref-you::after { content: \" (Del)(You)\"; }\n\t\t\t.de-ref-op.de-ref-you::after { content: \" (OP)(You)\"; }\n\t\t\t.de-ref-you::after { content: \" (You)\"; }" : '.de-post-counter-you { display: none; }', "\n\t").concat(Cfg.postBtnsCSS === 0 ? ".de-btn-expthr, .de-btn-fav, .de-btn-hide, .de-btn-img, .de-btn-reply, .de-btn-stick, .de-btn-unhide { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t\t.de-btn-fav-sel, .de-btn-hide-user, .de-btn-sage, .de-btn-stick-on, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }" : ".de-btn-expthr, .de-btn-fav, .de-btn-hide, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-unhide { color: #F5F5F5; }\n\t\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user { fill: ".concat(Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack, "; }\n\t\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t\t.de-btn-unhide-user { color: #FFBFBF; }"), "\n\t.de-fullimg-wrap-inpost > .de-fullimg { ").concat(Cfg.resizeImgs ? "max-width: 100%;".concat(Cfg.resizeImgs === 2 ? ' max-height: 96vh;' : '') : 'width: auto;', "; }\n\t").concat(Cfg.maskImgs ? "".concat(aib.qPostImg, ", .de-img-embed, .de-video-obj { opacity: ").concat(Cfg.maskVisib / 100, " !important; }\n\t\t\t").concat(aib.qPostImg.split(', ').join(':hover, '), ":hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }") : '', "\n\t").concat(Cfg.imgNames === 1 ? '.de-img-name { display: inline-block; max-width: 230px; vertical-align: top; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }' : '', "\n\t").concat(Cfg.imgNames === 2 ? '.de-img-name { text-decoration: none !important; text-transform: capitalize; }' : '', "\n\t").concat(Cfg.imgNames === 3 ? '.de-img-name { display: inline-block; max-width: 230px; vertical-align: top; word-wrap: break-word; white-space: break-spaces; }' : '', "\n\t").concat(Cfg.widePosts ? '.de-reply { float: none; width: 99vw; margin-left: 0; }' : '', "\n\t").concat(aib.qPostMsg, " { max-width: ").concat(Cfg.limitPostMsg, "px; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; }\n\t").concat(Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '', "\n\t").concat(Cfg.noSpoilers === 1 ? ".spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }" : '', "\n\t").concat(Cfg.noSpoilers === 2 ? ".spoiler, s { color: inherit !important; }\n\t\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }" : '', "\n\t").concat(Cfg.favFolders ? '' : ".de-fav-entries-hide { display: block; }\n\t\t.de-fav-header { display: none; }\n\t\t.de-fav-link::before { content: attr(de-host) \"/\" attr(de-board) \"/\" }", "\n\t").concat(Cfg.addSageBtn ? '' : '#de-sagebtn, ', "\n\t").concat(Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + hr, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '.de-thr-hid:not([style="display: none;"]) + div + br, ', "\n\t").concat(Cfg.imgNavBtns ? '' : '.de-img-btn, ', "\n\t").concat(Cfg.imgInfoLink ? '' : '.de-fullimg-info, ', "\n\t").concat(Cfg.noPostNames ? "".concat(aib.qPostName, ", ").concat(aib.qPostTrip, ", ") : '', "\n\t").concat(Cfg.noBoardRule ? "".concat(aib.qFormRules, ", ") : '', "\n\t").concat(Cfg.panelCounter ? '' : '#de-panel-info, ', "\n\t").concat(Cfg.removeHidd ? '.de-link-backref.de-link-hid, .de-link-backref.de-link-hid + .de-refcomma, ' : '', "\n\t").concat(Cfg.showHideBtn ? '' : '.de-btn-hide, ', "\n\t").concat(Cfg.showRepBtn ? '' : '.de-btn-reply, ', "\n\t").concat(Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ', "\n\t").concat(Cfg.thrBtns === 1 || Cfg.thrBtns === 2 && !aib.t ? '' : '.de-thr-buttons > svg, ', "\n\t").concat(Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ', "\n\t").concat(Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ', "\n\t").concat(!aib.formHeaders && (aib.multiFile || Cfg.fileInputs !== 2) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form table > tbody > tr > th:first-child, ' : '', "\n\tbody > hr, .postarea, .theader { display: none !important; }\r\n");
     $id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
     $id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
   }
