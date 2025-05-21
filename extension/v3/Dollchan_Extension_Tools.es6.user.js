@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '80b3aa8';
+const commit = '9adc49c';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -949,6 +949,10 @@ const Lng = {
 			'Скрывать по имени',
 			'Hide by name',
 			'Ховати по імені'],
+		uid: [
+			'Скрывать по id постера',
+			'Hide by poster id',
+			'Ховати по id постера'],
 		trip: [
 			'Скрывать по трипкоду',
 			'Hide by tripcode',
@@ -5322,9 +5326,9 @@ class Menu {
 		switch(el.id) {
 		case 'de-btn-spell-add':
 			return new Menu(el, `<div style="display: inline-block; border-right: 1px solid grey;">${
-				tags('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(','))
+				tags('#all,#exp,#exph,#ihash,#img,#imgn,#name,#num,#op,#sage'.split(','))
 			}</div><div style="display: inline-block;">${
-				tags('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')) }</div>`,
+				tags('#subj,#tlen,#trip,#uid,#vauthor,#video,#wipe,#words,#rep,#outrep'.split(',')) }</div>`,
 			({ textContent: s }) => insertText($id('de-spell-txt'), s +
 				(!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : `[${ aib.b },${ aib.t }]`) +
 				(Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : '')));
@@ -7355,7 +7359,7 @@ const Spells = Object.create({
 	get names() {
 		return [
 			'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen',
-			'all', 'video', 'wipe', 'num', 'vauthor', '//'
+			'all', 'video', 'wipe', 'num', 'vauthor', '//', 'uid'
 		];
 	},
 	get needArg() {
@@ -7363,7 +7367,7 @@ const Spells = Object.create({
 			/* words */ true, /* exp */ true, /* exph */ true, /* imgn */ true, /* ihash */ true,
 			/* subj */ false, /* name */ false, /* trip */ false, /* img */ false, /* sage */ false,
 			/* op */ false, /* tlen */ false, /* all */ false, /* video */ false, /* wipe */ false,
-			/* num */ true, /* vauthor */ true, /* // */ false
+			/* num */ true, /* vauthor */ true, /* // comment */ false, /* uid */ true
 		];
 	},
 	get outreps() {
@@ -7516,6 +7520,7 @@ const Spells = Object.create({
 		case 0: // #words
 		case 6: // #name
 		case 7: // #trip
+		case 18: // #uid
 		case 16: return `${ spell }(${ val.replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') })`; // #vauthor
 		case 17: return '//' + String(val); // comment
 		default: return `${ spell }(${ String(val) })`;
@@ -8129,6 +8134,7 @@ class SpellsCodegen {
 		case 10: // #op
 		case 12: // #all
 		case 16: // #vauthor
+		case 18: // #uid
 			m = SpellsCodegen._getText(str, true);
 			if(m) {
 				return [i + m[0], [spellType, spellIdx === 0 ? m[1].toLowerCase() : m[1], scope]];
@@ -8422,6 +8428,7 @@ class SpellsInterpreter {
 			this.hasNumSpell = true;
 			return this._num(val);
 		case 16: return this._vauthor(val);
+		case 18: return this._uid(val);
 		}
 	}
 
@@ -8520,6 +8527,10 @@ class SpellsInterpreter {
 	_trip(val) {
 		const pTrip = this._post.posterTrip;
 		return pTrip ? !val || pTrip.includes(val) : false;
+	}
+	_uid(val) {
+		const pUid = this._post.posterUid;
+		return pUid ? pUid.includes(val) : false;
 	}
 	_vauthor(val) {
 		return this._videoVauthor(val, true);
@@ -10906,6 +10917,7 @@ class AbstractPost {
 		}
 		case 'hide-name': await Spells.addSpell(6 /* #name */, this.posterName, false); return;
 		case 'hide-trip': await Spells.addSpell(7 /* #trip */, this.posterTrip, false); return;
+		case 'hide-uid': await Spells.addSpell(18 /* #uid */, this.posterUid, false); return;
 		case 'hide-img': {
 			const { weight: w, width: wi, height: h } = this.images.firstAttach;
 			await Spells.addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
@@ -11146,6 +11158,9 @@ class Post extends AbstractPost {
 	get posterTrip() {
 		return new Post.Сontent(this).posterTrip;
 	}
+	get posterUid() {
+		return new Post.Сontent(this).posterUid;
+	}
 	get sage() {
 		const value = aib.getSage(this.el);
 		Object.defineProperty(this, 'sage', { value });
@@ -11355,6 +11370,7 @@ class Post extends AbstractPost {
 			ssel ? item('sel') : '' }${
 			this.posterName ? item('name') : '' }${
 			this.posterTrip ? item('trip') : '' }${
+			this.posterUid ? item('uid') : '' }${
 			this.images.hasAttachments ? item('img') + item('imgn') + item('ihash') : item('noimg') }${
 			this.text ? item('text') : item('notext') }${
 			!Cfg.hideRefPsts && this.ref.hasMap ? item('refs') : '' }${
@@ -11424,6 +11440,12 @@ Post.Сontent = class PostContent extends TemporaryContent {
 		const pTrip = $q(aib.qPostTrip, this.el);
 		const value = pTrip ? pTrip.textContent : '';
 		Object.defineProperty(this, 'posterTrip', { value });
+		return value;
+	}
+	get posterUid() {
+		const pUid = $q(aib.qPostUid, this.el);
+		const value = pUid ? pUid.textContent : '';
+		Object.defineProperty(this, 'qPostUid', { value });
 		return value;
 	}
 	get subj() {
@@ -15400,6 +15422,7 @@ class BaseBoard {
 		this.qPostImgInfo = '.filesize';
 		this.qPostMsg = 'blockquote';
 		this.qPostName = '.postername, .commentpostername';
+		this.qPostUid = null;
 		this.qPostSubj = '.filetitle';
 		this.qPostTrip = '.postertrip';
 		this.qPostRef = '.reflink';

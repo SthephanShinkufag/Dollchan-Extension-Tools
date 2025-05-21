@@ -453,6 +453,7 @@ class AbstractPost {
 		}
 		case 'hide-name': await Spells.addSpell(6 /* #name */, this.posterName, false); return;
 		case 'hide-trip': await Spells.addSpell(7 /* #trip */, this.posterTrip, false); return;
+		case 'hide-uid': await Spells.addSpell(18 /* #uid */, this.posterUid, false); return;
 		case 'hide-img': {
 			const { weight: w, width: wi, height: h } = this.images.firstAttach;
 			await Spells.addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
@@ -693,6 +694,9 @@ class Post extends AbstractPost {
 	get posterTrip() {
 		return new Post.Сontent(this).posterTrip;
 	}
+	get posterUid() {
+		return new Post.Сontent(this).posterUid;
+	}
 	get sage() {
 		const value = aib.getSage(this.el);
 		Object.defineProperty(this, 'sage', { value });
@@ -902,6 +906,7 @@ class Post extends AbstractPost {
 			ssel ? item('sel') : '' }${
 			this.posterName ? item('name') : '' }${
 			this.posterTrip ? item('trip') : '' }${
+			this.posterUid ? item('uid') : '' }${
 			this.images.hasAttachments ? item('img') + item('imgn') + item('ihash') : item('noimg') }${
 			this.text ? item('text') : item('notext') }${
 			!Cfg.hideRefPsts && this.ref.hasMap ? item('refs') : '' }${
@@ -971,6 +976,12 @@ Post.Сontent = class PostContent extends TemporaryContent {
 		const pTrip = $q(aib.qPostTrip, this.el);
 		const value = pTrip ? pTrip.textContent : '';
 		Object.defineProperty(this, 'posterTrip', { value });
+		return value;
+	}
+	get posterUid() {
+		const pUid = $q(aib.qPostUid, this.el);
+		const value = pUid ? pUid.textContent : '';
+		Object.defineProperty(this, 'qPostUid', { value });
 		return value;
 	}
 	get subj() {

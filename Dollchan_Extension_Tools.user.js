@@ -8218,7 +8218,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = '80b3aa8';
+  var commit = '9adc49c';
 
 
   var doc = deWindow.document;
@@ -8591,6 +8591,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     selHiderMenu: {
       sel: ['Скрывать выделенное', 'Hide selected text', 'Ховати виділене'],
       name: ['Скрывать по имени', 'Hide by name', 'Ховати по імені'],
+      uid: ['Скрывать по id постера', 'Hide by poster id', 'Ховати по id постера'],
       trip: ['Скрывать по трипкоду', 'Hide by tripcode', 'Ховати по тріпкоду'],
       img: ['Скрывать по размеру картинки', 'Hide by image size', 'Ховати по розміру зображення'],
       imgn: ['Скрывать по имени картинки', 'Hide by image name', 'Ховати по імені зображення'],
@@ -12975,7 +12976,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
         };
         switch (el.id) {
           case 'de-btn-spell-add':
-            return new Menu(el, "<div style=\"display: inline-block; border-right: 1px solid grey;\">".concat(tags('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(',')), "</div><div style=\"display: inline-block;\">").concat(tags('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')), "</div>"), function (_ref12) {
+            return new Menu(el, "<div style=\"display: inline-block; border-right: 1px solid grey;\">".concat(tags('#all,#exp,#exph,#ihash,#img,#imgn,#name,#num,#op,#sage'.split(',')), "</div><div style=\"display: inline-block;\">").concat(tags('#subj,#tlen,#trip,#uid,#vauthor,#video,#wipe,#words,#rep,#outrep'.split(',')), "</div>"), function (_ref12) {
               var s = _ref12.textContent;
               return insertText($id('de-spell-txt'), s + (!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : "[".concat(aib.b, ",").concat(aib.t, "]")) + (Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : ''));
             });
@@ -15223,10 +15224,10 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       return str;
     },
     get names() {
-      return ['words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all', 'video', 'wipe', 'num', 'vauthor', '//'];
+      return ['words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all', 'video', 'wipe', 'num', 'vauthor', '//', 'uid'];
     },
     get needArg() {
-      return [true, true, true, true, true, false, false, false, false, false, false, false, false, false, false, true, true, false];
+      return [true, true, true, true, true, false, false, false, false, false, false, false, false, false, false, true, true, false, true];
     },
     get outreps() {
       this._initSpells();
@@ -15403,6 +15404,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
         case 0: 
         case 6: 
         case 7: 
+        case 18: 
         case 16:
           return "".concat(spell, "(").concat(val.replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n'), ")");
         case 17:
@@ -16078,7 +16080,8 @@ this.disableSpells();
           case 9: 
           case 10: 
           case 12: 
-          case 16:
+          case 16: 
+          case 18:
             m = SpellsCodegen._getText(str, true);
             if (m) {
               return [i + m[0], [spellType, spellIdx === 0 ? m[1].toLowerCase() : m[1], scope]];
@@ -16478,6 +16481,8 @@ this.disableSpells();
             return this._num(val);
           case 16:
             return this._vauthor(val);
+          case 18:
+            return this._uid(val);
         }
       }
     }, {
@@ -16651,6 +16656,12 @@ this.disableSpells();
       value: function _trip(val) {
         var pTrip = this._post.posterTrip;
         return pTrip ? !val || pTrip.includes(val) : false;
+      }
+    }, {
+      key: "_uid",
+      value: function _uid(val) {
+        var pUid = this._post.posterUid;
+        return pUid ? pUid.includes(val) : false;
       }
     }, {
       key: "_vauthor",
@@ -19709,7 +19720,7 @@ Spells.addSpell(9, '', false);
                 isHide = !this.isHidden;
                 num = this.num;
                 _context41.t0 = el.getAttribute('info');
-                _context41.next = _context41.t0 === 'hide-sel' ? 5 : _context41.t0 === 'hide-name' ? 24 : _context41.t0 === 'hide-trip' ? 27 : _context41.t0 === 'hide-img' ? 30 : _context41.t0 === 'hide-imgn' ? 34 : _context41.t0 === 'hide-ihash' ? 37 : _context41.t0 === 'hide-noimg' ? 44 : _context41.t0 === 'hide-post' ? 47 : _context41.t0 === 'hide-text' ? 49 : _context41.t0 === 'hide-notext' ? 52 : _context41.t0 === 'hide-refs' ? 55 : _context41.t0 === 'hide-refsonly' ? 58 : _context41.t0 === 'img-load' ? 61 : _context41.t0 === 'post-markmy' ? 63 : _context41.t0 === 'post-reply' ? 67 : _context41.t0 === 'post-report' ? 71 : _context41.t0 === 'thr-exp' ? 73 : 75;
+                _context41.next = _context41.t0 === 'hide-sel' ? 5 : _context41.t0 === 'hide-name' ? 24 : _context41.t0 === 'hide-trip' ? 27 : _context41.t0 === 'hide-uid' ? 30 : _context41.t0 === 'hide-img' ? 33 : _context41.t0 === 'hide-imgn' ? 37 : _context41.t0 === 'hide-ihash' ? 40 : _context41.t0 === 'hide-noimg' ? 47 : _context41.t0 === 'hide-post' ? 50 : _context41.t0 === 'hide-text' ? 52 : _context41.t0 === 'hide-notext' ? 55 : _context41.t0 === 'hide-refs' ? 58 : _context41.t0 === 'hide-refsonly' ? 61 : _context41.t0 === 'img-load' ? 64 : _context41.t0 === 'post-markmy' ? 66 : _context41.t0 === 'post-reply' ? 70 : _context41.t0 === 'post-report' ? 74 : _context41.t0 === 'thr-exp' ? 76 : 78;
                 break;
               case 5:
                 _this$_selRange = this._selRange, start = _this$_selRange.startContainer, end = _this$_selRange.endContainer;
@@ -19757,61 +19768,66 @@ Spells.addSpell(9, '', false);
               case 29:
                 return _context41.abrupt("return");
               case 30:
-                _this$images$firstAtt = this.images.firstAttach, w = _this$images$firstAtt.weight, wi = _this$images$firstAtt.width, h = _this$images$firstAtt.height;
-                _context41.next = 33;
-                return Spells.addSpell(8 , [0, [w, w], [wi, wi, h, h]], false);
-              case 33:
+                _context41.next = 32;
+                return Spells.addSpell(18 , this.posterUid, false);
+              case 32:
                 return _context41.abrupt("return");
-              case 34:
+              case 33:
+                _this$images$firstAtt = this.images.firstAttach, w = _this$images$firstAtt.weight, wi = _this$images$firstAtt.width, h = _this$images$firstAtt.height;
                 _context41.next = 36;
-                return Spells.addSpell(3 , "/".concat(escapeRegExp(this.images.firstAttach.name), "/"), false);
+                return Spells.addSpell(8 , [0, [w, w], [wi, wi, h, h]], false);
               case 36:
                 return _context41.abrupt("return");
               case 37:
                 _context41.next = 39;
-                return ImagesHashStorage.getHash(this.images.firstAttach);
+                return Spells.addSpell(3 , "/".concat(escapeRegExp(this.images.firstAttach.name), "/"), false);
               case 39:
+                return _context41.abrupt("return");
+              case 40:
+                _context41.next = 42;
+                return ImagesHashStorage.getHash(this.images.firstAttach);
+              case 42:
                 hash = _context41.sent;
                 if (!(hash !== -1)) {
-                  _context41.next = 43;
+                  _context41.next = 46;
                   break;
                 }
-                _context41.next = 43;
-                return Spells.addSpell(4 , hash, false);
-              case 43:
-                return _context41.abrupt("return");
-              case 44:
                 _context41.next = 46;
-                return Spells.addSpell(0x108 , '', true);
+                return Spells.addSpell(4 , hash, false);
               case 46:
                 return _context41.abrupt("return");
               case 47:
-                this.setUserVisib(!this.isHidden);
-                return _context41.abrupt("break", 75);
+                _context41.next = 49;
+                return Spells.addSpell(0x108 , '', true);
               case 49:
+                return _context41.abrupt("return");
+              case 50:
+                this.setUserVisib(!this.isHidden);
+                return _context41.abrupt("break", 78);
+              case 52:
                 words = Post.getWrds(this.text);
                 for (post = Thread.first.op; post; post = post.next) {
                   Post.findSameText(num, !isHide, words, post);
                 }
                 return _context41.abrupt("return");
-              case 52:
-                _context41.next = 54;
-                return Spells.addSpell(0x10B , '', true);
-              case 54:
-                return _context41.abrupt("return");
               case 55:
+                _context41.next = 57;
+                return Spells.addSpell(0x10B , '', true);
+              case 57:
+                return _context41.abrupt("return");
+              case 58:
                 this.ref.toggleRef(isHide, true);
                 this.setUserVisib(isHide);
                 return _context41.abrupt("return");
-              case 58:
-                _context41.next = 60;
-                return Spells.addSpell(0 , '>>' + num, false);
-              case 60:
-                return _context41.abrupt("return");
               case 61:
+                _context41.next = 63;
+                return Spells.addSpell(0 , '>>' + num, false);
+              case 63:
+                return _context41.abrupt("return");
+              case 64:
                 this._downloadImageByLink(el, e);
                 return _context41.abrupt("return");
-              case 63:
+              case 66:
                 isAdd = !MyPosts.has(num);
                 if (isAdd) {
                   MyPosts.set(num, this.thr.num);
@@ -19820,18 +19836,18 @@ Spells.addSpell(9, '', false);
                 }
                 this.changeMyMark(isAdd);
                 return _context41.abrupt("return");
-              case 67:
+              case 70:
                 isPview = this instanceof Pview;
                 postform.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
                 postform.quotedText = '';
                 return _context41.abrupt("return");
-              case 71:
+              case 74:
                 aib.reportForm(num, this.thr.num);
                 return _context41.abrupt("return");
-              case 73:
+              case 76:
                 task = +el.textContent.match(/\d+/);
                 this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
-              case 75:
+              case 78:
               case "end":
                 return _context41.stop();
             }
@@ -19980,6 +19996,11 @@ Spells.addSpell(9, '', false);
       key: "posterTrip",
       get: function get() {
         return new Post.Сontent(this).posterTrip;
+      }
+    }, {
+      key: "posterUid",
+      get: function get() {
+        return new Post.Сontent(this).posterUid;
       }
     }, {
       key: "sage",
@@ -20239,7 +20260,7 @@ Spells.addSpell(9, '', false);
           this._selText = ssel;
           this._selRange = sel.getRangeAt(0);
         }
-        return "".concat(nav.isMobile ? "<span info=\"hide-post\" class=\"de-menu-item\">".concat(this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang], "</span>") : '').concat(ssel ? item('sel') : '').concat(this.posterName ? item('name') : '').concat(this.posterTrip ? item('trip') : '').concat(this.images.hasAttachments ? item('img') + item('imgn') + item('ihash') : item('noimg')).concat(this.text ? item('text') : item('notext')).concat(!Cfg.hideRefPsts && this.ref.hasMap ? item('refs') : '').concat(item('refsonly'));
+        return "".concat(nav.isMobile ? "<span info=\"hide-post\" class=\"de-menu-item\">".concat(this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang], "</span>") : '').concat(ssel ? item('sel') : '').concat(this.posterName ? item('name') : '').concat(this.posterTrip ? item('trip') : '').concat(this.posterUid ? item('uid') : '').concat(this.images.hasAttachments ? item('img') + item('imgn') + item('ihash') : item('noimg')).concat(this.text ? item('text') : item('notext')).concat(!Cfg.hideRefPsts && this.ref.hasMap ? item('refs') : '').concat(item('refsonly'));
       }
     }, {
       key: "_getMenuReply",
@@ -20413,6 +20434,16 @@ Spells.addSpell(9, '', false);
         var pTrip = $q(aib.qPostTrip, this.el);
         var value = pTrip ? pTrip.textContent : '';
         Object.defineProperty(this, 'posterTrip', {
+          value: value
+        });
+        return value;
+      }
+    }, {
+      key: "posterUid",
+      get: function get() {
+        var pUid = $q(aib.qPostUid, this.el);
+        var value = pUid ? pUid.textContent : '';
+        Object.defineProperty(this, 'qPostUid', {
           value: value
         });
         return value;
@@ -25014,6 +25045,7 @@ Spells.addSpell(9, '', false);
       this.qPostImgInfo = '.filesize';
       this.qPostMsg = 'blockquote';
       this.qPostName = '.postername, .commentpostername';
+      this.qPostUid = null;
       this.qPostSubj = '.filetitle';
       this.qPostTrip = '.postertrip';
       this.qPostRef = '.reflink';

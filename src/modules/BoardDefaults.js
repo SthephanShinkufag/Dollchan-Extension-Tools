@@ -37,6 +37,7 @@ class BaseBoard {
 		this.qPostImgInfo = '.filesize';
 		this.qPostMsg = 'blockquote';
 		this.qPostName = '.postername, .commentpostername';
+		this.qPostUid = null;
 		this.qPostSubj = '.filetitle';
 		this.qPostTrip = '.postertrip';
 		this.qPostRef = '.reflink';

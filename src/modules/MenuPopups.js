@@ -96,9 +96,9 @@ class Menu {
 		switch(el.id) {
 		case 'de-btn-spell-add':
 			return new Menu(el, `<div style="display: inline-block; border-right: 1px solid grey;">${
-				tags('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(','))
+				tags('#all,#exp,#exph,#ihash,#img,#imgn,#name,#num,#op,#sage'.split(','))
 			}</div><div style="display: inline-block;">${
-				tags('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')) }</div>`,
+				tags('#subj,#tlen,#trip,#uid,#vauthor,#video,#wipe,#words,#rep,#outrep'.split(',')) }</div>`,
 			({ textContent: s }) => insertText($id('de-spell-txt'), s +
 				(!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : `[${ aib.b },${ aib.t }]`) +
 				(Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : '')));

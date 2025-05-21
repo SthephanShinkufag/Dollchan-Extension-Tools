@@ -754,6 +754,10 @@ const Lng = {
 			'Скрывать по имени',
 			'Hide by name',
 			'Ховати по імені'],
+		uid: [
+			'Скрывать по id постера',
+			'Hide by poster id',
+			'Ховати по id постера'],
 		trip: [
 			'Скрывать по трипкоду',
 			'Hide by tripcode',
