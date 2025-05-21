@@ -8218,7 +8218,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = '44dbfcf';
+  var commit = '80b3aa8';
 
 
   var doc = deWindow.document;
@@ -26675,7 +26675,7 @@ Spells.addSpell(9, '', false);
         }
       }]);
     }(BaseBoard);
-    ibDomains['2ch.hk'] = ibDomains['2ch.life'] = Makaba;
+    ibDomains['2ch.hk'] = ibDomains['2ch.life'] = ibDomains['2ch.su'] = ibDomains['dva4.ru'] = Makaba;
     var _2channel = function (_Makaba) {
       function _2channel() {
         var _this117;
