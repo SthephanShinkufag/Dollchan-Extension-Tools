@@ -427,7 +427,7 @@ class ExpandableImage {
 		return value;
 	}
 	get isImage() {
-		const value = /(jfif|jpe?g|png|gif|webp)$/i.test(this.src) ||
+		const value = /(jfif|jpe?g|png|gif|avif|webp)$/i.test(this.src) ||
 			this.src.startsWith('blob:') && !this.el.hasAttribute('de-video');
 		Object.defineProperty(this, 'isImage', { value });
 		return value;
@@ -635,7 +635,7 @@ class ExpandableImage {
 		const wrapClass = `${ inPost ? ' de-fullimg-wrap-inpost' : ` de-fullimg-wrap-center${
 			this._size ? '' : ' de-fullimg-wrap-nosize' }` }${
 			this.isVideo ? ' de-fullimg-video' : '' }`;
-		// Expand images: JPG, PNG, GIF, WEBP
+		// Expand images: JPG, PNG, GIF, AVIF, WEBP
 		if(!this.isVideo) {
 			const waitEl = !aib.getImgRedirectSrc && this._size ? '' :
 				'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
