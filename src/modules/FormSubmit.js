@@ -348,7 +348,7 @@ function cleanFile(data, extraData) {
 		}
 		if(lIdx === 2) {
 			// Remove data after the end marker
-			if(i !== len) {
+			if(i < len) {
 				rv[0] = nav.getUnsafeUint8Array(data, 0, i);
 			}
 			return rv;

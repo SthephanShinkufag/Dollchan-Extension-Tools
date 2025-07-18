@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '4f3c1d9';
+const commit = 'b4f2644';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -9696,7 +9696,7 @@ function cleanFile(data, extraData) {
 		}
 		if(lIdx === 2) {
 			// Remove data after the end marker
-			if(i !== len) {
+			if(i < len) {
 				rv[0] = nav.getUnsafeUint8Array(data, 0, i);
 			}
 			return rv;

@@ -8218,7 +8218,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = '4f3c1d9';
+  var commit = 'b4f2644';
 
 
   var doc = deWindow.document;
@@ -18226,7 +18226,7 @@ this.disableSpells();
         i = len;
       }
       if (lIdx === 2) {
-        if (i !== len) {
+        if (i < len) {
           rv[0] = nav.getUnsafeUint8Array(data, 0, i);
         }
         return rv;
