@@ -1190,7 +1190,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el ? el.title || el.parentNode.title || el.textContent : '';
 		}
 		getJsonApiUrl(board, tNum) {
-			return `/${ board }/thread/${ tNum }.json`;
+			return `//a.4cdn.org/${ board }/thread/${ tNum }.json`;
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode;

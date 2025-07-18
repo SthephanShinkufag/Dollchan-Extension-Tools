@@ -8218,7 +8218,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = 'b4f2644';
+  var commit = '53467b3';
 
 
   var doc = deWindow.document;
@@ -27051,7 +27051,7 @@ Spells.addSpell(9, '', false);
       }, {
         key: "getJsonApiUrl",
         value: function getJsonApiUrl(board, tNum) {
-          return "/".concat(board, "/thread/").concat(tNum, ".json");
+          return "//a.4cdn.org/".concat(board, "/thread/").concat(tNum, ".json");
         }
       }, {
         key: "getImgWrap",

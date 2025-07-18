@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = 'b4f2644';
+const commit = '53467b3';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -16977,7 +16977,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el ? el.title || el.parentNode.title || el.textContent : '';
 		}
 		getJsonApiUrl(board, tNum) {
-			return `/${ board }/thread/${ tNum }.json`;
+			return `//a.4cdn.org/${ board }/thread/${ tNum }.json`;
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode;
