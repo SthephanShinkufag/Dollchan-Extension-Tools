@@ -8218,7 +8218,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = '53467b3';
+  var commit = '5cc9927';
 
 
   var doc = deWindow.document;
@@ -26389,6 +26389,7 @@ Spells.addSpell(9, '', false);
         _this115.qPostName = '.post__anon, .post__email';
         _this115.qPostRef = '.post__reflink:nth-child(2)';
         _this115.qPostSubj = '.post__title';
+        _this115.qPostUid = 'span[id^="id_tag_"]';
         _this115.qTrunc = null;
         _this115.formParent = 'thread';
         _this115.hasArchive = true;
@@ -26952,6 +26953,7 @@ Spells.addSpell(9, '', false);
         _this121.qPostName = '.name';
         _this121.qPostRef = '.postInfo > .postNum';
         _this121.qPostSubj = '.subject';
+        _this121.qPostUid = '.hand';
         _this121.anchor = '#p';
         _this121.docExt = '';
         _this121.firstPage = 1;

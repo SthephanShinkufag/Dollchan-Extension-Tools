@@ -606,6 +606,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostName = '.post__anon, .post__email';
 			this.qPostRef = '.post__reflink:nth-child(2)';
 			this.qPostSubj = '.post__title';
+			this.qPostUid = 'span[id^="id_tag_"]';
 			this.qTrunc = null;
 
 			this.formParent = 'thread';
@@ -1100,6 +1101,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostName = '.name';
 			this.qPostRef = '.postInfo > .postNum';
 			this.qPostSubj = '.subject';
+			this.qPostUid = '.hand';
 
 			this.anchor = '#p';
 			this.docExt = '';
