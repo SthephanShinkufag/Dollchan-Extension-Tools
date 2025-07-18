@@ -341,7 +341,7 @@ function cleanFile(data, extraData) {
 		}
 		if(lIdx === 2) {
 			// Remove data after the end marker
-			if(i !== len) {
+			if(i < len) {
 				rv[0] = new Uint8Array(data, 0, i);
 			}
 			return rv;

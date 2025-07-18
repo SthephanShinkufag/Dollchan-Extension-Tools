@@ -8193,8 +8193,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
 
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
-  var version = '24.9.16.0';
-  var commit = '6c0d7bd';
+  var version = '26.1.15.0';
+  var commit = 'f70757f';
 
 
 
@@ -17865,7 +17865,7 @@ this.disableSpells();
         i = len;
       }
       if (lIdx === 2) {
-        if (i !== len) {
+        if (i < len) {
           rv[0] = new Uint8Array(data, 0, i);
         }
         return rv;
