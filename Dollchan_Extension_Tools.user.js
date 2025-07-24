@@ -8218,7 +8218,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = '5cc9927';
+  var commit = '801e2e0';
 
 
   var doc = deWindow.document;
@@ -13054,7 +13054,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
         if (aib.kohlchan) {
           p = p.replace('kohlchanagb7ih5g.onion', 'kohlchan.net').replace('kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion', 'kohlchan.net');
         }
-        return dlLinks + (isDlOnly ? '' : arrTags(["de-src-google\" href=\"https://lens.google.com/uploadbyurl?url=".concat(p, "Google"), "de-src-yandex\" href=\"https://yandex.com/images/search?rpt=imageview&url=".concat(p, "Yandex"), "de-src-tineye\" href=\"https://tineye.com/search/?url=".concat(p, "TinEye"), "de-src-saucenao\" href=\"https://saucenao.com/search.php?url=".concat(p, "SauceNAO"), "de-src-iqdb\" href=\"https://iqdb.org/?url=".concat(p, "IQDB"), "de-src-tracemoe\" href=\"https://trace.moe/?auto&url=".concat(p, "TraceMoe")], '<a class="de-menu-item ', '</a>'));
+        return dlLinks + (isDlOnly ? '' : arrTags(["de-src-google\" href=\"https://www.google.com/searchbyimage?sbisrc=dollchan&safe=off&image_url=".concat(p, "Google"), "de-src-google\" href=\"https://lens.google.com/uploadbyurl?url=".concat(p, "Google Lens"), "de-src-yandex\" href=\"https://yandex.com/images/search?rpt=imageview&url=".concat(p, "Yandex"), "de-src-tineye\" href=\"https://tineye.com/search/?url=".concat(p, "TinEye"), "de-src-saucenao\" href=\"https://saucenao.com/search.php?url=".concat(p, "SauceNAO"), "de-src-iqdb\" href=\"https://iqdb.org/?url=".concat(p, "IQDB"), "de-src-tracemoe\" href=\"https://trace.moe/?auto&url=".concat(p, "TraceMoe")], '<a class="de-menu-item ', '</a>'));
       }
     }]);
   }();
