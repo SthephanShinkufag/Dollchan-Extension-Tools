@@ -3,8 +3,8 @@
 (function deMainFuncInner(deWindow, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '26.1.15.0';
-const commit = 'f70757f';
+const version = '26.1.15.1';
+const commit = 'f426739';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -5284,7 +5284,9 @@ class Menu {
 			dlLinks += getDlLnk(href, name, Lng.boardName[lang], false);
 		}
 		return dlLinks + (isDlOnly ? '' : arrTags([
-			`de-src-google" href="https://lens.google.com/uploadbyurl?url=${ p }Google`,
+			`de-src-google" href="https://www.google.com/searchbyimage?sbisrc=dollchan&safe=off&image_url=${
+				p }Google`,
+			`de-src-google" href="https://lens.google.com/uploadbyurl?url=${ p }Google Lens`,
 			`de-src-yandex" href="https://yandex.com/images/search?rpt=imageview&url=${ p }Yandex`,
 			`de-src-tineye" href="https://tineye.com/search/?url=${ p }TinEye`,
 			`de-src-saucenao" href="https://saucenao.com/search.php?url=${ p }SauceNAO`,
