@@ -1702,6 +1702,7 @@ module.exports = !fails(function () {
 var NATIVE_BIND = require('../internals/function-bind-native');
 
 var call = Function.prototype.call;
+
 module.exports = NATIVE_BIND ? call.bind(call) : function () {
   return call.apply(call, arguments);
 };
@@ -3887,19 +3888,7 @@ var createSetLike = function (size) {
   };
 };
 
-var createSetLikeWithInfinitySize = function (size) {
-  return {
-    size: size,
-    has: function () {
-      return true;
-    },
-    keys: function () {
-      throw new Error('e');
-    }
-  };
-};
-
-module.exports = function (name, callback) {
+module.exports = function (name) {
   var Set = getBuiltIn('Set');
   try {
     new Set()[name](createSetLike(0));
@@ -3907,16 +3896,7 @@ module.exports = function (name, callback) {
       new Set()[name](createSetLike(-1));
       return false;
     } catch (error2) {
-      if (!callback) return true;
-      try {
-        new Set()[name](createSetLikeWithInfinitySize(-Infinity));
-        return false;
-      } catch (error) {
-        var set = new Set();
-        set.add(1);
-        set.add(2);
-        return callback(set[name](createSetLikeWithInfinitySize(Infinity)));
-      }
+      return true;
     }
   } catch (error) {
     return false;
@@ -4029,10 +4009,10 @@ var SHARED = '__core-js_shared__';
 var store = module.exports = globalThis[SHARED] || defineGlobalProperty(SHARED, {});
 
 (store.versions || (store.versions = [])).push({
-  version: '3.41.0',
+  version: '3.39.0',
   mode: IS_PURE ? 'pure' : 'global',
-  copyright: '© 2014-2025 Denis Pushkarev (zloirock.ru)',
-  license: 'https://github.com/zloirock/core-js/blob/v3.41.0/LICENSE',
+  copyright: '© 2014-2024 Denis Pushkarev (zloirock.ru)',
+  license: 'https://github.com/zloirock/core-js/blob/v3.39.0/LICENSE',
   source: 'https://github.com/zloirock/core-js'
 });
 
@@ -5527,11 +5507,7 @@ var $ = require('../internals/export');
 var difference = require('../internals/set-difference');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-var INCORRECT = !setMethodAcceptSetLike('difference', function (result) {
-  return result.size === 0;
-});
-
-$({ target: 'Set', proto: true, real: true, forced: INCORRECT }, {
+$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('difference') }, {
   difference: difference
 });
 
@@ -5542,9 +5518,7 @@ var fails = require('../internals/fails');
 var intersection = require('../internals/set-intersection');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-var INCORRECT = !setMethodAcceptSetLike('intersection', function (result) {
-  return result.size === 2 && result.has(1) && result.has(2);
-}) || fails(function () {
+var INCORRECT = !setMethodAcceptSetLike('intersection') || fails(function () {
   return String(Array.from(new Set([1, 2, 3]).intersection(new Set([3, 2])))) !== '3,2';
 });
 
@@ -5558,11 +5532,7 @@ var $ = require('../internals/export');
 var isDisjointFrom = require('../internals/set-is-disjoint-from');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-var INCORRECT = !setMethodAcceptSetLike('isDisjointFrom', function (result) {
-  return !result;
-});
-
-$({ target: 'Set', proto: true, real: true, forced: INCORRECT }, {
+$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('isDisjointFrom') }, {
   isDisjointFrom: isDisjointFrom
 });
 
@@ -5572,11 +5542,7 @@ var $ = require('../internals/export');
 var isSubsetOf = require('../internals/set-is-subset-of');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-var INCORRECT = !setMethodAcceptSetLike('isSubsetOf', function (result) {
-  return result;
-});
-
-$({ target: 'Set', proto: true, real: true, forced: INCORRECT }, {
+$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('isSubsetOf') }, {
   isSubsetOf: isSubsetOf
 });
 
@@ -5586,11 +5552,7 @@ var $ = require('../internals/export');
 var isSupersetOf = require('../internals/set-is-superset-of');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-var INCORRECT = !setMethodAcceptSetLike('isSupersetOf', function (result) {
-  return !result;
-});
-
-$({ target: 'Set', proto: true, real: true, forced: INCORRECT }, {
+$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('isSupersetOf') }, {
   isSupersetOf: isSupersetOf
 });
 
@@ -8218,7 +8180,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = '801e2e0';
+  var commit = 'f6fc068';
 
 
   var doc = deWindow.document;
@@ -26710,7 +26672,7 @@ Spells.addSpell(9, '', false);
         }
       }]);
     }(BaseBoard);
-    ibDomains['2ch.hk'] = ibDomains['2ch.life'] = ibDomains['2ch.su'] = ibDomains['dva4.ru'] = Makaba;
+    ibDomains['2ch.hk'] = ibDomains['2ch.life'] = ibDomains['2ch.org'] = ibDomains['2ch.su'] = ibDomains['dva4.ru'] = Makaba;
     var _2channel = function (_Makaba) {
       function _2channel() {
         var _this117;

@@ -910,7 +910,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			el?.parentNode.remove();
 		}
 	}
-	ibDomains['2ch.hk'] = ibDomains['2ch.life'] = ibDomains['2ch.su'] = ibDomains['dva4.ru'] = Makaba;
+	ibDomains['2ch.hk'] = ibDomains['2ch.life'] = ibDomains['2ch.org'] = ibDomains['2ch.su'] =
+		ibDomains['dva4.ru'] = Makaba;
 
 	class _2channel extends Makaba {
 		constructor(...args) {
