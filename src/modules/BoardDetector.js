@@ -913,6 +913,13 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2ch.hk'] = ibDomains['2ch.life'] = ibDomains['2ch.org'] = ibDomains['2ch.su'] =
 		ibDomains['dva4.ru'] = Makaba;
 
+	class EscapeChan extends Makaba {
+		captchaAfterSubmit(data) { unsafeWindow.restartCaptcha() }
+    	get captchaInit() { return null; }
+	}
+	ibDomains['escapechain.ru'] = ibDomains['escapechain.xyz'] = ibDomains['bookchan.ru'] = 
+		ibDomains['rolechan.ru'] = EscapeChan;
+
 	class _2channel extends Makaba {
 		constructor(...args) {
 			super(...args);
