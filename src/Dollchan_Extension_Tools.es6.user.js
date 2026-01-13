@@ -4,7 +4,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = 'e944476';
+const commit = 'd619797';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -986,6 +986,10 @@ const Lng = {
 		'Жалоба на тред',
 		'Report a thread',
 		'Скарга на тред'],
+	reportReason: [
+		'Причина вашей жалобы',
+		'A reason for your complaint',
+		'Причина вашої скарги'],
 	markMyPost: [
 		'Пометить как мой пост',
 		'Mark as my post',
@@ -15233,48 +15237,71 @@ function getImageBoard(checkDomains) {
 			return null;
 		}
 		get reportForm() {
-			const value = (pNum, tNum) => ($q('input[type="button"]', $popup(
-				'edit-report',
-				`<input name="reason" value="" placeholder="${
-					pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]
-				}" type="text"> <input value="OK" type="button">`)
-			).onclick = e => {
-				const inpEl = e.target.previousElementSibling;
-				if(!inpEl.value) {
-					inpEl.classList.add('de-input-error');
-					return;
+			const value = async (pNum, tNum) => {
+				const recapEl = $id('g-recaptcha');
+				const isCaptcha = !!$id('captchablock');
+				const formEl = $q('.report-form', $popup('edit-report',
+					(pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) +
+					'<div class="report-form"><input name="reason" value="" type="text"' +
+					` style="display: block; width: 300px;" placeholder="${ Lng.reportReason[lang] }">` +
+						(recapEl ? '<div style="min-height: 80px;"><div id="g-recaptcha2"' +
+							` class="g-recaptcha" data-sitekey="${ recapEl.dataset.sitekey }"></div></div>` :
+						isCaptcha ? `<img src="/${ aib.b }/inc/captcha.php?${ Math.random() }"` +
+							' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;"' +
+							` onclick="this.src = '/${ aib.b }/inc/captcha.php?' + Math.random();">` +
+							'<input type="text" name="captcha" style="display: block; width: 300px;"' +
+							` placeholder="${ Lng.cap[lang] }" accesskey="c" autocomplete="off">` : '') +
+					'</div>'));
+				if(recapEl){
+					const script = doc.createElement('script');
+					script.type = 'text/javascript';
+					script.textContent = `grecaptcha.render('g-recaptcha2', {'sitekey': '${
+						recapEl.dataset.sitekey }'});`;
+					doc.head.append(script);
 				}
-				const formData = new FormData();
-				const data = { id: pNum, reason: inpEl.value, json: 1 };
-				for(const key in data) {
-					if($hasProp(data, key)) {
-						formData.append(key, data[key]);
-					}
-				}
-				closePopup('edit-report');
-				$popup('report', Lng.sending[lang], true);
-				const url = this.protocol + '//' + this.host + '/' + this.b +
-					'/imgboard.php?report&addreport&json=1';
-				$ajax(url, {
-					method      : 'POST',
-					data        : formData,
-					success() {},
-					contentType : false,
-					processData : false
-				}).then(xhr => {
-					let obj;
-					try {
-						obj = JSON.parse(xhr.responseText);
-					} catch(err) {
-						$popup('report', Lng.reportError[lang] + ':<br>' + xhr.responseText);
+				$bEnd(formEl, '<input type="button" value="OK">').onclick = () => {
+					const inpEl = $q('input', formEl);
+					if(!inpEl.value) {
+						inpEl.classList.add('de-input-error');
 						return;
 					}
-					$popup('report', obj.result === 'ok' ? Lng.succReported[lang] :
-						obj.result === 'alreadysent' ? Lng.alreadyReported[lang] :
-						Lng.reportError[lang] +
-							(obj.result === 'error' && obj.message ? ':<br>' + obj.message : ''));
-				});
-			});
+					const formData = new FormData();
+					const data = { id: pNum, reason: inpEl.value, json: 1};
+					if(recapEl) {
+						data['g-recaptcha-response'] = $q('.g-recaptcha-response', formEl).value;
+					} else if(isCaptcha) {
+						data.captcha = $q('input[name="captcha"]', formEl).value;
+					}
+					for(const key in data) {
+						if($hasProp(data, key)) {
+							formData.append(key, data[key]);
+						}
+					}
+					closePopup('edit-report');
+					$popup('report', Lng.sending[lang], true);
+					const url = this.protocol + '//' + this.host + '/' + this.b +
+						'/imgboard.php?report&addreport&json=1';
+					$ajax(url, {
+						method      : 'POST',
+						data        : formData,
+						success() {},
+						contentType : false,
+						processData : false
+					}).then(xhr => {
+						let obj;
+						try {
+							obj = JSON.parse(xhr.responseText);
+						} catch(err) {
+							$popup('report', Lng.reportError[lang] + ':<br>' + xhr.responseText);
+							return;
+						}
+						$popup('report', obj.result === 'ok' ? Lng.succReported[lang] :
+							obj.result === 'alreadysent' ? Lng.alreadyReported[lang] :
+							Lng.reportError[lang] +
+								(obj.result === 'error' && obj.message ? ':<br>' + obj.message : ''));
+					});
+				};
+			};
 			Object.defineProperty(this, 'reportForm', { value });
 			return value;
 		}

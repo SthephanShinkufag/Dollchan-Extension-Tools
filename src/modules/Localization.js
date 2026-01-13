@@ -817,6 +817,10 @@ const Lng = {
 		'Жалоба на тред',
 		'Report a thread',
 		'Скарга на тред'],
+	reportReason: [
+		'Причина вашей жалобы',
+		'A reason for your complaint',
+		'Причина вашої скарги'],
 	markMyPost: [
 		'Пометить как мой пост',
 		'Mark as my post',
