@@ -337,7 +337,7 @@ class AbstractPost {
 			msg   : { configurable: true, value: newMsg },
 			trunc : { configurable: true, value: null }
 		});
-		Post.Сontent.removeTempData(this);
+		Post.Content.removeTempData(this);
 		if(Cfg.embedYTube) {
 			this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
 			if(videoExt) {
@@ -667,10 +667,10 @@ class Post extends AbstractPost {
 			.getBoundingClientRect().bottom;
 	}
 	get headerEl() {
-		return new Post.Сontent(this).headerEl;
+		return new Post.Content(this).headerEl;
 	}
 	get html() {
-		return new Post.Сontent(this).html;
+		return new Post.Content(this).html;
 	}
 	get nextInThread() {
 		const post = this.next;
@@ -689,13 +689,13 @@ class Post extends AbstractPost {
 		return value;
 	}
 	get posterName() {
-		return new Post.Сontent(this).posterName;
+		return new Post.Content(this).posterName;
 	}
 	get posterTrip() {
-		return new Post.Сontent(this).posterTrip;
+		return new Post.Content(this).posterTrip;
 	}
 	get posterUid() {
-		return new Post.Сontent(this).posterUid;
+		return new Post.Content(this).posterUid;
 	}
 	get sage() {
 		const value = aib.getSage(this.el);
@@ -703,13 +703,13 @@ class Post extends AbstractPost {
 		return value;
 	}
 	get subj() {
-		return new Post.Сontent(this).subj;
+		return new Post.Content(this).subj;
 	}
 	get text() {
-		return new Post.Сontent(this).text;
+		return new Post.Content(this).text;
 	}
 	get title() {
-		return new Post.Сontent(this).title;
+		return new Post.Content(this).title;
 	}
 	get tNum() {
 		return this.thr.num;
@@ -719,7 +719,7 @@ class Post extends AbstractPost {
 			.getBoundingClientRect().top;
 	}
 	get wrap() {
-		return new Post.Сontent(this).wrap;
+		return new Post.Content(this).wrap;
 	}
 	addFuncs() {
 		super.addFuncs();
@@ -946,7 +946,7 @@ class Post extends AbstractPost {
 }
 Post.hasNew = false;
 Post.hiddenNums = new Set();
-Post.Сontent = class PostContent extends TemporaryContent {
+Post.Content = class PostContent extends TemporaryContent {
 	constructor(post) {
 		super(post);
 		if(this._isInited) {

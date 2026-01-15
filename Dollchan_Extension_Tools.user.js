@@ -1702,7 +1702,6 @@ module.exports = !fails(function () {
 var NATIVE_BIND = require('../internals/function-bind-native');
 
 var call = Function.prototype.call;
-
 module.exports = NATIVE_BIND ? call.bind(call) : function () {
   return call.apply(call, arguments);
 };
@@ -3888,7 +3887,19 @@ var createSetLike = function (size) {
   };
 };
 
-module.exports = function (name) {
+var createSetLikeWithInfinitySize = function (size) {
+  return {
+    size: size,
+    has: function () {
+      return true;
+    },
+    keys: function () {
+      throw new Error('e');
+    }
+  };
+};
+
+module.exports = function (name, callback) {
   var Set = getBuiltIn('Set');
   try {
     new Set()[name](createSetLike(0));
@@ -3896,7 +3907,16 @@ module.exports = function (name) {
       new Set()[name](createSetLike(-1));
       return false;
     } catch (error2) {
-      return true;
+      if (!callback) return true;
+      try {
+        new Set()[name](createSetLikeWithInfinitySize(-Infinity));
+        return false;
+      } catch (error) {
+        var set = new Set();
+        set.add(1);
+        set.add(2);
+        return callback(set[name](createSetLikeWithInfinitySize(Infinity)));
+      }
     }
   } catch (error) {
     return false;
@@ -4009,10 +4029,10 @@ var SHARED = '__core-js_shared__';
 var store = module.exports = globalThis[SHARED] || defineGlobalProperty(SHARED, {});
 
 (store.versions || (store.versions = [])).push({
-  version: '3.39.0',
+  version: '3.41.0',
   mode: IS_PURE ? 'pure' : 'global',
-  copyright: '© 2014-2024 Denis Pushkarev (zloirock.ru)',
-  license: 'https://github.com/zloirock/core-js/blob/v3.39.0/LICENSE',
+  copyright: '© 2014-2025 Denis Pushkarev (zloirock.ru)',
+  license: 'https://github.com/zloirock/core-js/blob/v3.41.0/LICENSE',
   source: 'https://github.com/zloirock/core-js'
 });
 
@@ -5507,7 +5527,11 @@ var $ = require('../internals/export');
 var difference = require('../internals/set-difference');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('difference') }, {
+var INCORRECT = !setMethodAcceptSetLike('difference', function (result) {
+  return result.size === 0;
+});
+
+$({ target: 'Set', proto: true, real: true, forced: INCORRECT }, {
   difference: difference
 });
 
@@ -5518,7 +5542,9 @@ var fails = require('../internals/fails');
 var intersection = require('../internals/set-intersection');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-var INCORRECT = !setMethodAcceptSetLike('intersection') || fails(function () {
+var INCORRECT = !setMethodAcceptSetLike('intersection', function (result) {
+  return result.size === 2 && result.has(1) && result.has(2);
+}) || fails(function () {
   return String(Array.from(new Set([1, 2, 3]).intersection(new Set([3, 2])))) !== '3,2';
 });
 
@@ -5532,7 +5558,11 @@ var $ = require('../internals/export');
 var isDisjointFrom = require('../internals/set-is-disjoint-from');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('isDisjointFrom') }, {
+var INCORRECT = !setMethodAcceptSetLike('isDisjointFrom', function (result) {
+  return !result;
+});
+
+$({ target: 'Set', proto: true, real: true, forced: INCORRECT }, {
   isDisjointFrom: isDisjointFrom
 });
 
@@ -5542,7 +5572,11 @@ var $ = require('../internals/export');
 var isSubsetOf = require('../internals/set-is-subset-of');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('isSubsetOf') }, {
+var INCORRECT = !setMethodAcceptSetLike('isSubsetOf', function (result) {
+  return result;
+});
+
+$({ target: 'Set', proto: true, real: true, forced: INCORRECT }, {
   isSubsetOf: isSubsetOf
 });
 
@@ -5552,7 +5586,11 @@ var $ = require('../internals/export');
 var isSupersetOf = require('../internals/set-is-superset-of');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('isSupersetOf') }, {
+var INCORRECT = !setMethodAcceptSetLike('isSupersetOf', function (result) {
+  return !result;
+});
+
+$({ target: 'Set', proto: true, real: true, forced: INCORRECT }, {
   isSupersetOf: isSupersetOf
 });
 
@@ -19554,7 +19592,7 @@ Spells.addSpell(9, '', false);
             value: null
           }
         });
-        Post.Сontent.removeTempData(this);
+        Post.Content.removeTempData(this);
         if (Cfg.embedYTube) {
           this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
           if (videoExt) {
@@ -19919,12 +19957,12 @@ Spells.addSpell(9, '', false);
     }, {
       key: "headerEl",
       get: function get() {
-        return new Post.Сontent(this).headerEl;
+        return new Post.Content(this).headerEl;
       }
     }, {
       key: "html",
       get: function get() {
-        return new Post.Сontent(this).html;
+        return new Post.Content(this).html;
       }
     }, {
       key: "nextInThread",
@@ -19954,17 +19992,17 @@ Spells.addSpell(9, '', false);
     }, {
       key: "posterName",
       get: function get() {
-        return new Post.Сontent(this).posterName;
+        return new Post.Content(this).posterName;
       }
     }, {
       key: "posterTrip",
       get: function get() {
-        return new Post.Сontent(this).posterTrip;
+        return new Post.Content(this).posterTrip;
       }
     }, {
       key: "posterUid",
       get: function get() {
-        return new Post.Сontent(this).posterUid;
+        return new Post.Content(this).posterUid;
       }
     }, {
       key: "sage",
@@ -19978,17 +20016,17 @@ Spells.addSpell(9, '', false);
     }, {
       key: "subj",
       get: function get() {
-        return new Post.Сontent(this).subj;
+        return new Post.Content(this).subj;
       }
     }, {
       key: "text",
       get: function get() {
-        return new Post.Сontent(this).text;
+        return new Post.Content(this).text;
       }
     }, {
       key: "title",
       get: function get() {
-        return new Post.Сontent(this).title;
+        return new Post.Content(this).title;
       }
     }, {
       key: "tNum",
@@ -20003,7 +20041,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "wrap",
       get: function get() {
-        return new Post.Сontent(this).wrap;
+        return new Post.Content(this).wrap;
       }
     }, {
       key: "addFuncs",
@@ -20350,7 +20388,7 @@ Spells.addSpell(9, '', false);
   }(AbstractPost);
   Post.hasNew = false;
   Post.hiddenNums = new Set();
-  Post.Сontent = function (_TemporaryContent) {
+  Post.Content = function (_TemporaryContent) {
     function PostContent(post) {
       var _this71;
       _classCallCheck(this, PostContent);
@@ -21102,7 +21140,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "title",
       get: function get() {
-        return new Post.Сontent(this).title;
+        return new Post.Content(this).title;
       }
     }, {
       key: "el",
@@ -25009,10 +25047,10 @@ Spells.addSpell(9, '', false);
       this.qPostImgInfo = '.filesize';
       this.qPostMsg = 'blockquote';
       this.qPostName = '.postername, .commentpostername';
-      this.qPostUid = null;
+      this.qPostRef = '.reflink';
       this.qPostSubj = '.filetitle';
       this.qPostTrip = '.postertrip';
-      this.qPostRef = '.reflink';
+      this.qPostUid = null;
       this.qPostsParent = null;
       this.qTrunc = '.abbrev, .abbr, .shortened';
 
