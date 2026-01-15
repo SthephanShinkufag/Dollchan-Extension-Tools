@@ -8193,8 +8193,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
 
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
-  var version = '26.1.15.1';
-  var commit = 'f426739';
+  var version = '26.1.15.2';
+  var commit = '5aa00d0';
 
 
 
@@ -24702,7 +24702,21 @@ Spells.addSpell(9, '', false);
                     isValidPasscode = passcodeStatus === 'valid';
                     recapEl = $id('g-recaptcha');
                     hasCaptcha = !!$id('captchablock');
-                    captchaHTML = !recapEl && !hasCaptcha ? '' : isValidPasscode ? "<div>No captcha: you are a passcode user. <a href=\"/".concat(aib.b, "/imgboard.php?passcode&logout\">Log Out.</a></div>") : passcodeStatus === 'invalid' ? "<div>Your pass code seems to be not valid. <a href=\"/".concat(aib.b, "/imgboard.php?passcode\" target=\"_blank\">Log In Again?</a></div>") : recapEl ? '<div style="min-height: 80px;"><div id="g-recaptcha2"' + " class=\"g-recaptcha\" data-sitekey=\"".concat(recapEl.dataset.sitekey, "\"></div></div>") : hasCaptcha ? "<div><img src=\"/".concat(aib.b, "/inc/captcha.php?").concat(Math.random(), "\"") + ' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;"' + " onclick=\"this.src = '/".concat(aib.b, "/inc/captcha.php?' + Math.random();\"></div>") + '<input type="text" name="captcha" style="width: 300px;"' + " placeholder=\"".concat(Lng.cap[lang], "\" accesskey=\"c\" autocomplete=\"off\">") : '';
+                    captchaHTML = '';
+                    if (recapEl || hasCaptcha) {
+                      if (isValidPasscode) {
+                        captchaHTML = "<div>No captcha: you are a passcode user. <a href=\"/".concat(aib.b, "/imgboard.php?passcode&logout\">Log Out.</a></div>");
+                      } else {
+                        if (recapEl) {
+                          captchaHTML = '<div style="min-height: 80px;"><div id="g-recaptcha2" class="' + "g-recaptcha\" data-sitekey=\"".concat(recapEl.dataset.sitekey, "\"></div></div>");
+                        } else {
+                          captchaHTML = "<div><img src=\"/".concat(aib.b, "/inc/captcha.php?").concat(Math.random(), "\"") + ' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;" onclick="' + "this.src = '/".concat(aib.b, "/inc/captcha.php?' + Math.random();\"></div>") + "<input type=\"text\" name=\"captcha\" style=\"width: 300px;\" placeholder=\"".concat(Lng.cap[lang], "\" accesskey=\"c\" autocomplete=\"off\">");
+                        }
+                        if (passcodeStatus === 'invalid') {
+                          captchaHTML += "<div>Your pass code seems to be not valid. <a href=\"/".concat(aib.b, "/imgboard.php?passcode\" target=\"_blank\">Log In Again?</a></div>");
+                        }
+                      }
+                    }
                     formEl = $q('.report-form', $popup('edit-report', (pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) + "<div class=\"report-form\"><input type=\"text\" name=\"reason\" value=\"\" placeholder=\"".concat(Lng.reportReason[lang], "\" style=\" width: 300px;\">") + captchaHTML + '</div>'));
                     if (recapEl && !isValidPasscode) {
                       script = doc.createElement('script');
@@ -24754,7 +24768,7 @@ Spells.addSpell(9, '', false);
                         $popup('report', obj.result === 'ok' ? Lng.succReported[lang] : obj.result === 'alreadysent' ? Lng.alreadyReported[lang] : Lng.reportError[lang] + (obj.result === 'error' && obj.message ? ':<br>' + obj.message : ''));
                       });
                     };
-                  case 10:
+                  case 11:
                   case "end":
                     return _context47.stop();
                 }

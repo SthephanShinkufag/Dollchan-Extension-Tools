@@ -3,8 +3,8 @@
 (function deMainFuncInner(deWindow, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '26.1.15.1';
-const commit = 'f426739';
+const version = '26.1.15.2';
+const commit = '5aa00d0';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -15108,19 +15108,28 @@ function getImageBoard(checkDomains) {
 				const isValidPasscode = passcodeStatus === 'valid';
 				const recapEl = $id('g-recaptcha');
 				const hasCaptcha = !!$id('captchablock');
-				const captchaHTML =
-					!recapEl && !hasCaptcha ? '' :
-					isValidPasscode ? `<div>No captcha: you are a passcode user. <a href="/${
-						aib.b }/imgboard.php?passcode&logout">Log Out.</a></div>` :
-					passcodeStatus === 'invalid' ? `<div>Your pass code seems to be not valid. <a href="/${
-						aib.b }/imgboard.php?passcode" target="_blank">Log In Again?</a></div>` :
-					recapEl ? '<div style="min-height: 80px;"><div id="g-recaptcha2"' +
-						` class="g-recaptcha" data-sitekey="${ recapEl.dataset.sitekey }"></div></div>` :
-					hasCaptcha ? `<div><img src="/${ aib.b }/inc/captcha.php?${ Math.random() }"` +
-						' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;"' +
-						` onclick="this.src = '/${ aib.b }/inc/captcha.php?' + Math.random();"></div>` +
-						'<input type="text" name="captcha" style="width: 300px;"' +
-						` placeholder="${ Lng.cap[lang] }" accesskey="c" autocomplete="off">` : '';
+				let captchaHTML = '';
+				if(recapEl || hasCaptcha) {
+					if(isValidPasscode) {
+						captchaHTML = `<div>No captcha: you are a passcode user. <a href="/${
+							aib.b }/imgboard.php?passcode&logout">Log Out.</a></div>`;
+					} else {
+						if(recapEl) {
+							captchaHTML = '<div style="min-height: 80px;"><div id="g-recaptcha2" class="' +
+								`g-recaptcha" data-sitekey="${ recapEl.dataset.sitekey }"></div></div>`;
+						} else {
+							captchaHTML = `<div><img src="/${ aib.b }/inc/captcha.php?${ Math.random() }"` +
+								' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;" onclick="' +
+								`this.src = '/${ aib.b }/inc/captcha.php?' + Math.random();"></div>` +
+								`<input type="text" name="captcha" style="width: 300px;" placeholder="${
+									Lng.cap[lang] }" accesskey="c" autocomplete="off">`;
+						}
+						if(passcodeStatus === 'invalid') {
+							captchaHTML += `<div>Your pass code seems to be not valid. <a href="/${
+								aib.b }/imgboard.php?passcode" target="_blank">Log In Again?</a></div>`;
+						}
+					}
+				}
 				const formEl = $q('.report-form', $popup('edit-report',
 					(pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) +
 					`<div class="report-form"><input type="text" name="reason" value="" placeholder="${
