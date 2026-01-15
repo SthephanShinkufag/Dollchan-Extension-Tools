@@ -46,9 +46,6 @@ class Files {
 			inp.clearInp();
 		}
 		this.hideEmpty();
-		if(aib.clearFileInputs) {
-			aib.clearFileInputs();
-		}
 	}
 	hideEmpty() {
 		for(let els = this._inputs, i = els.length - 1; i > 0; --i) {

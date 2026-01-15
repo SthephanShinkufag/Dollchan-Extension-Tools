@@ -594,9 +594,6 @@ class PostForm {
 			}
 		}
 		if(this.form) {
-			if(aib.changeReplyMode && tNum !== this.tNum) {
-				aib.changeReplyMode(this.form, tNum);
-			}
 			$q(`input[name="${ aib.formParent }"]`, this.form)?.remove();
 			if(tNum) {
 				this.form.insertAdjacentHTML('afterbegin',

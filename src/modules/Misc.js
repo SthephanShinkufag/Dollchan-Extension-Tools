@@ -141,7 +141,7 @@ function initPage() {
 		thrNavPanel.initThrNav();
 	}
 	if(!localData) {
-		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr && !aib.isArchived);
+		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr);
 	}
 }
 

@@ -1680,7 +1680,6 @@ module.exports = !fails(function () {
 var NATIVE_BIND = require('../internals/function-bind-native');
 
 var call = Function.prototype.call;
-
 module.exports = NATIVE_BIND ? call.bind(call) : function () {
   return call.apply(call, arguments);
 };
@@ -3866,7 +3865,19 @@ var createSetLike = function (size) {
   };
 };
 
-module.exports = function (name) {
+var createSetLikeWithInfinitySize = function (size) {
+  return {
+    size: size,
+    has: function () {
+      return true;
+    },
+    keys: function () {
+      throw new Error('e');
+    }
+  };
+};
+
+module.exports = function (name, callback) {
   var Set = getBuiltIn('Set');
   try {
     new Set()[name](createSetLike(0));
@@ -3874,7 +3885,16 @@ module.exports = function (name) {
       new Set()[name](createSetLike(-1));
       return false;
     } catch (error2) {
-      return true;
+      if (!callback) return true;
+      try {
+        new Set()[name](createSetLikeWithInfinitySize(-Infinity));
+        return false;
+      } catch (error) {
+        var set = new Set();
+        set.add(1);
+        set.add(2);
+        return callback(set[name](createSetLikeWithInfinitySize(Infinity)));
+      }
     }
   } catch (error) {
     return false;
@@ -3987,10 +4007,10 @@ var SHARED = '__core-js_shared__';
 var store = module.exports = globalThis[SHARED] || defineGlobalProperty(SHARED, {});
 
 (store.versions || (store.versions = [])).push({
-  version: '3.39.0',
+  version: '3.41.0',
   mode: IS_PURE ? 'pure' : 'global',
-  copyright: '© 2014-2024 Denis Pushkarev (zloirock.ru)',
-  license: 'https://github.com/zloirock/core-js/blob/v3.39.0/LICENSE',
+  copyright: '© 2014-2025 Denis Pushkarev (zloirock.ru)',
+  license: 'https://github.com/zloirock/core-js/blob/v3.41.0/LICENSE',
   source: 'https://github.com/zloirock/core-js'
 });
 
@@ -5485,7 +5505,11 @@ var $ = require('../internals/export');
 var difference = require('../internals/set-difference');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('difference') }, {
+var INCORRECT = !setMethodAcceptSetLike('difference', function (result) {
+  return result.size === 0;
+});
+
+$({ target: 'Set', proto: true, real: true, forced: INCORRECT }, {
   difference: difference
 });
 
@@ -5496,7 +5520,9 @@ var fails = require('../internals/fails');
 var intersection = require('../internals/set-intersection');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-var INCORRECT = !setMethodAcceptSetLike('intersection') || fails(function () {
+var INCORRECT = !setMethodAcceptSetLike('intersection', function (result) {
+  return result.size === 2 && result.has(1) && result.has(2);
+}) || fails(function () {
   return String(Array.from(new Set([1, 2, 3]).intersection(new Set([3, 2])))) !== '3,2';
 });
 
@@ -5510,7 +5536,11 @@ var $ = require('../internals/export');
 var isDisjointFrom = require('../internals/set-is-disjoint-from');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('isDisjointFrom') }, {
+var INCORRECT = !setMethodAcceptSetLike('isDisjointFrom', function (result) {
+  return !result;
+});
+
+$({ target: 'Set', proto: true, real: true, forced: INCORRECT }, {
   isDisjointFrom: isDisjointFrom
 });
 
@@ -5520,7 +5550,11 @@ var $ = require('../internals/export');
 var isSubsetOf = require('../internals/set-is-subset-of');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('isSubsetOf') }, {
+var INCORRECT = !setMethodAcceptSetLike('isSubsetOf', function (result) {
+  return result;
+});
+
+$({ target: 'Set', proto: true, real: true, forced: INCORRECT }, {
   isSubsetOf: isSubsetOf
 });
 
@@ -5530,7 +5564,11 @@ var $ = require('../internals/export');
 var isSupersetOf = require('../internals/set-is-superset-of');
 var setMethodAcceptSetLike = require('../internals/set-method-accept-set-like');
 
-$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('isSupersetOf') }, {
+var INCORRECT = !setMethodAcceptSetLike('isSupersetOf', function (result) {
+  return !result;
+});
+
+$({ target: 'Set', proto: true, real: true, forced: INCORRECT }, {
   isSupersetOf: isSupersetOf
 });
 
@@ -8156,7 +8194,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = 'd619797';
+  var commit = '6c0d7bd';
 
 
 
@@ -8704,7 +8742,6 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     noConnect: ['Ошибка подключения', 'Connection failed', 'Помилка зʼєднання'],
     thrNotFound: ['Тред недоступен', 'Thread is unavailable', 'Тред недоступний'],
     thrClosed: ['Тред закрыт', 'Thread is closed', 'Тред закрито'],
-    thrArchived: ['Тред в архиве', 'Thread is archived', 'Тред заархівовано'],
     stormWallCheck: ['Проверка StormWall защиты от DDoS атак...', 'Checking for the StormWall DDoS protection...', 'Перевірка StormWall захисту від DDoS атак...'],
     stormWallErr: ['Пожалуйста, решите капчу StormWall защиты', 'Please resolve the StormWall protection captcha', 'Будь ласка, вирішіть капчу StormWall захисту'],
     internalError: ['Внутренняя ошибка:\n', 'Internal error:\n', 'Внутрішня помилка:\n'],
@@ -8954,11 +8991,11 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     return _readFile.apply(this, arguments);
   } 
   function _readFile() {
-    _readFile = _asyncToGenerator(_regeneratorRuntime().mark(function _callee42(file, asText) {
-      return _regeneratorRuntime().wrap(function _callee42$(_context48) {
-        while (1) switch (_context48.prev = _context48.next) {
+    _readFile = _asyncToGenerator(_regeneratorRuntime().mark(function _callee43(file, asText) {
+      return _regeneratorRuntime().wrap(function _callee43$(_context49) {
+        while (1) switch (_context49.prev = _context49.next) {
           case 0:
-            return _context48.abrupt("return", new Promise(function (resolve) {
+            return _context49.abrupt("return", new Promise(function (resolve) {
               var fr = new FileReader();
               fr.onload = function (e) {
                 return resolve({
@@ -8973,9 +9010,9 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
             }));
           case 1:
           case "end":
-            return _context48.stop();
+            return _context49.stop();
         }
-      }, _callee42);
+      }, _callee43);
     }));
     return _readFile.apply(this, arguments);
   }
@@ -9536,16 +9573,16 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     return _getStored.apply(this, arguments);
   } 
   function _getStored() {
-    _getStored = _asyncToGenerator(_regeneratorRuntime().mark(function _callee43(id) {
-      return _regeneratorRuntime().wrap(function _callee43$(_context49) {
-        while (1) switch (_context49.prev = _context49.next) {
+    _getStored = _asyncToGenerator(_regeneratorRuntime().mark(function _callee44(id) {
+      return _regeneratorRuntime().wrap(function _callee44$(_context50) {
+        while (1) switch (_context50.prev = _context50.next) {
           case 0:
-            return _context49.abrupt("return", locStorage[id]);
+            return _context50.abrupt("return", locStorage[id]);
           case 1:
           case "end":
-            return _context49.stop();
+            return _context50.stop();
         }
-      }, _callee43);
+      }, _callee44);
     }));
     return _getStored.apply(this, arguments);
   }
@@ -9562,35 +9599,35 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     return _getStoredObj.apply(this, arguments);
   } 
   function _getStoredObj() {
-    _getStoredObj = _asyncToGenerator(_regeneratorRuntime().mark(function _callee44(id) {
-      return _regeneratorRuntime().wrap(function _callee44$(_context50) {
-        while (1) switch (_context50.prev = _context50.next) {
+    _getStoredObj = _asyncToGenerator(_regeneratorRuntime().mark(function _callee45(id) {
+      return _regeneratorRuntime().wrap(function _callee45$(_context51) {
+        while (1) switch (_context51.prev = _context51.next) {
           case 0:
-            _context50.t1 = JSON;
-            _context50.next = 3;
+            _context51.t1 = JSON;
+            _context51.next = 3;
             return getStored(id);
           case 3:
-            _context50.t2 = _context50.sent;
-            if (_context50.t2) {
-              _context50.next = 6;
+            _context51.t2 = _context51.sent;
+            if (_context51.t2) {
+              _context51.next = 6;
               break;
             }
-            _context50.t2 = '{}';
+            _context51.t2 = '{}';
           case 6:
-            _context50.t3 = _context50.t2;
-            _context50.t0 = _context50.t1.parse.call(_context50.t1, _context50.t3);
-            if (_context50.t0) {
-              _context50.next = 10;
+            _context51.t3 = _context51.t2;
+            _context51.t0 = _context51.t1.parse.call(_context51.t1, _context51.t3);
+            if (_context51.t0) {
+              _context51.next = 10;
               break;
             }
-            _context50.t0 = {};
+            _context51.t0 = {};
           case 10:
-            return _context50.abrupt("return", _context50.t0);
+            return _context51.abrupt("return", _context51.t0);
           case 11:
           case "end":
-            return _context50.stop();
+            return _context51.stop();
         }
-      }, _callee44);
+      }, _callee45);
     }));
     return _getStoredObj.apply(this, arguments);
   }
@@ -9726,17 +9763,17 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     return _toggleCfg.apply(this, arguments);
   } 
   function _toggleCfg() {
-    _toggleCfg = _asyncToGenerator(_regeneratorRuntime().mark(function _callee45(id) {
-      return _regeneratorRuntime().wrap(function _callee45$(_context51) {
-        while (1) switch (_context51.prev = _context51.next) {
+    _toggleCfg = _asyncToGenerator(_regeneratorRuntime().mark(function _callee46(id) {
+      return _regeneratorRuntime().wrap(function _callee46$(_context52) {
+        while (1) switch (_context52.prev = _context52.next) {
           case 0:
-            _context51.next = 2;
+            _context52.next = 2;
             return CfgSaver.save(id, +!Cfg[id]);
           case 2:
           case "end":
-            return _context51.stop();
+            return _context52.stop();
         }
-      }, _callee45);
+      }, _callee46);
     }));
     return _toggleCfg.apply(this, arguments);
   }
@@ -9744,15 +9781,15 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     return _readCfg.apply(this, arguments);
   } 
   function _readCfg() {
-    _readCfg = _asyncToGenerator(_regeneratorRuntime().mark(function _callee46() {
+    _readCfg = _asyncToGenerator(_regeneratorRuntime().mark(function _callee47() {
       var obj, val, browserLang;
-      return _regeneratorRuntime().wrap(function _callee46$(_context52) {
-        while (1) switch (_context52.prev = _context52.next) {
+      return _regeneratorRuntime().wrap(function _callee47$(_context53) {
+        while (1) switch (_context53.prev = _context53.next) {
           case 0:
-            _context52.next = 2;
+            _context53.next = 2;
             return getStoredObj('DESU_Config');
           case 2:
-            val = _context52.sent;
+            val = _context53.sent;
             if (!(aib.domain in val) || $isEmpty(obj = val[aib.domain])) {
               obj = {};
             }
@@ -9804,9 +9841,9 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
             setStored('DESU_Config', JSON.stringify(val));
           case 22:
           case "end":
-            return _context52.stop();
+            return _context53.stop();
         }
-      }, _callee46);
+      }, _callee47);
     }));
     return _readCfg.apply(this, arguments);
   }
@@ -10302,7 +10339,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
         _this12 = this;
       var filesCount = $Q(aib.qPostImg, formEl).length;
       var isThr = aib.t;
-      (((_postform = postform) === null || _postform === void 0 ? void 0 : _postform.pArea[0]) || formEl).insertAdjacentHTML('beforebegin', "<div id=\"de-main\">\n\t\t\t<div id=\"de-panel\">\n\t\t\t\t<div id=\"de-panel-logo\" title=\"".concat(Lng.panelBtn.attach[lang], "\">\n\t\t\t\t\t<svg id=\"de-panel-logo-svg\">\n\t\t\t\t\t\t<use xlink:href=\"#de-symbol-panel-logo\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id=\"de-panel-buttons\"").concat(!Cfg.expandPanel ? ' style="display: none;"' : '', ">\n\t\t\t\t").concat(Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (Cfg.embedYTube ? this._getButton('vid') : '') + (!localData ? this._getButton('refresh') + (isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') + (!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') + this._getButton('goup') + this._getButton('godown') + (filesCount ? this._getButton('expimg') + this._getButton('maskimg') : '') + (!localData && !nav.isPresto ? (filesCount && !Cfg.preLoadImgs ? this._getButton('preimg') : '') + (isThr ? this._getButton('savethr') : '') : '') + (!localData && isThr ? this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (!nav.isSafari ? this._getButton('audio-off') : '') : '') + (aib.hasCatalog ? this._getButton('catalog') : '') + this._getButton('enable') + (isThr && Thread.first ? "<span id=\"de-panel-info\">\n\t\t\t\t\t\t<span id=\"de-panel-info-posts\" title=\"".concat(Lng.panelBtn[Cfg.panelCounter !== 2 ? 'postsCount' : 'postsNotHid'][lang], "\">").concat(Thread.first.postsCount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-files\" title=\"").concat(Lng.panelBtn.filesCount[lang], "\">").concat(filesCount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-posters\" title=\"").concat(Lng.panelBtn.postersCount[lang], "\">").concat(aib.postersCount, "</span>\n\t\t\t\t\t</span>") : ''), "\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t").concat(Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div>', "\n\t\t</div>"));
+      (((_postform = postform) === null || _postform === void 0 ? void 0 : _postform.pArea[0]) || formEl).insertAdjacentHTML('beforebegin', "<div id=\"de-main\">\n\t\t\t<div id=\"de-panel\">\n\t\t\t\t<div id=\"de-panel-logo\" title=\"".concat(Lng.panelBtn.attach[lang], "\">\n\t\t\t\t\t<svg id=\"de-panel-logo-svg\">\n\t\t\t\t\t\t<use xlink:href=\"#de-symbol-panel-logo\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id=\"de-panel-buttons\"").concat(!Cfg.expandPanel ? ' style="display: none;"' : '', ">\n\t\t\t\t").concat(Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (Cfg.embedYTube ? this._getButton('vid') : '') + (!localData ? this._getButton('refresh') + (isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') + (!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') + this._getButton('goup') + this._getButton('godown') + (filesCount ? this._getButton('expimg') + this._getButton('maskimg') : '') + (!localData && !nav.isPresto ? (filesCount && !Cfg.preLoadImgs ? this._getButton('preimg') : '') + (isThr ? this._getButton('savethr') : '') : '') + (!localData && isThr ? this._getButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') + (!nav.isSafari ? this._getButton('audio-off') : '') : '') + (aib.hasCatalog ? this._getButton('catalog') : '') + this._getButton('enable') + (isThr && Thread.first ? "<span id=\"de-panel-info\">\n\t\t\t\t\t\t<span id=\"de-panel-info-posts\" title=\"".concat(Lng.panelBtn[Cfg.panelCounter !== 2 ? 'postsCount' : 'postsNotHid'][lang], "\">").concat(Thread.first.postsCount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-files\" title=\"").concat(Lng.panelBtn.filesCount[lang], "\">").concat(filesCount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-posters\" title=\"").concat(Lng.panelBtn.postersCount[lang], "\">").concat(aib.postersCount, "</span>\n\t\t\t\t\t</span>") : ''), "\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t").concat(Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div>', "\n\t\t</div>"));
       this._el = $id('de-panel');
       this._el.addEventListener('click', this, true);
       if (!nav.isMobile) {
@@ -11243,27 +11280,27 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     return _remove404Favorites.apply(this, arguments);
   } 
   function _remove404Favorites() {
-    _remove404Favorites = _asyncToGenerator(_regeneratorRuntime().mark(function _callee47(favObj) {
+    _remove404Favorites = _asyncToGenerator(_regeneratorRuntime().mark(function _callee48(favObj) {
       var els, len, i, el, host, board, num;
-      return _regeneratorRuntime().wrap(function _callee47$(_context53) {
-        while (1) switch (_context53.prev = _context53.next) {
+      return _regeneratorRuntime().wrap(function _callee48$(_context54) {
+        while (1) switch (_context54.prev = _context54.next) {
           case 0:
             els = $Q('.de-entry[de-removed]');
             len = els.length;
             if (len) {
-              _context53.next = 4;
+              _context54.next = 4;
               break;
             }
-            return _context53.abrupt("return");
+            return _context54.abrupt("return");
           case 4:
             if (favObj) {
-              _context53.next = 8;
+              _context54.next = 8;
               break;
             }
-            _context53.next = 7;
+            _context54.next = 7;
             return readFavorites();
           case 7:
-            favObj = _context53.sent;
+            favObj = _context54.sent;
           case 8:
             for (i = 0; i < len; ++i) {
               el = els[i];
@@ -11277,9 +11314,9 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
             saveRenewFavorites(favObj);
           case 10:
           case "end":
-            return _context53.stop();
+            return _context54.stop();
         }
-      }, _callee47);
+      }, _callee48);
     }));
     return _remove404Favorites.apply(this, arguments);
   }
@@ -11305,23 +11342,23 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     return _refreshFavorites.apply(this, arguments);
   }
   function _refreshFavorites() {
-    _refreshFavorites = _asyncToGenerator(_regeneratorRuntime().mark(function _callee48(needClear404) {
-      var isUpdate, favObj, myPosts, parentEl, entryEls, i, len, _entry$last$match, entryEl, _ref52, titleEl, youEl, newEl, totalEl, iconEl, host, board, num, url, entry, oldClassName, oldTitle, formEl, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, newCount, youCount, lastNum, posts, postsLen, j, post;
-      return _regeneratorRuntime().wrap(function _callee48$(_context54) {
-        while (1) switch (_context54.prev = _context54.next) {
+    _refreshFavorites = _asyncToGenerator(_regeneratorRuntime().mark(function _callee49(needClear404) {
+      var isUpdate, favObj, myPosts, parentEl, entryEls, i, len, _entry$last$match, entryEl, _ref52, titleEl, youEl, newEl, totalEl, iconEl, host, board, num, url, entry, oldClassName, oldTitle, formEl, newCount, youCount, lastNum, posts, postsLen, j, post;
+      return _regeneratorRuntime().wrap(function _callee49$(_context55) {
+        while (1) switch (_context55.prev = _context55.next) {
           case 0:
             isUpdate = false;
-            _context54.next = 3;
+            _context55.next = 3;
             return readFavorites();
           case 3:
-            favObj = _context54.sent;
+            favObj = _context55.sent;
             myPosts = JSON.parse(locStorage['de-myposts'] || '{}');
             parentEl = $q('.de-fav-table');
             entryEls = $Q('.de-entry');
             i = 0, len = entryEls.length;
           case 8:
             if (!(i < len)) {
-              _context54.next = 90;
+              _context55.next = 79;
               break;
             }
             entryEl = entryEls[i];
@@ -11332,18 +11369,12 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
             num = entryEl.getAttribute('de-num');
             url = entryEl.getAttribute('de-url');
             entry = favObj[host][board][num];
-            if (!(entry.err === 'Archived')) {
-              _context54.next = 19;
-              break;
-            }
-            return _context54.abrupt("continue", 87);
-          case 19:
             if (!(host !== aib.host || entry.err === 'Closed')) {
-              _context54.next = 41;
+              _context55.next = 39;
               break;
             }
             if (!needClear404) {
-              _context54.next = 40;
+              _context55.next = 38;
               break;
             }
             parentEl.classList.add('de-fav-table-unfold');
@@ -11351,10 +11382,10 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
             oldTitle = titleEl.title; 
             iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
             titleEl.title = Lng.updating[lang];
-            _context54.prev = 26;
-            _context54.next = 29;
+            _context55.prev = 24;
+            _context55.next = 27;
             return $ajax(url, null, true);
-          case 29:
+          case 27:
             iconEl.setAttribute('class', oldClassName);
             if (oldTitle) {
               titleEl.title = oldTitle;
@@ -11365,71 +11396,51 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
               delete entry.err;
               isUpdate = true;
             }
-            _context54.next = 40;
+            _context55.next = 38;
             break;
-          case 34:
-            _context54.prev = 34;
-            _context54.t0 = _context54["catch"](26);
-            if (!(_context54.t0 instanceof AjaxError) || _context54.t0.code === 0) {
+          case 32:
+            _context55.prev = 32;
+            _context55.t0 = _context55["catch"](24);
+            if (!(_context55.t0 instanceof AjaxError) || _context55.t0.code === 0) {
               $popup('fav-refresh', Lng.noConnect[lang]);
-            } else if (_context54.t0.code === 404) {
+            } else if (_context55.t0.code === 404) {
               entryEl.setAttribute('de-removed', ''); 
             }
             iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-            titleEl.title = entry.err = getErrorMessage(_context54.t0);
+            titleEl.title = entry.err = getErrorMessage(_context55.t0);
             isUpdate = true;
-          case 40:
-            return _context54.abrupt("continue", 87);
-          case 41:
-            formEl = void 0, isArchived = void 0;
+          case 38:
+            return _context55.abrupt("continue", 76);
+          case 39:
+            formEl = void 0;
             iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
             titleEl.title = Lng.updating[lang];
-            _context54.prev = 44;
-            if (!aib.hasArchive) {
-              _context54.next = 54;
-              break;
-            }
-            _context54.next = 48;
-            return ajaxLoad(url, true, false, true);
-          case 48:
-            _yield$ajaxLoad = _context54.sent;
-            _yield$ajaxLoad2 = _slicedToArray(_yield$ajaxLoad, 2);
-            formEl = _yield$ajaxLoad2[0];
-            isArchived = _yield$ajaxLoad2[1];
-            _context54.next = 57;
-            break;
-          case 54:
-            _context54.next = 56;
+            _context55.prev = 42;
+            _context55.next = 45;
             return ajaxLoad(url);
-          case 56:
-            formEl = _context54.sent;
-          case 57:
-            _context54.next = 68;
+          case 45:
+            formEl = _context55.sent;
+            _context55.next = 57;
             break;
-          case 59:
-            _context54.prev = 59;
-            _context54.t1 = _context54["catch"](44);
-            if (!(_context54.t1 instanceof AjaxError) || _context54.t1.code === 0) {
+          case 48:
+            _context55.prev = 48;
+            _context55.t1 = _context55["catch"](42);
+            if (!(_context55.t1 instanceof AjaxError) || _context55.t1.code === 0) {
               $popup('fav-refresh', Lng.noConnect[lang]);
-            } else if (_context54.t1.code === 404) {
+            } else if (_context55.t1.code === 404) {
               entryEl.setAttribute('de-removed', '');
             }
             $hide(newEl);
             $hide(youEl);
             iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-            titleEl.title = entry.err = getErrorMessage(_context54.t1);
+            titleEl.title = entry.err = getErrorMessage(_context55.t1);
             isUpdate = true;
-            return _context54.abrupt("continue", 87);
-          case 68:
+            return _context55.abrupt("continue", 76);
+          case 57:
             if (aib.qClosed && $q(aib.qClosed, formEl)) {
               iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
               titleEl.title = Lng.thrClosed[lang];
               entry.err = 'Closed';
-              isUpdate = true;
-            } else if (isArchived) {
-              iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
-              titleEl.title = Lng.thrArchived[lang];
-              entry.err = 'Archived';
               isUpdate = true;
             } else {
               iconEl.setAttribute('class', 'de-fav-inf-icon');
@@ -11445,27 +11456,27 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
             posts = $Q(aib.qPost, formEl);
             postsLen = posts.length;
             j = 0;
-          case 75:
+          case 64:
             if (!(j < postsLen)) {
-              _context54.next = 84;
+              _context55.next = 73;
               break;
             }
             post = posts[j];
             if (!(lastNum >= aib.getPNum(post))) {
-              _context54.next = 79;
+              _context55.next = 68;
               break;
             }
-            return _context54.abrupt("continue", 81);
-          case 79:
+            return _context55.abrupt("continue", 70);
+          case 68:
             newCount++;
             if (isPostRefToYou(post, myPosts[board])) {
               youCount++;
             }
-          case 81:
+          case 70:
             ++j;
-            _context54.next = 75;
+            _context55.next = 64;
             break;
-          case 84:
+          case 73:
             if (newCount !== entry["new"] || entry.cnt !== postsLen + 1) {
               isUpdate = true;
             }
@@ -11481,11 +11492,11 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
               $hide(newEl);
               $hide(youEl);
             }
-          case 87:
+          case 76:
             ++i;
-            _context54.next = 8;
+            _context55.next = 8;
             break;
-          case 90:
+          case 79:
             AjaxCache.clearCache();
             if (needClear404) {
               if (isUpdate) {
@@ -11495,11 +11506,11 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
             } else if (isUpdate) {
               saveFavorites(favObj);
             }
-          case 92:
+          case 81:
           case "end":
-            return _context54.stop();
+            return _context55.stop();
         }
-      }, _callee48, null, [[26, 34], [44, 59]]);
+      }, _callee49, null, [[24, 32], [42, 48]]);
     }));
     return _refreshFavorites.apply(this, arguments);
   }
@@ -11545,7 +11556,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
           var entry = threads[tNum];
           var favLinkHref = entry.url + (!entry.last ? '' : entry.last.startsWith('#') ? entry.last : host === aib.host ? aib.anchor + entry.last : '');
           var favInfIwrapTitle = !entry.err ? '' : entry.err === 'Closed' ? "title=\"".concat(Lng.thrClosed[lang], "\"") : "title=\"".concat(entry.err, "\"");
-          var favInfIconClass = !entry.err ? '' : entry.err === 'Closed' || entry.err === 'Archived' ? 'de-fav-closed' : 'de-fav-unavail';
+          var favInfIconClass = !entry.err ? '' : entry.err === 'Closed' ? 'de-fav-closed' : 'de-fav-unavail';
           var favInfYouDisp = entry.you ? '' : ' style="display: none;"';
           var favInfNewDisp = entry["new"] ? '' : ' style="display: none;"';
           innerHtml += "<div class=\"de-entry ".concat(aib.cReply, "\" ").concat(hb, " de-num=\"").concat(tNum, "\" de-url=\"").concat(entry.url, "\">\n\t\t\t\t\t").concat(delBtn, "\n\t\t\t\t\t<a class=\"de-fav-link\" title=\"").concat(Lng.goToThread[lang], "\" ").concat(hb) + " href=\"".concat(favLinkHref, "\" rel=\"noreferrer\">").concat(tNum, "</a>\n\t\t\t\t\t<div class=\"de-entry-title\">- ").concat(entry.txt, "</div>\n\t\t\t\t\t<div class=\"de-fav-inf\">\n\t\t\t\t\t\t<span class=\"de-fav-inf-iwrap\" ").concat(favInfIwrapTitle, ">\n\t\t\t\t\t\t\t<svg class=\"de-fav-inf-icon ").concat(favInfIconClass, "\">\n\t\t\t\t\t\t\t\t<use class=\"de-fav-closed-use\" xlink:href=\"#de-symbol-closed\"/>\n\t\t\t\t\t\t\t\t<use class=\"de-fav-unavail-use\" xlink:href=\"#de-symbol-unavail\"/>\n\t\t\t\t\t\t\t\t<use class=\"de-fav-wait-use\" xlink:href=\"#de-symbol-wait\"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class=\"de-fav-inf-you\" title=\"").concat(Lng.myPostsRep[lang], "\"").concat(favInfYouDisp, ">\n\t\t\t\t\t\t\t").concat(entry.you || 0, "</span>\n\t\t\t\t\t\t<span class=\"de-fav-inf-new\" title=\"").concat(Lng.newPosts[lang], "\"").concat(favInfNewDisp, ">\n\t\t\t\t\t\t\t").concat(entry["new"] || 0, "</span>\n\t\t\t\t\t\t<span class=\"de-fav-inf-total\" title=\"").concat(Lng.totalPosts[lang], "\">").concat(entry.cnt, "</span>\n\t\t\t\t\t\t<span class=\"de-fav-inf-page\" title=\"").concat(Lng.thrPage[lang], "\"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>");
@@ -14533,14 +14544,9 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   function ajaxLoad(url) {
     var needForm = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
     var useCache = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var checkArch = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     return AjaxCache.runCachedAjax(url, useCache).then(function (xhr) {
-      var fnResult = function fnResult(el) {
-        return !el ? CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang])) : checkArch ? [el, (xhr.responseURL || '').includes('/arch/')] : el;
-      };
-      var text = xhr.responseText;
-      var el = getAjaxResponseEl(text, needForm);
-      return aib.stormWallFixAjax ? aib.stormWallFixAjax(url, text, el, needForm, fnResult) : fnResult(el);
+      var el = getAjaxResponseEl(xhr.responseText, needForm);
+      return el ? el : CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
     }, function (err) {
       return err.code === 304 ? null : CancelablePromise.reject(err);
     });
@@ -14563,9 +14569,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
         return err.code === 304 ? null : CancelablePromise.reject(err);
       });
     }
-    return aib.hasArchive ? ajaxLoad(aib.getThrUrl(board, tNum), true, useCache, true).then(function (data) {
-      return data !== null && data !== void 0 && data[0] ? new DOMPostsBuilder(data[0], data[1]) : null;
-    }) : ajaxLoad(aib.getThrUrl(board, tNum), true, useCache).then(function (form) {
+    return ajaxLoad(aib.getThrUrl(board, tNum), true, useCache).then(function (form) {
       return form ? new DOMPostsBuilder(form) : null;
     });
   }
@@ -17189,9 +17193,6 @@ this.disableSpells();
         }
         if (this.form) {
           var _$q4;
-          if (aib.changeReplyMode && tNum !== this.tNum) {
-            aib.changeReplyMode(this.form, tNum);
-          }
           (_$q4 = $q("input[name=\"".concat(aib.formParent, "\"]"), this.form)) === null || _$q4 === void 0 || _$q4.remove();
           if (tNum) {
             this.form.insertAdjacentHTML('afterbegin', "<input type=\"hidden\" name=\"".concat(aib.formParent, "\" value=\"").concat(tNum, "\">"));
@@ -17337,52 +17338,38 @@ this.disableSpells();
     return _checkSubmit.apply(this, arguments);
   }
   function _checkSubmit() {
-    _checkSubmit = _asyncToGenerator(_regeneratorRuntime().mark(function _callee49(data) {
-      var error, postNum, isDocument, _aib$captchaAfterSubm, _aib3, _data, _aib$getSubmitData, _postform2, tNum, _pByNum$get3, thr, statsParam, dForm;
-      return _regeneratorRuntime().wrap(function _callee49$(_context55) {
-        while (1) switch (_context55.prev = _context55.next) {
+    _checkSubmit = _asyncToGenerator(_regeneratorRuntime().mark(function _callee50(data) {
+      var error, postNum, isDocument, _data, _aib$getSubmitData, _postform2, tNum, _pByNum$get3, thr, statsParam, dForm;
+      return _regeneratorRuntime().wrap(function _callee50$(_context56) {
+        while (1) switch (_context56.prev = _context56.next) {
           case 0:
             error = null;
             postNum = null;
             isDocument = data instanceof Document;
-            if (!aib.getSubmitData) {
-              _context55.next = 12;
-              break;
+            if (aib.getSubmitData) {
+              if (aib.jsonSubmit) {
+                _data = (isDocument ? data.body.textContent : data).trim();
+                try {
+                  data = JSON.parse(_data);
+                } catch (err) {
+                  error = getSubmitError(isDocument ? data : $createDoc(data));
+                }
+              }
+              if (!error) {
+                _aib$getSubmitData = aib.getSubmitData(data);
+                error = _aib$getSubmitData.error;
+                postNum = _aib$getSubmitData.postNum;
+              }
+            } else {
+              error = getSubmitError(data);
             }
-            if (!aib.jsonSubmit) {
-              _context55.next = 9;
-              break;
-            }
-            if (!((_aib$captchaAfterSubm = (_aib3 = aib).captchaAfterSubmit) !== null && _aib$captchaAfterSubm !== void 0 && _aib$captchaAfterSubm.call(_aib3, data))) {
-              _context55.next = 7;
-              break;
-            }
-            return _context55.abrupt("return");
-          case 7:
-            _data = (isDocument ? data.body.textContent : data).trim();
-            try {
-              data = JSON.parse(_data);
-            } catch (err) {
-              error = getSubmitError(isDocument ? data : $createDoc(data));
-            }
-          case 9:
             if (!error) {
-              _aib$getSubmitData = aib.getSubmitData(data);
-              error = _aib$getSubmitData.error;
-              postNum = _aib$getSubmitData.postNum;
-            }
-            _context55.next = 13;
-            break;
-          case 12:
-            error = getSubmitError(data);
-          case 13:
-            if (!error) {
-              _context55.next = 16;
+              _context56.next = 7;
               break;
             }
             showSubmitError(error);
-            return _context55.abrupt("return");
-          case 16:
+            return _context56.abrupt("return");
+          case 7:
             _postform2 = postform, tNum = _postform2.tNum;
             if ((Cfg.markMyPosts || Cfg.markMyLinks) && postNum) {
               MyPosts.set(postNum, tNum || postNum);
@@ -17407,14 +17394,14 @@ this.disableSpells();
             });
             statsParam = tNum ? 'reply' : 'op';
             Cfg.stats[statsParam]++;
-            _context55.next = 25;
+            _context56.next = 16;
             return CfgSaver.saveObj(aib.domain, function (loadedCfg) {
               loadedCfg.stats[statsParam]++;
               return loadedCfg;
             });
-          case 25:
+          case 16:
             if (tNum) {
-              _context55.next = 28;
+              _context56.next = 19;
               break;
             }
             if (postNum) {
@@ -17425,8 +17412,8 @@ this.disableSpells();
                 deWindow.location.assign(aib.getThrUrl(aib.b, aib.getTNum(dForm)));
               }
             }
-            return _context55.abrupt("return");
-          case 28:
+            return _context56.abrupt("return");
+          case 19:
             if (aib.t) {
               Post.clearMarks();
               Thread.first.loadNewPosts().then(function () {
@@ -17448,11 +17435,11 @@ this.disableSpells();
             }
             postform.closeReply();
             postform.refreshCap();
-          case 31:
+          case 22:
           case "end":
-            return _context55.stop();
+            return _context56.stop();
         }
-      }, _callee49);
+      }, _callee50);
     }));
     return _checkSubmit.apply(this, arguments);
   }
@@ -17460,19 +17447,19 @@ this.disableSpells();
     return _checkDelete.apply(this, arguments);
   } 
   function _checkDelete() {
-    _checkDelete = _asyncToGenerator(_regeneratorRuntime().mark(function _callee50(data) {
+    _checkDelete = _asyncToGenerator(_regeneratorRuntime().mark(function _callee51(data) {
       var err, els, threads, isThr, i, len, el;
-      return _regeneratorRuntime().wrap(function _callee50$(_context56) {
-        while (1) switch (_context56.prev = _context56.next) {
+      return _regeneratorRuntime().wrap(function _callee51$(_context57) {
+        while (1) switch (_context57.prev = _context57.next) {
           case 0:
             err = getSubmitError(data instanceof Document ? data : $createDoc(data));
             if (!err) {
-              _context56.next = 5;
+              _context57.next = 5;
               break;
             }
             $popup('delete', Lng.errDelete[lang] + ':\n' + err);
             updater.sendErrNotif();
-            return _context56.abrupt("return");
+            return _context57.abrupt("return");
           case 5:
             els = $Q("[de-form] ".concat(aib.qPost.split(', ').join(' input:checked, [de-form] '), " input:checked"));
             threads = new Set();
@@ -17485,19 +17472,19 @@ this.disableSpells();
               }
             }
             if (!isThr) {
-              _context56.next = 15;
+              _context57.next = 15;
               break;
             }
             Post.clearMarks();
-            _context56.next = 13;
+            _context57.next = 13;
             return Thread.first.loadNewPosts()["catch"](function (err) {
               return infoLoadErrors(err);
             });
           case 13:
-            _context56.next = 17;
+            _context57.next = 17;
             break;
           case 15:
-            _context56.next = 17;
+            _context57.next = 17;
             return Promise.all(_toConsumableArray(threads).map(function (thr) {
               return thr.loadPosts('new', false, false);
             }));
@@ -17505,9 +17492,9 @@ this.disableSpells();
             $popup('delete', Lng.succDeleted[lang]);
           case 18:
           case "end":
-            return _context56.stop();
+            return _context57.stop();
         }
-      }, _callee50);
+      }, _callee51);
     }));
     return _checkDelete.apply(this, arguments);
   }
@@ -17727,7 +17714,7 @@ this.disableSpells();
     return _html5Submit.apply(this, arguments);
   }
   function _html5Submit() {
-    _html5Submit = _asyncToGenerator(_regeneratorRuntime().mark(function _callee51(form, submitter) {
+    _html5Submit = _asyncToGenerator(_regeneratorRuntime().mark(function _callee52(form, submitter) {
       var needProgress,
         data,
         hasFiles,
@@ -17745,30 +17732,29 @@ this.disableSpells();
         mime,
         cleanData,
         ajaxParams,
-        url,
-        _args57 = arguments;
-      return _regeneratorRuntime().wrap(function _callee51$(_context57) {
-        while (1) switch (_context57.prev = _context57.next) {
+        _args58 = arguments;
+      return _regeneratorRuntime().wrap(function _callee52$(_context58) {
+        while (1) switch (_context58.prev = _context58.next) {
           case 0:
-            needProgress = _args57.length > 2 && _args57[2] !== undefined ? _args57[2] : false;
+            needProgress = _args58.length > 2 && _args58[2] !== undefined ? _args58[2] : false;
             data = new FormData();
             hasFiles = false;
             _iterator33 = _createForOfIteratorHelperLoose(getFormElements(form, submitter));
           case 4:
             if ((_step33 = _iterator33()).done) {
-              _context57.next = 30;
+              _context58.next = 30;
               break;
             }
             _step33$value = _step33.value, name = _step33$value.name, value = _step33$value.value, type = _step33$value.type, el = _step33$value.el;
             val = value;
             if (!(name === 'de-file-txt')) {
-              _context57.next = 9;
+              _context58.next = 9;
               break;
             }
-            return _context57.abrupt("continue", 28);
+            return _context58.abrupt("continue", 28);
           case 9:
             if (!(type === 'file')) {
-              _context57.next = 27;
+              _context58.next = 27;
               break;
             }
             hasFiles = true;
@@ -17777,26 +17763,26 @@ this.disableSpells();
             Date.now() - (Cfg.removeFName === 2 ? 0 : Math.round(Math.random() * 15768e7))) + '.' + getFileExt(fileName);
             mime = value.type;
             if (!((Cfg.postSameImg || Cfg.removeEXIF) && (mime === 'image/jpeg' || mime === 'image/png' || mime === 'image/gif' || mime === 'video/webm'))) {
-              _context57.next = 26;
+              _context58.next = 26;
               break;
             }
-            _context57.t0 = cleanFile;
-            _context57.next = 18;
+            _context58.t0 = cleanFile;
+            _context58.next = 18;
             return readFile(value);
           case 18:
-            _context57.t1 = _context57.sent.data;
-            _context57.t2 = el.obj ? el.obj.extraFile : null;
-            cleanData = (0, _context57.t0)(_context57.t1, _context57.t2);
+            _context58.t1 = _context58.sent.data;
+            _context58.t2 = el.obj ? el.obj.extraFile : null;
+            cleanData = (0, _context58.t0)(_context58.t1, _context58.t2);
             if (cleanData) {
-              _context57.next = 23;
+              _context58.next = 23;
               break;
             }
-            return _context57.abrupt("return", Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName)));
+            return _context58.abrupt("return", Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName)));
           case 23:
             val = new File(cleanData, newFileName, {
               type: mime
             });
-            _context57.next = 27;
+            _context58.next = 27;
             break;
           case 26:
             if (Cfg.removeFName) {
@@ -17807,15 +17793,9 @@ this.disableSpells();
           case 27:
             data.append(name, val);
           case 28:
-            _context57.next = 4;
+            _context58.next = 4;
             break;
           case 30:
-            if (!aib.sendHTML5Post) {
-              _context57.next = 32;
-              break;
-            }
-            return _context57.abrupt("return", aib.sendHTML5Post(form, data, needProgress, hasFiles));
-          case 32:
             ajaxParams = {
               data: data,
               method: 'POST'
@@ -17823,18 +17803,17 @@ this.disableSpells();
             if (needProgress && hasFiles) {
               ajaxParams.onprogress = getUploadFunc();
             }
-            url = form.action;
-            return _context57.abrupt("return", $ajax(url, ajaxParams).then(function (_ref53) {
+            return _context58.abrupt("return", $ajax(form.action, ajaxParams).then(function (_ref53) {
               var text = _ref53.responseText;
-              return aib.jsonSubmit ? text : aib.stormWallFixSubmit ? aib.stormWallFixSubmit(url, text, ajaxParams) : $createDoc(text);
+              return aib.jsonSubmit ? text : $createDoc(text);
             })["catch"](function (err) {
               return Promise.reject(err);
             }));
-          case 36:
+          case 33:
           case "end":
-            return _context57.stop();
+            return _context58.stop();
         }
-      }, _callee51);
+      }, _callee52);
     }));
     return _html5Submit.apply(this, arguments);
   }
@@ -18016,9 +17995,6 @@ this.disableSpells();
           inp.clearInp();
         }
         this.hideEmpty();
-        if (aib.clearFileInputs) {
-          aib.clearFileInputs();
-        }
       }
     }, {
       key: "hideEmpty",
@@ -18714,9 +18690,7 @@ this.disableSpells();
         var isUpdateImage = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
         if (!this.textEl) {
           $show(this.parentEl);
-          if (aib.captchaUpdate) {
-            aib.captchaUpdate(this, false);
-          } else if (this._isRecap) {
+          if (this._isRecap) {
             this._updateRecap();
           }
           return;
@@ -18742,7 +18716,6 @@ this.disableSpells();
     }, {
       key: "refreshCaptcha",
       value: function refreshCaptcha(isFocus) {
-        var _this61 = this;
         var isError = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var tNum = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.tNum;
         if (!this.isAdded || tNum !== this.tNum) {
@@ -18757,16 +18730,7 @@ this.disableSpells();
           return;
         }
         this._lastUpdate = Date.now();
-        if (aib.captchaUpdate) {
-          var updatePromise = aib.captchaUpdate(this, isError);
-          if (updatePromise) {
-            updatePromise.then(function () {
-              return _this61._updateTextEl(isFocus);
-            }, function (err) {
-              return _this61._setUpdateError(err);
-            });
-          }
-        } else if (this._isRecap) {
+        if (this._isRecap) {
           this._updateRecap();
         } else if (this.textEl) {
           this._updateTextEl(isFocus);
@@ -18785,9 +18749,6 @@ this.disableSpells();
           var newSrc = aib.getCaptchaSrc(src, tNum);
           img.src = '';
           img.src = newSrc;
-          if (aib.stormWallFixCaptcha) {
-            aib.stormWallFixCaptcha(newSrc, img);
-          }
         }
       }
     }, {
@@ -18816,13 +18777,13 @@ this.disableSpells();
     }, {
       key: "_setUpdateError",
       value: function _setUpdateError(e) {
-        var _this62 = this;
+        var _this61 = this;
         if (e) {
           this.parentEl.innerHTML = e.toString();
           this.isAdded = false;
           this.parentEl.onclick = function () {
-            _this62.parentEl.onclick = null;
-            _this62.addCaptcha();
+            _this61.parentEl.onclick = null;
+            _this61.addCaptcha();
           };
           $show(this.parentEl);
         }
@@ -18976,7 +18937,7 @@ this.disableSpells();
       value: function handleEvent(e) {
         var _temp,
           _el$textContent$match,
-          _this63 = this;
+          _this62 = this;
         var temp;
         var el = nav.fixEventEl(e.target);
         var type = e.type;
@@ -18984,9 +18945,6 @@ this.disableSpells();
         var isPview = this instanceof Pview;
 
         if (type === 'click') {
-          if (aib.handlePostClick) {
-            aib.handlePostClick(this, el, e);
-          }
           switch (e.button) {
             case 0:
               break;
@@ -19137,7 +19095,7 @@ Spells.addSpell(9, '', false);
         if (!this._hasEvents) {
           this._hasEvents = true;
           ['click', 'mouseout'].forEach(function (e) {
-            return _this63.el.addEventListener(e, _this63, true);
+            return _this62.el.addEventListener(e, _this62, true);
           });
         }
         if (Cfg.embedYTube === 2 && el.classList.contains('de-video-link')) {
@@ -19218,7 +19176,7 @@ Spells.addSpell(9, '', false);
                 return;
               }
               this._linkTO = setTimeout(function () {
-                return _this63.kid = Pview.showPview(_this63, el);
+                return _this62.kid = Pview.showPview(_this62, el);
               }, Cfg.linksOver);
             }
             e.preventDefault();
@@ -19270,11 +19228,11 @@ Spells.addSpell(9, '', false);
     }, {
       key: "changeMyMark",
       value: function changeMyMark(val) {
-        var _this64 = this;
+        var _this63 = this;
         this.el.classList.toggle('de-mypost', val);
         $Q("[de-form] ".concat(aib.qPostMsg, " a[href$=\"").concat(aib.anchor + this.num, "\"]")).forEach(function (el) {
           var post = aib.getPostOfEl(el);
-          if (post.el !== _this64.el) {
+          if (post.el !== _this63.el) {
             el.classList.toggle('de-ref-you', val);
             post.el.classList.toggle('de-mypost-reply', val);
           }
@@ -19331,31 +19289,27 @@ Spells.addSpell(9, '', false);
     }, {
       key: "_getFullMsg",
       value: function _getFullMsg(truncEl, isInit) {
-        var _this65 = this;
-        if (aib.deleteTruncMsg) {
-          aib.deleteTruncMsg(this, truncEl, isInit);
-          return;
-        }
+        var _this64 = this;
         if (!isInit) {
           $popup('load-fullmsg', Lng.loading[lang], true);
         }
         ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(function (form) {
           var sourceEl;
           var maybeSpells = new Maybe(SpellsRunner);
-          if (_this65.isOp) {
+          if (_this64.isOp) {
             sourceEl = form;
           } else {
             var posts = $Q(aib.qPost, form);
             for (var i = 0, len = posts.length; i < len; ++i) {
               var post = posts[i];
-              if (_this65.num === aib.getPNum(post)) {
+              if (_this64.num === aib.getPNum(post)) {
                 sourceEl = post;
                 break;
               }
             }
           }
           if (sourceEl) {
-            _this65.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
+            _this64.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
             truncEl.remove();
           }
           if (maybeSpells.hasValue) {
@@ -19366,9 +19320,9 @@ Spells.addSpell(9, '', false);
     }, {
       key: "_menuAdd",
       value: function _menuAdd(el, html) {
-        var _this66 = this;
+        var _this65 = this;
         return new Menu(el, html, function (el, e) {
-          return (_this66 instanceof Pview ? pByNum.get(_this66.num) || _this66 : _this66)._menuClickOnOptions(el, e);
+          return (_this65 instanceof Pview ? pByNum.get(_this65.num) || _this65 : _this65)._menuClickOnOptions(el, e);
         }, false);
       }
     }, {
@@ -19524,11 +19478,11 @@ Spells.addSpell(9, '', false);
       key: "_menuShowOverBtn",
       value: function _menuShowOverBtn(el, html) {
         var _this$_menu2,
-          _this67 = this;
+          _this66 = this;
         (_this$_menu2 = this._menu) === null || _this$_menu2 === void 0 || _this$_menu2.removeMenu();
         this._menu = this._menuAdd(el, html);
         this._menu.onremove = function () {
-          return _this67._menu = null;
+          return _this66._menu = null;
         };
       }
     }, {
@@ -19546,7 +19500,7 @@ Spells.addSpell(9, '', false);
       key: "_menuToggleOverBtn",
       value: function _menuToggleOverBtn(el, isOutEvent, html) {
         var _this$_menu4,
-          _this68 = this;
+          _this67 = this;
         if (((_this$_menu4 = this._menu) === null || _this$_menu4 === void 0 ? void 0 : _this$_menu4.parentEl) === el) {
           return;
         }
@@ -19554,7 +19508,7 @@ Spells.addSpell(9, '', false);
           clearTimeout(this._menuTO);
         } else {
           this._menuTO = setTimeout(function () {
-            return _this68._menuShowOverBtn(el, html);
+            return _this67._menuShowOverBtn(el, html);
           }, Cfg.linksOver);
         }
       }
@@ -19562,41 +19516,41 @@ Spells.addSpell(9, '', false);
   }();
   var Post = function (_AbstractPost) {
     function Post(el, thr, num, count, isOp, prev) {
-      var _this69;
+      var _this68;
       _classCallCheck(this, Post);
-      _this69 = _callSuper(this, Post, [thr, num, isOp]);
-      _this69.count = count;
-      _this69.el = el;
-      _this69.isDeleted = false;
-      _this69.isHidden = false;
-      _this69.isOmitted = false;
-      _this69.isViewed = false;
-      _this69.next = null;
-      _this69.prev = prev;
-      _this69.spellHidden = false;
-      _this69.userToggled = false;
-      _this69._selRange = null;
-      _this69._selText = '';
+      _this68 = _callSuper(this, Post, [thr, num, isOp]);
+      _this68.count = count;
+      _this68.el = el;
+      _this68.isDeleted = false;
+      _this68.isHidden = false;
+      _this68.isOmitted = false;
+      _this68.isViewed = false;
+      _this68.next = null;
+      _this68.prev = prev;
+      _this68.spellHidden = false;
+      _this68.userToggled = false;
+      _this68._selRange = null;
+      _this68._selText = '';
       if (prev) {
-        prev.next = _this69;
+        prev.next = _this68;
       }
-      pByEl.set(el, _this69);
-      pByNum.set(num, _this69);
+      pByEl.set(el, _this68);
+      pByNum.set(num, _this68);
       var isMyPost = MyPosts.has(num);
       if (isMyPost) {
-        _this69.el.classList.add('de-mypost');
-      } else if (localData && _this69.el.classList.contains('de-mypost')) {
+        _this68.el.classList.add('de-mypost');
+      } else if (localData && _this68.el.classList.contains('de-mypost')) {
         MyPosts.set(num, thr.num);
         isMyPost = true;
       }
       el.classList.add(isOp ? 'de-oppost' : 'de-reply');
-      _this69.btns = $aEnd(_this69._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) + (_this69.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + (isOp ? '' : "<span class=\"de-post-counter\">".concat(count + 1, "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '') + '</span>');
-      _this69.counterEl = isOp ? null : $q('.de-post-counter', _this69.btns);
-      if (Cfg.expandTrunc && _this69.trunc) {
-        _this69._getFullMsg(_this69.trunc, true);
+      _this68.btns = $aEnd(_this68._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) + (_this68.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + (isOp ? '' : "<span class=\"de-post-counter\">".concat(count + 1, "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '') + '</span>');
+      _this68.counterEl = isOp ? null : $q('.de-post-counter', _this68.btns);
+      if (Cfg.expandTrunc && _this68.trunc) {
+        _this68._getFullMsg(_this68.trunc, true);
       }
-      el.addEventListener('mouseover', _this69, true);
-      return _this69;
+      el.addEventListener('mouseover', _this68, true);
+      return _this68;
     }
     _inherits(Post, _AbstractPost);
     return _createClass(Post, [{
@@ -19832,7 +19786,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "setVisib",
       value: function setVisib(isHide) {
-        var _this70 = this;
+        var _this69 = this;
         var note = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
         if (this.isHidden === isHide) {
           if (isHide && note) {
@@ -19848,14 +19802,14 @@ Spells.addSpell(9, '', false);
           } else {
             this._pref.onmouseover = this._pref.onmouseout = !isHide ? null : function (e) {
               var yOffset = deWindow.pageYOffset;
-              _this70.hideContent(e.type === 'mouseout');
+              _this69.hideContent(e.type === 'mouseout');
               scrollTo(deWindow.pageXOffset, yOffset);
             };
           }
         }
         if (Cfg.strikeHidd) {
           setTimeout(function () {
-            return _this70._strikePostNum(isHide);
+            return _this69._strikePostNum(isHide);
           }, 50);
         }
         if (isHide) {
@@ -20050,16 +20004,16 @@ Spells.addSpell(9, '', false);
   Post.hiddenNums = new Set();
   Post.Content = function (_TemporaryContent) {
     function PostContent(post) {
-      var _this71;
+      var _this70;
       _classCallCheck(this, PostContent);
-      _this71 = _callSuper(this, PostContent, [post]);
-      if (_this71._isInited) {
-        return _possibleConstructorReturn(_this71);
+      _this70 = _callSuper(this, PostContent, [post]);
+      if (_this70._isInited) {
+        return _possibleConstructorReturn(_this70);
       }
-      _this71._isInited = true;
-      _this71.el = post.el;
-      _this71.post = post;
-      return _this71;
+      _this70._isInited = true;
+      _this70.el = post.el;
+      _this70.post = post;
+      return _this70;
     }
     _inherits(PostContent, _TemporaryContent);
     return _createClass(PostContent, [{
@@ -20184,16 +20138,16 @@ Spells.addSpell(9, '', false);
     }, {
       key: "set",
       value: function set(note) {
-        var _this72 = this;
+        var _this71 = this;
         this.text = note;
         var text;
         if (this.isHideThr) {
           this._aEl.onmouseover = this._aEl.onmouseout = function (e) {
-            return _this72._post.hideContent(e.type === 'mouseout');
+            return _this71._post.hideContent(e.type === 'mouseout');
           };
           this._aEl.onclick = function (e) {
             e.preventDefault();
-            _this72._post.setUserVisib(!_this72._post.isHidden);
+            _this71._post.setUserVisib(!_this71._post.isHidden);
           };
           text = (this._post.title ? "(".concat(this._post.title, ") ") : '') + (note ? "[autohide: ".concat(note, "]") : '');
         } else {
@@ -20261,44 +20215,44 @@ Spells.addSpell(9, '', false);
 
   var Pview = function (_AbstractPost2) {
     function Pview(parent, link, pNum, tNum) {
-      var _this73;
+      var _this72;
       _classCallCheck(this, Pview);
-      _this73 = _callSuper(this, Pview, [parent.thr, pNum, pNum === tNum]);
-      _this73.isSticky = false;
-      _this73.parent = parent;
-      _this73.remoteThr = null;
-      _this73.tNum = tNum;
-      _this73._isCached = false;
-      _this73._isLeft = false;
-      _this73._isTop = false;
-      _this73._link = link;
-      _this73._newPos = null;
-      _this73._offsetTop = 0;
-      _this73._readDelay = 0;
+      _this72 = _callSuper(this, Pview, [parent.thr, pNum, pNum === tNum]);
+      _this72.isSticky = false;
+      _this72.parent = parent;
+      _this72.remoteThr = null;
+      _this72.tNum = tNum;
+      _this72._isCached = false;
+      _this72._isLeft = false;
+      _this72._isTop = false;
+      _this72._link = link;
+      _this72._newPos = null;
+      _this72._offsetTop = 0;
+      _this72._readDelay = 0;
       var post = pByNum.get(pNum);
       if (post && (!post.isOp || !(parent instanceof Pview) || !parent._isCached)) {
-        _this73._buildPview(post);
-        return _possibleConstructorReturn(_this73);
+        _this72._buildPview(post);
+        return _possibleConstructorReturn(_this72);
       }
-      _this73._isCached = true;
-      _this73.board = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
-      if (PviewsCache.has(_this73.board + tNum)) {
-        post = PviewsCache.get(_this73.board + tNum).getPost(pNum);
+      _this72._isCached = true;
+      _this72.board = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+      if (PviewsCache.has(_this72.board + tNum)) {
+        post = PviewsCache.get(_this72.board + tNum).getPost(pNum);
         if (post) {
-          _this73._buildPview(post);
+          _this72._buildPview(post);
         } else {
-          _this73._showPview(_this73.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t\t\t").concat(Lng.postNotFound[lang], "</div>")));
+          _this72._showPview(_this72.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t\t\t").concat(Lng.postNotFound[lang], "</div>")));
         }
-        return _possibleConstructorReturn(_this73);
+        return _possibleConstructorReturn(_this72);
       }
-      _this73._showPview(_this73.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t<svg class=\"de-wait\"><use xlink:href=\"#de-symbol-wait\"/></svg>").concat(Lng.loading[lang], "</div>")));
+      _this72._showPview(_this72.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t<svg class=\"de-wait\"><use xlink:href=\"#de-symbol-wait\"/></svg>").concat(Lng.loading[lang], "</div>")));
 
-      _this73._loadPromise = ajaxPostsLoad(_this73.board, tNum, false, false).then(function (pBuilder) {
-        return _this73._onload(pBuilder);
+      _this72._loadPromise = ajaxPostsLoad(_this72.board, tNum, false, false).then(function (pBuilder) {
+        return _this72._onload(pBuilder);
       }, function (err) {
-        return _this73._onerror(err);
+        return _this72._onerror(err);
       });
-      return _this73;
+      return _this72;
     }
     _inherits(Pview, _AbstractPost2);
     return _createClass(Pview, [{
@@ -20397,10 +20351,10 @@ Spells.addSpell(9, '', false);
     }, {
       key: "markToDel",
       value: function markToDel() {
-        var _this74 = this;
+        var _this73 = this;
         clearTimeout(Pview._delTO);
         Pview._delTO = setTimeout(function () {
-          return _this74.deleteNonSticky();
+          return _this73.deleteNonSticky();
         }, nav.isMobile ? 0 : Cfg.linksOut);
       }
     }, {
@@ -20433,10 +20387,10 @@ Spells.addSpell(9, '', false);
     }, {
       key: "_menuShowOverBtn",
       value: function _menuShowOverBtn(el, html) {
-        var _this75 = this;
+        var _this74 = this;
         _superPropGet(Pview, "_menuShowOverBtn", this, 3)([el, html]);
         this._menu.onover = function () {
-          return _this75.mouseEnter();
+          return _this74.mouseEnter();
         };
         this._menu.onout = function () {
           return Pview.top.markToDel();
@@ -20642,9 +20596,9 @@ Spells.addSpell(9, '', false);
     }, {
       key: "_showPview",
       value: function _showPview(el) {
-        var _this76 = this;
+        var _this75 = this;
         ['mouseover', 'mouseout'].forEach(function (e) {
-          return el.addEventListener(e, _this76, true);
+          return el.addEventListener(e, _this75, true);
         });
         this.thr.form.el.append(el);
         this._setPosition(this._link, false);
@@ -20814,7 +20768,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "thr",
       get: function get() {
-        var _this77 = this;
+        var _this76 = this;
         var value = null;
         if (this.isOp) {
           var postsCount = this._pBuilder.length;
@@ -20824,7 +20778,7 @@ Spells.addSpell(9, '', false);
           };
           Object.defineProperty(value, 'title', {
             get: function get() {
-              return _this77.title;
+              return _this76.title;
             }
           });
         }
@@ -20837,13 +20791,13 @@ Spells.addSpell(9, '', false);
   }();
   var PviewsCache = function (_TemporaryContent2) {
     function PviewsCache(pBuilder, board, tNum) {
-      var _this78;
+      var _this77;
       _classCallCheck(this, PviewsCache);
-      _this78 = _callSuper(this, PviewsCache, [board + tNum]);
-      if (_this78._isInited) {
-        return _possibleConstructorReturn(_this78);
+      _this77 = _callSuper(this, PviewsCache, [board + tNum]);
+      if (_this77._isInited) {
+        return _possibleConstructorReturn(_this77);
       }
-      _this78._isInited = true;
+      _this77._isInited = true;
       var lPByNum = new Map();
       var thrUrl = aib.getThrUrl(board, tNum);
       lPByNum.set(tNum, new CacheItem(pBuilder, thrUrl, 0));
@@ -20851,12 +20805,12 @@ Spells.addSpell(9, '', false);
         lPByNum.set(pBuilder.getPNum(i), new CacheItem(pBuilder, thrUrl, i + 1));
       }
       DelForm.tNums.add(tNum);
-      _this78._b = board;
-      _this78._posts = lPByNum;
+      _this77._b = board;
+      _this77._posts = lPByNum;
       if (Cfg.linksNavig) {
         RefMap.gen(lPByNum);
       }
-      return _this78;
+      return _this77;
     }
     _inherits(PviewsCache, _TemporaryContent2);
     return _createClass(PviewsCache, [{
@@ -20900,7 +20854,7 @@ Spells.addSpell(9, '', false);
     return _createClass(ImagesNavigBtns, [{
       key: "handleEvent",
       value: function handleEvent(e) {
-        var _this79 = this;
+        var _this78 = this;
         switch (e.type) {
           case 'mousemove':
             {
@@ -20917,7 +20871,7 @@ Spells.addSpell(9, '', false);
             if (!this.hasEvents) {
               this.hasEvents = true;
               ['mouseout', 'click'].forEach(function (e) {
-                return _this79._btns.addEventListener(e, _this79);
+                return _this78._btns.addEventListener(e, _this78);
               });
             }
             if (!this._isHidden) {
@@ -20978,10 +20932,10 @@ Spells.addSpell(9, '', false);
     }, {
       key: "_setHideTimeout",
       value: function _setHideTimeout() {
-        var _this80 = this;
+        var _this79 = this;
         clearTimeout(this._hideTO);
         this._hideTO = setTimeout(function () {
-          return _this80.hideBtns();
+          return _this79.hideBtns();
         }, 2e3);
       }
     }]);
@@ -21017,7 +20971,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "handleEvent",
       value: function handleEvent(e) {
-        var _this81 = this;
+        var _this80 = this;
         switch (e.type) {
           case 'click':
             {
@@ -21045,7 +20999,7 @@ Spells.addSpell(9, '', false);
             this._oldX = e.clientX;
             this._oldY = e.clientY;
             ['mousemove', 'mouseup'].forEach(function (e) {
-              return doc.body.addEventListener(e, _this81, true);
+              return doc.body.addEventListener(e, _this80, true);
             });
             break;
           case 'mousemove':
@@ -21053,7 +21007,7 @@ Spells.addSpell(9, '', false);
             return;
           case 'mouseup':
             ['mousemove', 'mouseup'].forEach(function (e) {
-              return doc.body.removeEventListener(e, _this81, true);
+              return doc.body.removeEventListener(e, _this80, true);
             });
             return;
           case 'mousewheel':
@@ -21281,16 +21235,16 @@ Spells.addSpell(9, '', false);
     }, {
       key: "_showFullImg",
       value: function _showFullImg(data) {
-        var _this82 = this;
+        var _this81 = this;
         var _data$computeFullSize = data.computeFullSize(),
           _data$computeFullSize2 = _slicedToArray(_data$computeFullSize, 3),
           width = _data$computeFullSize2[0],
           height = _data$computeFullSize2[1],
           minSize = _data$computeFullSize2[2];
         this._fullEl = data.getFullImg(false, function (el) {
-          return _this82._resizeFullImg(el);
+          return _this81._resizeFullImg(el);
         }, function (el) {
-          return _this82._rotateFullImg(el);
+          return _this81._rotateFullImg(el);
         });
         this._width = width;
         this._height = height;
@@ -21309,7 +21263,7 @@ Spells.addSpell(9, '', false);
         this._parentEl = el;
         var events = nav.isMobile ? ['click', 'touchend', 'touchmove', 'touchstart'] : ['click', 'mousedown', 'onwheel' in el ? 'wheel' : 'mousewheel'];
         events.forEach(function (e) {
-          return el.addEventListener(e, _this82, true);
+          return el.addEventListener(e, _this81, true);
         });
         data.srcBtnEvents(this);
         if (data.inPview && !data.post.isSticky) {
@@ -21327,7 +21281,6 @@ Spells.addSpell(9, '', false);
         if (this.data.rotate) {
           this.rotateView(false);
         }
-        data.checkForRedirect(this._fullEl);
       }
     }]);
   }(); 
@@ -21409,24 +21362,6 @@ Spells.addSpell(9, '', false);
         }
       }
     }, {
-      key: "checkForRedirect",
-      value: function checkForRedirect(fullEl) {
-        var _this83 = this;
-        if (!aib.getImgRedirectSrc || this.redirected) {
-          return;
-        }
-        aib.getImgRedirectSrc(this.src).then(function (newSrc) {
-          _this83.redirected = true;
-          Object.defineProperty(_this83, 'src', {
-            value: newSrc
-          });
-          $q('img, video', fullEl).src = _this83.el.src = _this83.el.parentNode.href = getImgNameLink(_this83.el).href = newSrc;
-          if (!_this83.isVideo) {
-            $q('a', fullEl).href = newSrc;
-          }
-        });
-      }
-    }, {
       key: "collapseImg",
       value: function collapseImg(e) {
         if (e && this.isVideo && ExpandableImage.isControlClick(e)) {
@@ -21502,7 +21437,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "expandImg",
       value: function expandImg(inPost, e) {
-        var _this84 = this;
+        var _this82 = this;
         if (e && !e.bubbles) {
           return;
         }
@@ -21528,13 +21463,12 @@ Spells.addSpell(9, '', false);
         (aib.hasPicWrap ? this._getImageParent : this.el.parentNode).insertAdjacentHTML('afterend', '<div class="de-fullimg-after"></div>');
         var fullEl = this._fullEl = this.getFullImg(true, null, null);
         fullEl.addEventListener('click', function (e) {
-          return _this84.collapseImg(e);
+          return _this82.collapseImg(e);
         }, true);
         this.srcBtnEvents(this);
         var parent = this.el.parentNode;
         $hide(parent);
         parent.after(fullEl);
-        this.checkForRedirect(fullEl);
         if (e) {
           var fullImgTop = fullEl.getBoundingClientRect().top;
           if (fullImgTop < 0 || origImgTop < 0) {
@@ -21569,7 +21503,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "getFullImg",
       value: function getFullImg(inPost, onsizechange, onrotate) {
-        var _this85 = this;
+        var _this83 = this;
         var wrapEl, name, origSrc;
         var src = this._getImageSrc();
         var parent = this._getImageParent;
@@ -21584,7 +21518,7 @@ Spells.addSpell(9, '', false);
         var imgNameEl = (Cfg.imgSrcBtns ? '<svg class="de-btn-img"><use xlink:href="#de-symbol-post-img"></use></svg>' : '') + "<a class=\"de-fullimg-link\" target=\"_blank\" title=\"".concat(Lng.openOriginal[lang], "\" href=\"").concat(origSrc, "\">").concat(name);
         var wrapClass = "".concat(inPost ? ' de-fullimg-wrap-inpost' : " de-fullimg-wrap-center".concat(this._size ? '' : ' de-fullimg-wrap-nosize')).concat(this.isVideo ? ' de-fullimg-video' : '');
         if (!this.isVideo) {
-          var waitEl = !aib.getImgRedirectSrc && this._size ? '' : '<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
+          var waitEl = this._size ? '' : '<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
           wrapEl = $add("<div class=\"de-fullimg-wrap".concat(wrapClass, "\">\n\t\t\t\t").concat(waitEl, "\n\t\t\t\t<img class=\"de-fullimg\" src=\"").concat(src, "\" alt=\"").concat(src, "\">\n\t\t\t\t<div class=\"de-fullimg-info\">").concat(imgNameEl, "</a> <span class=\"de-fullimg-scale\"></span></div>\n\t\t\t</div>"));
           var imgEl = $q('.de-fullimg', wrapEl);
           imgEl.onload = imgEl.onerror = function (_ref38) {
@@ -21600,10 +21534,10 @@ Spells.addSpell(9, '', false);
             var newW = img.naturalWidth,
               newH = img.naturalHeight,
               scrollWidth = img.scrollWidth;
-            var ar = _this85._size ? _this85._size[1] / _this85._size[0] : newH / newW;
+            var ar = _this83._size ? _this83._size[1] / _this83._size[0] : newH / newW;
             var isRotated = scrollWidth ? img.scrollHeight / scrollWidth > 1 ? ar < 1 : ar > 1 : false;
-            if (!_this85._size || isRotated) {
-              _this85._size = isRotated ? [newH, newW] : [newW, newH];
+            if (!_this83._size || isRotated) {
+              _this83._size = isRotated ? [newH, newW] : [newW, newH];
             }
             var parentEl = img.parentNode.parentNode;
             var waitEl = $q('.de-fullimg-load', parentEl);
@@ -21649,7 +21583,7 @@ Spells.addSpell(9, '', false);
         if (!this._size) {
           videoEl.addEventListener('loadedmetadata', function (_ref40) {
             var el = _ref40.target;
-            _this85._size = [el.videoWidth, el.videoHeight];
+            _this83._size = [el.videoWidth, el.videoHeight];
             onsizechange(wrapEl);
           });
         }
@@ -21711,7 +21645,7 @@ Spells.addSpell(9, '', false);
               }
             }
             var loadedTitle = decodeURIComponent(escape(str));
-            _this85.el.setAttribute('de-metatitle', loadedTitle);
+            _this83.el.setAttribute('de-metatitle', loadedTitle);
             if (str) {
               $q('.de-webm-title', wrapEl).textContent = videoEl.title = loadedTitle.replaceAll('.', ' ');
             }
@@ -21747,7 +21681,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "srcBtnEvents",
       value: function srcBtnEvents(_ref43) {
-        var _this86 = this;
+        var _this84 = this;
         var _fullEl = _ref43._fullEl;
         if (!Cfg.imgSrcBtns) {
           return;
@@ -21762,14 +21696,14 @@ Spells.addSpell(9, '', false);
               srcBtnEl._menu = null;
               return;
             }
-            var menuHtml = !_this86.isVideo ? Menu.getMenuImg(srcBtnEl) : Menu.getMenuImg(srcBtnEl, true) + "<span class=\"de-menu-item de-menu-getframe\">".concat(Lng.getFrameLinks[lang], "</span>");
-            srcBtnEl._menu = new Menu(srcBtnEl, menuHtml, !_this86.isVideo ? Function.prototype : function (optiontEl) {
+            var menuHtml = !_this84.isVideo ? Menu.getMenuImg(srcBtnEl) : Menu.getMenuImg(srcBtnEl, true) + "<span class=\"de-menu-item de-menu-getframe\">".concat(Lng.getFrameLinks[lang], "</span>");
+            srcBtnEl._menu = new Menu(srcBtnEl, menuHtml, !_this84.isVideo ? Function.prototype : function (optiontEl) {
               if (!optiontEl.classList.contains('de-menu-getframe')) {
                 return;
               }
               ContentLoader.getDataFromImg($q('video', _fullEl)).then(function (arr) {
                 $popup('upload', Lng.sending[lang], true);
-                var name = cutFileExt(_this86.name) + '.png';
+                var name = cutFileExt(_this84.name) + '.png';
                 var blob = new Blob([arr], {
                   type: 'image/png'
                 });
@@ -22094,18 +22028,18 @@ Spells.addSpell(9, '', false);
       };
     },
     _getHashHelper: function _getHashHelper(_ref46) {
-      var _this87 = this;
+      var _this85 = this;
       return _asyncToGenerator(_regeneratorRuntime().mark(function _callee38() {
         var el, src, data, val, w, h, cnv, ctx, buffer;
         return _regeneratorRuntime().wrap(function _callee38$(_context42) {
           while (1) switch (_context42.prev = _context42.next) {
             case 0:
               el = _ref46.el, src = _ref46.src;
-              if (!(src in _this87._storage)) {
+              if (!(src in _this85._storage)) {
                 _context42.next = 3;
                 break;
               }
-              return _context42.abrupt("return", _this87._storage[src]);
+              return _context42.abrupt("return", _this85._storage[src]);
             case 3:
               if (el.complete) {
                 _context42.next = 6;
@@ -22127,7 +22061,7 @@ Spells.addSpell(9, '', false);
             case 9:
               val = -1;
               w = el.naturalWidth, h = el.naturalHeight;
-              cnv = _this87._canvas;
+              cnv = _this85._canvas;
               cnv.width = w;
               cnv.height = h;
               ctx = cnv.getContext('2d');
@@ -22139,7 +22073,7 @@ Spells.addSpell(9, '', false);
               }
               _context42.next = 20;
               return new Promise(function (resolve) {
-                return _this87._workers.runWorker([buffer, w, h], [buffer], function (val) {
+                return _this85._workers.runWorker([buffer, w, h], [buffer], function (val) {
                   return resolve(val);
                 });
               });
@@ -22149,7 +22083,7 @@ Spells.addSpell(9, '', false);
                 val = data.hash;
               }
             case 22:
-              _this87._storage[src] = val;
+              _this85._storage[src] = val;
               return _context42.abrupt("return", val);
             case 24:
             case "end":
@@ -22231,18 +22165,17 @@ Spells.addSpell(9, '', false);
   }
 
   var DOMPostsBuilder = function () {
-    function DOMPostsBuilder(form, isArchived) {
+    function DOMPostsBuilder(form) {
       _classCallCheck(this, DOMPostsBuilder);
       this._form = form;
       this._posts = $Q(aib.qPost, form);
       this.length = this._posts.length;
       this.postersCount = '';
-      this._isArchived = isArchived;
     }
     return _createClass(DOMPostsBuilder, [{
       key: "isClosed",
       get: function get() {
-        return aib.qClosed && !!$q(aib.qClosed, this._form) || this._isArchived;
+        return aib.qClosed && !!$q(aib.qClosed, this._form);
       }
     }, {
       key: "getOpMessage",
@@ -22593,7 +22526,7 @@ Spells.addSpell(9, '', false);
   var Thread = function () {
     function Thread(el, num, prev, form) {
       var _$q8,
-        _this88 = this;
+        _this86 = this;
       _classCallCheck(this, Thread);
       this.hasNew = false;
       this.hiddenCount = 0;
@@ -22627,7 +22560,7 @@ Spells.addSpell(9, '', false);
       }
       this.btns = $bEnd(el, "<div class=\"de-thr-buttons\">".concat(Post.getPostBtns(true, true), "\n\t\t\t<span class=\"de-thr-updater\"><a class=\"de-thr-updater-link link-button\" href=\"#\"></a>") + (!aib.t ? '</span>' : '<span id="de-updater-count" style="display: none;"></span></span>') + '</div>');
       ['click', 'mouseover'].forEach(function (e) {
-        return _this88.btns.addEventListener(e, _this88);
+        return _this86.btns.addEventListener(e, _this86);
       });
       var _ref47 = _toConsumableArray(this.btns.children);
       this.btnHide = _ref47[0];
@@ -22780,14 +22713,14 @@ Spells.addSpell(9, '', false);
     }, {
       key: "loadPosts",
       value: function loadPosts(task) {
-        var _this89 = this;
+        var _this87 = this;
         var isSmartScroll = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var isInformUser = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
         if (isInformUser) {
           $popup('load-thr', Lng.loading[lang], true);
         }
         return ajaxPostsLoad(aib.b, this.num, false).then(function (pBuilder) {
-          return _this89._loadFromBuilder(task, isSmartScroll, pBuilder);
+          return _this87._loadFromBuilder(task, isSmartScroll, pBuilder);
         }, function (err) {
           return $popup('load-thr', getErrorMessage(err));
         });
@@ -22795,9 +22728,9 @@ Spells.addSpell(9, '', false);
     }, {
       key: "loadNewPosts",
       value: function loadNewPosts() {
-        var _this90 = this;
+        var _this88 = this;
         return ajaxPostsLoad(aib.b, this.num, true).then(function (pBuilder) {
-          return pBuilder ? _this90._loadNewFromBuilder(pBuilder) : {
+          return pBuilder ? _this88._loadNewFromBuilder(pBuilder) : {
             newCount: 0,
             locked: false
           };
@@ -22892,9 +22825,6 @@ Spells.addSpell(9, '', false);
         ContentLoader.preloadImages(post);
         if (aib.t && Cfg.markNewPosts) {
           Post.addMark(el, false);
-        }
-        if (aib.fixKCUnixFilenames && post.images.hasAttachments) {
-          aib.fixKCUnixFilenames(post);
         }
         return post;
       }
@@ -23191,7 +23121,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "_toggleReplies",
       value: function _toggleReplies() {
-        var _this91 = this,
+        var _this89 = this,
           _$q10;
         var isHide = !this.last.isOmitted;
         var post = this.op;
@@ -23202,7 +23132,7 @@ Spells.addSpell(9, '', false);
         }
         this.btnReplies.firstElementChild.className = "".concat(isHide ? 'de-replies-show' : 'de-replies-hide', " link-button");
         _toConsumableArray(this.btns.children).forEach(function (el) {
-          return el !== _this91.btnReplies && $toggle(el, !isHide);
+          return el !== _this89.btnReplies && $toggle(el, !isHide);
         });
         (_$q10 = $q(aib.qOmitted + ', .de-omitted', this.el)) === null || _$q10 === void 0 || _$q10.remove();
         i = this.postsCount - 1 - (isHide ? 0 : i);
@@ -23238,11 +23168,11 @@ Spells.addSpell(9, '', false);
       }
     },
     handleEvent: function handleEvent(e) {
-      var _this92 = this;
+      var _this90 = this;
       switch (e.type) {
         case 'scroll':
           deWindow.requestAnimationFrame(function () {
-            return _this92._checkThreads();
+            return _this90._checkThreads();
           });
           break;
         case 'mouseover':
@@ -23257,10 +23187,10 @@ Spells.addSpell(9, '', false);
       }
     },
     initThrNav: function initThrNav() {
-      var _this93 = this;
+      var _this91 = this;
       var el = $bEnd(doc.body, "\n\t\t<div id=\"de-thr-navpanel\" class=\"de-thr-navpanel-hidden\" style=\"display: none;\">\n\t\t\t<svg id=\"de-thr-navarrow\"><use xlink:href=\"#de-symbol-thr-nav-arrow\"/></svg>\n\t\t\t<div id=\"de-thr-navup\">\n\t\t\t\t<svg viewBox=\"0 0 24 24\"><use xlink:href=\"#de-symbol-thr-nav-up\"/></svg>\n\t\t\t</div>\n\t\t\t<div id=\"de-thr-navdown\">\n\t\t\t\t<svg viewBox=\"0 0 24 24\"><use xlink:href=\"#de-symbol-thr-nav-down\"/></svg>\n\t\t\t</div>\n\t\t</div>");
       ['mouseover', 'mouseout', 'click'].forEach(function (e) {
-        return el.addEventListener(e, _this93, true);
+        return el.addEventListener(e, _this91, true);
       });
       this._el = el;
       this._thrs = new Set();
@@ -23291,25 +23221,25 @@ Spells.addSpell(9, '', false);
       }
     },
     _expandCollapse: function _expandCollapse(isExpand, targetEl) {
-      var _this94 = this;
+      var _this92 = this;
       if (!$contains(this._el, targetEl)) {
         clearTimeout(this._toggleTO);
         this._toggleTO = setTimeout(function () {
-          return _this94._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
+          return _this92._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
         }, Cfg.linksOver);
       }
     },
     _findCurrentThread: function _findCurrentThread() {
-      var _this95 = this;
+      var _this93 = this;
       Object.defineProperty(this, '_findCurrentThread', {
         value: 'elementsFromPoint' in doc ? function () {
           return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2).find(function (el) {
-            return _this95._thrs.has(el);
+            return _this93._thrs.has(el);
           });
         } : function () {
           var el = doc.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
           while (el) {
-            if (_this95._thrs.has(el)) {
+            if (_this93._thrs.has(el)) {
               return el;
             }
             el = el.parentElement;
@@ -23359,14 +23289,14 @@ Spells.addSpell(9, '', false);
         }
       },
       playAudio: function playAudio() {
-        var _this96 = this;
+        var _this94 = this;
         this.stopAudio();
         if (this.repeatMS === 0) {
           this._el.play();
           return;
         }
         this._playInterval = setInterval(function () {
-          return _this96._el.play();
+          return _this94._el.play();
         }, this.repeatMS);
       },
       stopAudio: function stopAudio() {
@@ -23387,10 +23317,10 @@ Spells.addSpell(9, '', false);
     };
     var counter = {
       count: function count(delayMS, useCounter, callback) {
-        var _this97 = this;
+        var _this95 = this;
         if (!this._enabled || !useCounter) {
           this._countingTO = setTimeout(function () {
-            _this97._countingTO = null;
+            _this95._countingTO = null;
             callback();
           }, delayMS);
           return;
@@ -23400,10 +23330,10 @@ Spells.addSpell(9, '', false);
         this._countingIV = setInterval(function () {
           seconds--;
           if (seconds === 0) {
-            _this97._stopCounter();
+            _this95._stopCounter();
             callback();
           } else {
-            _this97._set(seconds);
+            _this95._set(seconds);
           }
         }, 1e3);
       },
@@ -23454,7 +23384,7 @@ Spells.addSpell(9, '', false);
         return this._iconEl ? this._iconEl.href : null;
       },
       initIcons: function initIcons() {
-        var _this98 = this;
+        var _this96 = this;
         if (this._isInited) {
           return;
         }
@@ -23462,7 +23392,7 @@ Spells.addSpell(9, '', false);
         var icon = new Image();
         icon.onload = function (e) {
           try {
-            _this98._initIconsHelper(e.target);
+            _this96._initIconsHelper(e.target);
           } catch (err) {
             console.warn('Icon error:', err);
           }
@@ -23470,7 +23400,7 @@ Spells.addSpell(9, '', false);
         icon.src = this._iconEl.href;
       },
       startBlink: function startBlink(isError) {
-        var _this99 = this;
+        var _this97 = this;
         var iconUrl = !this._hasIcons ? this._emptyIcon : isError ? this._iconError : repliesToYou.size ? this._getIconYou(newPosts) : this._getIconNew(newPosts);
         if (this._blinkInterv) {
           if (this._currentIcon === iconUrl) {
@@ -23480,8 +23410,8 @@ Spells.addSpell(9, '', false);
         }
         this._currentIcon = iconUrl;
         this._blinkInterv = setInterval(function () {
-          _this99._isOrigIcon = !_this99._isOrigIcon;
-          _this99._setIcon(_this99._isOrigIcon ? _this99.originalIcon : _this99._currentIcon);
+          _this97._isOrigIcon = !_this97._isOrigIcon;
+          _this97._setIcon(_this97._isOrigIcon ? _this97.originalIcon : _this97._currentIcon);
         }, this._blinkMS);
       },
       stopBlink: function stopBlink() {
@@ -23563,7 +23493,7 @@ Spells.addSpell(9, '', false);
         return canvas.toDataURL('image/png');
       },
       _initIconsHelper: function _initIconsHelper(icon) {
-        var _this100 = this;
+        var _this98 = this;
         var canvas = doc.createElement('canvas');
         var ctx = canvas.getContext('2d');
         var wh = Math.max(icon.naturalHeight, 16 * (deWindow.devicePixelRatio || 1));
@@ -23582,11 +23512,11 @@ Spells.addSpell(9, '', false);
         var iconYouCircle = ctx.getImageData(0, 0, wh, wh);
         this._getIconNew = function (newPosts) {
           var id = newPosts < 10 ? newPosts : 0;
-          return _this100._iconsNew[id] || (_this100._iconsNew[id] = _this100._drawIconsNewYou(ctx, canvas, id, iconNewCircle, scale));
+          return _this98._iconsNew[id] || (_this98._iconsNew[id] = _this98._drawIconsNewYou(ctx, canvas, id, iconNewCircle, scale));
         };
         this._getIconYou = function (newPosts) {
           var id = newPosts < 10 ? newPosts : 0;
-          return _this100._iconsYou[id] || (_this100._iconsYou[id] = _this100._drawIconsNewYou(ctx, canvas, id, iconYouCircle, scale));
+          return _this98._iconsYou[id] || (_this98._iconsYou[id] = _this98._drawIconsNewYou(ctx, canvas, id, iconYouCircle, scale));
         };
         this._hasIcons = true;
       },
@@ -23600,7 +23530,7 @@ Spells.addSpell(9, '', false);
         return Cfg.desktNotif && this._granted;
       },
       checkPermission: function checkPermission() {
-        var _this101 = this;
+        var _this99 = this;
         return _asyncToGenerator(_regeneratorRuntime().mark(function _callee39() {
           return _regeneratorRuntime().wrap(function _callee39$(_context45) {
             while (1) switch (_context45.prev = _context45.next) {
@@ -23613,7 +23543,7 @@ Spells.addSpell(9, '', false);
                 _context45.next = _context45.t0 === 'default' ? 4 : _context45.t0 === 'denied' ? 6 : 8;
                 break;
               case 4:
-                _this101._requestPermission();
+                _this99._requestPermission();
                 return _context45.abrupt("break", 8);
               case 6:
                 _context45.next = 8;
@@ -23632,7 +23562,7 @@ Spells.addSpell(9, '', false);
         }
       },
       showNotif: function showNotif() {
-        var _this102 = this;
+        var _this100 = this;
         var lngQuantity = function lngQuantity(num) {
           var new10 = num % 10;
           return lang === 1 ? +(num !== 1) : new10 > 4 || new10 === 0 || (num % 100 / 10 | 0) === 1 ? 2 : new10 === 1 ? 0 : 1;
@@ -23646,7 +23576,7 @@ Spells.addSpell(9, '', false);
         });
         notif.onshow = function () {
           return setTimeout(function () {
-            return notif === _this102._notifEl && _this102.closeNotif();
+            return notif === _this100._notifEl && _this100.closeNotif();
           }, 12e3);
         };
         notif.onclick = function () {
@@ -23654,14 +23584,14 @@ Spells.addSpell(9, '', false);
         };
         notif.onerror = function () {
           deWindow.focus();
-          _this102._requestPermission();
+          _this100._requestPermission();
         };
         this._notifEl = notif;
       },
       _granted: true,
       _notifEl: null,
       _requestPermission: function _requestPermission() {
-        var _this103 = this;
+        var _this101 = this;
         this._granted = false;
         Notification.requestPermission(function () {
           var _ref48 = _asyncToGenerator(_regeneratorRuntime().mark(function _callee40(state) {
@@ -23678,7 +23608,7 @@ Spells.addSpell(9, '', false);
                   _context46.next = 6;
                   break;
                 case 5:
-                  _this103._granted = true;
+                  _this101._granted = true;
                 case 6:
                 case "end":
                   return _context46.stop();
@@ -23786,7 +23716,7 @@ Spells.addSpell(9, '', false);
         this._makeStep();
       },
       _makeStep: function _makeStep() {
-        var _this104 = this;
+        var _this102 = this;
         var needSleep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
         while (true) {
           switch (this._state) {
@@ -23794,7 +23724,7 @@ Spells.addSpell(9, '', false);
               if (needSleep) {
                 this._state = 1;
                 counter.count(this._delay, !doc.hidden, function () {
-                  return _this104._makeStep();
+                  return _this102._makeStep();
                 });
                 return;
               }
@@ -23804,9 +23734,9 @@ Spells.addSpell(9, '', false);
               this._loadPromise = Thread.first.loadNewPosts().then(function (_ref49) {
                 var newCount = _ref49.newCount,
                   locked = _ref49.locked;
-                return _this104._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
+                return _this102._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
               }, function (err) {
-                return _this104._handleNewPosts(0, err);
+                return _this102._handleNewPosts(0, err);
               });
               return;
             case 2:
@@ -24331,7 +24261,6 @@ Spells.addSpell(9, '', false);
       this.formHeaders = false;
       this.formParent = 'parent';
       this.hasAltCaptcha = false;
-      this.hasArchive = false;
       this.hasCatalog = false;
       this.hasOPNum = false;
       this.hasPicWrap = false;
@@ -24391,11 +24320,6 @@ Spells.addSpell(9, '', false);
         return value;
       }
     }, {
-      key: "captchaAfterSubmit",
-      get: function get() {
-        return null;
-      }
-    }, {
       key: "captchaInit",
       get: function get() {
         return null;
@@ -24406,24 +24330,9 @@ Spells.addSpell(9, '', false);
         return this.captchaRu ? 2 : 1;
       }
     }, {
-      key: "captchaUpdate",
-      get: function get() {
-        return null;
-      }
-    }, {
       key: "catalogUrl",
       get: function get() {
         return "".concat(this.protocol, "//").concat(this.host, "/").concat(this.b, "/catalog.html");
-      }
-    }, {
-      key: "changeReplyMode",
-      get: function get() {
-        return null;
-      }
-    }, {
-      key: "clearFileInputs",
-      get: function get() {
-        return null;
       }
     }, {
       key: "css",
@@ -24431,32 +24340,7 @@ Spells.addSpell(9, '', false);
         return '';
       }
     }, {
-      key: "deleteTruncMsg",
-      get: function get() {
-        return null;
-      }
-    }, {
-      key: "fixDeadLinks",
-      get: function get() {
-        return null;
-      }
-    }, {
-      key: "fixHTMLHelper",
-      get: function get() {
-        return null;
-      }
-    }, {
       key: "fixFileInputs",
-      get: function get() {
-        return null;
-      }
-    }, {
-      key: "fixKCUnixFilenames",
-      get: function get() {
-        return null;
-      }
-    }, {
-      key: "getImgRedirectSrc",
       get: function get() {
         return null;
       }
@@ -24464,11 +24348,6 @@ Spells.addSpell(9, '', false);
       key: "getSubmitData",
       get: function get() {
         return null;
-      }
-    }, {
-      key: "isArchived",
-      get: function get() {
-        return false;
       }
     }, {
       key: "lastPage",
@@ -24487,11 +24366,6 @@ Spells.addSpell(9, '', false);
       key: "markupTags",
       get: function get() {
         return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
-      }
-    }, {
-      key: "handlePostClick",
-      get: function get() {
-        return null;
       }
     }, {
       key: "postersCount",
@@ -24513,35 +24387,10 @@ Spells.addSpell(9, '', false);
         return null;
       }
     }, {
-      key: "sendHTML5Post",
-      get: function get() {
-        return null;
-      }
-    }, {
-      key: "stormWallFixAjax",
-      get: function get() {
-        return null;
-      }
-    }, {
-      key: "stormWallFixCaptcha",
-      get: function get() {
-        return null;
-      }
-    }, {
-      key: "stormWallFixSubmit",
-      get: function get() {
-        return null;
-      }
-    }, {
-      key: "stormWallHelper",
-      get: function get() {
-        return null;
-      }
-    }, {
       key: "fixHTML",
       value: function fixHTML(data) {
         var isForm = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-        if (!(dTime || Spells.reps || Cfg.crossLinks || Cfg.decodeLinks || this.fixHTMLHelper || this.fixDeadLinks || this.hasTextLinks)) {
+        if (!(dTime || Spells.reps || Cfg.crossLinks || Cfg.decodeLinks || this.hasTextLinks)) {
           return data;
         }
         var str;
@@ -24555,12 +24404,6 @@ Spells.addSpell(9, '', false);
         }
         if (dTime) {
           str = dTime.fix(str);
-        }
-        if (this.fixHTMLHelper) {
-          str = this.fixHTMLHelper(str);
-        }
-        if (this.fixDeadLinks) {
-          str = this.fixDeadLinks(str);
         }
         if (this.hasTextLinks) {
           str = str.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig, function (x, a, b, c) {
@@ -24799,66 +24642,69 @@ Spells.addSpell(9, '', false);
     var ibDomains = {};
     var Dollchan = function (_BaseBoard) {
       function Dollchan() {
-        var _this105;
+        var _this103;
         _classCallCheck(this, Dollchan);
         for (var _len7 = arguments.length, args = new Array(_len7), _key4 = 0; _key4 < _len7; _key4++) {
           args[_key4] = arguments[_key4];
         }
-        _this105 = _callSuper(this, Dollchan, [].concat(args));
-        _this105.qDelForm = $id('posts') ? '#posts' : '#delform';
-        _this105.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
-        _this105.qPages = '.pagelist';
-        _this105.qPostImg = 'img.thumb, video.thumb';
-        _this105.qPostMsg = '.message';
-        _this105.qPostRef = '.post-reflink';
-        _this105.qPostUid = '.posteruid';
-        _this105.hasCatalog = true;
-        _this105.markupBB = true;
-        _this105.multiFile = true;
-        _this105.timePattern = 'yy+nn+dd+w+hh+ii+ss';
-        return _this105;
+        _this103 = _callSuper(this, Dollchan, [].concat(args));
+        _this103.qDelForm = $id('posts') ? '#posts' : '#delform';
+        _this103.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+        _this103.qPages = '.pagelist';
+        _this103.qPostImg = 'img.thumb, video.thumb';
+        _this103.qPostMsg = '.message';
+        _this103.qPostRef = '.post-reflink';
+        _this103.qPostUid = '.posteruid';
+        _this103.hasCatalog = true;
+        _this103.markupBB = true;
+        _this103.multiFile = true;
+        _this103.timePattern = 'yy+nn+dd+w+hh+ii+ss';
+        return _this103;
       }
       _inherits(Dollchan, _BaseBoard);
       return _createClass(Dollchan, [{
         key: "captchaInit",
         get: function get() {
-          var switchCaptcha = function switchCaptcha(status) {
-            var hasPasscode = status === 'validpasscode';
-            $toggle($id('captchablock').lastElementChild, !hasPasscode);
-            $toggle($id('validcaptchablock'), hasPasscode);
-            $toggle($id('invalidcaptchablock'), status === 'invalidpasscode');
-            if (!hasPasscode) {
-              var captchaInput = $id('captcha');
-              if (captchaInput) {
-                captchaInput.value = '';
+          var _this104 = this;
+          var value = function value() {
+            return _this104._getPasscodeStatus().then(function (status) {
+              var hasPasscode = status === 'valid';
+              $toggle($id('captchablock').lastElementChild, !hasPasscode);
+              $toggle($id('validcaptchablock'), hasPasscode);
+              $toggle($id('invalidcaptchablock'), status === 'invalid');
+              if (!hasPasscode) {
+                var inpEl = $id('captcha');
+                if (inpEl) {
+                  inpEl.value = '';
+                }
               }
-            }
-          };
-          if (getCookies().passcode === '1') {
-            $ajax(this.protocol + '//' + this.host + '/' + this.b + '/imgboard.php?passcode&check').then(function (xhr) {
-              return switchCaptcha(xhr.responseText === 'OK' ? 'validpasscode' : 'invalidpasscode');
-            }, function () {
-              return switchCaptcha('invalidpasscode');
             });
-          } else {
-            switchCaptcha('showcaptcha');
-          }
-          return null;
+          };
+          Object.defineProperty(this, 'captchaInit', {
+            value: value
+          });
+          return value;
         }
       }, {
         key: "reportForm",
         get: function get() {
-          var _this106 = this;
+          var _this105 = this;
           var value = function () {
             var _ref50 = _asyncToGenerator(_regeneratorRuntime().mark(function _callee41(pNum, tNum) {
-              var recapEl, isCaptcha, formEl, script;
+              var passcodeStatus, isValidPasscode, recapEl, hasCaptcha, captchaHTML, formEl, script;
               return _regeneratorRuntime().wrap(function _callee41$(_context47) {
                 while (1) switch (_context47.prev = _context47.next) {
                   case 0:
+                    _context47.next = 2;
+                    return _this105._getPasscodeStatus();
+                  case 2:
+                    passcodeStatus = _context47.sent;
+                    isValidPasscode = passcodeStatus === 'valid';
                     recapEl = $id('g-recaptcha');
-                    isCaptcha = !!$id('captchablock');
-                    formEl = $q('.report-form', $popup('edit-report', (pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) + '<div class="report-form"><input name="reason" value="" type="text"' + " style=\"display: block; width: 300px;\" placeholder=\"".concat(Lng.reportReason[lang], "\">") + (recapEl ? '<div style="min-height: 80px;"><div id="g-recaptcha2"' + " class=\"g-recaptcha\" data-sitekey=\"".concat(recapEl.dataset.sitekey, "\"></div></div>") : isCaptcha ? "<img src=\"/".concat(aib.b, "/inc/captcha.php?").concat(Math.random(), "\"") + ' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;"' + " onclick=\"this.src = '/".concat(aib.b, "/inc/captcha.php?' + Math.random();\">") + '<input type="text" name="captcha" style="display: block; width: 300px;"' + " placeholder=\"".concat(Lng.cap[lang], "\" accesskey=\"c\" autocomplete=\"off\">") : '') + '</div>'));
-                    if (recapEl) {
+                    hasCaptcha = !!$id('captchablock');
+                    captchaHTML = !recapEl && !hasCaptcha ? '' : isValidPasscode ? "<div>No captcha: you are a passcode user. <a href=\"/".concat(aib.b, "/imgboard.php?passcode&logout\">Log Out.</a></div>") : passcodeStatus === 'invalid' ? "<div>Your pass code seems to be not valid. <a href=\"/".concat(aib.b, "/imgboard.php?passcode\" target=\"_blank\">Log In Again?</a></div>") : recapEl ? '<div style="min-height: 80px;"><div id="g-recaptcha2"' + " class=\"g-recaptcha\" data-sitekey=\"".concat(recapEl.dataset.sitekey, "\"></div></div>") : hasCaptcha ? "<div><img src=\"/".concat(aib.b, "/inc/captcha.php?").concat(Math.random(), "\"") + ' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;"' + " onclick=\"this.src = '/".concat(aib.b, "/inc/captcha.php?' + Math.random();\"></div>") + '<input type="text" name="captcha" style="width: 300px;"' + " placeholder=\"".concat(Lng.cap[lang], "\" accesskey=\"c\" autocomplete=\"off\">") : '';
+                    formEl = $q('.report-form', $popup('edit-report', (pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) + "<div class=\"report-form\"><input type=\"text\" name=\"reason\" value=\"\" placeholder=\"".concat(Lng.reportReason[lang], "\" style=\" width: 300px;\">") + captchaHTML + '</div>'));
+                    if (recapEl && !isValidPasscode) {
                       script = doc.createElement('script');
                       script.type = 'text/javascript';
                       script.textContent = "grecaptcha.render('g-recaptcha2', {'sitekey': '".concat(recapEl.dataset.sitekey, "'});");
@@ -24876,10 +24722,12 @@ Spells.addSpell(9, '', false);
                         reason: inpEl.value,
                         json: 1
                       };
-                      if (recapEl) {
-                        data['g-recaptcha-response'] = $q('.g-recaptcha-response', formEl).value;
-                      } else if (isCaptcha) {
-                        data.captcha = $q('input[name="captcha"]', formEl).value;
+                      if (!isValidPasscode) {
+                        if (recapEl) {
+                          data['g-recaptcha-response'] = $q('.g-recaptcha-response', formEl).value;
+                        } else if (hasCaptcha) {
+                          data.captcha = $q('input[name="captcha"]', formEl).value;
+                        }
                       }
                       for (var key in data) {
                         if ($hasProp(data, key)) {
@@ -24888,7 +24736,7 @@ Spells.addSpell(9, '', false);
                       }
                       closePopup('edit-report');
                       $popup('report', Lng.sending[lang], true);
-                      var url = _this106.protocol + '//' + _this106.host + '/' + _this106.b + '/imgboard.php?report&addreport&json=1';
+                      var url = _this105.protocol + '//' + _this105.host + '/' + _this105.b + '/imgboard.php?report&addreport&json=1';
                       $ajax(url, {
                         method: 'POST',
                         data: formData,
@@ -24906,7 +24754,7 @@ Spells.addSpell(9, '', false);
                         $popup('report', obj.result === 'ok' ? Lng.succReported[lang] : obj.result === 'alreadysent' ? Lng.alreadyReported[lang] : Lng.reportError[lang] + (obj.result === 'error' && obj.message ? ':<br>' + obj.message : ''));
                       });
                     };
-                  case 5:
+                  case 10:
                   case "end":
                     return _context47.stop();
                 }
@@ -24921,6 +24769,44 @@ Spells.addSpell(9, '', false);
           });
           return value;
         }
+      }, {
+        key: "_getPasscodeStatus",
+        value: function () {
+          var _getPasscodeStatus2 = _asyncToGenerator(_regeneratorRuntime().mark(function _callee42() {
+            var status, xhr;
+            return _regeneratorRuntime().wrap(function _callee42$(_context48) {
+              while (1) switch (_context48.prev = _context48.next) {
+                case 0:
+                  status = 'showcaptcha';
+                  if (!(getCookies().passcode === '1')) {
+                    _context48.next = 12;
+                    break;
+                  }
+                  _context48.prev = 2;
+                  _context48.next = 5;
+                  return $ajax(this.protocol + '//' + this.host + '/' + this.b + '/imgboard.php?passcode&check');
+                case 5:
+                  xhr = _context48.sent;
+                  status = xhr.responseText === 'OK' ? 'valid' : 'invalid';
+                  _context48.next = 12;
+                  break;
+                case 9:
+                  _context48.prev = 9;
+                  _context48.t0 = _context48["catch"](2);
+                  status = 'invalid';
+                case 12:
+                  return _context48.abrupt("return", status);
+                case 13:
+                case "end":
+                  return _context48.stop();
+              }
+            }, _callee42, this, [[2, 9]]);
+          }));
+          function _getPasscodeStatus() {
+            return _getPasscodeStatus2.apply(this, arguments);
+          }
+          return _getPasscodeStatus;
+        }()
       }, {
         key: "fixFileInputs",
         value: function fixFileInputs(el) {
@@ -24969,7 +24855,7 @@ Spells.addSpell(9, '', false);
 
   var DollchanAPI = {
     initAPI: function initAPI() {
-      var _this107 = this;
+      var _this106 = this;
       this.hasListeners = false;
       if (!('MessageChannel' in deWindow)) {
         return;
@@ -24981,7 +24867,7 @@ Spells.addSpell(9, '', false);
       var port = channel.port2;
       doc.defaultView.addEventListener('message', function (e) {
         if (e.data === 'de-request-api-message') {
-          _this107.hasListeners = true;
+          _this106.hasListeners = true;
           doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
         }
       });
@@ -25040,54 +24926,54 @@ Spells.addSpell(9, '', false);
     return _checkForUpdates.apply(this, arguments);
   } 
   function _checkForUpdates() {
-    _checkForUpdates = _asyncToGenerator(_regeneratorRuntime().mark(function _callee52(isManual, lastUpdateTime) {
+    _checkForUpdates = _asyncToGenerator(_regeneratorRuntime().mark(function _callee53(isManual, lastUpdateTime) {
       var _v$;
       var responseText, _yield$$ajax, v, remoteVer, currentVer, src, link, chLogLink, i, len, c, vc;
-      return _regeneratorRuntime().wrap(function _callee52$(_context58) {
-        while (1) switch (_context58.prev = _context58.next) {
+      return _regeneratorRuntime().wrap(function _callee53$(_context59) {
+        while (1) switch (_context59.prev = _context59.next) {
           case 0:
             if (isManual) {
-              _context58.next = 3;
+              _context59.next = 3;
               break;
             }
             if (!(Date.now() - +lastUpdateTime < [0, 1, 2, 7, 14, 30][Cfg.updDollchan] * 1e3 * 60 * 60 * 24)) {
-              _context58.next = 3;
+              _context59.next = 3;
               break;
             }
             throw new Error('Itʼs not time for an update yet');
           case 3:
-            _context58.prev = 3;
-            _context58.next = 6;
+            _context59.prev = 3;
+            _context59.next = 6;
             return $ajax(gitRaw + 'src/modules/Wrap.js', {
               'Content-Type': 'text/plain'
             }, true);
           case 6:
-            _yield$$ajax = _context58.sent;
+            _yield$$ajax = _context59.sent;
             responseText = _yield$$ajax.responseText;
-            _context58.next = 17;
+            _context59.next = 17;
             break;
           case 10:
-            _context58.prev = 10;
-            _context58.t0 = _context58["catch"](3);
+            _context59.prev = 10;
+            _context59.t0 = _context59["catch"](3);
             if (!isManual) {
-              _context58.next = 16;
+              _context59.next = 16;
               break;
             }
-            return _context58.abrupt("return", "<div style=\"color: red; font-weigth: bold;\">".concat(Lng.noConnect[lang], "</div>"));
+            return _context59.abrupt("return", "<div style=\"color: red; font-weigth: bold;\">".concat(Lng.noConnect[lang], "</div>"));
           case 16:
             throw new Error(Lng.noConnect[lang]);
           case 17:
             v = responseText.match(/const version = '([0-9.]+)';/);
             remoteVer = v === null || v === void 0 || (_v$ = v[1]) === null || _v$ === void 0 ? void 0 : _v$.split('.');
             if (remoteVer) {
-              _context58.next = 21;
+              _context59.next = 21;
               break;
             }
             throw new Error('Canʼt get remote version');
           case 21:
             currentVer = version.split('.');
             src = "".concat(gitRaw).concat(nav.isESNext ? 'src/Dollchan_Extension_Tools.es6' : 'Dollchan_Extension_Tools', ".user.js");
-            _context58.next = 25;
+            _context59.next = 25;
             return CfgSaver.saveObj('lastUpd', function () {
               return Date.now();
             });
@@ -25097,39 +24983,39 @@ Spells.addSpell(9, '', false);
             i = 0, len = Math.max(currentVer.length, remoteVer.length);
           case 28:
             if (!(i < len)) {
-              _context58.next = 38;
+              _context59.next = 38;
               break;
             }
             if (!((+remoteVer[i] || 0) > (+currentVer[i] || 0))) {
-              _context58.next = 33;
+              _context59.next = 33;
               break;
             }
-            return _context58.abrupt("return", "".concat(link).concat(Lng.updAvail[lang].replace('%s', v[1]), "</a>").concat(chLogLink));
+            return _context59.abrupt("return", "".concat(link).concat(Lng.updAvail[lang].replace('%s', v[1]), "</a>").concat(chLogLink));
           case 33:
             if (!((+remoteVer[i] || 0) < (+currentVer[i] || 0))) {
-              _context58.next = 35;
+              _context59.next = 35;
               break;
             }
-            return _context58.abrupt("break", 38);
+            return _context59.abrupt("break", 38);
           case 35:
             ++i;
-            _context58.next = 28;
+            _context59.next = 28;
             break;
           case 38:
             if (!isManual) {
-              _context58.next = 42;
+              _context59.next = 42;
               break;
             }
             c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
             vc = version + '.' + c;
-            return _context58.abrupt("return", c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) : "".concat(Lng.haveLatestStable[lang].replace('%s', version), "\r\n").concat(Lng.newCommitsAvail[lang].replace('%s', "".concat(link).concat(vc, "</a>").concat(chLogLink))));
+            return _context59.abrupt("return", c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) : "".concat(Lng.haveLatestStable[lang].replace('%s', version), "\r\n").concat(Lng.newCommitsAvail[lang].replace('%s', "".concat(link).concat(vc, "</a>").concat(chLogLink))));
           case 42:
             throw new Error();
           case 43:
           case "end":
-            return _context58.stop();
+            return _context59.stop();
         }
-      }, _callee52, null, [[3, 10]]);
+      }, _callee53, null, [[3, 10]]);
     }));
     return _checkForUpdates.apply(this, arguments);
   }
@@ -25155,7 +25041,7 @@ Spells.addSpell(9, '', false);
       thrNavPanel.initThrNav();
     }
     if (!localData) {
-      updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr && !aib.isArchived);
+      updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr);
     }
   }
   function scrollPage() {
@@ -25223,60 +25109,60 @@ Spells.addSpell(9, '', false);
     return _runMain.apply(this, arguments);
   }
   function _runMain() {
-    _runMain = _asyncToGenerator(_regeneratorRuntime().mark(function _callee53(checkDomains, dataPromise) {
+    _runMain = _asyncToGenerator(_regeneratorRuntime().mark(function _callee54(checkDomains, dataPromise) {
       var formEl, _yield, _yield2, favObj, storageName, firstThr;
-      return _regeneratorRuntime().wrap(function _callee53$(_context59) {
-        while (1) switch (_context59.prev = _context59.next) {
+      return _regeneratorRuntime().wrap(function _callee54$(_context60) {
+        while (1) switch (_context60.prev = _context60.next) {
           case 0:
             Logger.initLogger();
             if (!(!doc.body || !aib && !(aib = getImageBoard(checkDomains)))) {
-              _context59.next = 3;
+              _context60.next = 3;
               break;
             }
-            return _context59.abrupt("return");
+            return _context60.abrupt("return");
           case 3:
             formEl = $q(aib.qDelForm + ', [de-form]');
             if (formEl) {
-              _context59.next = 6;
+              _context60.next = 6;
               break;
             }
-            return _context59.abrupt("return");
+            return _context60.abrupt("return");
           case 6:
             Logger.log('Imageboard check');
             if (locStorage) {
-              _context59.next = 11;
+              _context60.next = 11;
               break;
             }
             if (checkStorage()) {
-              _context59.next = 10;
+              _context60.next = 10;
               break;
             }
-            return _context59.abrupt("return");
+            return _context60.abrupt("return");
           case 10:
             initNavFuncs();
           case 11:
-            _context59.next = 13;
+            _context60.next = 13;
             return dataPromise || Promise.all([readFavorites(), readCfg()]);
           case 13:
-            _yield = _context59.sent;
+            _yield = _context60.sent;
             _yield2 = _slicedToArray(_yield, 1);
             favObj = _yield2[0];
             if (!(!localData && doc.body.classList.contains('de-mode-local'))) {
-              _context59.next = 18;
+              _context60.next = 18;
               break;
             }
-            return _context59.abrupt("return");
+            return _context60.abrupt("return");
           case 18:
             doc.body.classList.add('de-runned');
             Logger.log('Storage loading');
             addSVGIcons();
             if (!Cfg.disabled) {
-              _context59.next = 25;
+              _context60.next = 25;
               break;
             }
             Panel.initPanel(formEl);
             scriptCSS();
-            return _context59.abrupt("return");
+            return _context60.abrupt("return");
           case 25:
             if ('toJSON' in Array.prototype) {
               delete Array.prototype.toJSON;
@@ -25312,19 +25198,19 @@ Spells.addSpell(9, '', false);
             Logger.log('Replace delform');
             pByEl = new Map();
             pByNum = new Map();
-            _context59.prev = 40;
+            _context60.prev = 40;
             DelForm.last = DelForm.first = new DelForm(formEl, aib.page, null);
             if (!Thread.first) {
               console.error('No threads detected!');
             }
-            _context59.next = 50;
+            _context60.next = 50;
             break;
           case 45:
-            _context59.prev = 45;
-            _context59.t0 = _context59["catch"](40);
-            console.error('Delform parsing error:', getErrorMessage(_context59.t0));
+            _context60.prev = 45;
+            _context60.t0 = _context60["catch"](40);
+            console.error('Delform parsing error:', getErrorMessage(_context60.t0));
             $show(doc.body);
-            return _context59.abrupt("return");
+            return _context60.abrupt("return");
           case 50:
             Logger.log('Parse delform');
             if (aib.t) {
@@ -25373,9 +25259,9 @@ Spells.addSpell(9, '', false);
             Logger.finish();
           case 76:
           case "end":
-            return _context59.stop();
+            return _context60.stop();
         }
-      }, _callee53, null, [[40, 45]]);
+      }, _callee54, null, [[40, 45]]);
     }));
     return _runMain.apply(this, arguments);
   }

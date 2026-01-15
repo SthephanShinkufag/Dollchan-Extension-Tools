@@ -51,7 +51,6 @@ class BaseBoard {
 		this.formHeaders = false;
 		this.formParent = 'parent';
 		this.hasAltCaptcha = false;
-		this.hasArchive = false;
 		this.hasCatalog = false;
 		this.hasOPNum = false;
 		this.hasPicWrap = false;
@@ -100,53 +99,23 @@ class BaseBoard {
 		Object.defineProperty(this, 'qThread', { value });
 		return value;
 	}
-	get captchaAfterSubmit() {
-		return null;
-	}
 	get captchaInit() {
 		return null;
 	}
 	get captchaLang() {
 		return this.captchaRu ? 2 : 1;
 	}
-	get captchaUpdate() {
-		return null;
-	}
 	get catalogUrl() {
 		return `${ this.protocol }//${ this.host }/${ this.b }/catalog.html`;
-	}
-	get changeReplyMode() {
-		return null;
-	}
-	get clearFileInputs() {
-		return null;
 	}
 	get css() {
 		return '';
 	}
-	get deleteTruncMsg() {
-		return null;
-	}
-	get fixDeadLinks() {
-		return null;
-	}
-	get fixHTMLHelper() {
-		return null;
-	}
 	get fixFileInputs() {
-		return null;
-	}
-	get fixKCUnixFilenames() {
-		return null;
-	}
-	get getImgRedirectSrc() {
 		return null;
 	}
 	get getSubmitData() {
 		return null;
-	}
-	get isArchived() {
-		return false;
 	}
 	get lastPage() {
 		const el = $q(this.qPages);
@@ -160,9 +129,6 @@ class BaseBoard {
 	get markupTags() {
 		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
 	}
-	get handlePostClick() {
-		return null;
-	}
 	get postersCount() {
 		return '';
 	}
@@ -175,25 +141,8 @@ class BaseBoard {
 	get reportForm() {
 		return null;
 	}
-	get sendHTML5Post() {
-		return null;
-	}
-	get stormWallFixAjax() {
-		return null;
-	}
-	get stormWallFixCaptcha() {
-		return null;
-	}
-	get stormWallFixSubmit() {
-		return null;
-	}
-	get stormWallHelper() {
-		return null;
-	}
 	fixHTML(data, isForm = false) {
-		if(!(dTime || Spells.reps || Cfg.crossLinks || Cfg.decodeLinks ||
-			this.fixHTMLHelper || this.fixDeadLinks || this.hasTextLinks)
-		) {
+		if(!(dTime || Spells.reps || Cfg.crossLinks || Cfg.decodeLinks || this.hasTextLinks)) {
 			return data;
 		}
 		let str;
@@ -207,12 +156,6 @@ class BaseBoard {
 		}
 		if(dTime) {
 			str = dTime.fix(str);
-		}
-		if(this.fixHTMLHelper) {
-			str = this.fixHTMLHelper(str);
-		}
-		if(this.fixDeadLinks) {
-			str = this.fixDeadLinks(str);
 		}
 		if(this.hasTextLinks) {
 			str = str.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig,

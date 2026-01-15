@@ -395,7 +395,6 @@ class ImagesViewer {
 		if(this.data.rotate) {
 			this.rotateView(false);
 		}
-		data.checkForRedirect(this._fullEl);
 	}
 }
 
@@ -457,20 +456,6 @@ class ExpandableImage {
 			this._webmTitleLoad.cancelPromise();
 			this._webmTitleLoad = null;
 		}
-	}
-	checkForRedirect(fullEl) {
-		if(!aib.getImgRedirectSrc || this.redirected) {
-			return;
-		}
-		aib.getImgRedirectSrc(this.src).then(newSrc => {
-			this.redirected = true;
-			Object.defineProperty(this, 'src', { value: newSrc });
-			$q('img, video', fullEl).src = this.el.src =
-				this.el.parentNode.href = getImgNameLink(this.el).href = newSrc;
-			if(!this.isVideo) {
-				$q('a', fullEl).href = newSrc;
-			}
-		});
 	}
 	collapseImg(e) { // Collapse an image that expanded in post
 		if(e && this.isVideo && ExpandableImage.isControlClick(e)) {
@@ -571,7 +556,6 @@ class ExpandableImage {
 		const parent = this.el.parentNode;
 		$hide(parent);
 		parent.after(fullEl);
-		this.checkForRedirect(fullEl);
 		if(e) {
 			const fullImgTop = fullEl.getBoundingClientRect().top;
 			if(fullImgTop < 0 || origImgTop < 0) {
@@ -622,7 +606,7 @@ class ExpandableImage {
 			this.isVideo ? ' de-fullimg-video' : '' }`;
 		// Expand images: JPG, PNG, GIF, AVIF, WEBP
 		if(!this.isVideo) {
-			const waitEl = !aib.getImgRedirectSrc && this._size ? '' :
+			const waitEl = this._size ? '' :
 				'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
 			wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
 				${ waitEl }

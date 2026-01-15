@@ -77,9 +77,6 @@ class AbstractPost {
 
 		// Click event
 		if(type === 'click') {
-			if(aib.handlePostClick) {
-				aib.handlePostClick(this, el, e);
-			}
 			// Skip the click by wheel button
 			switch(e.button) {
 			case 0: break;
@@ -385,10 +382,6 @@ class AbstractPost {
 		downloadBlob(new Blob([data], { type: getFileMime(url) }), el.getAttribute('download'));
 	}
 	_getFullMsg(truncEl, isInit) {
-		if(aib.deleteTruncMsg) {
-			aib.deleteTruncMsg(this, truncEl, isInit);
-			return;
-		}
 		if(!isInit) {
 			$popup('load-fullmsg', Lng.loading[lang], true);
 		}

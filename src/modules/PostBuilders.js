@@ -3,15 +3,14 @@
 =========================================================================================================== */
 
 class DOMPostsBuilder {
-	constructor(form, isArchived) {
+	constructor(form) {
 		this._form = form;
 		this._posts = $Q(aib.qPost, form);
 		this.length = this._posts.length;
 		this.postersCount = '';
-		this._isArchived = isArchived;
 	}
 	get isClosed() {
-		return aib.qClosed && !!$q(aib.qClosed, this._form) || this._isArchived;
+		return aib.qClosed && !!$q(aib.qClosed, this._form);
 	}
 	getOpMessage() {
 		return aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, this._form)));

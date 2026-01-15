@@ -31,9 +31,6 @@ async function checkSubmit(data) {
 	const isDocument = data instanceof Document;
 	if(aib.getSubmitData) {
 		if(aib.jsonSubmit) {
-			if(aib.captchaAfterSubmit?.(data)) {
-				return;
-			}
 			const _data = (isDocument ? data.body.textContent : data).trim();
 			try {
 				data = JSON.parse(_data);
@@ -282,17 +279,13 @@ async function html5Submit(form, submitter, needProgress = false) {
 		}
 		data.append(name, val);
 	}
-	if(aib.sendHTML5Post) {
-		return aib.sendHTML5Post(form, data, needProgress, hasFiles);
-	}
 	const ajaxParams = { data, method: 'POST' };
 	if(needProgress && hasFiles) {
 		ajaxParams.onprogress = getUploadFunc();
 	}
-	const url = form.action;
-	return $ajax(url, ajaxParams).then(({ responseText: text }) => aib.jsonSubmit ? text :
-		aib.stormWallFixSubmit ? aib.stormWallFixSubmit(url, text, ajaxParams) : $createDoc(text)
-	).catch(err => Promise.reject(err));
+	return $ajax(form.action, ajaxParams)
+		.then(({ responseText: text }) => aib.jsonSubmit ? text : $createDoc(text))
+		.catch(err => Promise.reject(err));
 }
 
 function cleanFile(data, extraData) {

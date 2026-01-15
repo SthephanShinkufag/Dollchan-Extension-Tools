@@ -1381,10 +1381,6 @@ const Lng = {
 		'Тред закрыт',
 		'Thread is closed',
 		'Тред закрито'],
-	thrArchived: [
-		'Тред в архиве',
-		'Thread is archived',
-		'Тред заархівовано'],
 	stormWallCheck: [
 		'Проверка StormWall защиты от DDoS атак...',
 		'Checking for the StormWall DDoS protection...',

@@ -98,9 +98,7 @@ class Captcha {
 	showCaptcha(isUpdateImage = false) {
 		if(!this.textEl) {
 			$show(this.parentEl);
-			if(aib.captchaUpdate) {
-				aib.captchaUpdate(this, false);
-			} else if(this._isRecap) {
+			if(this._isRecap) {
 				this._updateRecap();
 			}
 			return;
@@ -136,12 +134,7 @@ class Captcha {
 			return;
 		}
 		this._lastUpdate = Date.now();
-		if(aib.captchaUpdate) {
-			const updatePromise = aib.captchaUpdate(this, isError);
-			if(updatePromise) {
-				updatePromise.then(() => this._updateTextEl(isFocus), err => this._setUpdateError(err));
-			}
-		} else if(this._isRecap) {
+		if(this._isRecap) {
 			this._updateRecap();
 		} else if(this.textEl) {
 			this._updateTextEl(isFocus);
@@ -160,9 +153,6 @@ class Captcha {
 			const newSrc = aib.getCaptchaSrc(src, tNum);
 			img.src = '';
 			img.src = newSrc;
-			if(aib.stormWallFixCaptcha) {
-				aib.stormWallFixCaptcha(newSrc, img);
-			}
 		}
 	}
 	updateHelper(url, fn) {

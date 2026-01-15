@@ -30,7 +30,7 @@ const Panel = Object.create({
 						(filesCount && !Cfg.preLoadImgs ? this._getButton('preimg') : '') +
 						(isThr ? this._getButton('savethr') : '') : '') +
 					(!localData && isThr ?
-						this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') +
+						this._getButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off') +
 						(!nav.isSafari ? this._getButton('audio-off') : '') : '') +
 					(aib.hasCatalog ? this._getButton('catalog') : '') +
 					this._getButton('enable') +

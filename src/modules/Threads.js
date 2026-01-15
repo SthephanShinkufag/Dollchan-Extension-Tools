@@ -259,9 +259,6 @@ class Thread {
 		if(aib.t && Cfg.markNewPosts) {
 			Post.addMark(el, false);
 		}
-		if(aib.fixKCUnixFilenames && post.images.hasAttachments) {
-			aib.fixKCUnixFilenames(post);
-		}
 		return post;
 	}
 	_checkBans(pBuilder) {

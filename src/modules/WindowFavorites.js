@@ -159,9 +159,6 @@ async function refreshFavorites(needClear404) {
 		const num = entryEl.getAttribute('de-num');
 		const url = entryEl.getAttribute('de-url');
 		const entry = favObj[host][board][num];
-		if(entry.err === 'Archived') {
-			continue;
-		}
 		if(host !== aib.host || entry.err === 'Closed') {
 			if(needClear404) {
 				parentEl.classList.add('de-fav-table-unfold');
@@ -195,15 +192,11 @@ async function refreshFavorites(needClear404) {
 			}
 			continue;
 		}
-		let formEl, isArchived;
+		let formEl;
 		iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 		titleEl.title = Lng.updating[lang];
 		try {
-			if(aib.hasArchive) {
-				[formEl, isArchived] = await ajaxLoad(url, true, false, true);
-			} else {
-				formEl = await ajaxLoad(url);
-			}
+			formEl = await ajaxLoad(url);
 		} catch(err) {
 			if(!(err instanceof AjaxError) || err.code === 0) {
 				$popup('fav-refresh', Lng.noConnect[lang]);
@@ -222,12 +215,6 @@ async function refreshFavorites(needClear404) {
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 			titleEl.title = Lng.thrClosed[lang];
 			entry.err = 'Closed';
-			isUpdate = true;
-		} else if(isArchived) {
-			// Thread is archived
-			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
-			titleEl.title = Lng.thrArchived[lang];
-			entry.err = 'Archived';
 			isUpdate = true;
 		} else {
 			// Thread is available and not closed
@@ -321,7 +308,7 @@ function showFavoritesWindow(winBody, favObj) {
 				const favInfIwrapTitle = !entry.err ? '' :
 					entry.err === 'Closed' ? `title="${ Lng.thrClosed[lang] }"` : `title="${ entry.err }"`;
 				const favInfIconClass = !entry.err ? '' :
-					entry.err === 'Closed' || entry.err === 'Archived' ? 'de-fav-closed' : 'de-fav-unavail';
+					entry.err === 'Closed' ? 'de-fav-closed' : 'de-fav-unavail';
 				const favInfYouDisp = entry.you ? '' : ' style="display: none;"';
 				const favInfNewDisp = entry.new ? '' : ' style="display: none;"';
 				innerHtml += `<div class="de-entry ${ aib.cReply }" ${

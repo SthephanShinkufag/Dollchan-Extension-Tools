@@ -23,44 +23,45 @@ function getImageBoard(checkDomains) {
 			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
 		}
 		get captchaInit() {
-			const switchCaptcha = status => {
-				const hasPasscode = status === 'validpasscode';
+			const value = () => this._getPasscodeStatus().then(status => {
+				const hasPasscode = status === 'valid';
 				$toggle($id('captchablock').lastElementChild, !hasPasscode);
 				$toggle($id('validcaptchablock'), hasPasscode);
-				$toggle($id('invalidcaptchablock'), status === 'invalidpasscode');
+				$toggle($id('invalidcaptchablock'), status === 'invalid');
 				if(!hasPasscode) {
-					const captchaInput = $id('captcha');
-					if(captchaInput) {
-						captchaInput.value = '';
+					const inpEl = $id('captcha');
+					if(inpEl) {
+						inpEl.value = '';
 					}
 				}
-			};
-			if(getCookies().passcode === '1') {
-				$ajax(this.protocol + '//' + this.host + '/' + this.b + '/imgboard.php?passcode&check').then(
-					xhr => switchCaptcha(xhr.responseText === 'OK' ? 'validpasscode' : 'invalidpasscode'),
-					() => switchCaptcha('invalidpasscode'));
-			} else {
-				switchCaptcha('showcaptcha');
-			}
-			return null;
+			});
+			Object.defineProperty(this, 'captchaInit', { value });
+			return value;
 		}
 		get reportForm() {
 			const value = async (pNum, tNum) => {
+				const passcodeStatus = await this._getPasscodeStatus();
+				const isValidPasscode = passcodeStatus === 'valid';
 				const recapEl = $id('g-recaptcha');
-				const isCaptcha = !!$id('captchablock');
+				const hasCaptcha = !!$id('captchablock');
+				const captchaHTML =
+					!recapEl && !hasCaptcha ? '' :
+					isValidPasscode ? `<div>No captcha: you are a passcode user. <a href="/${
+						aib.b }/imgboard.php?passcode&logout">Log Out.</a></div>` :
+					passcodeStatus === 'invalid' ? `<div>Your pass code seems to be not valid. <a href="/${
+						aib.b }/imgboard.php?passcode" target="_blank">Log In Again?</a></div>` :
+					recapEl ? '<div style="min-height: 80px;"><div id="g-recaptcha2"' +
+						` class="g-recaptcha" data-sitekey="${ recapEl.dataset.sitekey }"></div></div>` :
+					hasCaptcha ? `<div><img src="/${ aib.b }/inc/captcha.php?${ Math.random() }"` +
+						' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;"' +
+						` onclick="this.src = '/${ aib.b }/inc/captcha.php?' + Math.random();"></div>` +
+						'<input type="text" name="captcha" style="width: 300px;"' +
+						` placeholder="${ Lng.cap[lang] }" accesskey="c" autocomplete="off">` : '';
 				const formEl = $q('.report-form', $popup('edit-report',
 					(pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) +
-					'<div class="report-form"><input name="reason" value="" type="text"' +
-					` style="display: block; width: 300px;" placeholder="${ Lng.reportReason[lang] }">` +
-						(recapEl ? '<div style="min-height: 80px;"><div id="g-recaptcha2"' +
-							` class="g-recaptcha" data-sitekey="${ recapEl.dataset.sitekey }"></div></div>` :
-						isCaptcha ? `<img src="/${ aib.b }/inc/captcha.php?${ Math.random() }"` +
-							' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;"' +
-							` onclick="this.src = '/${ aib.b }/inc/captcha.php?' + Math.random();">` +
-							'<input type="text" name="captcha" style="display: block; width: 300px;"' +
-							` placeholder="${ Lng.cap[lang] }" accesskey="c" autocomplete="off">` : '') +
-					'</div>'));
-				if(recapEl){
+					`<div class="report-form"><input type="text" name="reason" value="" placeholder="${
+						Lng.reportReason[lang] }" style=" width: 300px;">` + captchaHTML + '</div>'));
+				if(recapEl && !isValidPasscode){
 					const script = doc.createElement('script');
 					script.type = 'text/javascript';
 					script.textContent = `grecaptcha.render('g-recaptcha2', {'sitekey': '${
@@ -74,11 +75,13 @@ function getImageBoard(checkDomains) {
 						return;
 					}
 					const formData = new FormData();
-					const data = { id: pNum, reason: inpEl.value, json: 1};
-					if(recapEl) {
-						data['g-recaptcha-response'] = $q('.g-recaptcha-response', formEl).value;
-					} else if(isCaptcha) {
-						data.captcha = $q('input[name="captcha"]', formEl).value;
+					const data = { id: pNum, reason: inpEl.value, json: 1 };
+					if(!isValidPasscode) {
+						if(recapEl) {
+							data['g-recaptcha-response'] = $q('.g-recaptcha-response', formEl).value;
+						} else if(hasCaptcha) {
+							data.captcha = $q('input[name="captcha"]', formEl).value;
+						}
 					}
 					for(const key in data) {
 						if($hasProp(data, key)) {
@@ -112,6 +115,19 @@ function getImageBoard(checkDomains) {
 			};
 			Object.defineProperty(this, 'reportForm', { value });
 			return value;
+		}
+		async _getPasscodeStatus() {
+			let status = 'showcaptcha';
+			if(getCookies().passcode === '1') {
+				try {
+					const xhr = await $ajax(this.protocol + '//' + this.host + '/' + this.b +
+						'/imgboard.php?passcode&check');
+					status = xhr.responseText === 'OK' ? 'valid' : 'invalid';
+				} catch(err) {
+					status = 'invalid';
+				}
+			}
+			return status;
 		}
 		fixFileInputs(el) {
 			const str = ' class="de-file-wrap"><input type="file" name="file[]"></div>';
