@@ -289,10 +289,8 @@ async function html5Submit(form, submitter, needProgress = false) {
 	if(needProgress && hasFiles) {
 		ajaxParams.onprogress = getUploadFunc();
 	}
-	const url = form.action;
-	return $ajax(url, ajaxParams).then(({ responseText: text }) => aib.jsonSubmit ? text :
-		aib.stormWallFixSubmit ? aib.stormWallFixSubmit(url, text, ajaxParams) : $createDoc(text)
-	).catch(err => Promise.reject(err));
+	return $ajax(form.action, ajaxParams).then(({ responseText: text }) =>
+		aib.jsonSubmit ? text : $createDoc(text)).catch(err => Promise.reject(err));
 }
 
 function cleanFile(data, extraData) {

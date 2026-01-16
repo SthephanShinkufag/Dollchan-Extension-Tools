@@ -253,11 +253,9 @@ function getAjaxResponseEl(text, needForm) {
 
 function ajaxLoad(url, needForm = true, useCache = false, checkArch = false) {
 	return AjaxCache.runCachedAjax(url, useCache).then(xhr => {
-		const fnResult = el => !el ? CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang])) :
+		const el = getAjaxResponseEl(xhr.responseText, needForm);
+		return !el ? CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang])) :
 			checkArch ? [el, (xhr.responseURL || '').includes('/arch/')] : el;
-		const text = xhr.responseText;
-		const el = getAjaxResponseEl(text, needForm);
-		return aib.stormWallFixAjax ? aib.stormWallFixAjax(url, text, el, needForm, fnResult) : fnResult(el);
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 

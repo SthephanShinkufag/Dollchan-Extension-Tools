@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = 'eaaad93';
+const commit = 'f7aa3d9';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -1570,14 +1570,6 @@ const Lng = {
 		'Тред в архиве',
 		'Thread is archived',
 		'Тред заархівовано'],
-	stormWallCheck: [
-		'Проверка StormWall защиты от DDoS атак...',
-		'Checking for the StormWall DDoS protection...',
-		'Перевірка StormWall захисту від DDoS атак...'],
-	stormWallErr: [
-		'Пожалуйста, решите капчу StormWall защиты',
-		'Please resolve the StormWall protection captcha',
-		'Будь ласка, вирішіть капчу StormWall захисту'],
 
 	// Other warnings
 	internalError: [
@@ -2582,7 +2574,7 @@ async function readCfg() {
 			delete obj.captchaLang;
 		}
 	}
-	defaultCfg.captchaLang = aib.captchaLang;
+	defaultCfg.captchaLang = aib.captchaRu ? 2 : 1;
 	const browserLang = String(navigator.language).toLowerCase();
 	defaultCfg.language =
 		browserLang.startsWith('ru') ? 0 :
@@ -7164,11 +7156,9 @@ function getAjaxResponseEl(text, needForm) {
 
 function ajaxLoad(url, needForm = true, useCache = false, checkArch = false) {
 	return AjaxCache.runCachedAjax(url, useCache).then(xhr => {
-		const fnResult = el => !el ? CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang])) :
+		const el = getAjaxResponseEl(xhr.responseText, needForm);
+		return !el ? CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang])) :
 			checkArch ? [el, (xhr.responseURL || '').includes('/arch/')] : el;
-		const text = xhr.responseText;
-		const el = getAjaxResponseEl(text, needForm);
-		return aib.stormWallFixAjax ? aib.stormWallFixAjax(url, text, el, needForm, fnResult) : fnResult(el);
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 
@@ -9151,9 +9141,7 @@ class PostForm {
 		if(!fileEl) {
 			return;
 		}
-		if(aib.fixFileInputs) {
-			aib.fixFileInputs(fileEl.closest(aib.qFormTd));
-		}
+		aib.fixFileInputs?.(fileEl.closest(aib.qFormTd));
 		this.files = new Files(this, $q(aib.qFormFile, this.form));
 		// We need to clear file inputs in case if session was restored.
 		deWindow.addEventListener('load',
@@ -9639,10 +9627,8 @@ async function html5Submit(form, submitter, needProgress = false) {
 	if(needProgress && hasFiles) {
 		ajaxParams.onprogress = getUploadFunc();
 	}
-	const url = form.action;
-	return $ajax(url, ajaxParams).then(({ responseText: text }) => aib.jsonSubmit ? text :
-		aib.stormWallFixSubmit ? aib.stormWallFixSubmit(url, text, ajaxParams) : $createDoc(text)
-	).catch(err => Promise.reject(err));
+	return $ajax(form.action, ajaxParams).then(({ responseText: text }) =>
+		aib.jsonSubmit ? text : $createDoc(text)).catch(err => Promise.reject(err));
 }
 
 function cleanFile(data, extraData) {
@@ -9831,9 +9817,7 @@ class Files {
 			inp.clearInp();
 		}
 		this.hideEmpty();
-		if(aib.clearFileInputs) {
-			aib.clearFileInputs();
-		}
+		aib.clearFileInputs?.();
 	}
 	hideEmpty() {
 		for(let els = this._inputs, i = els.length - 1; i > 0; --i) {
@@ -10375,7 +10359,7 @@ class Captcha {
 		e.stopPropagation();
 	}
 	initCapPromise() {
-		const initPromise = aib.captchaInit ? aib.captchaInit(this) : null;
+		const initPromise = aib.captchaInit?.(this);
 		if(initPromise) {
 			initPromise.then(() => this.showCaptcha(), err => {
 				if(err instanceof AjaxError) {
@@ -10468,9 +10452,6 @@ class Captcha {
 			const newSrc = aib.getCaptchaSrc(src, tNum);
 			img.src = '';
 			img.src = newSrc;
-			if(aib.stormWallFixCaptcha) {
-				aib.stormWallFixCaptcha(newSrc, img);
-			}
 		}
 	}
 	updateHelper(url, fn) {
@@ -10602,9 +10583,7 @@ class AbstractPost {
 
 		// Click event
 		if(type === 'click') {
-			if(aib.handlePostClick) {
-				aib.handlePostClick(this, el, e);
-			}
+			aib.handlePostClick?.(this, el, e);
 			// Skip the click by wheel button
 			switch(e.button) {
 			case 0: break;
@@ -10887,17 +10866,7 @@ class AbstractPost {
 			}
 		});
 	}
-
-	_clickImage(el, e) {
-		const image = this.images.getImageByEl(el);
-		if(!image || (!image.isImage && !image.isVideo)) {
-			return;
-		}
-		image.expandImg((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
-		e.preventDefault();
-		e.stopPropagation();
-	}
-	async _downloadImageByLink(el, e) {
+	async downloadImageByLink(el, e) {
 		e.preventDefault();
 		$popup('file-loading', Lng.loading[lang], true);
 		const url = el.href;
@@ -10908,6 +10877,16 @@ class AbstractPost {
 		}
 		closePopup('file-loading');
 		downloadBlob(new Blob([data], { type: getFileMime(url) }), el.getAttribute('download'));
+	}
+
+	_clickImage(el, e) {
+		const image = this.images.getImageByEl(el);
+		if(!image || (!image.isImage && !image.isVideo)) {
+			return;
+		}
+		image.expandImg((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
+		e.preventDefault();
+		e.stopPropagation();
 	}
 	_getFullMsg(truncEl, isInit) {
 		if(aib.deleteTruncMsg) {
@@ -11009,7 +10988,7 @@ class AbstractPost {
 			this.setUserVisib(isHide);
 			return;
 		case 'hide-refsonly': await Spells.addSpell(0 /* #words */, '>>' + num, false); return;
-		case 'img-load': this._downloadImageByLink(el, e); return;
+		case 'img-load': this.downloadImageByLink(el, e); return;
 		case 'post-markmy': {
 			const isAdd = !MyPosts.has(num);
 			if(isAdd) {
@@ -15490,7 +15469,7 @@ class BaseBoard {
 		this.qPostsParent = null;
 		this.qTrunc = '.abbrev, .abbr, .shortened';
 
-		// Other propertioes
+		// Other properties
 		let { port } = deWindow.location;
 		port = port ? ':' + port : '';
 		this.anchor = '#';
@@ -15556,9 +15535,6 @@ class BaseBoard {
 	}
 	get captchaInit() {
 		return null;
-	}
-	get captchaLang() {
-		return this.captchaRu ? 2 : 1;
 	}
 	get captchaUpdate() {
 		return null;
@@ -15630,18 +15606,6 @@ class BaseBoard {
 		return null;
 	}
 	get sendHTML5Post() {
-		return null;
-	}
-	get stormWallFixAjax() {
-		return null;
-	}
-	get stormWallFixCaptcha() {
-		return null;
-	}
-	get stormWallFixSubmit() {
-		return null;
-	}
-	get stormWallHelper() {
 		return null;
 	}
 	fixHTML(data, isForm = false) {
@@ -15735,16 +15699,10 @@ class BaseBoard {
 		return tNum ? temp.replace(/mainpage|res\d+/, 'res' + tNum) : temp.replace(/res\d+/, 'mainpage');
 	}
 	getEmptyFile(field, name) {
-		return {
-			el    : field,
-			name,
-			type  : 'application/octet-stream',
-			value : new File([''], '')
-		};
+		return { el: field, name, type: 'application/octet-stream', value: new File([''], '') };
 	}
 	getImgInfo(wrap) {
-		const el = $q(this.qPostImgInfo, wrap);
-		return el ? el.textContent : '';
+		return $q(this.qPostImgInfo, wrap)?.textContent || '';
 	}
 	getImgRealName(wrap) {
 		const el = $q(this.qPostImgNameLink, wrap);
@@ -16381,52 +16339,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['meta[name="generator"][content^="FoolFuuka"]', FoolFuuka]);
 
 	// DOMAINS
-	class _0chan extends Kusaba {
-		constructor(...args) {
-			super(...args);
-
-			this.qDelForm = '#delform_instant';
-			this.qPostHeader = '.posthead';
-
-			this.captchaRu = true;
-			this.formHeaders = false;
-			this.hasCatalog = true;
-			this.multiFile = true;
-		}
-		get captchaInit() {
-			$script('Captcha.init(); Captcha.initForm(document.getElementById("postform"));');
-			return null;
-		}
-		get css() {
-			return `.content > hr, .extrabtns, .postbutt, .replymode { display: none; }
-				form { position: initial; }`;
-		}
-		captchaUpdate() {
-			$script('var captchaTimeout = 29.5; Captcha.state = "init";');
-			return null;
-		}
-		fixFileInputs(el) {
-			const str = ' class="de-file-wrap"><input type="file" name="file"></div>';
-			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-		}
-		fixVideo(isPost, data) {
-			$Q('.video-embed', isPost ? data.el : data).forEach(el => {
-				(isPost ? data : this.getPostOfEl(el)).msg
-					.prepend($q('.de-video-link', el), doc.createElement('br'));
-				const parent = el.parentNode;
-				el.remove();
-				if(!parent.firstElementChild) {
-					parent.remove();
-				}
-			});
-			return [];
-		}
-		getTNum(thr) {
-			return +thr.getAttribute('data-threadid');
-		}
-	}
-	ibDomains['2.0-chan.ru'] = _0chan;
-
 	class /* _2ch */ Makaba extends BaseBoard {
 		constructor(...args) {
 			super(...args);
@@ -16581,7 +16493,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		clearFileInputs() {
-			$delAll('.sticker-input, .postform__sticker-img');
+			$q('.postform__sticker-img').remove();
+			$q('.sticker-input', postform.form).value = '';
 		}
 		deleteTruncMsg(post, el) {
 			el.previousSibling.remove();
@@ -16881,14 +16794,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormRedir = 'input#noko';
 			this.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
-			this.captchaRu = true;
 			this.captchaUpdPromise = null;
 			this.hasCatalog = true;
 			this.markupBB = false;
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
-		}
-		get captchaLang() {
-			return 0;
 		}
 		get css() {
 			return `${ super.css }
@@ -16925,7 +16834,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return !!$q('.filetitle', post)?.textContent.includes('\u21E9');
 		}
 	}
-	ibDomains['410chan.org'] = _410chan;
+	ibDomains['410chan.org'] = ibDomains['410chan.ru'] = _410chan;
 
 	class _4chan extends BaseBoard {
 		constructor(...args) {
@@ -17032,8 +16941,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return [];
 		}
 		getImgInfo(wrap) {
-			const el = $q(this.qPostImgInfo, wrap);
-			return el ? el.lastChild.textContent : '';
+			return $q(this.qPostImgInfo, wrap)?.lastChild.textContent || '';
 		}
 		getImgRealName(wrap) {
 			const el = $q(this.qPostImgNameLink, wrap);
@@ -17053,7 +16961,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		handlePostClick(post, el, e) {
 			if(el.classList.contains('de-img-name')) {
-				post._downloadImageByLink(el, e);
+				post.downloadImageByLink(el, e);
 			}
 		}
 		reportForm(pNum) {
@@ -17106,15 +17014,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 	}
-	ibDomains['8chan.moe'] = _8chan;
+	ibDomains['8chan.cc'] = ibDomains['8chan.moe'] = _8chan;
 
 	class _8kun extends Vichan {
 		getEmptyFile(field, name) {
-			return {
-				el    : field,
-				name,
-				value : undefined
-			};
+			return { el: field, name, value: undefined };
 		}
 	}
 	ibDomains['8kun.top'] = _8kun;
@@ -17210,7 +17114,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['arhivach.top'] = ibDomains['arhivach.xyz'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
+	ibDomains['arhivach.vc'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
 	class Dobrochan extends Vichan {
 		get css() {
@@ -17226,53 +17130,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['dobrochan.net'] = Dobrochan;
-
-	class Dollchan extends TinyIB {
-		constructor(...args) {
-			super(...args);
-
-			this.qPages = '.pagelist';
-			this.markupBB = true;
-			this.multiFile = true;
-			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
-		}
-		get captchaInit() {
-			const switchCaptcha = status => {
-				const hasPasscode = status === 'validpasscode';
-				$toggle($id('captchablock').lastElementChild, !hasPasscode);
-				$toggle($id('validcaptchablock'), hasPasscode);
-				$toggle($id('invalidcaptchablock'), status === 'invalidpasscode');
-				if(!hasPasscode) {
-					const captchaInput = $id('captcha');
-					if(captchaInput) {
-						captchaInput.value = '';
-					}
-				}
-			};
-			if(getCookies().passcode === '1') {
-				$ajax(this.protocol + '//' + this.host + '/' + this.b + '/imgboard.php?passcode&check').then(
-					xhr => switchCaptcha(xhr.responseText === 'OK' ? 'validpasscode' : 'invalidpasscode'),
-					() => switchCaptcha('invalidpasscode'));
-			} else {
-				switchCaptcha('showcaptcha');
-			}
-			return null;
-		}
-		get fixHTMLHelper() {
-			return null;
-		}
-		fixFileInputs(el) {
-			const str = ' class="de-file-wrap"><input type="file" name="file[]"></div>';
-			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-		}
-		getImgRealName(wrap) {
-			return $q('.filesize > a', wrap).textContent;
-		}
-		init() {
-			return false;
-		}
-	}
-	ibDomains['dollchan.net'] = Dollchan;
 
 	class Endchan extends Lynxchan {
 		constructor(...args) {
@@ -17312,58 +17169,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		ibDomains['enxx3byspwsdo446jujc52ucy2pf5urdbhqw3kbsfhlfjwmbpj5smdad.onion'] =
 		ibDomains['kqrtg5wz4qbyjprujkz33gza7r73iw3ainqp1mz5zmu16symcdwy.loki'] = Endchan;
 
-	class Ernstchan extends BaseBoard {
-		constructor(...args) {
-			super(...args);
-
-			this.cReply = 'post';
-			this.qError = '.error > .info';
-			this.qFormRedir = 'input[name="gb2"][value="thread"]';
-			this.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
-			this.qOPost = '.thread_OP';
-			this.qPages = '.pagelist > li:nth-last-child(2)';
-			this.qPost = '.thread_reply';
-			this.qPostHeader = '.post_head';
-			this.qPostMsg = '.text';
-			this.qPostSubj = '.subject';
-			this.qPostTrip = '.tripcode';
-			this.qTrunc = '.tldr';
-
-			this.docExt = '';
-			this.firstPage = 1;
-			this.markupBB = true;
-			this.multiFile = true;
-			this.res = 'thread/';
-		}
-		get qPostImgNameLink() {
-			return '.filename > a';
-		}
-		get css() {
-			return `.content > hr, .de-parea > hr, .de-pview > .doubledash, .sage { display: none !important }
-				.de-pview > .post { margin-left: 0; border: none; }
-				#de-win-reply { float:left; margin-left:2em }`;
-		}
-		fixFileInputs(el) {
-			const str = ` class="de-file-wrap"><input name="file" type="file">
-				<input type="hidden" name="spoilered" value="0">
-				<input type="checkbox" name="spoilered" value="1"></div>`;
-			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode.parentNode;
-		}
-		getPageUrl(board, page) {
-			return page > 1 ? fixBoardName(board) + 'page/' + page : fixBoardName(board);
-		}
-		getPostElOfEl(el) {
-			while(el && !nav.matchesSelector(el, '.post')) {
-				el = el.parentElement;
-			}
-			return el.parentNode;
-		}
-	}
-	ibDomains['ernstchan.xyz'] = Ernstchan;
-
 	class Gensokyo extends Kusaba {
 		constructor(...args) {
 			super(...args);
@@ -17400,50 +17205,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		get isArchived() {
 			return this.b.includes('/arch');
 		}
-		stormWallFixAjax(url, text, el, needForm, fnResult) {
-			return this.stormWallHelper(url, text, () => fnResult(el),
-				frText => fnResult(getAjaxResponseEl(frText, needForm)));
-		}
-		stormWallFixCaptcha(url, img) {
-			img.onload = img.onerror = () => {
-				if(!(img.naturalHeight + img.naturalWidth)) {
-					this.stormWallHelper(url, null, Function.prototype, () => {
-						img.src = '';
-						img.src = url;
-					});
-				}
-			};
-		}
-		stormWallFixSubmit(url, text, ajaxParams) {
-			return this.stormWallHelper(url, text, () => $createDoc(text),
-				() => $ajax(url, ajaxParams).then(xhr => $createDoc(xhr.responseText)));
-		}
-		stormWallHelper(url, text, fnOK, fnRes) {
-			const stormWallTxt = '<script src="https://static.stormwall.pro/';
-			if(text !== null && !text.includes(stormWallTxt)) {
-				return fnOK();
-			}
-			return new Promise((resolve, reject) => {
-				let loadCounter = 0;
-				$popup('err-stormwall', `<div>${ Lng.stormWallCheck[lang] }</div>` +
-					`<iframe id="de-stormwall" name="de-prohibited" src="${
-						url }" width="500" height="500" style="display: none;"></iframe>`);
-				const frEl = $id('de-stormwall');
-				frEl.onload = () => {
-					if(loadCounter++ < 1) {
-						return;
-					}
-					const frText = frEl.contentWindow.document.documentElement.outerHTML;
-					if(frText.includes(stormWallTxt)) {
-						$show(frEl);
-						reject(new AjaxError(0, Lng.stormWallErr[lang]));
-						return;
-					}
-					closePopup('err-stormwall');
-					resolve(fnRes(frText));
-				};
-			});
-		}
 		getImgRealName(wrap) {
 			return $q('.filesize > em', wrap).textContent.split(',')[2] || super.getImgRealName(wrap);
 		}
@@ -17458,8 +17219,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['iichan.hk'] = ibDomains['iichan.lol'] =
-		ibDomains['iichan.moe'] = ibDomains['ii.yakuji.moe'] = Iichan;
+	ibDomains['iichan.hk'] = ibDomains['iichan.lol'] = ibDomains['ii.yakuji.moe'] = Iichan;
 
 	class Ivchan extends BaseBoard {
 		constructor(...args) {
@@ -17477,7 +17237,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qTrunc = '.abbrev > span:first-of-type';
 
 			this.anchor = '#i';
-			this.captchaRu = true;
 			this.formParent = 'thread_id';
 			this.hasPicWrap = true;
 			this.multiFile = true;
@@ -17650,9 +17409,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return super.sendHTML5Post(form, data, needProgress, hasFiles);
 		}
 	}
-	ibDomains['kohlchan.net'] = ibDomains['kohlchan.top'] = ibDomains['kohlchanagb7ih5g.onion'] =
-		ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] =
-		ibDomains['kohlkanal.net'] = Kohlchan;
+	ibDomains['kohlchan.net'] = ibDomains['kohlchan.top'] = ibDomains['kohlchan.ws'] =
+		ibDomains['kohlkanal.net'] = ibDomains['kohlchanagb7ih5g.onion'] =
+		ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] = Kohlchan;
 
 	class Kropyvach extends Vichan {
 		constructor(...args) {
@@ -17710,115 +17469,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['nowere.net'] = Nowere;
-
-	class Ponyach extends BaseBoard {
-		constructor(...args) {
-			super(...args);
-
-			this.qBan = 'font[color="#FF0000"]';
-			this.qPostImgInfo = '.filesize[style="display: inline;"]';
-
-			this.formParent = 'replythread';
-			this.jsonSubmit = true;
-			this.multiFile = true;
-		}
-		get qPostImgNameLink() {
-			return 'a:first-of-type';
-		}
-		getImgInfo(wrap) {
-			return wrap.textContent;
-		}
-		getImgRealName(wrap) {
-			return $q('.mobile_filename_hide', wrap).textContent;
-		}
-		getImgWrap(img) {
-			return $id('fs_' + img.alt);
-		}
-		getPNum(post) {
-			return +post.getAttribute('data-num');
-		}
-		getSubmitData({ error, id }) {
-			return { error, postNum: id && +id };
-		}
-		init() {
-			const el = $id('postform');
-			if(el) {
-				el.setAttribute('action', el.getAttribute('action') + '?json=1');
-			}
-			defaultCfg.postSameImg = 0;
-			defaultCfg.removeEXIF = 0;
-			return false;
-		}
-	}
-	ibDomains['ponyach.ru'] = Ponyach;
-
-	class Ponychan extends Tinyboard {
-		constructor(...args) {
-			super(...args);
-
-			this.qClosed = 'img[title="Locked"]';
-			this.qOPost = '.opContainer';
-
-			this.jsonSubmit = false;
-		}
-		get css() {
-			return `${ super.css }
-				.mature_thread { display: block !important; }
-				.mature_warning { display: none; }
-				${ Cfg.imgNames ? '.post-filename { display: none; }' : '' }`;
-		}
-		getImgRealName(wrap) {
-			return $q('.post-filename', wrap).textContent;
-		}
-		init() {
-			super.init();
-			$Q('img[data-mature-src]').forEach(el => (el.src = el.getAttribute('data-mature-src')));
-			return false;
-		}
-	}
-	ibDomains['ponychan.net'] = Ponychan;
-
-	class Rfch extends Vichan {
-		get css() {
-			return `${ super.css }
-				#coll-hide, #coll-show { display: none; }
-				form[name="post"], form[name="post"] > table > tbody > tr:first-child
-					{ display: block !important; }`;
-		}
-	}
-	ibDomains['rfch.rocks'] = Rfch;
-
-	class Spirech extends Vichan {
-		constructor(...args) {
-			super(...args);
-
-			this.qForm = 'form[name="post"], form[name="de-post"]';
-			this.qFormRules = '#post-info';
-
-			this.jsonSubmit = true;
-			this.markupBB = true;
-		}
-		get css() {
-			return `${ super.css }
-				.favorite-button, .stylebuttons, #symbols-left + br { display: none !important; }
-				#post-info { width: auto }`;
-		}
-		get markupTags() {
-			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub'];
-		}
-		captchaUpdate() {
-			$script(`load_captcha("/inc/captcha/entrypoint.php", "abcdefghijklmnopqrstuvwxyz");
-				actually_load_captcha("/inc/captcha/entrypoint.php", "abcdefghijklmnopqrstuvwxyz");`);
-			return null;
-		}
-		init() {
-			super.init();
-			$script('$("textarea#body").on("change input propertychange", countSymbols); countSymbols();');
-			$q('form[name="post"]').name = 'de-post';
-		}
-	}
-	ibDomains['spirech.org'] = ibDomains['old52qbrspw6jivvrcjlybucxatpnzwea3oxrsw75be4ka53qfqhrnid.onion'] =
-		Spirech;
 
 	class Synch extends Tinyboard {
 		constructor(...args) {

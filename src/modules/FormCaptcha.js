@@ -67,7 +67,7 @@ class Captcha {
 		e.stopPropagation();
 	}
 	initCapPromise() {
-		const initPromise = aib.captchaInit ? aib.captchaInit(this) : null;
+		const initPromise = aib.captchaInit?.(this);
 		if(initPromise) {
 			initPromise.then(() => this.showCaptcha(), err => {
 				if(err instanceof AjaxError) {
@@ -160,9 +160,6 @@ class Captcha {
 			const newSrc = aib.getCaptchaSrc(src, tNum);
 			img.src = '';
 			img.src = newSrc;
-			if(aib.stormWallFixCaptcha) {
-				aib.stormWallFixCaptcha(newSrc, img);
-			}
 		}
 	}
 	updateHelper(url, fn) {

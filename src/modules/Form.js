@@ -410,9 +410,7 @@ class PostForm {
 		if(!fileEl) {
 			return;
 		}
-		if(aib.fixFileInputs) {
-			aib.fixFileInputs(fileEl.closest(aib.qFormTd));
-		}
+		aib.fixFileInputs?.(fileEl.closest(aib.qFormTd));
 		this.files = new Files(this, $q(aib.qFormFile, this.form));
 		// We need to clear file inputs in case if session was restored.
 		deWindow.addEventListener('load',

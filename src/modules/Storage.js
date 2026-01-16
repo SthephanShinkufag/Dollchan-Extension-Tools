@@ -157,7 +157,7 @@ async function readCfg() {
 			delete obj.captchaLang;
 		}
 	}
-	defaultCfg.captchaLang = aib.captchaLang;
+	defaultCfg.captchaLang = aib.captchaRu ? 2 : 1;
 	const browserLang = String(navigator.language).toLowerCase();
 	defaultCfg.language =
 		browserLang.startsWith('ru') ? 0 :

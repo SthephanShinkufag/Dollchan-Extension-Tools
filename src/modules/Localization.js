@@ -1375,14 +1375,6 @@ const Lng = {
 		'Тред в архиве',
 		'Thread is archived',
 		'Тред заархівовано'],
-	stormWallCheck: [
-		'Проверка StormWall защиты от DDoS атак...',
-		'Checking for the StormWall DDoS protection...',
-		'Перевірка StormWall захисту від DDoS атак...'],
-	stormWallErr: [
-		'Пожалуйста, решите капчу StormWall защиты',
-		'Please resolve the StormWall protection captcha',
-		'Будь ласка, вирішіть капчу StormWall захисту'],
 
 	// Other warnings
 	internalError: [

@@ -44,7 +44,7 @@ class BaseBoard {
 		this.qPostsParent = null;
 		this.qTrunc = '.abbrev, .abbr, .shortened';
 
-		// Other propertioes
+		// Other properties
 		let { port } = deWindow.location;
 		port = port ? ':' + port : '';
 		this.anchor = '#';
@@ -110,9 +110,6 @@ class BaseBoard {
 	}
 	get captchaInit() {
 		return null;
-	}
-	get captchaLang() {
-		return this.captchaRu ? 2 : 1;
 	}
 	get captchaUpdate() {
 		return null;
@@ -184,18 +181,6 @@ class BaseBoard {
 		return null;
 	}
 	get sendHTML5Post() {
-		return null;
-	}
-	get stormWallFixAjax() {
-		return null;
-	}
-	get stormWallFixCaptcha() {
-		return null;
-	}
-	get stormWallFixSubmit() {
-		return null;
-	}
-	get stormWallHelper() {
 		return null;
 	}
 	fixHTML(data, isForm = false) {
@@ -289,16 +274,10 @@ class BaseBoard {
 		return tNum ? temp.replace(/mainpage|res\d+/, 'res' + tNum) : temp.replace(/res\d+/, 'mainpage');
 	}
 	getEmptyFile(field, name) {
-		return {
-			el    : field,
-			name,
-			type  : 'application/octet-stream',
-			value : new File([''], '')
-		};
+		return { el: field, name, type: 'application/octet-stream', value: new File([''], '') };
 	}
 	getImgInfo(wrap) {
-		const el = $q(this.qPostImgInfo, wrap);
-		return el ? el.textContent : '';
+		return $q(this.qPostImgInfo, wrap)?.textContent || '';
 	}
 	getImgRealName(wrap) {
 		const el = $q(this.qPostImgNameLink, wrap);
