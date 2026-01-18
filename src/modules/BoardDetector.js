@@ -865,8 +865,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			el?.parentNode.remove();
 		}
 	}
-	ibDomains['2ch.hk'] = ibDomains['2ch.life'] = ibDomains['2ch.org'] = ibDomains['2ch.su'] =
-		ibDomains['dva4.ru'] = Makaba;
+	ibDomains['2ch.life'] = ibDomains['2ch.org'] = ibDomains['2ch.su'] = Makaba;
 
 	class _2channel extends Makaba {
 		constructor(...args) {
@@ -1028,8 +1027,12 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSage(post) {
 			return !!$q('.filetitle', post)?.textContent.includes('\u21E9');
 		}
+		init() {
+			defaultCfg.captchaLang = 0;
+			return false;
+		}
 	}
-	ibDomains['410chan.org'] = ibDomains['410chan.ru'] = _410chan;
+	ibDomains['410chan.org'] = ibDomains['410chan.ru'] = ibDomains['014chan.org'] = _410chan;
 
 	class _4chan extends BaseBoard {
 		constructor(...args) {
@@ -1198,25 +1201,26 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['7chan.org'] = _7chan;
 
-	class _8chan extends Lynxchan {
-		get css() {
-			return `${ super.css }
-				.reloadCaptchaButton { display: none !important; }
-				${ Cfg.addSageBtn ? '#useSageSpan { display: none; }' : '' }`;
-		}
-		captchaUpdate() {
-			$script('captchaUtils.reloadCaptcha();');
-			return null;
-		}
-	}
-	ibDomains['8chan.cc'] = ibDomains['8chan.moe'] = _8chan;
-
 	class _8kun extends Vichan {
 		getEmptyFile(field, name) {
 			return { el: field, name, value: undefined };
 		}
 	}
 	ibDomains['8kun.top'] = _8kun;
+
+	class Aoba extends Kusaba {
+		constructor(...args) {
+			super(...args);
+
+			this.captchaRu = true;
+			this.hasCatalog = true;
+		}
+		get css() {
+			return `.extrabtns, input[name="board"] + hr, .replymode, .replymode + hr,
+				#rswapper + hr { display: none; }`;
+		}
+	}
+	ibDomains['aoba.me'] = Aoba;
 
 	class Archived extends FoolFuuka {
 		getImgRedirectSrc(url) {
@@ -1311,6 +1315,16 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['arhivach.vc'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
+	class Bulochka extends _410chan {
+		get captchaUpdate() {
+			return null;
+		}
+		getCaptchaSrc(src) {
+			return super.getCaptchaSrc(src);
+		}
+	}
+	ibDomains['bulochka.org'] = Bulochka;
+
 	class Dobrochan extends Vichan {
 		get css() {
 			return `${ super.css }
@@ -1363,6 +1377,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		ibDomains['endchancxfbnrfgauuxlztwlckytq7rgeo5v6pc2zd4nyqo3khfam4ad.onion'] =
 		ibDomains['enxx3byspwsdo446jujc52ucy2pf5urdbhqw3kbsfhlfjwmbpj5smdad.onion'] =
 		ibDomains['kqrtg5wz4qbyjprujkz33gza7r73iw3ainqp1mz5zmu16symcdwy.loki'] = Endchan;
+
+	class Escapechain extends Makaba {}
+	ibDomains['escapechain.ru'] = Escapechain;
 
 	class Gensokyo extends Kusaba {
 		constructor(...args) {
@@ -1646,14 +1663,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['lainchan.org'] = Lainchan;
 
-	class Niuchan extends Kusaba {
-		get css() {
-			return `${ super.css }
-				.replybacklinks, .resize { display: none; }`;
-		}
-	}
-	ibDomains['niuchan.org'] = Niuchan;
-
 	class Nowere extends BaseBoard {
 		get markupTags() {
 			return ['**', '***', '', '^H', '', ''];
@@ -1665,7 +1674,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['nowere.net'] = Nowere;
 
-	class Synch extends Tinyboard {
+	class Synch extends Vichan {
 		constructor(...args) {
 			super(...args);
 
