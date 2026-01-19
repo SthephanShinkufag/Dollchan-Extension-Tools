@@ -1693,6 +1693,47 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['nowere.net'] = Nowere;
 
+	class Ponyach extends BaseBoard {
+		constructor(...args) {
+			super(...args);
+
+			this.qBan = 'font[color="#FF0000"]';
+			this.qPostImgInfo = '.filesize[style="display: inline;"]';
+
+			this.formParent = 'replythread';
+			this.jsonSubmit = true;
+			this.multiFile = true;
+		}
+		get qPostImgNameLink() {
+			return 'a:first-of-type';
+		}
+		getImgInfo(wrap) {
+			return wrap.textContent;
+		}
+		getImgRealName(wrap) {
+			return $q('.mobile_filename_hide', wrap).textContent.trim();
+		}
+		getImgWrap(img) {
+			return $q('#fs_' + img.alt, img.closest('.post-files')) || img.closest('.filesize');
+		}
+		getPNum(post) {
+			return +post.getAttribute('data-num');
+		}
+		getSubmitData({ error, id }) {
+			return { error, postNum: id && +id };
+		}
+		init() {
+			const el = $id('postform');
+			if(el) {
+				el.setAttribute('action', el.getAttribute('action') + '?json=1');
+			}
+			defaultCfg.postSameImg = 0;
+			defaultCfg.removeEXIF = 0;
+			return false;
+		}
+	}
+	ibDomains['ponyach.com'] = Ponyach;
+
 	class Synch extends Vichan {
 		constructor(...args) {
 			super(...args);

@@ -8218,7 +8218,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = '0eac2fd';
+  var commit = '35d6c61';
 
 
   var doc = deWindow.document;
@@ -11484,7 +11484,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   }
   function _refreshFavorites() {
     _refreshFavorites = _asyncToGenerator(_regeneratorRuntime().mark(function _callee54(needClear404) {
-      var isUpdate, favObj, myPosts, parentEl, entryEls, i, len, _entry$last$match, entryEl, _ref59, titleEl, youEl, newEl, totalEl, iconEl, host, board, num, url, entry, oldClassName, oldTitle, formEl, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, newCount, youCount, lastNum, posts, postsLen, j, post;
+      var isUpdate, favObj, myPosts, parentEl, entryEls, i, len, _entry$last$match, entryEl, _ref60, titleEl, youEl, newEl, totalEl, iconEl, host, board, num, url, entry, oldClassName, oldTitle, formEl, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, newCount, youCount, lastNum, posts, postsLen, j, post;
       return _regeneratorRuntime().wrap(function _callee54$(_context62) {
         while (1) switch (_context62.prev = _context62.next) {
           case 0:
@@ -11503,7 +11503,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
               break;
             }
             entryEl = entryEls[i];
-            _ref59 = _toConsumableArray(entryEl.lastElementChild.children), titleEl = _ref59[0], youEl = _ref59[1], newEl = _ref59[2], totalEl = _ref59[3];
+            _ref60 = _toConsumableArray(entryEl.lastElementChild.children), titleEl = _ref60[0], youEl = _ref60[1], newEl = _ref60[2], totalEl = _ref60[3];
             iconEl = titleEl.firstElementChild;
             host = entryEl.getAttribute('de-host');
             board = entryEl.getAttribute('de-board');
@@ -18156,8 +18156,8 @@ this.disableSpells();
             if (needProgress && hasFiles) {
               ajaxParams.onprogress = getUploadFunc();
             }
-            return _context65.abrupt("return", $ajax(form.action, ajaxParams).then(function (_ref60) {
-              var text = _ref60.responseText;
+            return _context65.abrupt("return", $ajax(form.action, ajaxParams).then(function (_ref61) {
+              var text = _ref61.responseText;
               return aib.jsonSubmit ? text : $createDoc(text);
             })["catch"](function (err) {
               return Promise.reject(err);
@@ -27713,18 +27713,83 @@ Spells.addSpell(9, '', false);
       }]);
     }(BaseBoard);
     ibDomains['nowere.net'] = Nowere;
-    var Synch = function (_Vichan5) {
-      function Synch() {
+    var Ponyach = function (_BaseBoard13) {
+      function Ponyach() {
         var _this131;
-        _classCallCheck(this, Synch);
+        _classCallCheck(this, Ponyach);
         for (var _len28 = arguments.length, args = new Array(_len28), _key25 = 0; _key25 < _len28; _key25++) {
           args[_key25] = arguments[_key25];
         }
-        _this131 = _callSuper(this, Synch, [].concat(args));
-        _this131.qPages = '.pagination';
-        _this131.qPostImgInfo = '.unimportant';
-        _this131.markupBB = true;
+        _this131 = _callSuper(this, Ponyach, [].concat(args));
+        _this131.qBan = 'font[color="#FF0000"]';
+        _this131.qPostImgInfo = '.filesize[style="display: inline;"]';
+        _this131.formParent = 'replythread';
+        _this131.jsonSubmit = true;
+        _this131.multiFile = true;
         return _this131;
+      }
+      _inherits(Ponyach, _BaseBoard13);
+      return _createClass(Ponyach, [{
+        key: "qPostImgNameLink",
+        get: function get() {
+          return 'a:first-of-type';
+        }
+      }, {
+        key: "getImgInfo",
+        value: function getImgInfo(wrap) {
+          return wrap.textContent;
+        }
+      }, {
+        key: "getImgRealName",
+        value: function getImgRealName(wrap) {
+          return $q('.mobile_filename_hide', wrap).textContent.trim();
+        }
+      }, {
+        key: "getImgWrap",
+        value: function getImgWrap(img) {
+          return $q('#fs_' + img.alt, img.closest('.post-files')) || img.closest('.filesize');
+        }
+      }, {
+        key: "getPNum",
+        value: function getPNum(post) {
+          return +post.getAttribute('data-num');
+        }
+      }, {
+        key: "getSubmitData",
+        value: function getSubmitData(_ref58) {
+          var error = _ref58.error,
+            id = _ref58.id;
+          return {
+            error: error,
+            postNum: id && +id
+          };
+        }
+      }, {
+        key: "init",
+        value: function init() {
+          var el = $id('postform');
+          if (el) {
+            el.setAttribute('action', el.getAttribute('action') + '?json=1');
+          }
+          defaultCfg.postSameImg = 0;
+          defaultCfg.removeEXIF = 0;
+          return false;
+        }
+      }]);
+    }(BaseBoard);
+    ibDomains['ponyach.com'] = Ponyach;
+    var Synch = function (_Vichan5) {
+      function Synch() {
+        var _this132;
+        _classCallCheck(this, Synch);
+        for (var _len29 = arguments.length, args = new Array(_len29), _key26 = 0; _key26 < _len29; _key26++) {
+          args[_key26] = arguments[_key26];
+        }
+        _this132 = _callSuper(this, Synch, [].concat(args));
+        _this132.qPages = '.pagination';
+        _this132.qPostImgInfo = '.unimportant';
+        _this132.markupBB = true;
+        return _this132;
       }
       _inherits(Synch, _Vichan5);
       return _createClass(Synch, [{
@@ -27770,24 +27835,24 @@ Spells.addSpell(9, '', false);
       }]);
     }(Vichan);
     ibDomains['syn-ch.ru'] = ibDomains['syn-ch.com'] = ibDomains['syn-ch.com.ua'] = ibDomains['syn-ch.org'] = Synch;
-    var Warosu = function (_BaseBoard13) {
+    var Warosu = function (_BaseBoard14) {
       function Warosu() {
-        var _this132;
+        var _this133;
         _classCallCheck(this, Warosu);
-        for (var _len29 = arguments.length, args = new Array(_len29), _key26 = 0; _key26 < _len29; _key26++) {
-          args[_key26] = arguments[_key26];
+        for (var _len30 = arguments.length, args = new Array(_len30), _key27 = 0; _key27 < _len30; _key27++) {
+          args[_key27] = arguments[_key27];
         }
-        _this132 = _callSuper(this, Warosu, [].concat(args));
-        _this132.qDelForm = '.content';
-        _this132.qForm = '.subreply';
-        _this132.qFormSubm = '.g-recaptcha';
-        _this132.qPostImgInfo = '.fileinfo';
-        _this132.qPostRef = '.js';
-        _this132.qOPost = '.comment';
-        _this132.res = 'thread/';
-        return _this132;
+        _this133 = _callSuper(this, Warosu, [].concat(args));
+        _this133.qDelForm = '.content';
+        _this133.qForm = '.subreply';
+        _this133.qFormSubm = '.g-recaptcha';
+        _this133.qPostImgInfo = '.fileinfo';
+        _this133.qPostRef = '.js';
+        _this133.qOPost = '.comment';
+        _this133.res = 'thread/';
+        return _this133;
       }
-      _inherits(Warosu, _BaseBoard13);
+      _inherits(Warosu, _BaseBoard14);
       return _createClass(Warosu, [{
         key: "css",
         get: function get() {
@@ -27840,7 +27905,7 @@ Spells.addSpell(9, '', false);
 
   var DollchanAPI = {
     initAPI: function initAPI() {
-      var _this133 = this;
+      var _this134 = this;
       this.hasListeners = false;
       if (!('MessageChannel' in deWindow)) {
         return;
@@ -27852,7 +27917,7 @@ Spells.addSpell(9, '', false);
       var port = channel.port2;
       doc.defaultView.addEventListener('message', function (e) {
         if (e.data === 'de-request-api-message') {
-          _this133.hasListeners = true;
+          _this134.hasListeners = true;
           doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
         }
       });
@@ -27868,8 +27933,8 @@ Spells.addSpell(9, '', false);
         });
       }
     },
-    _handleMessage: function _handleMessage(_ref58) {
-      var arg = _ref58.data;
+    _handleMessage: function _handleMessage(_ref59) {
+      var arg = _ref59.data;
       if (!(arg !== null && arg !== void 0 && arg.name)) {
         return;
       }
