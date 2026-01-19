@@ -50,8 +50,8 @@ class BaseBoard {
 		this.anchor = '#';
 		this.b = '';
 		this.captchaRu = false;
-		this.domain = domain + port;
 		this.docExt = null;
+		this.domain = domain + port;
 		this.firstPage = 0;
 		this.formHeaders = false;
 		this.formParent = 'parent';
@@ -72,38 +72,6 @@ class BaseBoard {
 		this.res = 'res/';
 		this.t = false;
 		this.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
-	}
-	get qFormMail() {
-		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
-			'[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
-	}
-	get qFormName() {
-		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
-			'[name="name"]', '[name="field1"]');
-	}
-	get qFormSubj() {
-		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
-			'[name="subject"]', '[name="field3"]');
-	}
-	get qMsgImgLink() {
-		const value = $match(this.qPostMsg.split(', ').join(' a, ') + ' a',
-			'[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
-			'[href$=".avif"]', '[href$=".webp"]');
-		Object.defineProperty(this, 'qMsgImgLink', { value });
-		return value;
-	}
-	get qPostImgNameLink() {
-		const value = $match(this.qPostImgInfo.split(', ').join(' a, ') + ' a',
-			'[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
-			'[href$=".avif"]', '[href$=".webm"]', '[href$=".webp"]', '[href$=".mov"]', '[href$=".mp4"]',
-			'[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
-		Object.defineProperty(this, 'qPostImgNameLink', { value });
-		return value;
-	}
-	get qThread() {
-		const value = $q('.thread') ? '.thread' : '[id^="thread"]';
-		Object.defineProperty(this, 'qThread', { value });
-		return value;
 	}
 	get captchaAfterSubmit() {
 		return null;
@@ -147,6 +115,9 @@ class BaseBoard {
 	get getSubmitData() {
 		return null;
 	}
+	get handlePostClick() {
+		return null;
+	}
 	get isArchived() {
 		return false;
 	}
@@ -165,11 +136,40 @@ class BaseBoard {
 	get observeContent() {
 		return null;
 	}
-	get handlePostClick() {
-		return null;
-	}
 	get postersCount() {
 		return '';
+	}
+	get qFormMail() {
+		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
+			'[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
+	}
+	get qFormName() {
+		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
+			'[name="name"]', '[name="field1"]');
+	}
+	get qFormSubj() {
+		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
+			'[name="subject"]', '[name="field3"]');
+	}
+	get qMsgImgLink() {
+		const value = $match(this.qPostMsg.split(', ').join(' a, ') + ' a',
+			'[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
+			'[href$=".avif"]', '[href$=".webp"]');
+		Object.defineProperty(this, 'qMsgImgLink', { value });
+		return value;
+	}
+	get qPostImgNameLink() {
+		const value = $match(this.qPostImgInfo.split(', ').join(' a, ') + ' a',
+			'[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
+			'[href$=".avif"]', '[href$=".webm"]', '[href$=".webp"]', '[href$=".mov"]', '[href$=".mp4"]',
+			'[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
+		Object.defineProperty(this, 'qPostImgNameLink', { value });
+		return value;
+	}
+	get qThread() {
+		const value = $q('.thread') ? '.thread' : '[id^="thread"]';
+		Object.defineProperty(this, 'qThread', { value });
+		return value;
 	}
 	get reCrossLinks() {
 		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.domain }\\/([a-z0-9]+)\\/${
@@ -265,7 +265,10 @@ class BaseBoard {
 	getBanId(postEl) {
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
 	}
-	getCapParent(el) {
+	getCaptchaEl(form) {
+		return $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', form);
+	}
+	getCaptchaParent(el) {
 		return el.closest(this.qFormTr);
 	}
 	getCaptchaSrc(src, tNum) {

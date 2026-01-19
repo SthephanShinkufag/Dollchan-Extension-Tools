@@ -7,7 +7,7 @@ class Captcha {
 		this.hasCaptcha = true;
 		this.textEl = null;
 		this.tNum = initNum;
-		this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCapParent(el);
+		this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCaptchaParent(el);
 		this.isAdded = false;
 		this._isHcap = !!$q('.h-captcha', this.parentEl);
 		this._isRecap = this._isHcap || !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
@@ -34,7 +34,7 @@ class Captcha {
 			this.parentEl.innerHTML = this.originHTML;
 			this.textEl = $q('input[type="text"][name*="aptcha"]', this.parentEl);
 		}
-		this.initCapPromise();
+		this.initCaptchaPromise();
 	}
 	handleEvent(e) {
 		switch(e.type) {
@@ -66,7 +66,7 @@ class Captcha {
 		e.preventDefault();
 		e.stopPropagation();
 	}
-	initCapPromise() {
+	initCaptchaPromise() {
 		const initPromise = aib.captchaInit?.(this);
 		if(initPromise) {
 			initPromise.then(() => this.showCaptcha(), err => {
@@ -89,7 +89,7 @@ class Captcha {
 	initTextEl() {
 		this.textEl.autocomplete = 'off';
 		if(!aib.formHeaders && (aib.multiFile || Cfg.fileInputs !== 2)) {
-			this.textEl.placeholder = Lng.cap[lang];
+			this.textEl.placeholder = Lng.captcha[lang];
 		}
 		['keypress', 'focus'].forEach(e => this.textEl.addEventListener(e, this));
 		this.textEl.onkeypress = null;
@@ -101,7 +101,7 @@ class Captcha {
 			if(aib.captchaUpdate) {
 				aib.captchaUpdate(this, false);
 			} else if(this._isRecap) {
-				this._updateRecap();
+				this._updateRecaptcha();
 			}
 			return;
 		}
@@ -142,7 +142,7 @@ class Captcha {
 				updatePromise.then(() => this._updateTextEl(isFocus), err => this._setUpdateError(err));
 			}
 		} else if(this._isRecap) {
-			this._updateRecap();
+			this._updateRecaptcha();
 		} else if(this.textEl) {
 			this._updateTextEl(isFocus);
 			const img = $q('img', this.parentEl);
@@ -193,7 +193,7 @@ class Captcha {
 			$show(this.parentEl);
 		}
 	}
-	_updateRecap() {
+	_updateRecaptcha() {
 		// <EXCLUDED_FROM_EXTENSION>
 		const script = doc.createElement('script');
 		script.src = aib.protocol +

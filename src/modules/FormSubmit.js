@@ -17,7 +17,7 @@ function showSubmitError(error) {
 		postform.setReply(true, false);
 	}
 	if(/[cf]aptch|капч|подтвер|verifi/i.test(error)) {
-		postform.refreshCap(true);
+		postform.refreshCaptchaTNum(true);
 	}
 	$popup('upload', error.toString());
 	updater.sendErrNotif();
@@ -98,7 +98,7 @@ async function checkSubmit(data) {
 		pByNum.get(tNum).thr.loadPosts('new', false, false).then(() => closePopup('upload'));
 	}
 	postform.closeReply();
-	postform.refreshCap();
+	postform.refreshCaptchaTNum();
 }
 
 async function checkDelete(data) {

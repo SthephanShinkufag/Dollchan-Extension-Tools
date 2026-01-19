@@ -238,8 +238,8 @@ class PostForm {
 		e.preventDefault();
 		e.stopPropagation();
 	}
-	refreshCap(isError = false) {
-		this.cap?.refreshCaptcha(isError, isError, this.tNum);
+	refreshCaptchaTNum(isError = false) {
+		this.captcha?.refreshCaptcha(isError, isError, this.tNum);
 	}
 	setPlaceholders() {
 		if(aib.formHeaders || !aib.multiFile && Cfg.fileInputs === 2) {
@@ -249,8 +249,8 @@ class PostForm {
 		this._setPlaceholder('subj');
 		this._setPlaceholder('mail');
 		this._setPlaceholder('video');
-		if(this.cap) {
-			this._setPlaceholder('cap');
+		if(this.captcha) {
+			this._setPlaceholder('captcha');
 		}
 	}
 	setReply(isQuick, needToHide) {
@@ -269,7 +269,7 @@ class PostForm {
 		this.closeReply();
 		if(!aib.t) {
 			this.tNum = false;
-			this.refreshCap();
+			this.refreshCaptchaTNum();
 		}
 		if(this.isBottom === isBottom) {
 			$toggle(this.pForm, this.isHidden);
@@ -306,7 +306,7 @@ class PostForm {
 		}
 		if(!aib.t && this.tNum !== qNum) {
 			this.tNum = qNum;
-			this.refreshCap();
+			this.refreshCaptchaTNum();
 		}
 		this.tNum = qNum;
 		const txt = this.txta.value;
@@ -388,22 +388,21 @@ class PostForm {
 		};
 	}
 	_initCaptcha() {
-		const capEl =
-			$q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', this.form);
+		const capEl = aib.getCaptchaEl(this.form);
 		if(!capEl) {
-			this.cap = null;
+			this.captcha = null;
 			return;
 		}
-		this.cap = new Captcha(capEl, this.tNum);
-		const updCapFn = () => {
-			this.cap.addCaptcha();
-			this.cap.updateOutdated();
+		this.captcha = new Captcha(capEl, this.tNum);
+		const updCaptchaFn = () => {
+			this.captcha.addCaptcha();
+			this.captcha.updateOutdated();
 		};
-		this.txta.addEventListener('focus', updCapFn);
+		this.txta.addEventListener('focus', updCaptchaFn);
 		if(this.files) {
-			this.files.onchange = updCapFn;
+			this.files.onchange = updCaptchaFn;
 		}
-		this.form.addEventListener('click', () => this.cap.addCaptcha(), true);
+		this.form.addEventListener('click', () => this.captcha.addCaptcha(), true);
 	}
 	_initFileInputs() {
 		const fileEl = $q(aib.qFormFile, this.form);
@@ -559,8 +558,8 @@ class PostForm {
 			await CfgSaver.save('sageReply', 0);
 			this.toggleSage();
 			this.files.clearInputs();
-			[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(
-				el => el && (el.value = ''));
+			[this.txta, this.name, this.mail, this.subj, this.video, this.captcha && this.captcha.textEl]
+				.forEach(el => el && (el.value = ''));
 		};
 		toggleBtn.onclick = async () => {
 			await toggleCfg('replyWinDrag');
@@ -575,7 +574,7 @@ class PostForm {
 		closeBtn.onclick = () => this.closeReply();
 	}
 	_setPlaceholder(val) {
-		const el = val === 'cap' ? this.cap.textEl : this[val];
+		const el = val === 'captcha' ? this.captcha.textEl : this[val];
 		if(el) {
 			if(aib.multiFile || Cfg.fileInputs !== 2) {
 				el.placeholder = Lng[val][lang];

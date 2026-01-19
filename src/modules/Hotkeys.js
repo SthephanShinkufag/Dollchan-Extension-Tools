@@ -126,7 +126,7 @@ const HotKeys = {
 				}
 				break;
 			case 5: // Send post (txt)
-				if(el !== postform.txta && el !== postform.cap.textEl) {
+				if(el !== postform.txta && el !== postform.captcha.textEl) {
 					return;
 				}
 				postform.subm.click();
