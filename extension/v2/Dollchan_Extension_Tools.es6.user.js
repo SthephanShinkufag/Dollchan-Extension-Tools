@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '02f2b3b';
+const commit = '0eac2fd';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -16742,13 +16742,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
-				#resizer { display: none; }
-				form > span { margin-top: 5px; }
-				.de-thr-hid { display: inherit; }
-				.post-badge { display: inline-block !important; }
+				#posttypeindicator, #resizer, .threadlinksbottom { display: none; }
 				.reflink::after { content: none !important; }
-				.spoiler-image:hover::after { content: none !important; }
-				.topmenu { z-index: 1; }`;
+				.toppanel { z-index: 1; }`;
 		}
 		get markupTags() {
 			return ['**', '*', '__', '^^', '%%', '`'];
@@ -16779,7 +16775,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['410chan.org'] = ibDomains['410chan.ru'] = ibDomains['014chan.org'] = _410chan;
+	ibDomains['410chan.org'] = ibDomains['410chan.ru'] = _410chan;
 
 	class _4chan extends BaseBoard {
 		constructor(...args) {
@@ -17063,14 +17059,37 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['arhivach.vc'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
 	class Bulochka extends _410chan {
+		constructor(...args) {
+			super(...args);
+
+			this.markupBB = true;
+		}
 		get captchaUpdate() {
 			return null;
+		}
+		get markupTags() {
+			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
 		}
 		getCaptchaSrc(src) {
 			return super.getCaptchaSrc(src);
 		}
+		init() {
+			super.init();
+			const capInp = $q('input[name="captcha"]');
+			const fapInp = $q('input[name="faptcha"]');
+			if(capInp && fapInp) {
+				capInp.disabled = false;
+				fapInp.disabled = true;
+				$hide($q('tr[name=faptcha_tr]'));
+				while(capInp.nextSibling) {
+					capInp.nextSibling.remove();
+				}
+			}
+			$script('try { $(\'input.preview-btn\').on(\'click\', preview_clicked); } catch(err) {}');
+			return false;
+		}
 	}
-	ibDomains['bulochka.org'] = Bulochka;
+	ibDomains['014chan.org'] = ibDomains['bulochka.org'] = Bulochka;
 
 	class Dobrochan extends Vichan {
 		get css() {
