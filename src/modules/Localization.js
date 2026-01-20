@@ -1381,14 +1381,6 @@ const Lng = {
 		'Тред закрыт',
 		'Thread is closed',
 		'Тред закрито'],
-	stormWallCheck: [
-		'Проверка StormWall защиты от DDoS атак...',
-		'Checking for the StormWall DDoS protection...',
-		'Перевірка StormWall захисту від DDoS атак...'],
-	stormWallErr: [
-		'Пожалуйста, решите капчу StormWall защиты',
-		'Please resolve the StormWall protection captcha',
-		'Будь ласка, вирішіть капчу StormWall захисту'],
 
 	// Other warnings
 	internalError: [
@@ -1443,7 +1435,7 @@ const Lng = {
 	subj      : ['Тема', 'Subject', 'Тема'],
 	mail      : ['Почта', 'Email', 'Пошта'],
 	video     : ['Видео', 'Video', 'Відео'],
-	cap       : ['Капча', 'Captcha', 'Капча'],
+	captcha   : ['Капча', 'Captcha', 'Капча'],
 	add       : ['Добавить', 'Add', 'Додати'],
 	apply     : ['Применить', 'Apply', 'Застосувати'],
 	cancel    : ['Отмена', 'Cancel', 'Скасувати'],

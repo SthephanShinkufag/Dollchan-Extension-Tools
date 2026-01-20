@@ -8194,7 +8194,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '26.1.15.2';
-  var commit = '5aa00d0';
+  var commit = '420022f';
 
 
 
@@ -8742,8 +8742,6 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     noConnect: ['Ошибка подключения', 'Connection failed', 'Помилка зʼєднання'],
     thrNotFound: ['Тред недоступен', 'Thread is unavailable', 'Тред недоступний'],
     thrClosed: ['Тред закрыт', 'Thread is closed', 'Тред закрито'],
-    stormWallCheck: ['Проверка StormWall защиты от DDoS атак...', 'Checking for the StormWall DDoS protection...', 'Перевірка StormWall захисту від DDoS атак...'],
-    stormWallErr: ['Пожалуйста, решите капчу StormWall защиты', 'Please resolve the StormWall protection captcha', 'Будь ласка, вирішіть капчу StormWall захисту'],
     internalError: ['Внутренняя ошибка:\n', 'Internal error:\n', 'Внутрішня помилка:\n'],
     postNotFound: ['Пост не найден', 'Post not found', 'Допис не знайдено'],
     noHidThr: ['Нет скрытых тредов…', 'No hidden threads…', 'Немає схованих дописів…'],
@@ -8763,7 +8761,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     subj: ['Тема', 'Subject', 'Тема'],
     mail: ['Почта', 'Email', 'Пошта'],
     video: ['Видео', 'Video', 'Відео'],
-    cap: ['Капча', 'Captcha', 'Капча'],
+    captcha: ['Капча', 'Captcha', 'Капча'],
     add: ['Добавить', 'Add', 'Додати'],
     apply: ['Применить', 'Apply', 'Застосувати'],
     cancel: ['Отмена', 'Cancel', 'Скасувати'],
@@ -9727,7 +9725,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     },
     saveObjHelper: function saveObjHelper(domain, fn) {
       return _asyncToGenerator(_regeneratorRuntime().mark(function _callee3() {
-        var val, res, rv;
+        var val, res;
         return _regeneratorRuntime().wrap(function _callee3$(_context3) {
           while (1) switch (_context3.prev = _context3.next) {
             case 0:
@@ -9741,14 +9739,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
               } else {
                 delete val[domain];
               }
-              rv = setStored('DESU_Config', JSON.stringify(val));
-              if (!rv) {
-                _context3.next = 9;
-                break;
-              }
-              _context3.next = 9;
-              return rv;
-            case 9:
+              setStored('DESU_Config', JSON.stringify(val));
+            case 6:
             case "end":
               return _context3.stop();
           }
@@ -9793,7 +9785,6 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
             if (!(aib.domain in val) || $isEmpty(obj = val[aib.domain])) {
               obj = {};
             }
-            defaultCfg.captchaLang = aib.captchaLang;
             browserLang = String(navigator.language).toLowerCase();
             defaultCfg.language = browserLang.startsWith('ru') ? 0 : browserLang.startsWith('en') ? 1 : browserLang.startsWith('uk') ? 2 : defaultCfg.language;
             Cfg = Object.assign(Object.create(defaultCfg), obj);
@@ -9839,7 +9830,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
               val.commit = commit;
             }
             setStored('DESU_Config', JSON.stringify(val));
-          case 22:
+          case 21:
           case "end":
             return _context53.stop();
         }
@@ -12164,7 +12155,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
               updateCSS();
               return _context14.abrupt("break", 114);
             case 94:
-              postform.cap.initCapPromise();
+              postform.captcha.initCaptchaPromise();
               return _context14.abrupt("break", 114);
             case 96:
               postform.addMarkupPanel();
@@ -12514,7 +12505,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       return "<div id=\"de-cfg-links\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getBox('linksNavig', true), "\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('linksOver'), "\n\t\t\t\t").concat(this._getInp('linksOut'), "<br>\n\t\t\t\t").concat(this._getBox('markViewed'), "<br>\n\t\t\t\t").concat(this._getBox('strikeHidd'), "\n\t\t\t\t<div class=\"de-depend\">").concat(this._getBox('removeHidd'), "</div>\n\t\t\t\t").concat(this._getBox('noNavigHidd'), "\n\t\t\t</div>\n\t\t\t").concat(this._getBox('markMyLinks'), "<br>\n\t\t\t").concat(this._getBox('crossLinks', true), "<br>\n\t\t\t").concat(this._getBox('decodeLinks', true), "<br>\n\t\t\t").concat(this._getBox('insertNum'), "<br>\n\t\t\t").concat(!localData ? "".concat(this._getBox('addOPLink'), "<br>\n\t\t\t\t").concat(this._getBox('addImgs', true), "<br>") : '', "\n\t\t\t<div>\n\t\t\t\t").concat(this._getBox('addMP3', true), "\n\t\t\t\t").concat(this._getBox('addVocaroo', true), "\n\t\t\t</div>\n\t\t\t").concat(this._getSel('embedYTube', true), "\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('YTubeWidth', false), "\xD7\n\t\t\t\t").concat(this._getInp('YTubeHeigh', false), "(px)<br>\n\t\t\t\t").concat(this._getBox('YTubeTitles', true), "<br>\n\t\t\t\t").concat(this._getInp('ytApiKey', true, 25), "<br>\n\t\t\t\t").concat(this._getBox('addVimeo', true), "\n\t\t\t</div>\n\t\t</div>");
     },
     _getCfgForm: function _getCfgForm() {
-      return "<div id=\"de-cfg-form\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getBox('ajaxPosting', true), "<br>\n\t\t\t").concat(postform.form ? "<div class=\"de-depend\">\n\t\t\t\t".concat(this._getBox('postSameImg'), "<br>\n\t\t\t\t").concat(this._getBox('removeEXIF'), "<br>\n\t\t\t\t").concat(this._getSel('removeFName'), "<br>\n\t\t\t\t").concat(this._getBox('sendErrNotif'), "<br>\n\t\t\t\t").concat(this._getBox('scrAfterRep'), "<br>\n\t\t\t\t").concat(postform.files && !nav.isPresto ? this._getSel('fileInputs') : '', "\n\t\t\t</div>") : '', "\n\t\t\t").concat(postform.form ? this._getSel('addPostForm') + '<br>' : '', "\n\t\t\t").concat(postform.txta ? this._getBox('spacedQuote') + '<br>' : '', "\n\t\t\t").concat(this._getBox('favOnReply'), "<br>\n\t\t\t").concat(postform.subj ? this._getBox('warnSubjTrip') + '<br>' : '', "\n\t\t\t").concat(postform.mail ? "".concat(this._getBox('addSageBtn'), "\n\t\t\t\t").concat(this._getBox('saveSage'), "<br>") : '', "\n\t\t\t").concat(postform.cap ? "".concat(aib.hasAltCaptcha ? "".concat(this._getBox('altCaptcha'), "<br>") : '', "\n\t\t\t\t").concat(this._getInp('capUpdTime'), "<br>\n\t\t\t\t").concat(this._getSel('captchaLang'), "<br>") : '', "\n\t\t\t").concat(postform.txta ? "".concat(this._getSel('addTextBtns'), "\n\t\t\t\t").concat(this._getBox('txtBtnsLoc'), "<br>") : '', "\n\t\t\t").concat(postform.passw ? "".concat(this._getInp('passwValue', false, 9), "\n\t\t\t\t").concat(this._getBox('userPassw'), "<input type=\"button\"") + " id=\"de-cfg-button-pass\" class=\"de-cfg-button\" value=\"".concat(Lng.change[lang], "\"><br>") : '', "\n\t\t\t").concat(postform.name ? "".concat(this._getInp('nameValue', false, 9), "\n\t\t\t\t").concat(this._getBox('userName'), "<br>") : '', "\n\t\t\t").concat(postform.rules || postform.passw || postform.name ? Lng.hide[lang] + (postform.rules ? this._getBox('noBoardRule') : '') + (postform.passw ? this._getBox('noPassword') : '') + (postform.name ? this._getBox('noName') : '') + (postform.subj ? this._getBox('noSubj') : '') : '', "\n\t\t</div>");
+      return "<div id=\"de-cfg-form\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getBox('ajaxPosting', true), "<br>\n\t\t\t").concat(postform.form ? "<div class=\"de-depend\">\n\t\t\t\t".concat(this._getBox('postSameImg'), "<br>\n\t\t\t\t").concat(this._getBox('removeEXIF'), "<br>\n\t\t\t\t").concat(this._getSel('removeFName'), "<br>\n\t\t\t\t").concat(this._getBox('sendErrNotif'), "<br>\n\t\t\t\t").concat(this._getBox('scrAfterRep'), "<br>\n\t\t\t\t").concat(postform.files && !nav.isPresto ? this._getSel('fileInputs') : '', "\n\t\t\t</div>") : '', "\n\t\t\t").concat(postform.form ? this._getSel('addPostForm') + '<br>' : '', "\n\t\t\t").concat(postform.txta ? this._getBox('spacedQuote') + '<br>' : '', "\n\t\t\t").concat(this._getBox('favOnReply'), "<br>\n\t\t\t").concat(postform.subj ? this._getBox('warnSubjTrip') + '<br>' : '', "\n\t\t\t").concat(postform.mail ? "".concat(this._getBox('addSageBtn'), "\n\t\t\t\t").concat(this._getBox('saveSage'), "<br>") : '', "\n\t\t\t").concat(postform.captcha ? "".concat(aib.hasAltCaptcha ? "".concat(this._getBox('altCaptcha'), "<br>") : '', "\n\t\t\t\t").concat(this._getInp('capUpdTime'), "<br>\n\t\t\t\t").concat(this._getSel('captchaLang'), "<br>") : '', "\n\t\t\t").concat(postform.txta ? "".concat(this._getSel('addTextBtns'), "\n\t\t\t\t").concat(this._getBox('txtBtnsLoc'), "<br>") : '', "\n\t\t\t").concat(postform.passw ? "".concat(this._getInp('passwValue', false, 9), "\n\t\t\t\t").concat(this._getBox('userPassw'), "<input type=\"button\"") + " id=\"de-cfg-button-pass\" class=\"de-cfg-button\" value=\"".concat(Lng.change[lang], "\"><br>") : '', "\n\t\t\t").concat(postform.name ? "".concat(this._getInp('nameValue', false, 9), "\n\t\t\t\t").concat(this._getBox('userName'), "<br>") : '', "\n\t\t\t").concat(postform.rules || postform.passw || postform.name ? Lng.hide[lang] + (postform.rules ? this._getBox('noBoardRule') : '') + (postform.passw ? this._getBox('noPassword') : '') + (postform.name ? this._getBox('noName') : '') + (postform.subj ? this._getBox('noSubj') : '') : '', "\n\t\t</div>");
     },
     _getCfgCommon: function _getCfgCommon() {
       return "<div id=\"de-cfg-common\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getSel('scriptStyle'), "<br>\n\t\t\t").concat(this._getBox('userCSS'), "\n\t\t\t<a href=\"").concat(gitWiki, "css-tricks\" class=\"de-abtn\" target=\"_blank\">[?]</a><br>\n\t\t\t").concat('animation' in doc.body.style ? this._getBox('animation') + '<br>' : '', "\n\t\t\t").concat(this._getBox('hotKeys'), "\n\t\t\t<input type=\"button\" id=\"de-cfg-button-keys\" class=\"de-cfg-button\" value=\"").concat(Lng.edit[lang], "\">\n\t\t\t<div class=\"de-depend\">").concat(this._getInp('loadPages'), "</div>\n\t\t\t").concat(this._getSel('panelCounter'), "<br>\n\t\t\t").concat(this._getBox('rePageTitle', true), "<br>\n\t\t\t").concat(!localData ? "".concat(this._getBox('inftyScroll'), "<br>\n\t\t\t\t").concat(this._getBox('hideReplies', true), "<br>\n\t\t\t\t").concat(this._getBox('scrollToTop'), "<br>") : '', "\n\t\t\t").concat(this._getBox('saveScroll'), "<br>\n\t\t\t").concat(this._getBox('favFolders'), "<br>\n\t\t\t").concat(this._getSel('favThrOrder'), "<br>\n\t\t\t").concat(this._getBox('favWinOn'), "<br>\n\t\t\t").concat(this._getBox('closePopups'), "\n\t\t</div>");
@@ -12925,7 +12916,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
             }
             break;
           case 5:
-            if (el !== postform.txta && el !== postform.cap.textEl) {
+            if (el !== postform.txta && el !== postform.captcha.textEl) {
               return;
             }
             postform.subm.click();
@@ -16748,11 +16739,11 @@ this.disableSpells();
         e.stopPropagation();
       }
     }, {
-      key: "refreshCap",
-      value: function refreshCap() {
-        var _this$cap;
+      key: "refreshCaptchaTNum",
+      value: function refreshCaptchaTNum() {
+        var _this$captcha;
         var isError = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        (_this$cap = this.cap) === null || _this$cap === void 0 || _this$cap.refreshCaptcha(isError, isError, this.tNum);
+        (_this$captcha = this.captcha) === null || _this$captcha === void 0 || _this$captcha.refreshCaptcha(isError, isError, this.tNum);
       }
     }, {
       key: "setPlaceholders",
@@ -16764,8 +16755,8 @@ this.disableSpells();
         this._setPlaceholder('subj');
         this._setPlaceholder('mail');
         this._setPlaceholder('video');
-        if (this.cap) {
-          this._setPlaceholder('cap');
+        if (this.captcha) {
+          this._setPlaceholder('captcha');
         }
       }
     }, {
@@ -16788,7 +16779,7 @@ this.disableSpells();
         this.closeReply();
         if (!aib.t) {
           this.tNum = false;
-          this.refreshCap();
+          this.refreshCaptchaTNum();
         }
         if (this.isBottom === isBottom) {
           $toggle(this.pForm, this.isHidden);
@@ -16827,7 +16818,7 @@ this.disableSpells();
         }
         if (!aib.t && this.tNum !== qNum) {
           this.tNum = qNum;
-          this.refreshCap();
+          this.refreshCaptchaTNum();
         }
         this.tNum = qNum;
         var txt = this.txta.value;
@@ -16908,35 +16899,35 @@ this.disableSpells();
       key: "_initCaptcha",
       value: function _initCaptcha() {
         var _this45 = this;
-        var capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', this.form);
+        var capEl = aib.getCaptchaEl(this.form);
         if (!capEl) {
-          this.cap = null;
+          this.captcha = null;
           return;
         }
-        this.cap = new Captcha(capEl, this.tNum);
-        var updCapFn = function updCapFn() {
-          _this45.cap.addCaptcha();
-          _this45.cap.updateOutdated();
+        this.captcha = new Captcha(capEl, this.tNum);
+        var updCaptchaFn = function updCaptchaFn() {
+          _this45.captcha.addCaptcha();
+          _this45.captcha.updateOutdated();
         };
-        this.txta.addEventListener('focus', updCapFn);
+        this.txta.addEventListener('focus', updCaptchaFn);
         if (this.files) {
-          this.files.onchange = updCapFn;
+          this.files.onchange = updCaptchaFn;
         }
         this.form.addEventListener('click', function () {
-          return _this45.cap.addCaptcha();
+          return _this45.captcha.addCaptcha();
         }, true);
       }
     }, {
       key: "_initFileInputs",
       value: function _initFileInputs() {
-        var _this46 = this;
+        var _aib$fixFileInputs,
+          _aib,
+          _this46 = this;
         var fileEl = $q(aib.qFormFile, this.form);
         if (!fileEl) {
           return;
         }
-        if (aib.fixFileInputs) {
-          aib.fixFileInputs(fileEl.closest(aib.qFormTd));
-        }
+        (_aib$fixFileInputs = (_aib = aib).fixFileInputs) === null || _aib$fixFileInputs === void 0 || _aib$fixFileInputs.call(_aib, fileEl.closest(aib.qFormTd));
         this.files = new Files(this, $q(aib.qFormFile, this.form));
         deWindow.addEventListener('load', function () {
           return setTimeout(function () {
@@ -17136,7 +17127,7 @@ this.disableSpells();
               case 2:
                 _this51.toggleSage();
                 _this51.files.clearInputs();
-                [_this51.txta, _this51.name, _this51.mail, _this51.subj, _this51.video, _this51.cap && _this51.cap.textEl].forEach(function (el) {
+                [_this51.txta, _this51.name, _this51.mail, _this51.subj, _this51.video, _this51.captcha && _this51.captcha.textEl].forEach(function (el) {
                   return el && (el.value = '');
                 });
               case 5:
@@ -17172,7 +17163,7 @@ this.disableSpells();
     }, {
       key: "_setPlaceholder",
       value: function _setPlaceholder(val) {
-        var el = val === 'cap' ? this.cap.textEl : this[val];
+        var el = val === 'captcha' ? this.captcha.textEl : this[val];
         if (el) {
           if (aib.multiFile || Cfg.fileInputs !== 2) {
             el.placeholder = Lng[val][lang];
@@ -17324,7 +17315,7 @@ this.disableSpells();
       postform.setReply(true, false);
     }
     if (/[cf]aptch|капч|подтвер|verifi/i.test(error)) {
-      postform.refreshCap(true);
+      postform.refreshCaptchaTNum(true);
     }
     $popup('upload', error.toString());
     updater.sendErrNotif();
@@ -17434,7 +17425,7 @@ this.disableSpells();
               });
             }
             postform.closeReply();
-            postform.refreshCap();
+            postform.refreshCaptchaTNum();
           case 22:
           case "end":
             return _context56.stop();
@@ -18576,7 +18567,7 @@ this.disableSpells();
       this.hasCaptcha = true;
       this.textEl = null;
       this.tNum = initNum;
-      this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCapParent(el);
+      this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCaptchaParent(el);
       this.isAdded = false;
       this._isHcap = !!$q('.h-captcha', this.parentEl);
       this._isRecap = this._isHcap || !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
@@ -18604,7 +18595,7 @@ this.disableSpells();
           this.parentEl.innerHTML = this.originHTML;
           this.textEl = $q('input[type="text"][name*="aptcha"]', this.parentEl);
         }
-        this.initCapPromise();
+        this.initCaptchaPromise();
       }
     }, {
       key: "handleEvent",
@@ -18641,10 +18632,12 @@ this.disableSpells();
         e.stopPropagation();
       }
     }, {
-      key: "initCapPromise",
-      value: function initCapPromise() {
-        var _this58 = this;
-        var initPromise = aib.captchaInit ? aib.captchaInit(this) : null;
+      key: "initCaptchaPromise",
+      value: function initCaptchaPromise() {
+        var _aib$captchaInit,
+          _aib2,
+          _this58 = this;
+        var initPromise = (_aib$captchaInit = (_aib2 = aib).captchaInit) === null || _aib$captchaInit === void 0 ? void 0 : _aib$captchaInit.call(_aib2, this);
         if (initPromise) {
           initPromise.then(function () {
             return _this58.showCaptcha();
@@ -18676,7 +18669,7 @@ this.disableSpells();
         var _this60 = this;
         this.textEl.autocomplete = 'off';
         if (!aib.formHeaders && (aib.multiFile || Cfg.fileInputs !== 2)) {
-          this.textEl.placeholder = Lng.cap[lang];
+          this.textEl.placeholder = Lng.captcha[lang];
         }
         ['keypress', 'focus'].forEach(function (e) {
           return _this60.textEl.addEventListener(e, _this60);
@@ -18691,7 +18684,7 @@ this.disableSpells();
         if (!this.textEl) {
           $show(this.parentEl);
           if (this._isRecap) {
-            this._updateRecap();
+            this._updateRecaptcha();
           }
           return;
         }
@@ -18731,7 +18724,7 @@ this.disableSpells();
         }
         this._lastUpdate = Date.now();
         if (this._isRecap) {
-          this._updateRecap();
+          this._updateRecaptcha();
         } else if (this.textEl) {
           this._updateTextEl(isFocus);
           var img = $q('img', this.parentEl);
@@ -18789,8 +18782,8 @@ this.disableSpells();
         }
       }
     }, {
-      key: "_updateRecap",
-      value: function _updateRecap() {
+      key: "_updateRecaptcha",
+      value: function _updateRecaptcha() {
         var script = doc.createElement('script');
         script.src = aib.protocol + (this._isHcap ? '//js.hcaptcha.com/1/api.js' : '//www.google.com/recaptcha/api.js');
         doc.head.append(script);
@@ -19239,20 +19232,9 @@ Spells.addSpell(9, '', false);
         });
       }
     }, {
-      key: "_clickImage",
-      value: function _clickImage(el, e) {
-        var image = this.images.getImageByEl(el);
-        if (!image || !image.isImage && !image.isVideo) {
-          return;
-        }
-        image.expandImg(Cfg.expandImgs === 1 ^ e.ctrlKey, e);
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    }, {
-      key: "_downloadImageByLink",
+      key: "downloadImageByLink",
       value: function () {
-        var _downloadImageByLink2 = _asyncToGenerator(_regeneratorRuntime().mark(function _callee34(el, e) {
+        var _downloadImageByLink = _asyncToGenerator(_regeneratorRuntime().mark(function _callee34(el, e) {
           var url, data;
           return _regeneratorRuntime().wrap(function _callee34$(_context37) {
             while (1) switch (_context37.prev = _context37.next) {
@@ -19281,11 +19263,22 @@ Spells.addSpell(9, '', false);
             }
           }, _callee34);
         }));
-        function _downloadImageByLink(_x24, _x25) {
-          return _downloadImageByLink2.apply(this, arguments);
+        function downloadImageByLink(_x24, _x25) {
+          return _downloadImageByLink.apply(this, arguments);
         }
-        return _downloadImageByLink;
+        return downloadImageByLink;
       }()
+    }, {
+      key: "_clickImage",
+      value: function _clickImage(el, e) {
+        var image = this.images.getImageByEl(el);
+        if (!image || !image.isImage && !image.isVideo) {
+          return;
+        }
+        image.expandImg(Cfg.expandImgs === 1 ^ e.ctrlKey, e);
+        e.preventDefault();
+        e.stopPropagation();
+      }
     }, {
       key: "_getFullMsg",
       value: function _getFullMsg(truncEl, isInit) {
@@ -19441,7 +19434,7 @@ Spells.addSpell(9, '', false);
               case 63:
                 return _context38.abrupt("return");
               case 64:
-                this._downloadImageByLink(el, e);
+                this.downloadImageByLink(el, e);
                 return _context38.abrupt("return");
               case 66:
                 isAdd = !MyPosts.has(num);
@@ -22747,16 +22740,16 @@ Spells.addSpell(9, '', false);
         if (!preview || preview.num === this.num) {
           this.op.toggleFavBtn(isEnable);
           this.isFav = isEnable;
-          var _aib = aib;
-          host = _aib.host;
-          board = _aib.b;
+          var _aib3 = aib;
+          host = _aib3.host;
+          board = _aib3.b;
           num = this.num;
           cnt = this.postsCount;
           txt = this.op.title;
           last = aib.anchor + this.last.num;
         } else {
-          var _aib2 = aib;
-          host = _aib2.host;
+          var _aib4 = aib;
+          host = _aib4.host;
           board = preview.board;
           num = preview.num;
           cnt = preview.remoteThr.postsCount;
@@ -24254,9 +24247,8 @@ Spells.addSpell(9, '', false);
       port = port ? ':' + port : '';
       this.anchor = '#';
       this.b = '';
-      this.captchaRu = false;
-      this.domain = domain + port;
       this.docExt = null;
+      this.domain = domain + port;
       this.firstPage = 0;
       this.formHeaders = false;
       this.formParent = 'parent';
@@ -24278,56 +24270,9 @@ Spells.addSpell(9, '', false);
       this.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
     }
     return _createClass(BaseBoard, [{
-      key: "qFormMail",
-      get: function get() {
-        return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])', '[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
-      }
-    }, {
-      key: "qFormName",
-      get: function get() {
-        return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])', '[name="name"]', '[name="field1"]');
-      }
-    }, {
-      key: "qFormSubj",
-      get: function get() {
-        return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])', '[name="subject"]', '[name="field3"]');
-      }
-    }, {
-      key: "qMsgImgLink",
-      get: function get() {
-        var value = $match(this.qPostMsg.split(', ').join(' a, ') + ' a', '[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".avif"]', '[href$=".webp"]');
-        Object.defineProperty(this, 'qMsgImgLink', {
-          value: value
-        });
-        return value;
-      }
-    }, {
-      key: "qPostImgNameLink",
-      get: function get() {
-        var value = $match(this.qPostImgInfo.split(', ').join(' a, ') + ' a', '[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".avif"]', '[href$=".webm"]', '[href$=".webp"]', '[href$=".mov"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
-        Object.defineProperty(this, 'qPostImgNameLink', {
-          value: value
-        });
-        return value;
-      }
-    }, {
-      key: "qThread",
-      get: function get() {
-        var value = $q('.thread') ? '.thread' : '[id^="thread"]';
-        Object.defineProperty(this, 'qThread', {
-          value: value
-        });
-        return value;
-      }
-    }, {
       key: "captchaInit",
       get: function get() {
         return null;
-      }
-    }, {
-      key: "captchaLang",
-      get: function get() {
-        return this.captchaRu ? 2 : 1;
       }
     }, {
       key: "catalogUrl",
@@ -24371,6 +24316,48 @@ Spells.addSpell(9, '', false);
       key: "postersCount",
       get: function get() {
         return '';
+      }
+    }, {
+      key: "qFormMail",
+      get: function get() {
+        return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])', '[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
+      }
+    }, {
+      key: "qFormName",
+      get: function get() {
+        return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])', '[name="name"]', '[name="field1"]');
+      }
+    }, {
+      key: "qFormSubj",
+      get: function get() {
+        return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])', '[name="subject"]', '[name="field3"]');
+      }
+    }, {
+      key: "qMsgImgLink",
+      get: function get() {
+        var value = $match(this.qPostMsg.split(', ').join(' a, ') + ' a', '[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".avif"]', '[href$=".webp"]');
+        Object.defineProperty(this, 'qMsgImgLink', {
+          value: value
+        });
+        return value;
+      }
+    }, {
+      key: "qPostImgNameLink",
+      get: function get() {
+        var value = $match(this.qPostImgInfo.split(', ').join(' a, ') + ' a', '[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".avif"]', '[href$=".webm"]', '[href$=".webp"]', '[href$=".mov"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
+        Object.defineProperty(this, 'qPostImgNameLink', {
+          value: value
+        });
+        return value;
+      }
+    }, {
+      key: "qThread",
+      get: function get() {
+        var value = $q('.thread') ? '.thread' : '[id^="thread"]';
+        Object.defineProperty(this, 'qThread', {
+          value: value
+        });
+        return value;
       }
     }, {
       key: "reCrossLinks",
@@ -24473,8 +24460,13 @@ Spells.addSpell(9, '', false);
         return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
       }
     }, {
-      key: "getCapParent",
-      value: function getCapParent(el) {
+      key: "getCaptchaEl",
+      value: function getCaptchaEl(form) {
+        return $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', form);
+      }
+    }, {
+      key: "getCaptchaParent",
+      value: function getCaptchaParent(el) {
         return el.closest(this.qFormTr);
       }
     }, {
@@ -24496,8 +24488,8 @@ Spells.addSpell(9, '', false);
     }, {
       key: "getImgInfo",
       value: function getImgInfo(wrap) {
-        var el = $q(this.qPostImgInfo, wrap);
-        return el ? el.textContent : '';
+        var _$q11;
+        return ((_$q11 = $q(this.qPostImgInfo, wrap)) === null || _$q11 === void 0 ? void 0 : _$q11.textContent) || '';
       }
     }, {
       key: "getImgRealName",
@@ -24710,7 +24702,7 @@ Spells.addSpell(9, '', false);
                         if (recapEl) {
                           captchaHTML = '<div style="min-height: 80px;"><div id="g-recaptcha2" class="' + "g-recaptcha\" data-sitekey=\"".concat(recapEl.dataset.sitekey, "\"></div></div>");
                         } else {
-                          captchaHTML = "<div><img src=\"/".concat(aib.b, "/inc/captcha.php?").concat(Math.random(), "\"") + ' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;" onclick="' + "this.src = '/".concat(aib.b, "/inc/captcha.php?' + Math.random();\"></div>") + "<input type=\"text\" name=\"captcha\" style=\"width: 300px;\" placeholder=\"".concat(Lng.cap[lang], "\" accesskey=\"c\" autocomplete=\"off\">");
+                          captchaHTML = "<div><img src=\"/".concat(aib.b, "/inc/captcha.php?").concat(Math.random(), "\"") + ' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;" onclick="' + "this.src = '/".concat(aib.b, "/inc/captcha.php?' + Math.random();\"></div>") + "<input type=\"text\" name=\"captcha\" style=\"width: 300px;\" placeholder=\"".concat(Lng.captcha[lang], "\" accesskey=\"c\" autocomplete=\"off\">");
                         }
                         if (passcodeStatus === 'invalid') {
                           captchaHTML += "<div>Your pass code seems to be not valid. <a href=\"/".concat(aib.b, "/imgboard.php?passcode\" target=\"_blank\">Log In Again?</a></div>");
@@ -24784,6 +24776,27 @@ Spells.addSpell(9, '', false);
           return value;
         }
       }, {
+        key: "fixFileInputs",
+        value: function fixFileInputs(el) {
+          var str = ' class="de-file-wrap"><input type="file" name="file[]"></div>';
+          el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+        }
+      }, {
+        key: "getCaptchaSrc",
+        value: function getCaptchaSrc(src) {
+          return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+        }
+      }, {
+        key: "getImgRealName",
+        value: function getImgRealName(wrap) {
+          return $q('.filesize > a', wrap).textContent;
+        }
+      }, {
+        key: "getImgWrap",
+        value: function getImgWrap(img) {
+          return img.closest('.image-container');
+        }
+      }, {
         key: "_getPasscodeStatus",
         value: function () {
           var _getPasscodeStatus2 = _asyncToGenerator(_regeneratorRuntime().mark(function _callee42() {
@@ -24821,27 +24834,6 @@ Spells.addSpell(9, '', false);
           }
           return _getPasscodeStatus;
         }()
-      }, {
-        key: "fixFileInputs",
-        value: function fixFileInputs(el) {
-          var str = ' class="de-file-wrap"><input type="file" name="file[]"></div>';
-          el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-        }
-      }, {
-        key: "getCaptchaSrc",
-        value: function getCaptchaSrc(src) {
-          return src.replace(/\?[^?]+$|$/, '?' + Math.random());
-        }
-      }, {
-        key: "getImgRealName",
-        value: function getImgRealName(wrap) {
-          return $q('.filesize > a', wrap).textContent;
-        }
-      }, {
-        key: "getImgWrap",
-        value: function getImgWrap(img) {
-          return img.parentNode.parentNode.parentNode;
-        }
       }]);
     }(BaseBoard);
     ibDomains['dollchan.net'] = Dollchan;

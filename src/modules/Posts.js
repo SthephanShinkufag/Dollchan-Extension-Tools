@@ -359,17 +359,7 @@ class AbstractPost {
 			}
 		});
 	}
-
-	_clickImage(el, e) {
-		const image = this.images.getImageByEl(el);
-		if(!image || (!image.isImage && !image.isVideo)) {
-			return;
-		}
-		image.expandImg((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
-		e.preventDefault();
-		e.stopPropagation();
-	}
-	async _downloadImageByLink(el, e) {
+	async downloadImageByLink(el, e) {
 		e.preventDefault();
 		$popup('file-loading', Lng.loading[lang], true);
 		const url = el.href;
@@ -380,6 +370,16 @@ class AbstractPost {
 		}
 		closePopup('file-loading');
 		downloadBlob(new Blob([data], { type: getFileMime(url) }), el.getAttribute('download'));
+	}
+
+	_clickImage(el, e) {
+		const image = this.images.getImageByEl(el);
+		if(!image || (!image.isImage && !image.isVideo)) {
+			return;
+		}
+		image.expandImg((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
+		e.preventDefault();
+		e.stopPropagation();
 	}
 	_getFullMsg(truncEl, isInit) {
 		if(!isInit) {
@@ -477,7 +477,7 @@ class AbstractPost {
 			this.setUserVisib(isHide);
 			return;
 		case 'hide-refsonly': await Spells.addSpell(0 /* #words */, '>>' + num, false); return;
-		case 'img-load': this._downloadImageByLink(el, e); return;
+		case 'img-load': this.downloadImageByLink(el, e); return;
 		case 'post-markmy': {
 			const isAdd = !MyPosts.has(num);
 			if(isAdd) {

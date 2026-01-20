@@ -8,7 +8,6 @@ function getImageBoard(checkDomains) {
 	class Dollchan extends BaseBoard {
 		constructor(...args) {
 			super(...args);
-
 			this.qDelForm = $id('posts') ? '#posts' : '#delform';
 			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
 			this.qPages = '.pagelist';
@@ -58,7 +57,7 @@ function getImageBoard(checkDomains) {
 								' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;" onclick="' +
 								`this.src = '/${ aib.b }/inc/captcha.php?' + Math.random();"></div>` +
 								`<input type="text" name="captcha" style="width: 300px;" placeholder="${
-									Lng.cap[lang] }" accesskey="c" autocomplete="off">`;
+									Lng.captcha[lang] }" accesskey="c" autocomplete="off">`;
 						}
 						if(passcodeStatus === 'invalid') {
 							captchaHTML += `<div>Your pass code seems to be not valid. <a href="/${
@@ -125,6 +124,19 @@ function getImageBoard(checkDomains) {
 			Object.defineProperty(this, 'reportForm', { value });
 			return value;
 		}
+		fixFileInputs(el) {
+			const str = ' class="de-file-wrap"><input type="file" name="file[]"></div>';
+			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+		}
+		getCaptchaSrc(src) {
+			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+		}
+		getImgRealName(wrap) {
+			return $q('.filesize > a', wrap).textContent;
+		}
+		getImgWrap(img) {
+			return img.closest('.image-container');
+		}
 		async _getPasscodeStatus() {
 			let status = 'showcaptcha';
 			if(getCookies().passcode === '1') {
@@ -137,19 +149,6 @@ function getImageBoard(checkDomains) {
 				}
 			}
 			return status;
-		}
-		fixFileInputs(el) {
-			const str = ' class="de-file-wrap"><input type="file" name="file[]"></div>';
-			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-		}
-		getCaptchaSrc(src) {
-			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
-		}
-		getImgRealName(wrap) {
-			return $q('.filesize > a', wrap).textContent;
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode.parentNode;
 		}
 	}
 	ibDomains['dollchan.net'] = Dollchan;

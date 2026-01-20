@@ -4,7 +4,7 @@
 'use strict';
 
 const version = '26.1.15.2';
-const commit = '5aa00d0';
+const commit = '420022f';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -1550,14 +1550,6 @@ const Lng = {
 		'Тред закрыт',
 		'Thread is closed',
 		'Тред закрито'],
-	stormWallCheck: [
-		'Проверка StormWall защиты от DDoS атак...',
-		'Checking for the StormWall DDoS protection...',
-		'Перевірка StormWall захисту від DDoS атак...'],
-	stormWallErr: [
-		'Пожалуйста, решите капчу StormWall защиты',
-		'Please resolve the StormWall protection captcha',
-		'Будь ласка, вирішіть капчу StormWall захисту'],
 
 	// Other warnings
 	internalError: [
@@ -1612,7 +1604,7 @@ const Lng = {
 	subj      : ['Тема', 'Subject', 'Тема'],
 	mail      : ['Почта', 'Email', 'Пошта'],
 	video     : ['Видео', 'Video', 'Відео'],
-	cap       : ['Капча', 'Captcha', 'Капча'],
+	captcha   : ['Капча', 'Captcha', 'Капча'],
 	add       : ['Добавить', 'Add', 'Додати'],
 	apply     : ['Применить', 'Apply', 'Застосувати'],
 	cancel    : ['Отмена', 'Cancel', 'Скасувати'],
@@ -2473,10 +2465,7 @@ const CfgSaver = {
 		} else {
 			delete val[domain];
 		}
-		const rv = setStored('DESU_Config', JSON.stringify(val));
-		if(rv) {
-			await rv;
-		}
+		setStored('DESU_Config', JSON.stringify(val));
 	},
 
 	_isBusy : false,
@@ -2495,7 +2484,6 @@ async function readCfg() {
 	if(!(aib.domain in val) || $isEmpty(obj = val[aib.domain])) {
 		obj = {};
 	}
-	defaultCfg.captchaLang = aib.captchaLang;
 	const browserLang = String(navigator.language).toLowerCase();
 	defaultCfg.language =
 		browserLang.startsWith('ru') ? 0 :
@@ -4594,7 +4582,7 @@ const CfgWindow = {
 				setTimeout(() => postform.toggleSage(), 0);
 				updateCSS();
 				break;
-			case 'altCaptcha': postform.cap.initCapPromise(); break;
+			case 'altCaptcha': postform.captcha.initCaptchaPromise(); break;
 			case 'txtBtnsLoc':
 				postform.addMarkupPanel();
 				updateCSS();
@@ -4955,7 +4943,7 @@ const CfgWindow = {
 			${ postform.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
 			${ postform.mail ? `${ this._getBox('addSageBtn') }
 				${ this._getBox('saveSage') }<br>` : '' }
-			${ postform.cap ? `${ aib.hasAltCaptcha ? `${ this._getBox('altCaptcha') }<br>` : '' }
+			${ postform.captcha ? `${ aib.hasAltCaptcha ? `${ this._getBox('altCaptcha') }<br>` : '' }
 				${ this._getInp('capUpdTime') }<br>
 				${ this._getSel('captchaLang') }<br>` : '' }
 			${ postform.txta ? `${ this._getSel('addTextBtns') }
@@ -5463,7 +5451,7 @@ const HotKeys = {
 				}
 				break;
 			case 5: // Send post (txt)
-				if(el !== postform.txta && el !== postform.cap.textEl) {
+				if(el !== postform.txta && el !== postform.captcha.textEl) {
 					return;
 				}
 				postform.subm.click();
@@ -8726,8 +8714,8 @@ class PostForm {
 		e.preventDefault();
 		e.stopPropagation();
 	}
-	refreshCap(isError = false) {
-		this.cap?.refreshCaptcha(isError, isError, this.tNum);
+	refreshCaptchaTNum(isError = false) {
+		this.captcha?.refreshCaptcha(isError, isError, this.tNum);
 	}
 	setPlaceholders() {
 		if(aib.formHeaders || !aib.multiFile && Cfg.fileInputs === 2) {
@@ -8737,8 +8725,8 @@ class PostForm {
 		this._setPlaceholder('subj');
 		this._setPlaceholder('mail');
 		this._setPlaceholder('video');
-		if(this.cap) {
-			this._setPlaceholder('cap');
+		if(this.captcha) {
+			this._setPlaceholder('captcha');
 		}
 	}
 	setReply(isQuick, needToHide) {
@@ -8757,7 +8745,7 @@ class PostForm {
 		this.closeReply();
 		if(!aib.t) {
 			this.tNum = false;
-			this.refreshCap();
+			this.refreshCaptchaTNum();
 		}
 		if(this.isBottom === isBottom) {
 			$toggle(this.pForm, this.isHidden);
@@ -8794,7 +8782,7 @@ class PostForm {
 		}
 		if(!aib.t && this.tNum !== qNum) {
 			this.tNum = qNum;
-			this.refreshCap();
+			this.refreshCaptchaTNum();
 		}
 		this.tNum = qNum;
 		const txt = this.txta.value;
@@ -8876,31 +8864,28 @@ class PostForm {
 		};
 	}
 	_initCaptcha() {
-		const capEl =
-			$q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', this.form);
+		const capEl = aib.getCaptchaEl(this.form);
 		if(!capEl) {
-			this.cap = null;
+			this.captcha = null;
 			return;
 		}
-		this.cap = new Captcha(capEl, this.tNum);
-		const updCapFn = () => {
-			this.cap.addCaptcha();
-			this.cap.updateOutdated();
+		this.captcha = new Captcha(capEl, this.tNum);
+		const updCaptchaFn = () => {
+			this.captcha.addCaptcha();
+			this.captcha.updateOutdated();
 		};
-		this.txta.addEventListener('focus', updCapFn);
+		this.txta.addEventListener('focus', updCaptchaFn);
 		if(this.files) {
-			this.files.onchange = updCapFn;
+			this.files.onchange = updCaptchaFn;
 		}
-		this.form.addEventListener('click', () => this.cap.addCaptcha(), true);
+		this.form.addEventListener('click', () => this.captcha.addCaptcha(), true);
 	}
 	_initFileInputs() {
 		const fileEl = $q(aib.qFormFile, this.form);
 		if(!fileEl) {
 			return;
 		}
-		if(aib.fixFileInputs) {
-			aib.fixFileInputs(fileEl.closest(aib.qFormTd));
-		}
+		aib.fixFileInputs?.(fileEl.closest(aib.qFormTd));
 		this.files = new Files(this, $q(aib.qFormFile, this.form));
 		// We need to clear file inputs in case if session was restored.
 		deWindow.addEventListener('load',
@@ -9046,8 +9031,8 @@ class PostForm {
 			await CfgSaver.save('sageReply', 0);
 			this.toggleSage();
 			this.files.clearInputs();
-			[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(
-				el => el && (el.value = ''));
+			[this.txta, this.name, this.mail, this.subj, this.video, this.captcha && this.captcha.textEl]
+				.forEach(el => el && (el.value = ''));
 		};
 		toggleBtn.onclick = async () => {
 			await toggleCfg('replyWinDrag');
@@ -9062,7 +9047,7 @@ class PostForm {
 		closeBtn.onclick = () => this.closeReply();
 	}
 	_setPlaceholder(val) {
-		const el = val === 'cap' ? this.cap.textEl : this[val];
+		const el = val === 'captcha' ? this.captcha.textEl : this[val];
 		if(el) {
 			if(aib.multiFile || Cfg.fileInputs !== 2) {
 				el.placeholder = Lng[val][lang];
@@ -9108,7 +9093,7 @@ function showSubmitError(error) {
 		postform.setReply(true, false);
 	}
 	if(/[cf]aptch|капч|подтвер|verifi/i.test(error)) {
-		postform.refreshCap(true);
+		postform.refreshCaptchaTNum(true);
 	}
 	$popup('upload', error.toString());
 	updater.sendErrNotif();
@@ -9186,7 +9171,7 @@ async function checkSubmit(data) {
 		pByNum.get(tNum).thr.loadPosts('new', false, false).then(() => closePopup('upload'));
 	}
 	postform.closeReply();
-	postform.refreshCap();
+	postform.refreshCaptchaTNum();
 }
 
 async function checkDelete(data) {
@@ -10046,7 +10031,7 @@ class Captcha {
 		this.hasCaptcha = true;
 		this.textEl = null;
 		this.tNum = initNum;
-		this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCapParent(el);
+		this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCaptchaParent(el);
 		this.isAdded = false;
 		this._isHcap = !!$q('.h-captcha', this.parentEl);
 		this._isRecap = this._isHcap || !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
@@ -10073,7 +10058,7 @@ class Captcha {
 			this.parentEl.innerHTML = this.originHTML;
 			this.textEl = $q('input[type="text"][name*="aptcha"]', this.parentEl);
 		}
-		this.initCapPromise();
+		this.initCaptchaPromise();
 	}
 	handleEvent(e) {
 		switch(e.type) {
@@ -10105,8 +10090,8 @@ class Captcha {
 		e.preventDefault();
 		e.stopPropagation();
 	}
-	initCapPromise() {
-		const initPromise = aib.captchaInit ? aib.captchaInit(this) : null;
+	initCaptchaPromise() {
+		const initPromise = aib.captchaInit?.(this);
 		if(initPromise) {
 			initPromise.then(() => this.showCaptcha(), err => {
 				if(err instanceof AjaxError) {
@@ -10128,7 +10113,7 @@ class Captcha {
 	initTextEl() {
 		this.textEl.autocomplete = 'off';
 		if(!aib.formHeaders && (aib.multiFile || Cfg.fileInputs !== 2)) {
-			this.textEl.placeholder = Lng.cap[lang];
+			this.textEl.placeholder = Lng.captcha[lang];
 		}
 		['keypress', 'focus'].forEach(e => this.textEl.addEventListener(e, this));
 		this.textEl.onkeypress = null;
@@ -10138,7 +10123,7 @@ class Captcha {
 		if(!this.textEl) {
 			$show(this.parentEl);
 			if(this._isRecap) {
-				this._updateRecap();
+				this._updateRecaptcha();
 			}
 			return;
 		}
@@ -10174,7 +10159,7 @@ class Captcha {
 		}
 		this._lastUpdate = Date.now();
 		if(this._isRecap) {
-			this._updateRecap();
+			this._updateRecaptcha();
 		} else if(this.textEl) {
 			this._updateTextEl(isFocus);
 			const img = $q('img', this.parentEl);
@@ -10225,7 +10210,7 @@ class Captcha {
 			$show(this.parentEl);
 		}
 	}
-	_updateRecap() {
+	_updateRecaptcha() {
 		// <EXCLUDED_FROM_EXTENSION>
 		const script = doc.createElement('script');
 		script.src = aib.protocol +
@@ -10605,17 +10590,7 @@ class AbstractPost {
 			}
 		});
 	}
-
-	_clickImage(el, e) {
-		const image = this.images.getImageByEl(el);
-		if(!image || (!image.isImage && !image.isVideo)) {
-			return;
-		}
-		image.expandImg((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
-		e.preventDefault();
-		e.stopPropagation();
-	}
-	async _downloadImageByLink(el, e) {
+	async downloadImageByLink(el, e) {
 		e.preventDefault();
 		$popup('file-loading', Lng.loading[lang], true);
 		const url = el.href;
@@ -10626,6 +10601,16 @@ class AbstractPost {
 		}
 		closePopup('file-loading');
 		downloadBlob(new Blob([data], { type: getFileMime(url) }), el.getAttribute('download'));
+	}
+
+	_clickImage(el, e) {
+		const image = this.images.getImageByEl(el);
+		if(!image || (!image.isImage && !image.isVideo)) {
+			return;
+		}
+		image.expandImg((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
+		e.preventDefault();
+		e.stopPropagation();
 	}
 	_getFullMsg(truncEl, isInit) {
 		if(!isInit) {
@@ -10723,7 +10708,7 @@ class AbstractPost {
 			this.setUserVisib(isHide);
 			return;
 		case 'hide-refsonly': await Spells.addSpell(0 /* #words */, '>>' + num, false); return;
-		case 'img-load': this._downloadImageByLink(el, e); return;
+		case 'img-load': this.downloadImageByLink(el, e); return;
 		case 'post-markmy': {
 			const isAdd = !MyPosts.has(num);
 			if(isAdd) {
@@ -14767,14 +14752,13 @@ class BaseBoard {
 		this.qPostsParent = null;
 		this.qTrunc = '.abbrev, .abbr, .shortened';
 
-		// Other propertioes
+		// Other properties
 		let { port } = deWindow.location;
 		port = port ? ':' + port : '';
 		this.anchor = '#';
 		this.b = '';
-		this.captchaRu = false;
-		this.domain = domain + port;
 		this.docExt = null;
+		this.domain = domain + port;
 		this.firstPage = 0;
 		this.formHeaders = false;
 		this.formParent = 'parent';
@@ -14794,6 +14778,36 @@ class BaseBoard {
 		this.res = 'res/';
 		this.t = false;
 		this.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
+	}
+	get captchaInit() {
+		return null;
+	}
+	get catalogUrl() {
+		return `${ this.protocol }//${ this.host }/${ this.b }/catalog.html`;
+	}
+	get css() {
+		return '';
+	}
+	get fixFileInputs() {
+		return null;
+	}
+	get getSubmitData() {
+		return null;
+	}
+	get lastPage() {
+		const el = $q(this.qPages);
+		let value = el && +Array.prototype.pop.call(el.textContent.match(/\d+/g) || []) || 0;
+		if(this.page === value + 1) {
+			value++;
+		}
+		Object.defineProperty(this, 'lastPage', { value });
+		return value;
+	}
+	get markupTags() {
+		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
+	}
+	get postersCount() {
+		return '';
 	}
 	get qFormMail() {
 		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
@@ -14826,39 +14840,6 @@ class BaseBoard {
 		const value = $q('.thread') ? '.thread' : '[id^="thread"]';
 		Object.defineProperty(this, 'qThread', { value });
 		return value;
-	}
-	get captchaInit() {
-		return null;
-	}
-	get captchaLang() {
-		return this.captchaRu ? 2 : 1;
-	}
-	get catalogUrl() {
-		return `${ this.protocol }//${ this.host }/${ this.b }/catalog.html`;
-	}
-	get css() {
-		return '';
-	}
-	get fixFileInputs() {
-		return null;
-	}
-	get getSubmitData() {
-		return null;
-	}
-	get lastPage() {
-		const el = $q(this.qPages);
-		let value = el && +Array.prototype.pop.call(el.textContent.match(/\d+/g) || []) || 0;
-		if(this.page === value + 1) {
-			value++;
-		}
-		Object.defineProperty(this, 'lastPage', { value });
-		return value;
-	}
-	get markupTags() {
-		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
-	}
-	get postersCount() {
-		return '';
 	}
 	get reCrossLinks() {
 		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.domain }\\/([a-z0-9]+)\\/${
@@ -14943,7 +14924,10 @@ class BaseBoard {
 	getBanId(postEl) {
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
 	}
-	getCapParent(el) {
+	getCaptchaEl(form) {
+		return $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', form);
+	}
+	getCaptchaParent(el) {
 		return el.closest(this.qFormTr);
 	}
 	getCaptchaSrc(src, tNum) {
@@ -14952,16 +14936,10 @@ class BaseBoard {
 		return tNum ? temp.replace(/mainpage|res\d+/, 'res' + tNum) : temp.replace(/res\d+/, 'mainpage');
 	}
 	getEmptyFile(field, name) {
-		return {
-			el    : field,
-			name,
-			type  : 'application/octet-stream',
-			value : new File([''], '')
-		};
+		return { el: field, name, type: 'application/octet-stream', value: new File([''], '') };
 	}
 	getImgInfo(wrap) {
-		const el = $q(this.qPostImgInfo, wrap);
-		return el ? el.textContent : '';
+		return $q(this.qPostImgInfo, wrap)?.textContent || '';
 	}
 	getImgRealName(wrap) {
 		const el = $q(this.qPostImgNameLink, wrap);
@@ -15072,7 +15050,6 @@ function getImageBoard(checkDomains) {
 	class Dollchan extends BaseBoard {
 		constructor(...args) {
 			super(...args);
-
 			this.qDelForm = $id('posts') ? '#posts' : '#delform';
 			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
 			this.qPages = '.pagelist';
@@ -15122,7 +15099,7 @@ function getImageBoard(checkDomains) {
 								' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;" onclick="' +
 								`this.src = '/${ aib.b }/inc/captcha.php?' + Math.random();"></div>` +
 								`<input type="text" name="captcha" style="width: 300px;" placeholder="${
-									Lng.cap[lang] }" accesskey="c" autocomplete="off">`;
+									Lng.captcha[lang] }" accesskey="c" autocomplete="off">`;
 						}
 						if(passcodeStatus === 'invalid') {
 							captchaHTML += `<div>Your pass code seems to be not valid. <a href="/${
@@ -15189,6 +15166,19 @@ function getImageBoard(checkDomains) {
 			Object.defineProperty(this, 'reportForm', { value });
 			return value;
 		}
+		fixFileInputs(el) {
+			const str = ' class="de-file-wrap"><input type="file" name="file[]"></div>';
+			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+		}
+		getCaptchaSrc(src) {
+			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+		}
+		getImgRealName(wrap) {
+			return $q('.filesize > a', wrap).textContent;
+		}
+		getImgWrap(img) {
+			return img.closest('.image-container');
+		}
 		async _getPasscodeStatus() {
 			let status = 'showcaptcha';
 			if(getCookies().passcode === '1') {
@@ -15201,19 +15191,6 @@ function getImageBoard(checkDomains) {
 				}
 			}
 			return status;
-		}
-		fixFileInputs(el) {
-			const str = ' class="de-file-wrap"><input type="file" name="file[]"></div>';
-			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-		}
-		getCaptchaSrc(src) {
-			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
-		}
-		getImgRealName(wrap) {
-			return $q('.filesize > a', wrap).textContent;
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode.parentNode;
 		}
 	}
 	ibDomains['dollchan.net'] = Dollchan;

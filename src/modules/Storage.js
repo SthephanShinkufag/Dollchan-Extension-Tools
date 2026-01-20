@@ -78,10 +78,7 @@ const CfgSaver = {
 		} else {
 			delete val[domain];
 		}
-		const rv = setStored('DESU_Config', JSON.stringify(val));
-		if(rv) {
-			await rv;
-		}
+		setStored('DESU_Config', JSON.stringify(val));
 	},
 
 	_isBusy : false,
@@ -100,7 +97,6 @@ async function readCfg() {
 	if(!(aib.domain in val) || $isEmpty(obj = val[aib.domain])) {
 		obj = {};
 	}
-	defaultCfg.captchaLang = aib.captchaLang;
 	const browserLang = String(navigator.language).toLowerCase();
 	defaultCfg.language =
 		browserLang.startsWith('ru') ? 0 :

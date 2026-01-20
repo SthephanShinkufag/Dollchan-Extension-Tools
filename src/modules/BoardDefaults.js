@@ -39,14 +39,13 @@ class BaseBoard {
 		this.qPostsParent = null;
 		this.qTrunc = '.abbrev, .abbr, .shortened';
 
-		// Other propertioes
+		// Other properties
 		let { port } = deWindow.location;
 		port = port ? ':' + port : '';
 		this.anchor = '#';
 		this.b = '';
-		this.captchaRu = false;
-		this.domain = domain + port;
 		this.docExt = null;
+		this.domain = domain + port;
 		this.firstPage = 0;
 		this.formHeaders = false;
 		this.formParent = 'parent';
@@ -66,6 +65,36 @@ class BaseBoard {
 		this.res = 'res/';
 		this.t = false;
 		this.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
+	}
+	get captchaInit() {
+		return null;
+	}
+	get catalogUrl() {
+		return `${ this.protocol }//${ this.host }/${ this.b }/catalog.html`;
+	}
+	get css() {
+		return '';
+	}
+	get fixFileInputs() {
+		return null;
+	}
+	get getSubmitData() {
+		return null;
+	}
+	get lastPage() {
+		const el = $q(this.qPages);
+		let value = el && +Array.prototype.pop.call(el.textContent.match(/\d+/g) || []) || 0;
+		if(this.page === value + 1) {
+			value++;
+		}
+		Object.defineProperty(this, 'lastPage', { value });
+		return value;
+	}
+	get markupTags() {
+		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
+	}
+	get postersCount() {
+		return '';
 	}
 	get qFormMail() {
 		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
@@ -98,39 +127,6 @@ class BaseBoard {
 		const value = $q('.thread') ? '.thread' : '[id^="thread"]';
 		Object.defineProperty(this, 'qThread', { value });
 		return value;
-	}
-	get captchaInit() {
-		return null;
-	}
-	get captchaLang() {
-		return this.captchaRu ? 2 : 1;
-	}
-	get catalogUrl() {
-		return `${ this.protocol }//${ this.host }/${ this.b }/catalog.html`;
-	}
-	get css() {
-		return '';
-	}
-	get fixFileInputs() {
-		return null;
-	}
-	get getSubmitData() {
-		return null;
-	}
-	get lastPage() {
-		const el = $q(this.qPages);
-		let value = el && +Array.prototype.pop.call(el.textContent.match(/\d+/g) || []) || 0;
-		if(this.page === value + 1) {
-			value++;
-		}
-		Object.defineProperty(this, 'lastPage', { value });
-		return value;
-	}
-	get markupTags() {
-		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
-	}
-	get postersCount() {
-		return '';
 	}
 	get reCrossLinks() {
 		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.domain }\\/([a-z0-9]+)\\/${
@@ -215,7 +211,10 @@ class BaseBoard {
 	getBanId(postEl) {
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
 	}
-	getCapParent(el) {
+	getCaptchaEl(form) {
+		return $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', form);
+	}
+	getCaptchaParent(el) {
 		return el.closest(this.qFormTr);
 	}
 	getCaptchaSrc(src, tNum) {
@@ -224,16 +223,10 @@ class BaseBoard {
 		return tNum ? temp.replace(/mainpage|res\d+/, 'res' + tNum) : temp.replace(/res\d+/, 'mainpage');
 	}
 	getEmptyFile(field, name) {
-		return {
-			el    : field,
-			name,
-			type  : 'application/octet-stream',
-			value : new File([''], '')
-		};
+		return { el: field, name, type: 'application/octet-stream', value: new File([''], '') };
 	}
 	getImgInfo(wrap) {
-		const el = $q(this.qPostImgInfo, wrap);
-		return el ? el.textContent : '';
+		return $q(this.qPostImgInfo, wrap)?.textContent || '';
 	}
 	getImgRealName(wrap) {
 		const el = $q(this.qPostImgNameLink, wrap);
