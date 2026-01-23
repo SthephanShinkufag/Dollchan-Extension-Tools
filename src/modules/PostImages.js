@@ -163,7 +163,7 @@ class ImagesViewer {
 				this._zoomed = false;
 				return;
 			}
-		/* falls through */
+			/* falls through */
 		case 'touchmove': {
 			const touchesLen = e.targetTouches.length;
 			if(touchesLen === 1 && !this._zoomed) {

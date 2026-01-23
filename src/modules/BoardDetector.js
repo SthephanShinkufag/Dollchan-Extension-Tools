@@ -671,18 +671,22 @@ function getImageBoard(checkDomains, checkEngines) {
 			Object.defineProperty(this, 'reportForm', { value });
 			return value;
 		}
-		captchaInit() {
-			$script(`const loadCaptchaFn =
+		get captchaInit() {
+			$script(`const loadCapFn =
 				() => new EmojiCaptcha({ createWarningFn: generateWarning }).requestController();`);
+			Object.defineProperty(this, 'captchaInit', { value: null });
 			return null;
 		}
 		captchaUpdate() {
-			$script('loadCaptchaFn();');
+			$script('loadCapFn();');
 			return null;
 		}
 		clearFileInputs() {
-			$q('.postform__sticker-img').remove();
-			$q('.sticker-input', postform.form).value = '';
+			$q('.postform__sticker-img')?.remove();
+			const el = $q('.sticker-input', postform.form);
+			if(el) {
+				el.value = '';
+			}
 		}
 		deleteTruncMsg(post, el) {
 			el.previousSibling.remove();
@@ -936,7 +940,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['2channel.moe'] = ibDomains['2channel5xx5xchx.onion'] = _2channel;
+	ibDomains['2channel.moe'] =
+		ibDomains['2channel5s3pvmo2364gs25e5xrx7nz6kivqhpj6ihh3df4hykvxysqd.onion'] = _2channel;
 
 	class _2chRip extends BaseBoard {
 		constructor(...args) {
@@ -1178,7 +1183,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return true;
 		}
 	}
-	ibDomains['4chan.org'] = ibDomains['4channel.org'] = _4chan;
+	ibDomains['4chan.org'] = _4chan;
 
 	class _7chan extends Kusaba {
 		init() {
@@ -1297,7 +1302,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['arhivach.vc'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
+	ibDomains['arhivach.vc'] =
+		ibDomains['arhivachqqqvwqcotafhk4ks2he56seuwcshpayrm5myeq45vlff44yd.onion'] = Arhivach;
 
 	class Bulochka extends _410chan {
 		constructor(...args) {
@@ -1377,10 +1383,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['endchan.net'] = ibDomains['endchan.gg'] = ibDomains['endchan.org'] =
+	ibDomains['endchan.net'] = ibDomains['endchan.org'] =
 		ibDomains['endchancxfbnrfgauuxlztwlckytq7rgeo5v6pc2zd4nyqo3khfam4ad.onion'] =
-		ibDomains['enxx3byspwsdo446jujc52ucy2pf5urdbhqw3kbsfhlfjwmbpj5smdad.onion'] =
-		ibDomains['kqrtg5wz4qbyjprujkz33gza7r73iw3ainqp1mz5zmu16symcdwy.loki'] = Endchan;
+		ibDomains['enxx3byspwsdo446jujc52ucy2pf5urdbhqw3kbsfhlfjwmbpj5smdad.onion'] = Endchan;
 
 	class Escapechain extends Makaba {
 		get clearFileInputs() {
@@ -1390,7 +1395,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 	}
-	ibDomains['escapechain.ru'] = Escapechain;
+	ibDomains['escapechain.ru'] =
+		ibDomains['mk2dodftctwgnux6z7iafm5tcyj7xrv7aytlh25zka45m7svvb6olfyd.onion'] = Escapechain;
 
 	class Gensokyo extends Kusaba {
 		constructor(...args) {
@@ -1629,8 +1635,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return super.sendHTML5Post(form, data, needProgress, hasFiles);
 		}
 	}
-	ibDomains['kohlchan.net'] = ibDomains['kohlchan.top'] = ibDomains['kohlchan.ws'] =
-		ibDomains['kohlkanal.net'] = ibDomains['kohlchanagb7ih5g.onion'] =
+	ibDomains['kohlchan.net'] = ibDomains['kohlchan.ws'] =
 		ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] = Kohlchan;
 
 	class Kropyvach extends Vichan {
@@ -1761,8 +1766,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['syn-ch.ru'] = ibDomains['syn-ch.com'] = ibDomains['syn-ch.com.ua'] =
-		ibDomains['syn-ch.org'] = Synch;
+	ibDomains['syn-ch.com'] = ibDomains['syn-ch.com.ua'] = ibDomains['syn-ch.org'] =
+		ibDomains['syn-ch.ru'] = Synch;
 
 	class Warosu extends BaseBoard {
 		constructor(...args) {

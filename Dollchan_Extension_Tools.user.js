@@ -8218,7 +8218,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = 'f134440';
+  var commit = '3e32217';
 
 
   var doc = deWindow.document;
@@ -26410,21 +26410,28 @@ Spells.addSpell(9, '', false);
         }
       }, {
         key: "captchaInit",
-        value: function captchaInit() {
-          $script("const loadCaptchaFn =\n\t\t\t\t() => new EmojiCaptcha({ createWarningFn: generateWarning }).requestController();");
+        get: function get() {
+          $script("const loadCapFn =\n\t\t\t\t() => new EmojiCaptcha({ createWarningFn: generateWarning }).requestController();");
+          Object.defineProperty(this, 'captchaInit', {
+            value: null
+          });
           return null;
         }
       }, {
         key: "captchaUpdate",
         value: function captchaUpdate() {
-          $script('loadCaptchaFn();');
+          $script('loadCapFn();');
           return null;
         }
       }, {
         key: "clearFileInputs",
         value: function clearFileInputs() {
-          $q('.postform__sticker-img').remove();
-          $q('.sticker-input', postform.form).value = '';
+          var _$q13;
+          (_$q13 = $q('.postform__sticker-img')) === null || _$q13 === void 0 || _$q13.remove();
+          var el = $q('.sticker-input', postform.form);
+          if (el) {
+            el.value = '';
+          }
         }
       }, {
         key: "deleteTruncMsg",
@@ -26720,7 +26727,7 @@ Spells.addSpell(9, '', false);
         }
       }]);
     }(Makaba);
-    ibDomains['2channel.moe'] = ibDomains['2channel5xx5xchx.onion'] = _2channel;
+    ibDomains['2channel.moe'] = ibDomains['2channel5s3pvmo2364gs25e5xrx7nz6kivqhpj6ihh3df4hykvxysqd.onion'] = _2channel;
     var _2chRip = function (_BaseBoard7) {
       function _2chRip() {
         var _this116;
@@ -26823,8 +26830,8 @@ Spells.addSpell(9, '', false);
       }, {
         key: "getSage",
         value: function getSage(post) {
-          var _$q13;
-          return !!((_$q13 = $q('.filetitle', post)) !== null && _$q13 !== void 0 && _$q13.textContent.includes("\u21E9"));
+          var _$q14;
+          return !!((_$q14 = $q('.filetitle', post)) !== null && _$q14 !== void 0 && _$q14.textContent.includes("\u21E9"));
         }
       }, {
         key: "init",
@@ -26914,8 +26921,8 @@ Spells.addSpell(9, '', false);
       }, {
         key: "postersCount",
         get: function get() {
-          var _$q14;
-          var value = ((_$q14 = $q('span[class="ts-ips"]')) === null || _$q14 === void 0 ? void 0 : _$q14.innerHTML) || '';
+          var _$q15;
+          var value = ((_$q15 = $q('span[class="ts-ips"]')) === null || _$q15 === void 0 ? void 0 : _$q15.innerHTML) || '';
           if (!value) {
             $script("setTimeout(function() {\n\t\t\t\t\tdocument.getElementById(\"de-panel-info-posters\").textContent = window.unique_ips || \"\";\n\t\t\t\t}, 0)");
           }
@@ -26949,8 +26956,8 @@ Spells.addSpell(9, '', false);
       }, {
         key: "getImgInfo",
         value: function getImgInfo(wrap) {
-          var _$q15;
-          return ((_$q15 = $q(this.qPostImgInfo, wrap)) === null || _$q15 === void 0 ? void 0 : _$q15.lastChild.textContent) || '';
+          var _$q16;
+          return ((_$q16 = $q(this.qPostImgInfo, wrap)) === null || _$q16 === void 0 ? void 0 : _$q16.lastChild.textContent) || '';
         }
       }, {
         key: "getImgRealName",
@@ -27030,7 +27037,7 @@ Spells.addSpell(9, '', false);
         }
       }]);
     }(BaseBoard);
-    ibDomains['4chan.org'] = ibDomains['4channel.org'] = _4chan;
+    ibDomains['4chan.org'] = _4chan;
     var _7chan = function (_Kusaba2) {
       function _7chan() {
         _classCallCheck(this, _7chan);
@@ -27214,7 +27221,7 @@ Spells.addSpell(9, '', false);
         }
       }]);
     }(BaseBoard);
-    ibDomains['arhivach.vc'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
+    ibDomains['arhivach.vc'] = ibDomains['arhivachqqqvwqcotafhk4ks2he56seuwcshpayrm5myeq45vlff44yd.onion'] = Arhivach;
     var Bulochka = function (_chan) {
       function Bulochka() {
         var _this123;
@@ -27332,7 +27339,7 @@ Spells.addSpell(9, '', false);
         }
       }]);
     }(Lynxchan);
-    ibDomains['endchan.net'] = ibDomains['endchan.gg'] = ibDomains['endchan.org'] = ibDomains['endchancxfbnrfgauuxlztwlckytq7rgeo5v6pc2zd4nyqo3khfam4ad.onion'] = ibDomains['enxx3byspwsdo446jujc52ucy2pf5urdbhqw3kbsfhlfjwmbpj5smdad.onion'] = ibDomains['kqrtg5wz4qbyjprujkz33gza7r73iw3ainqp1mz5zmu16symcdwy.loki'] = Endchan;
+    ibDomains['endchan.net'] = ibDomains['endchan.org'] = ibDomains['endchancxfbnrfgauuxlztwlckytq7rgeo5v6pc2zd4nyqo3khfam4ad.onion'] = ibDomains['enxx3byspwsdo446jujc52ucy2pf5urdbhqw3kbsfhlfjwmbpj5smdad.onion'] = Endchan;
     var Escapechain = function (_Makaba2) {
       function Escapechain() {
         _classCallCheck(this, Escapechain);
@@ -27351,7 +27358,7 @@ Spells.addSpell(9, '', false);
         }
       }]);
     }(Makaba);
-    ibDomains['escapechain.ru'] = Escapechain;
+    ibDomains['escapechain.ru'] = ibDomains['mk2dodftctwgnux6z7iafm5tcyj7xrv7aytlh25zka45m7svvb6olfyd.onion'] = Escapechain;
     var Gensokyo = function (_Kusaba4) {
       function Gensokyo() {
         var _this125;
@@ -27648,7 +27655,7 @@ Spells.addSpell(9, '', false);
         }
       }]);
     }(Lynxchan);
-    ibDomains['kohlchan.net'] = ibDomains['kohlchan.top'] = ibDomains['kohlchan.ws'] = ibDomains['kohlkanal.net'] = ibDomains['kohlchanagb7ih5g.onion'] = ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] = Kohlchan;
+    ibDomains['kohlchan.net'] = ibDomains['kohlchan.ws'] = ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] = Kohlchan;
     var Kropyvach = function (_Vichan3) {
       function Kropyvach() {
         var _this129;
@@ -27849,7 +27856,7 @@ Spells.addSpell(9, '', false);
         }
       }]);
     }(Vichan);
-    ibDomains['syn-ch.ru'] = ibDomains['syn-ch.com'] = ibDomains['syn-ch.com.ua'] = ibDomains['syn-ch.org'] = Synch;
+    ibDomains['syn-ch.com'] = ibDomains['syn-ch.com.ua'] = ibDomains['syn-ch.org'] = ibDomains['syn-ch.ru'] = Synch;
     var Warosu = function (_BaseBoard14) {
       function Warosu() {
         var _this133;
