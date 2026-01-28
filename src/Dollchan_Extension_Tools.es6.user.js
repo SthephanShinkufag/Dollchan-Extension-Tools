@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '3e32217';
+const commit = '170d1be';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -12983,7 +12983,7 @@ class AttachedImage extends ExpandableImage {
 	}
 	_getImageSize() {
 		if(this.info) {
-			const size = this.info.match(/(?:[\s(]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[)\s,]|$)/);
+			const size = this.info.match(/(?:[\s(,]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[)\s,]|$)/);
 			return size ? [size[1], size[2]] : null;
 		}
 		return null;
@@ -15657,7 +15657,7 @@ class BaseBoard {
 		if(isForm) {
 			const newForm = $bBegin(data, str);
 			$hide(data);
-			deWindow.addEventListener('load', () => $id('de-dform-old').remove());
+			deWindow.addEventListener('load', () => $id('de-dform-old')?.remove());
 			return newForm;
 		}
 		data.innerHTML = str;
@@ -15902,17 +15902,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 'p.fileinfo > a:first-of-type';
 		}
 		async changeReplyMode(form, tNum) {
-			if(!this._origInputs && !$q('input[name="hash"]', form)) {
-				// Board without antibot protection
-				postform.subm.value = Lng.reply[lang];
-				const pageInp = $q('input[name="page"]', form);
-				if(tNum) {
-					pageInp?.remove();
-				} else if(!pageInp) {
-					form.insertAdjacentHTML('beforeend', '<input name="page" value="1" type="hidden">');
-				}
-				return;
-			}
 			const query = 'div[style="display:none"], input[style="display:none"], ' +
 				'span[style="display:none"], textarea[style="display:none"], ' +
 				'input[type="hidden"]:not(.de-input-hidden)';
@@ -15966,9 +15955,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 		}
 		getImgRealName(wrap) {
-			const el = $q('.postfilename', wrap) ||
-				$q('.unimportant > a[download]', wrap) || $q(this.qPostImgNameLink, wrap);
-			return el.title || el.textContent;
+			return $q('.postfilename', wrap)?.textContent ||
+				$q('.unimportant > a[download]', wrap)?.download ||
+				$q(this.qPostImgNameLink, wrap)?.textContent || '';
 		}
 		getPageUrl(board, page) {
 			return page > 1 ? fixBoardName(board) + page + this.docExt : fixBoardName(board);
@@ -16005,12 +15994,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
-				#expand-all-images, #expand-all-images + .unimportant, .fileinfo > span[style*="nowrap;"],
-					.post-btn, small, .watchThread { display: none !important; }
-				body { padding: 0 5px !important; }
+				.de-ref-op + small, #expand-all-images, .fileinfo small, .post-btn, .watchThread,
+					.fileinfo > span[style*="white-space:"] { display: none !important; }
 				.boardlist { z-index: 1 !important; }
-				.fileinfo { width: 240px; }
-				.multifile { width: auto !important; }`;
+				.de-file-input { margin-left: 0; }`;
 		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 5 }, (val, i) =>
@@ -16020,6 +16007,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixHTMLHelper(str) {
 			return str.replace(/"(?:\/vichan)?\/player\.php\?v=([^&]+)&[^"]+"/g, '"$1"');
+		}
+		getImgWrap(img) {
+			return img.closest('div.file');
 		}
 		init() {
 			super.init();
@@ -17160,6 +17150,22 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['dobrochan.net'] = Dobrochan;
 
+	class Ejchan extends Vichan {
+		constructor(...args) {
+			super(...args);
+			this.qDelForm = '.thread-outer';
+			this.qPostRef = '.post-left';
+		}
+		get css() {
+			return `${ super.css }
+				.intro { justify-content: normal; }`;
+		}
+		getTNum(thr) {
+			return thr.id.match(/\d+/);
+		}
+	}
+	ibDomains['ejchan.site'] = Ejchan;
+
 	class Endchan extends Lynxchan {
 		constructor(...args) {
 			super(...args);
@@ -17482,6 +17488,27 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['lainchan.org'] = Lainchan;
 
+	class Lilchan extends Vichan {
+		get qPostImgNameLink() {
+			return 'p.fileinfo a:first-of-type';
+		}
+	}
+	ibDomains['lilchan.ru'] = Lilchan;
+
+	class Nichan extends Vichan {
+		constructor(...args) {
+			super(...args);
+			this.qPages = '.bottom > .pages';
+			this.qPostImg = '.post-image[alt]:not(.deleted), video.post-image';
+		}
+		get css() {
+			return `${ super.css }
+				.format-text, label[for="email_selectbox"]
+					${ Cfg.fileInputs ? ', #upload' : '' } { display: none !important; }`;
+		}
+	}
+	ibDomains['nichan.net'] = Nichan;
+
 	class Nowere extends BaseBoard {
 		get markupTags() {
 			return ['**', '***', '', '^H', '', ''];
@@ -17559,6 +17586,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				els[i].replaceWith($q('a', els[i]));
 			}
 			return formEl;
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode;
 		}
 		init() {
 			const val = '{ "simpleNavbar": true }';
@@ -17749,10 +17779,9 @@ function showDonateMsg() {
 	$popup('donate', Lng.donateMsg[lang] + `:<br style="margin-bottom: 8px;"><!--
 		--><div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div><!--
 		--><div style="display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;">` +
-			item('BTC', '1BmVjk3DMPZeJUqBtqZRUCmL234Wc3Bc9Y') +
-			item('BTC (SegWit)', 'bc1qleycjdph5v3g26ewy7x37n5a4kwegjgttpjwzw') +
-			item('ETH (ERC20)', '0xffa96732ae8df25c34444c70c0d59c752a47aafa') +
-			item('YooMoney RUB', '410012122418236') +
+			item('BTC', '13NWiiMocssmXiaVKRG4A4SQ6JP4WbLACz') +
+			item('BTC (SegWit)', 'bc1q2x33mkrwv6zadhflvxv2cct45ssn5a7t4ygvtj') +
+			item('ETH', '0xffa96732ae8df25c34444c70c0d59c752a47aafa') +
 			item('Mastercard', '5375411208220306') +
 			`<div>- <a href="https://send.monobank.ua/jar/A7Saf6YAaz" target="_blank">${
 				Lng.donateOnline[lang] }</a></div>` +

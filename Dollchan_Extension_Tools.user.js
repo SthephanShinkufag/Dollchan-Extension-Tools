@@ -8218,7 +8218,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = '3e32217';
+  var commit = '170d1be';
 
 
   var doc = deWindow.document;
@@ -22258,7 +22258,7 @@ Spells.addSpell(9, '', false);
       key: "_getImageSize",
       value: function _getImageSize() {
         if (this.info) {
-          var size = this.info.match(/(?:[\s(]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[)\s,]|$)/);
+          var size = this.info.match(/(?:[\s(,]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[)\s,]|$)/);
           return size ? [size[1], size[2]] : null;
         }
         return null;
@@ -25293,7 +25293,8 @@ Spells.addSpell(9, '', false);
           var newForm = $bBegin(data, str);
           $hide(data);
           deWindow.addEventListener('load', function () {
-            return $id('de-dform-old').remove();
+            var _$id2;
+            return (_$id2 = $id('de-dform-old')) === null || _$id2 === void 0 ? void 0 : _$id2.remove();
           });
           return newForm;
         }
@@ -25616,37 +25617,24 @@ Spells.addSpell(9, '', false);
         value: function () {
           var _changeReplyMode = _asyncToGenerator(_regeneratorRuntime().mark(function _callee44(form, tNum) {
             var _this107 = this;
-            var pageInp, query, errFn;
+            var query, errFn;
             return _regeneratorRuntime().wrap(function _callee44$(_context52) {
               while (1) switch (_context52.prev = _context52.next) {
                 case 0:
-                  if (!(!this._origInputs && !$q('input[name="hash"]', form))) {
-                    _context52.next = 5;
-                    break;
-                  }
-                  postform.subm.value = Lng.reply[lang];
-                  pageInp = $q('input[name="page"]', form);
-                  if (tNum) {
-                    pageInp === null || pageInp === void 0 || pageInp.remove();
-                  } else if (!pageInp) {
-                    form.insertAdjacentHTML('beforeend', '<input name="page" value="1" type="hidden">');
-                  }
-                  return _context52.abrupt("return");
-                case 5:
                   query = 'div[style="display:none"], input[style="display:none"], ' + 'span[style="display:none"], textarea[style="display:none"], ' + 'input[type="hidden"]:not(.de-input-hidden)';
                   if ($q('input[name="thread"]', form)) {
-                    _context52.next = 11;
+                    _context52.next = 6;
                     break;
                   }
                   this._origInputs = [doc.createElement('div'), postform.subm.value];
                   $Q(query, form).forEach(function (el) {
                     return _this107._origInputs[0].append(el);
                   });
-                  _context52.next = 17;
+                  _context52.next = 12;
                   break;
-                case 11:
+                case 6:
                   if (tNum) {
-                    _context52.next = 17;
+                    _context52.next = 12;
                     break;
                   }
                   postform.subm.value = this._origInputs[1];
@@ -25654,13 +25642,13 @@ Spells.addSpell(9, '', false);
                   form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
                   this._origInputs = null;
                   return _context52.abrupt("return");
-                case 17:
+                case 12:
                   errFn = function errFn() {
                     $popup('load-form', Lng.errFormLoad[lang]);
                     postform.closeReply();
                   };
                   $popup('load-form', Lng.loading[lang], true);
-                  _context52.next = 21;
+                  _context52.next = 16;
                   return ajaxLoad(this.getThrUrl(this.b, tNum), false).then(function (loadedDoc) {
                     var loadedForm = $q(_this107.qForm, loadedDoc);
                     if (!loadedForm) {
@@ -25674,7 +25662,7 @@ Spells.addSpell(9, '', false);
                     });
                     closePopup('load-form');
                   }, errFn);
-                case 21:
+                case 16:
                 case "end":
                   return _context52.stop();
               }
@@ -25711,8 +25699,8 @@ Spells.addSpell(9, '', false);
       }, {
         key: "getImgRealName",
         value: function getImgRealName(wrap) {
-          var el = $q('.postfilename', wrap) || $q('.unimportant > a[download]', wrap) || $q(this.qPostImgNameLink, wrap);
-          return el.title || el.textContent;
+          var _$q12, _$q13, _$q14;
+          return ((_$q12 = $q('.postfilename', wrap)) === null || _$q12 === void 0 ? void 0 : _$q12.textContent) || ((_$q13 = $q('.unimportant > a[download]', wrap)) === null || _$q13 === void 0 ? void 0 : _$q13.download) || ((_$q14 = $q(this.qPostImgNameLink, wrap)) === null || _$q14 === void 0 ? void 0 : _$q14.textContent) || '';
         }
       }, {
         key: "getPageUrl",
@@ -25772,7 +25760,7 @@ Spells.addSpell(9, '', false);
       return _createClass(Vichan, [{
         key: "css",
         get: function get() {
-          return "".concat(_superPropGet(Vichan, "css", this, 1), "\n\t\t\t\t#expand-all-images, #expand-all-images + .unimportant, .fileinfo > span[style*=\"nowrap;\"],\n\t\t\t\t\t.post-btn, small, .watchThread { display: none !important; }\n\t\t\t\tbody { padding: 0 5px !important; }\n\t\t\t\t.boardlist { z-index: 1 !important; }\n\t\t\t\t.fileinfo { width: 240px; }\n\t\t\t\t.multifile { width: auto !important; }");
+          return "".concat(_superPropGet(Vichan, "css", this, 1), "\n\t\t\t\t.de-ref-op + small, #expand-all-images, .fileinfo small, .post-btn, .watchThread,\n\t\t\t\t\t.fileinfo > span[style*=\"white-space:\"] { display: none !important; }\n\t\t\t\t.boardlist { z-index: 1 !important; }\n\t\t\t\t.de-file-input { margin-left: 0; }");
         }
       }, {
         key: "fixFileInputs",
@@ -25789,9 +25777,14 @@ Spells.addSpell(9, '', false);
           return str.replace(/"(?:\/vichan)?\/player\.php\?v=([^&]+)&[^"]+"/g, '"$1"');
         }
       }, {
+        key: "getImgWrap",
+        value: function getImgWrap(img) {
+          return img.closest('div.file');
+        }
+      }, {
         key: "init",
         value: function init() {
-          var _$id3;
+          var _$id4;
           _superPropGet(Vichan, "init", this, 3)([]);
           if (locStorage.file_dragdrop !== 'false') {
             locStorage.file_dragdrop = false;
@@ -25800,10 +25793,10 @@ Spells.addSpell(9, '', false);
           }
           $script('highlightReply = Function.prototype;');
           setTimeout(function () {
-            var _$id2;
-            return (_$id2 = $id('updater')) === null || _$id2 === void 0 ? void 0 : _$id2.remove();
+            var _$id3;
+            return (_$id3 = $id('updater')) === null || _$id3 === void 0 ? void 0 : _$id3.remove();
           }, 0);
-          (_$id3 = $id('body')) === null || _$id3 === void 0 || _$id3.removeAttribute('id');
+          (_$id4 = $id('body')) === null || _$id4 === void 0 || _$id4.removeAttribute('id');
           return false;
         }
       }]);
@@ -25942,9 +25935,9 @@ Spells.addSpell(9, '', false);
       }, {
         key: "fixFileInputs",
         value: function fixFileInputs(el) {
-          var _$id4;
+          var _$id5;
           var str = ' class="de-file-wrap"><input name="files" type="file"></div>';
-          el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat((+((_$id4 = $id('labelMaxFiles')) === null || _$id4 === void 0 ? void 0 : _$id4.textContent) || 3) - 1);
+          el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat((+((_$id5 = $id('labelMaxFiles')) === null || _$id5 === void 0 ? void 0 : _$id5.textContent) || 3) - 1);
         }
       }, {
         key: "getCaptchaParent",
@@ -26340,8 +26333,8 @@ Spells.addSpell(9, '', false);
       }, {
         key: "postersCount",
         get: function get() {
-          var _$q12;
-          return ((_$q12 = $q('span[title="Постеры"]')) === null || _$q12 === void 0 ? void 0 : _$q12.innerHTML.match(/\d+$/)[0]) || '';
+          var _$q15;
+          return ((_$q15 = $q('span[title="Постеры"]')) === null || _$q15 === void 0 ? void 0 : _$q15.innerHTML.match(/\d+$/)[0]) || '';
         }
       }, {
         key: "qFormMail",
@@ -26426,8 +26419,8 @@ Spells.addSpell(9, '', false);
       }, {
         key: "clearFileInputs",
         value: function clearFileInputs() {
-          var _$q13;
-          (_$q13 = $q('.postform__sticker-img')) === null || _$q13 === void 0 || _$q13.remove();
+          var _$q16;
+          (_$q16 = $q('.postform__sticker-img')) === null || _$q16 === void 0 || _$q16.remove();
           var el = $q('.sticker-input', postform.form);
           if (el) {
             el.value = '';
@@ -26830,8 +26823,8 @@ Spells.addSpell(9, '', false);
       }, {
         key: "getSage",
         value: function getSage(post) {
-          var _$q14;
-          return !!((_$q14 = $q('.filetitle', post)) !== null && _$q14 !== void 0 && _$q14.textContent.includes("\u21E9"));
+          var _$q17;
+          return !!((_$q17 = $q('.filetitle', post)) !== null && _$q17 !== void 0 && _$q17.textContent.includes("\u21E9"));
         }
       }, {
         key: "init",
@@ -26921,8 +26914,8 @@ Spells.addSpell(9, '', false);
       }, {
         key: "postersCount",
         get: function get() {
-          var _$q15;
-          var value = ((_$q15 = $q('span[class="ts-ips"]')) === null || _$q15 === void 0 ? void 0 : _$q15.innerHTML) || '';
+          var _$q18;
+          var value = ((_$q18 = $q('span[class="ts-ips"]')) === null || _$q18 === void 0 ? void 0 : _$q18.innerHTML) || '';
           if (!value) {
             $script("setTimeout(function() {\n\t\t\t\t\tdocument.getElementById(\"de-panel-info-posters\").textContent = window.unique_ips || \"\";\n\t\t\t\t}, 0)");
           }
@@ -26956,8 +26949,8 @@ Spells.addSpell(9, '', false);
       }, {
         key: "getImgInfo",
         value: function getImgInfo(wrap) {
-          var _$q16;
-          return ((_$q16 = $q(this.qPostImgInfo, wrap)) === null || _$q16 === void 0 ? void 0 : _$q16.lastChild.textContent) || '';
+          var _$q19;
+          return ((_$q19 = $q(this.qPostImgInfo, wrap)) === null || _$q19 === void 0 ? void 0 : _$q19.lastChild.textContent) || '';
         }
       }, {
         key: "getImgRealName",
@@ -27023,10 +27016,10 @@ Spells.addSpell(9, '', false);
       }, {
         key: "init",
         value: function init() {
-          var _$id5;
+          var _$id6;
           Cfg.findImgFile = 0;
           Cfg.txtBtnsLoc = 0;
-          (_$id5 = $id('styleSelector')) === null || _$id5 === void 0 || _$id5.setAttribute('onchange', 'setActiveStyleSheet(this.value);');
+          (_$id6 = $id('styleSelector')) === null || _$id6 === void 0 || _$id6.setAttribute('onchange', 'setActiveStyleSheet(this.value);');
           return false;
         }
       }, {
@@ -27294,17 +27287,43 @@ Spells.addSpell(9, '', false);
       }]);
     }(Vichan);
     ibDomains['dobrochan.net'] = Dobrochan;
-    var Endchan = function (_Lynxchan) {
-      function Endchan() {
+    var Ejchan = function (_Vichan3) {
+      function Ejchan() {
         var _this124;
-        _classCallCheck(this, Endchan);
+        _classCallCheck(this, Ejchan);
         for (var _len21 = arguments.length, args = new Array(_len21), _key18 = 0; _key18 < _len21; _key18++) {
           args[_key18] = arguments[_key18];
         }
-        _this124 = _callSuper(this, Endchan, [].concat(args));
-        _this124.qTrunc = '.contentOmissionIndicator > p';
-        _this124.jsonSubmit = false;
+        _this124 = _callSuper(this, Ejchan, [].concat(args));
+        _this124.qDelForm = '.thread-outer';
+        _this124.qPostRef = '.post-left';
         return _this124;
+      }
+      _inherits(Ejchan, _Vichan3);
+      return _createClass(Ejchan, [{
+        key: "css",
+        get: function get() {
+          return "".concat(_superPropGet(Ejchan, "css", this, 1), "\n\t\t\t\t.intro { justify-content: normal; }");
+        }
+      }, {
+        key: "getTNum",
+        value: function getTNum(thr) {
+          return thr.id.match(/\d+/);
+        }
+      }]);
+    }(Vichan);
+    ibDomains['ejchan.site'] = Ejchan;
+    var Endchan = function (_Lynxchan) {
+      function Endchan() {
+        var _this125;
+        _classCallCheck(this, Endchan);
+        for (var _len22 = arguments.length, args = new Array(_len22), _key19 = 0; _key19 < _len22; _key19++) {
+          args[_key19] = arguments[_key19];
+        }
+        _this125 = _callSuper(this, Endchan, [].concat(args));
+        _this125.qTrunc = '.contentOmissionIndicator > p';
+        _this125.jsonSubmit = false;
+        return _this125;
       }
       _inherits(Endchan, _Lynxchan);
       return _createClass(Endchan, [{
@@ -27361,14 +27380,14 @@ Spells.addSpell(9, '', false);
     ibDomains['escapechain.ru'] = ibDomains['mk2dodftctwgnux6z7iafm5tcyj7xrv7aytlh25zka45m7svvb6olfyd.onion'] = Escapechain;
     var Gensokyo = function (_Kusaba4) {
       function Gensokyo() {
-        var _this125;
+        var _this126;
         _classCallCheck(this, Gensokyo);
-        for (var _len22 = arguments.length, args = new Array(_len22), _key19 = 0; _key19 < _len22; _key19++) {
-          args[_key19] = arguments[_key19];
+        for (var _len23 = arguments.length, args = new Array(_len23), _key20 = 0; _key20 < _len23; _key20++) {
+          args[_key20] = arguments[_key20];
         }
-        _this125 = _callSuper(this, Gensokyo, [].concat(args));
-        _this125.hasRefererErr = true;
-        return _this125;
+        _this126 = _callSuper(this, Gensokyo, [].concat(args));
+        _this126.hasRefererErr = true;
+        return _this126;
       }
       _inherits(Gensokyo, _Kusaba4);
       return _createClass(Gensokyo);
@@ -27376,15 +27395,15 @@ Spells.addSpell(9, '', false);
     ibDomains['gensokyo.4otaku.org'] = Gensokyo;
     var Iichan = function (_BaseBoard10) {
       function Iichan() {
-        var _this126;
+        var _this127;
         _classCallCheck(this, Iichan);
-        for (var _len23 = arguments.length, args = new Array(_len23), _key20 = 0; _key20 < _len23; _key20++) {
-          args[_key20] = arguments[_key20];
+        for (var _len24 = arguments.length, args = new Array(_len24), _key21 = 0; _key21 < _len24; _key21++) {
+          args[_key21] = arguments[_key21];
         }
-        _this126 = _callSuper(this, Iichan, [].concat(args));
-        _this126.hasArchive = true;
-        _this126.hasCatalog = true;
-        return _this126;
+        _this127 = _callSuper(this, Iichan, [].concat(args));
+        _this127.hasArchive = true;
+        _this127.hasCatalog = true;
+        return _this127;
       }
       _inherits(Iichan, _BaseBoard10);
       return _createClass(Iichan, [{
@@ -27439,28 +27458,28 @@ Spells.addSpell(9, '', false);
     ibDomains['iichan.hk'] = ibDomains['iichan.lol'] = ibDomains['ii.yakuji.moe'] = Iichan;
     var Ivchan = function (_BaseBoard11) {
       function Ivchan() {
-        var _this127;
+        var _this128;
         _classCallCheck(this, Ivchan);
-        for (var _len24 = arguments.length, args = new Array(_len24), _key21 = 0; _key21 < _len24; _key21++) {
-          args[_key21] = arguments[_key21];
+        for (var _len25 = arguments.length, args = new Array(_len25), _key22 = 0; _key22 < _len25; _key22++) {
+          args[_key22] = arguments[_key22];
         }
-        _this127 = _callSuper(this, Ivchan, [].concat(args));
-        _this127.qClosed = 'img[src="/images/locked.png"]';
-        _this127.qDelForm = 'form[action*="delete"]';
-        _this127.qError = '.post-error, h2';
-        _this127.qFormRedir = 'select[name="goto"]';
-        _this127.qOmitted = '.abbrev > span:last-of-type';
-        _this127.qPages = '.pages > tbody > tr > td';
-        _this127.qPostImgInfo = '.fileinfo';
-        _this127.qPostMsg = '.postbody';
-        _this127.qPostSubj = '.replytitle';
-        _this127.qTrunc = '.abbrev > span:first-of-type';
-        _this127.anchor = '#i';
-        _this127.formParent = 'thread_id';
-        _this127.hasPicWrap = true;
-        _this127.multiFile = true;
-        _this127.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
-        return _this127;
+        _this128 = _callSuper(this, Ivchan, [].concat(args));
+        _this128.qClosed = 'img[src="/images/locked.png"]';
+        _this128.qDelForm = 'form[action*="delete"]';
+        _this128.qError = '.post-error, h2';
+        _this128.qFormRedir = 'select[name="goto"]';
+        _this128.qOmitted = '.abbrev > span:last-of-type';
+        _this128.qPages = '.pages > tbody > tr > td';
+        _this128.qPostImgInfo = '.fileinfo';
+        _this128.qPostMsg = '.postbody';
+        _this128.qPostSubj = '.replytitle';
+        _this128.qTrunc = '.abbrev > span:first-of-type';
+        _this128.anchor = '#i';
+        _this128.formParent = 'thread_id';
+        _this128.hasPicWrap = true;
+        _this128.multiFile = true;
+        _this128.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+        return _this128;
       }
       _inherits(Ivchan, _BaseBoard11);
       return _createClass(Ivchan, [{
@@ -27511,19 +27530,19 @@ Spells.addSpell(9, '', false);
     ibDomains['ivchan.net'] = Ivchan;
     var Kohlchan = function (_Lynxchan2) {
       function Kohlchan() {
-        var _this128;
+        var _this129;
         _classCallCheck(this, Kohlchan);
-        for (var _len25 = arguments.length, args = new Array(_len25), _key22 = 0; _key22 < _len25; _key22++) {
-          args[_key22] = arguments[_key22];
+        for (var _len26 = arguments.length, args = new Array(_len26), _key23 = 0; _key23 < _len26; _key23++) {
+          args[_key23] = arguments[_key23];
         }
-        _this128 = _callSuper(this, Kohlchan, [].concat(args));
-        _this128.kohlchan = true;
-        _this128.qFormRules = '#rules_row';
-        _this128.qPostImg = '.uploadCell > a > img';
-        _this128.hasTextLinks = true;
-        _this128.markupBB = true;
-        _this128.timePattern = 'yyyy+nn+dd+hh+ii+ss';
-        return _this128;
+        _this129 = _callSuper(this, Kohlchan, [].concat(args));
+        _this129.kohlchan = true;
+        _this129.qFormRules = '#rules_row';
+        _this129.qPostImg = '.uploadCell > a > img';
+        _this129.hasTextLinks = true;
+        _this129.markupBB = true;
+        _this129.timePattern = 'yyyy+nn+dd+hh+ii+ss';
+        return _this129;
       }
       _inherits(Kohlchan, _Lynxchan2);
       return _createClass(Kohlchan, [{
@@ -27656,18 +27675,18 @@ Spells.addSpell(9, '', false);
       }]);
     }(Lynxchan);
     ibDomains['kohlchan.net'] = ibDomains['kohlchan.ws'] = ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] = Kohlchan;
-    var Kropyvach = function (_Vichan3) {
+    var Kropyvach = function (_Vichan4) {
       function Kropyvach() {
-        var _this129;
+        var _this130;
         _classCallCheck(this, Kropyvach);
-        for (var _len26 = arguments.length, args = new Array(_len26), _key23 = 0; _key23 < _len26; _key23++) {
-          args[_key23] = arguments[_key23];
+        for (var _len27 = arguments.length, args = new Array(_len27), _key24 = 0; _key24 < _len27; _key24++) {
+          args[_key24] = arguments[_key24];
         }
-        _this129 = _callSuper(this, Kropyvach, [].concat(args));
-        _this129.markupBB = true;
-        return _this129;
+        _this130 = _callSuper(this, Kropyvach, [].concat(args));
+        _this130.markupBB = true;
+        return _this130;
       }
-      _inherits(Kropyvach, _Vichan3);
+      _inherits(Kropyvach, _Vichan4);
       return _createClass(Kropyvach, [{
         key: "css",
         get: function get() {
@@ -27681,18 +27700,18 @@ Spells.addSpell(9, '', false);
       }]);
     }(Vichan);
     ibDomains['kropyva.ch'] = Kropyvach;
-    var Lainchan = function (_Vichan4) {
+    var Lainchan = function (_Vichan5) {
       function Lainchan() {
-        var _this130;
+        var _this131;
         _classCallCheck(this, Lainchan);
-        for (var _len27 = arguments.length, args = new Array(_len27), _key24 = 0; _key24 < _len27; _key24++) {
-          args[_key24] = arguments[_key24];
+        for (var _len28 = arguments.length, args = new Array(_len28), _key25 = 0; _key25 < _len28; _key25++) {
+          args[_key25] = arguments[_key25];
         }
-        _this130 = _callSuper(this, Lainchan, [].concat(args));
-        _this130.qOPost = '.op';
-        return _this130;
+        _this131 = _callSuper(this, Lainchan, [].concat(args));
+        _this131.qOPost = '.op';
+        return _this131;
       }
-      _inherits(Lainchan, _Vichan4);
+      _inherits(Lainchan, _Vichan5);
       return _createClass(Lainchan, [{
         key: "css",
         get: function get() {
@@ -27715,6 +27734,41 @@ Spells.addSpell(9, '', false);
       }]);
     }(Vichan);
     ibDomains['lainchan.org'] = Lainchan;
+    var Lilchan = function (_Vichan6) {
+      function Lilchan() {
+        _classCallCheck(this, Lilchan);
+        return _callSuper(this, Lilchan, arguments);
+      }
+      _inherits(Lilchan, _Vichan6);
+      return _createClass(Lilchan, [{
+        key: "qPostImgNameLink",
+        get: function get() {
+          return 'p.fileinfo a:first-of-type';
+        }
+      }]);
+    }(Vichan);
+    ibDomains['lilchan.ru'] = Lilchan;
+    var Nichan = function (_Vichan7) {
+      function Nichan() {
+        var _this132;
+        _classCallCheck(this, Nichan);
+        for (var _len29 = arguments.length, args = new Array(_len29), _key26 = 0; _key26 < _len29; _key26++) {
+          args[_key26] = arguments[_key26];
+        }
+        _this132 = _callSuper(this, Nichan, [].concat(args));
+        _this132.qPages = '.bottom > .pages';
+        _this132.qPostImg = '.post-image[alt]:not(.deleted), video.post-image';
+        return _this132;
+      }
+      _inherits(Nichan, _Vichan7);
+      return _createClass(Nichan, [{
+        key: "css",
+        get: function get() {
+          return "".concat(_superPropGet(Nichan, "css", this, 1), "\n\t\t\t\t.format-text, label[for=\"email_selectbox\"]\n\t\t\t\t\t").concat(Cfg.fileInputs ? ', #upload' : '', " { display: none !important; }");
+        }
+      }]);
+    }(Vichan);
+    ibDomains['nichan.net'] = Nichan;
     var Nowere = function (_BaseBoard12) {
       function Nowere() {
         _classCallCheck(this, Nowere);
@@ -27737,18 +27791,18 @@ Spells.addSpell(9, '', false);
     ibDomains['nowere.net'] = Nowere;
     var Ponyach = function (_BaseBoard13) {
       function Ponyach() {
-        var _this131;
+        var _this133;
         _classCallCheck(this, Ponyach);
-        for (var _len28 = arguments.length, args = new Array(_len28), _key25 = 0; _key25 < _len28; _key25++) {
-          args[_key25] = arguments[_key25];
+        for (var _len30 = arguments.length, args = new Array(_len30), _key27 = 0; _key27 < _len30; _key27++) {
+          args[_key27] = arguments[_key27];
         }
-        _this131 = _callSuper(this, Ponyach, [].concat(args));
-        _this131.qBan = 'font[color="#FF0000"]';
-        _this131.qPostImgInfo = '.filesize[style="display: inline;"]';
-        _this131.formParent = 'replythread';
-        _this131.jsonSubmit = true;
-        _this131.multiFile = true;
-        return _this131;
+        _this133 = _callSuper(this, Ponyach, [].concat(args));
+        _this133.qBan = 'font[color="#FF0000"]';
+        _this133.qPostImgInfo = '.filesize[style="display: inline;"]';
+        _this133.formParent = 'replythread';
+        _this133.jsonSubmit = true;
+        _this133.multiFile = true;
+        return _this133;
       }
       _inherits(Ponyach, _BaseBoard13);
       return _createClass(Ponyach, [{
@@ -27800,20 +27854,20 @@ Spells.addSpell(9, '', false);
       }]);
     }(BaseBoard);
     ibDomains['ponyach.com'] = Ponyach;
-    var Synch = function (_Vichan5) {
+    var Synch = function (_Vichan8) {
       function Synch() {
-        var _this132;
+        var _this134;
         _classCallCheck(this, Synch);
-        for (var _len29 = arguments.length, args = new Array(_len29), _key26 = 0; _key26 < _len29; _key26++) {
-          args[_key26] = arguments[_key26];
+        for (var _len31 = arguments.length, args = new Array(_len31), _key28 = 0; _key28 < _len31; _key28++) {
+          args[_key28] = arguments[_key28];
         }
-        _this132 = _callSuper(this, Synch, [].concat(args));
-        _this132.qPages = '.pagination';
-        _this132.qPostImgInfo = '.unimportant';
-        _this132.markupBB = true;
-        return _this132;
+        _this134 = _callSuper(this, Synch, [].concat(args));
+        _this134.qPages = '.pagination';
+        _this134.qPostImgInfo = '.unimportant';
+        _this134.markupBB = true;
+        return _this134;
       }
-      _inherits(Synch, _Vichan5);
+      _inherits(Synch, _Vichan8);
       return _createClass(Synch, [{
         key: "css",
         get: function get() {
@@ -27840,6 +27894,11 @@ Spells.addSpell(9, '', false);
           return formEl;
         }
       }, {
+        key: "getImgWrap",
+        value: function getImgWrap(img) {
+          return img.parentNode.parentNode;
+        }
+      }, {
         key: "init",
         value: function init() {
           var val = '{ "simpleNavbar": true }';
@@ -27859,20 +27918,20 @@ Spells.addSpell(9, '', false);
     ibDomains['syn-ch.com'] = ibDomains['syn-ch.com.ua'] = ibDomains['syn-ch.org'] = ibDomains['syn-ch.ru'] = Synch;
     var Warosu = function (_BaseBoard14) {
       function Warosu() {
-        var _this133;
+        var _this135;
         _classCallCheck(this, Warosu);
-        for (var _len30 = arguments.length, args = new Array(_len30), _key27 = 0; _key27 < _len30; _key27++) {
-          args[_key27] = arguments[_key27];
+        for (var _len32 = arguments.length, args = new Array(_len32), _key29 = 0; _key29 < _len32; _key29++) {
+          args[_key29] = arguments[_key29];
         }
-        _this133 = _callSuper(this, Warosu, [].concat(args));
-        _this133.qDelForm = '.content';
-        _this133.qForm = '.subreply';
-        _this133.qFormSubm = '.g-recaptcha';
-        _this133.qOPost = '.comment';
-        _this133.qPostImgInfo = '.fileinfo';
-        _this133.qPostRef = '.js';
-        _this133.res = 'thread/';
-        return _this133;
+        _this135 = _callSuper(this, Warosu, [].concat(args));
+        _this135.qDelForm = '.content';
+        _this135.qForm = '.subreply';
+        _this135.qFormSubm = '.g-recaptcha';
+        _this135.qOPost = '.comment';
+        _this135.qPostImgInfo = '.fileinfo';
+        _this135.qPostRef = '.js';
+        _this135.res = 'thread/';
+        return _this135;
       }
       _inherits(Warosu, _BaseBoard14);
       return _createClass(Warosu, [{
@@ -27927,7 +27986,7 @@ Spells.addSpell(9, '', false);
 
   var DollchanAPI = {
     initAPI: function initAPI() {
-      var _this134 = this;
+      var _this136 = this;
       this.hasListeners = false;
       if (!('MessageChannel' in deWindow)) {
         return;
@@ -27939,7 +27998,7 @@ Spells.addSpell(9, '', false);
       var port = channel.port2;
       doc.defaultView.addEventListener('message', function (e) {
         if (e.data === 'de-request-api-message') {
-          _this134.hasListeners = true;
+          _this136.hasListeners = true;
           doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
         }
       });
@@ -28095,7 +28154,7 @@ Spells.addSpell(9, '', false);
     var item = function item(name, value) {
       return "<div>- <i>".concat(name, "</i>: <i style=\"font: 14px monospace; color: green;\">").concat(value, "</i></div>");
     };
-    $popup('donate', Lng.donateMsg[lang] + ":<br style=\"margin-bottom: 8px;\"><!--\n\t\t--><div class=\"de-logo\"><svg><use xlink:href=\"#de-symbol-panel-logo\"/></svg></div><!--\n\t\t--><div style=\"display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;\">" + item('BTC', '1BmVjk3DMPZeJUqBtqZRUCmL234Wc3Bc9Y') + item('BTC (SegWit)', 'bc1qleycjdph5v3g26ewy7x37n5a4kwegjgttpjwzw') + item('ETH (ERC20)', '0xffa96732ae8df25c34444c70c0d59c752a47aafa') + item('YooMoney RUB', '410012122418236') + item('Mastercard', '5375411208220306') + "<div>- <a href=\"https://send.monobank.ua/jar/A7Saf6YAaz\" target=\"_blank\">".concat(Lng.donateOnline[lang], "</a></div>") + '</div>');
+    $popup('donate', Lng.donateMsg[lang] + ":<br style=\"margin-bottom: 8px;\"><!--\n\t\t--><div class=\"de-logo\"><svg><use xlink:href=\"#de-symbol-panel-logo\"/></svg></div><!--\n\t\t--><div style=\"display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;\">" + item('BTC', '13NWiiMocssmXiaVKRG4A4SQ6JP4WbLACz') + item('BTC (SegWit)', 'bc1q2x33mkrwv6zadhflvxv2cct45ssn5a7t4ygvtj') + item('ETH', '0xffa96732ae8df25c34444c70c0d59c752a47aafa') + item('Mastercard', '5375411208220306') + "<div>- <a href=\"https://send.monobank.ua/jar/A7Saf6YAaz\" target=\"_blank\">".concat(Lng.donateOnline[lang], "</a></div>") + '</div>');
   }
   function initPage() {
     if (aib.t) {

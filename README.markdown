@@ -90,10 +90,9 @@ where `XXX` is the name of your device (it will be displayed if you enter `XXX` 
 ---
 ### Support the project by donating:
 
-- BTC: `1BmVjk3DMPZeJUqBtqZRUCmL234Wc3Bc9Y`
-- BTC (SegWit): `bc1qleycjdph5v3g26ewy7x37n5a4kwegjgttpjwzw`
-- ETH (ERC20): `0xffa96732ae8df25c34444c70c0d59c752a47aafa`
-- YooMoney RUB: `410012122418236`
+- BTC: `13NWiiMocssmXiaVKRG4A4SQ6JP4WbLACz`
+- BTC (SegWit): `bc1q2x33mkrwv6zadhflvxv2cct45ssn5a7t4ygvtj`
+- ETH: `0xffa96732ae8df25c34444c70c0d59c752a47aafa`
 - Mastercard: `5375411208220306`
 - [Donate online (UAH)](https://send.monobank.ua/jar/A7Saf6YAaz)
 

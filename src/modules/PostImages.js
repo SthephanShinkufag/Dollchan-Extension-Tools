@@ -906,7 +906,7 @@ class AttachedImage extends ExpandableImage {
 	}
 	_getImageSize() {
 		if(this.info) {
-			const size = this.info.match(/(?:[\s(]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[)\s,]|$)/);
+			const size = this.info.match(/(?:[\s(,]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[)\s,]|$)/);
 			return size ? [size[1], size[2]] : null;
 		}
 		return null;

@@ -94,17 +94,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 'p.fileinfo > a:first-of-type';
 		}
 		async changeReplyMode(form, tNum) {
-			if(!this._origInputs && !$q('input[name="hash"]', form)) {
-				// Board without antibot protection
-				postform.subm.value = Lng.reply[lang];
-				const pageInp = $q('input[name="page"]', form);
-				if(tNum) {
-					pageInp?.remove();
-				} else if(!pageInp) {
-					form.insertAdjacentHTML('beforeend', '<input name="page" value="1" type="hidden">');
-				}
-				return;
-			}
 			const query = 'div[style="display:none"], input[style="display:none"], ' +
 				'span[style="display:none"], textarea[style="display:none"], ' +
 				'input[type="hidden"]:not(.de-input-hidden)';
@@ -158,9 +147,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 		}
 		getImgRealName(wrap) {
-			const el = $q('.postfilename', wrap) ||
-				$q('.unimportant > a[download]', wrap) || $q(this.qPostImgNameLink, wrap);
-			return el.title || el.textContent;
+			return $q('.postfilename', wrap)?.textContent ||
+				$q('.unimportant > a[download]', wrap)?.download ||
+				$q(this.qPostImgNameLink, wrap)?.textContent || '';
 		}
 		getPageUrl(board, page) {
 			return page > 1 ? fixBoardName(board) + page + this.docExt : fixBoardName(board);
@@ -197,12 +186,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
-				#expand-all-images, #expand-all-images + .unimportant, .fileinfo > span[style*="nowrap;"],
-					.post-btn, small, .watchThread { display: none !important; }
-				body { padding: 0 5px !important; }
+				.de-ref-op + small, #expand-all-images, .fileinfo small, .post-btn, .watchThread,
+					.fileinfo > span[style*="white-space:"] { display: none !important; }
 				.boardlist { z-index: 1 !important; }
-				.fileinfo { width: 240px; }
-				.multifile { width: auto !important; }`;
+				.de-file-input { margin-left: 0; }`;
 		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 5 }, (val, i) =>
@@ -212,6 +199,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixHTMLHelper(str) {
 			return str.replace(/"(?:\/vichan)?\/player\.php\?v=([^&]+)&[^"]+"/g, '"$1"');
+		}
+		getImgWrap(img) {
+			return img.closest('div.file');
 		}
 		init() {
 			super.init();
@@ -1352,6 +1342,22 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['dobrochan.net'] = Dobrochan;
 
+	class Ejchan extends Vichan {
+		constructor(...args) {
+			super(...args);
+			this.qDelForm = '.thread-outer';
+			this.qPostRef = '.post-left';
+		}
+		get css() {
+			return `${ super.css }
+				.intro { justify-content: normal; }`;
+		}
+		getTNum(thr) {
+			return thr.id.match(/\d+/);
+		}
+	}
+	ibDomains['ejchan.site'] = Ejchan;
+
 	class Endchan extends Lynxchan {
 		constructor(...args) {
 			super(...args);
@@ -1674,6 +1680,27 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['lainchan.org'] = Lainchan;
 
+	class Lilchan extends Vichan {
+		get qPostImgNameLink() {
+			return 'p.fileinfo a:first-of-type';
+		}
+	}
+	ibDomains['lilchan.ru'] = Lilchan;
+
+	class Nichan extends Vichan {
+		constructor(...args) {
+			super(...args);
+			this.qPages = '.bottom > .pages';
+			this.qPostImg = '.post-image[alt]:not(.deleted), video.post-image';
+		}
+		get css() {
+			return `${ super.css }
+				.format-text, label[for="email_selectbox"]
+					${ Cfg.fileInputs ? ', #upload' : '' } { display: none !important; }`;
+		}
+	}
+	ibDomains['nichan.net'] = Nichan;
+
 	class Nowere extends BaseBoard {
 		get markupTags() {
 			return ['**', '***', '', '^H', '', ''];
@@ -1751,6 +1778,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				els[i].replaceWith($q('a', els[i]));
 			}
 			return formEl;
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode;
 		}
 		init() {
 			const val = '{ "simpleNavbar": true }';

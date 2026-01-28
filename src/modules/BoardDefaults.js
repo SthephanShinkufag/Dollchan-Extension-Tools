@@ -232,7 +232,7 @@ class BaseBoard {
 		if(isForm) {
 			const newForm = $bBegin(data, str);
 			$hide(data);
-			deWindow.addEventListener('load', () => $id('de-dform-old').remove());
+			deWindow.addEventListener('load', () => $id('de-dform-old')?.remove());
 			return newForm;
 		}
 		data.innerHTML = str;
