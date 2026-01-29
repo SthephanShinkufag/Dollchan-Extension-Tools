@@ -136,6 +136,9 @@ class BaseBoard {
 	get observeContent() {
 		return null;
 	}
+	get postsBreak() {
+		return null;
+	}
 	get postersCount() {
 		return '';
 	}

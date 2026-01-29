@@ -80,10 +80,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this._origInputs = null;
 		}
 		get css() {
-			return `.banner, .hide-thread-link, .mentioned,
-					.post-hover { display: none !important; }
-				div.post.reply:not(.de-entry):not(.de-cfg-tab):not(.de-win-body) {
-					float: left !important; clear: left; display: block; }
+			return `.banner, .hide-thread-link, .mentioned, .post-hover { display: none !important; }
 				${ Cfg.imgNames ? `.postfilename, .unimportant > a[download] { display: none }
 					.fileinfo > .unimportant { white-space: nowrap; }` : '' }`;
 		}
@@ -172,6 +169,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		isAjaxStatusOK(status) {
 			return status === 200 || status === 206 || status === 400;
 		}
+		postsBreak(fragment) {
+			fragment.append(doc.createElement('br'));
+		}
 		updateSubmitBtn() {}
 	}
 	ibEngines.push(['form[name*="postcontrols"]', Tinyboard]);
@@ -190,6 +190,9 @@ function getImageBoard(checkDomains, checkEngines) {
 					.fileinfo > span[style*="white-space:"] { display: none !important; }
 				.boardlist { z-index: 1 !important; }
 				.de-file-input { margin-left: 0; }`;
+		}
+		get qPostImgNameLink() {
+			return 'p.fileinfo a:first-of-type:not(.hide-image-link)';
 		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 5 }, (val, i) =>
@@ -1327,6 +1330,27 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['014chan.org'] = ibDomains['bulochka.org'] = Bulochka;
 
+	class Deadach extends Vichan {
+		constructor(...args) {
+			super(...args);
+			this.qPostImg = '.post-img';
+		}
+		get css() {
+			return `${ super.css }
+				.image_id, .open-form ${ Cfg.fileInputs ? ', #upload' : '' }  { display: none !important; }
+				.file { margin-right: 20px; }
+				.postarea { display: initial !important; }
+				.postform__limits { position: initial; }`;
+		}
+		get markupTags() {
+			return ['[b', '[i', '__', '~~', '**', '```'];
+		}
+		fixHTMLHelper(str) {
+			return super.fixHTMLHelper(str).replace(/<img class="post-image/g, '<img class="post-img');
+		}
+	}
+	ibDomains['deada.ch'] = Deadach;
+
 	class Dobrochan extends Vichan {
 		get css() {
 			return `${ super.css }
@@ -1662,12 +1686,15 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 			this.qOPost = '.op';
+
+			this.markupBB = true;
 		}
 		get css() {
 			return `${ super.css }
-				.sidearrows { display: none !important; }
-				.bar { z-index: 1; }
 				${ Cfg.imgNames ? '.details > a { display: none; }' : '' }`;
+		}
+		get markupTags() {
+			return ['b', 'i', '', '', 'spoiler', 'code'];
 		}
 		getImgRealName(wrap) {
 			return $q('.details > a, .postfilename', wrap).textContent;
@@ -1680,23 +1707,21 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['lainchan.org'] = Lainchan;
 
-	class Lilchan extends Vichan {
-		get qPostImgNameLink() {
-			return 'p.fileinfo a:first-of-type';
-		}
-	}
-	ibDomains['lilchan.ru'] = Lilchan;
-
 	class Nichan extends Vichan {
 		constructor(...args) {
 			super(...args);
 			this.qPages = '.bottom > .pages';
 			this.qPostImg = '.post-image[alt]:not(.deleted), video.post-image';
+
+			this.markupBB = true;
 		}
 		get css() {
 			return `${ super.css }
 				.format-text, label[for="email_selectbox"]
 					${ Cfg.fileInputs ? ', #upload' : '' } { display: none !important; }`;
+		}
+		get markupTags() {
+			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
 		}
 	}
 	ibDomains['nichan.net'] = Nichan;
@@ -1766,7 +1791,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				time::after { content: none; }`;
 		}
 		get markupTags() {
-			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub'];
+			return ['b', 'i', 'u', 's', 'h', 'code', 'sup', 'sub'];
 		}
 		get qPostImgNameLink() {
 			return '.file-info > a';

@@ -107,7 +107,6 @@ async function checkForUpdates(isManual, lastUpdateTime) {
 	throw new Error();
 }
 
-
 // Donation message after Dollchan update
 function showDonateMsg() {
 	const item = (name, value) =>

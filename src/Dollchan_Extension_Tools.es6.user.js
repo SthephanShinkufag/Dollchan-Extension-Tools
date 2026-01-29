@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '170d1be';
+const commit = '3cbac89';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -14060,11 +14060,12 @@ class Thread {
 		} while((thr = thr.next));
 	}
 
-	_addPost(parent, el, i, prev, maybeVParser) {
+	_addPost(fragment, el, i, prev, maybeVParser) {
 		const num = aib.getPNum(el);
 		const wrap = doc.adoptNode(aib.getPostWrap(el, false));
 		const post = new Post(el, this, num, i, false, prev);
-		parent.append(wrap);
+		fragment.append(wrap);
+		aib.postsBreak?.(fragment);
 		if(aib.t && !doc.hidden && Cfg.animation) {
 			$animate(el, 'de-post-new');
 		}
@@ -14105,7 +14106,7 @@ class Thread {
 		const nums = [];
 		const newCount = end - begin;
 		let newVisCount = newCount;
-		let fragm;
+		let fragment;
 		if(aib.JsonBuilder && nav.hasTemplate) {
 			const html = [];
 			for(let i = begin; i < end; ++i) {
@@ -14114,23 +14115,23 @@ class Thread {
 			}
 			const temp = doc.createElement('template');
 			temp.innerHTML = aib.fixHTML(html.join(''));
-			fragm = temp.content;
-			const posts = $Q(aib.qPost, fragm);
+			fragment = temp.content;
+			const posts = $Q(aib.qPost, fragment);
 			for(let i = 0, len = posts.length; i < len; ++i) {
-				last = this._addPost(fragm, posts[i], begin + i + 1, last, maybeVParser);
+				last = this._addPost(fragment, posts[i], begin + i + 1, last, maybeVParser);
 				newVisCount -= maybeSpells.value.runSpells(last);
 				embedPostMsgImages(last.el);
 			}
 		} else {
-			fragm = doc.createDocumentFragment();
+			fragment = doc.createDocumentFragment();
 			for(; begin < end; ++begin) {
-				last = this._addPost(fragm, pBuilder.getPostEl(begin), begin + 1, last, maybeVParser);
+				last = this._addPost(fragment, pBuilder.getPostEl(begin), begin + 1, last, maybeVParser);
 				nums.push(last.num);
 				newVisCount -= maybeSpells.value.runSpells(last);
 				embedPostMsgImages(last.el);
 			}
 		}
-		return [newCount, newVisCount, fragm, last, nums];
+		return [newCount, newVisCount, fragment, last, nums];
 	}
 	_loadFromBuilder(last, smartScroll, pBuilder) {
 		let nextCoord;
@@ -14142,8 +14143,8 @@ class Thread {
 				smartScroll = false;
 			}
 		}
-		const { op, el: thrEl } = this;
-		$q(aib.qOmitted + ', .de-omitted', thrEl)?.remove();
+		const { op, el: threadEl } = this;
+		$q(aib.qOmitted + ', .de-omitted', threadEl)?.remove();
 		if(this.loadCount === 0) {
 			if(op.trunc) {
 				op.updateMsg(pBuilder.getOpMessage(), maybeSpells.value);
@@ -14159,7 +14160,7 @@ class Thread {
 		let existed = hasPosts ? this.postsCount - post.count : 0;
 		switch(last) {
 		case 'new': // get new posts
-			needToHide = $Q('.de-hidden', thrEl).length;
+			needToHide = $Q('.de-hidden', threadEl).length;
 			needToOmit = hasPosts ? needToHide + post.count - 1 : 0;
 			needToShow = pBuilder.length - needToOmit;
 			break;
@@ -14168,7 +14169,7 @@ class Thread {
 			needToShow = pBuilder.length;
 			break;
 		case 'more': // show 10 omitted posts + get new posts
-			needToHide = $Q('.de-hidden', thrEl).length - 10;
+			needToHide = $Q('.de-hidden', threadEl).length - 10;
 			needToOmit = Math.max(hasPosts ? needToHide + post.count - 1 : 0, 0);
 			needToHide = Math.max(needToHide, 0);
 			needToShow = pBuilder.length - needToOmit;
@@ -14187,7 +14188,7 @@ class Thread {
 		} else {
 			const nonExisted = pBuilder.length - existed;
 			const maybeVParser = new Maybe(Cfg.embedYTube ? VideosParser : null);
-			const [,, fragm, last, nums] = this._importPosts(
+			const [,, fragment, last, nums] = this._importPosts(
 				op, pBuilder,
 				Math.max(0, nonExisted + existed - needToShow),
 				nonExisted,
@@ -14196,7 +14197,7 @@ class Thread {
 			if(maybeVParser.hasValue) {
 				maybeVParser.value.endParser();
 			}
-			op.wrap.after(fragm);
+			op.wrap.after(fragment);
 			DollchanAPI.notify('newpost', nums);
 			last.next = post;
 			if(post) {
@@ -15561,6 +15562,9 @@ class BaseBoard {
 	get observeContent() {
 		return null;
 	}
+	get postsBreak() {
+		return null;
+	}
 	get postersCount() {
 		return '';
 	}
@@ -15888,10 +15892,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this._origInputs = null;
 		}
 		get css() {
-			return `.banner, .hide-thread-link, .mentioned,
-					.post-hover { display: none !important; }
-				div.post.reply:not(.de-entry):not(.de-cfg-tab):not(.de-win-body) {
-					float: left !important; clear: left; display: block; }
+			return `.banner, .hide-thread-link, .mentioned, .post-hover { display: none !important; }
 				${ Cfg.imgNames ? `.postfilename, .unimportant > a[download] { display: none }
 					.fileinfo > .unimportant { white-space: nowrap; }` : '' }`;
 		}
@@ -15980,6 +15981,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		isAjaxStatusOK(status) {
 			return status === 200 || status === 206 || status === 400;
 		}
+		postsBreak(fragment) {
+			fragment.append(doc.createElement('br'));
+		}
 		updateSubmitBtn() {}
 	}
 	ibEngines.push(['form[name*="postcontrols"]', Tinyboard]);
@@ -15998,6 +16002,9 @@ function getImageBoard(checkDomains, checkEngines) {
 					.fileinfo > span[style*="white-space:"] { display: none !important; }
 				.boardlist { z-index: 1 !important; }
 				.de-file-input { margin-left: 0; }`;
+		}
+		get qPostImgNameLink() {
+			return 'p.fileinfo a:first-of-type:not(.hide-image-link)';
 		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 5 }, (val, i) =>
@@ -17135,6 +17142,27 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['014chan.org'] = ibDomains['bulochka.org'] = Bulochka;
 
+	class Deadach extends Vichan {
+		constructor(...args) {
+			super(...args);
+			this.qPostImg = '.post-img';
+		}
+		get css() {
+			return `${ super.css }
+				.image_id, .open-form ${ Cfg.fileInputs ? ', #upload' : '' }  { display: none !important; }
+				.file { margin-right: 20px; }
+				.postarea { display: initial !important; }
+				.postform__limits { position: initial; }`;
+		}
+		get markupTags() {
+			return ['[b', '[i', '__', '~~', '**', '```'];
+		}
+		fixHTMLHelper(str) {
+			return super.fixHTMLHelper(str).replace(/<img class="post-image/g, '<img class="post-img');
+		}
+	}
+	ibDomains['deada.ch'] = Deadach;
+
 	class Dobrochan extends Vichan {
 		get css() {
 			return `${ super.css }
@@ -17470,12 +17498,15 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 			this.qOPost = '.op';
+
+			this.markupBB = true;
 		}
 		get css() {
 			return `${ super.css }
-				.sidearrows { display: none !important; }
-				.bar { z-index: 1; }
 				${ Cfg.imgNames ? '.details > a { display: none; }' : '' }`;
+		}
+		get markupTags() {
+			return ['b', 'i', '', '', 'spoiler', 'code'];
 		}
 		getImgRealName(wrap) {
 			return $q('.details > a, .postfilename', wrap).textContent;
@@ -17488,23 +17519,21 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['lainchan.org'] = Lainchan;
 
-	class Lilchan extends Vichan {
-		get qPostImgNameLink() {
-			return 'p.fileinfo a:first-of-type';
-		}
-	}
-	ibDomains['lilchan.ru'] = Lilchan;
-
 	class Nichan extends Vichan {
 		constructor(...args) {
 			super(...args);
 			this.qPages = '.bottom > .pages';
 			this.qPostImg = '.post-image[alt]:not(.deleted), video.post-image';
+
+			this.markupBB = true;
 		}
 		get css() {
 			return `${ super.css }
 				.format-text, label[for="email_selectbox"]
 					${ Cfg.fileInputs ? ', #upload' : '' } { display: none !important; }`;
+		}
+		get markupTags() {
+			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
 		}
 	}
 	ibDomains['nichan.net'] = Nichan;
@@ -17574,7 +17603,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				time::after { content: none; }`;
 		}
 		get markupTags() {
-			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub'];
+			return ['b', 'i', 'u', 's', 'h', 'code', 'sup', 'sub'];
 		}
 		get qPostImgNameLink() {
 			return '.file-info > a';
@@ -17770,7 +17799,6 @@ async function checkForUpdates(isManual, lastUpdateTime) {
 	}
 	throw new Error();
 }
-
 
 // Donation message after Dollchan update
 function showDonateMsg() {
