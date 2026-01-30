@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '3cbac89';
+const commit = 'd092d32';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -6046,7 +6046,7 @@ const ContentLoader = {
 		let count = els.length;
 		const delSymbols = (str, r = '') => str.replace(/[\\/:*?"<>|]/g, r);
 		this._thrPool = new TasksPool(4, (num, data) => this.loadFileData(data[0]).then(fileData => {
-			const [url, fName, el, parentLink] = data;
+			const [url, fName, img, parentLink] = data;
 			let safeName = delSymbols(fName, '_');
 			progress.value = counter.innerHTML = current++;
 			if(parentLink) {
@@ -6056,26 +6056,25 @@ const ContentLoader = {
 				} else {
 					thumbName = 'thumbs/' + thumbName;
 					safeName = fileData ? 'images/' + safeName : thumbName;
-					parentLink.href = getImgNameLink(el).href = safeName;
+					parentLink.href = aib.getImgNameLink(img).href = safeName;
 				}
 				if(fileData) {
 					tar.addFile(safeName, fileData);
 				} else {
-					warnings += `<br>${ Lng.cantLoad[lang] } <a href="${ url }">${ url }</a>` +
-						`<br>${ Lng.willSavePview[lang] }`;
+					warnings += `<br>${ Lng.cantLoad[lang] } <a href="${ url }">${ url }</a><br>${
+						Lng.willSavePview[lang] }`;
 					$popup('err-files', Lng.loadErrors[lang] + warnings);
 					if(imgOnly) {
-						return this.getDataFromImg(el).then(data =>
+						return this.getDataFromImg(img).then(data =>
 							tar.addFile(thumbName, data), Function.prototype);
 					}
 				}
-				return imgOnly ? null : this.getDataFromImg(el).then(
-					data => tar.addFile(el.src = thumbName, data),
-					() => (el.src = safeName));
+				return imgOnly ? null : this.getDataFromImg(img)
+					.then(data => tar.addFile(img.src = thumbName, data), () => (img.src = safeName));
 			} else if(fileData?.length) {
-				tar.addFile(el.href = el.src = 'data/' + safeName, fileData);
+				tar.addFile(img.href = img.src = 'data/' + safeName, fileData);
 			} else {
-				el.remove();
+				img.remove();
 			}
 		}), async () => {
 			const docName = `${ aib.domain }-${ delSymbols(aib.b) }-${ aib.t }`;
@@ -6216,10 +6215,10 @@ const ContentLoader = {
 			const rarJpgFinder = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, this._detectImgFile,
 				err => console.error('File detector error:', `line: ${ err.lineno } - ${ err.message }`));
 			preloadPool = new TasksPool(mReqs, (num, data) => this.loadFileData(data[0]).then(fileData => {
-				const [url, parentLink, iType, isRepToOrig, el, isVideo] = data;
+				const [url, parentLink, iType, isRepToOrig, img, isVideo] = data;
 				if(fileData) {
 					const fName = decodeURIComponent(getFileName(url));
-					const nameLink = getImgNameLink(el);
+					const nameLink = aib.getImgNameLink(img);
 					parentLink.setAttribute('download', fName);
 					if(!Cfg.imgNames) {
 						nameLink.setAttribute('download', fName);
@@ -6228,10 +6227,10 @@ const ContentLoader = {
 					parentLink.href = nameLink.href =
 						deWindow.URL.createObjectURL(new Blob([fileData], { type: iType }));
 					if(isVideo) {
-						el.setAttribute('de-video', '');
+						img.setAttribute('de-video', '');
 					}
 					if(isRepToOrig) {
-						el.src = parentLink.href;
+						img.src = parentLink.href;
 					}
 					if(rarJpgFinder) {
 						rarJpgFinder.runWorker(fileData.buffer, [fileData.buffer],
@@ -7099,7 +7098,7 @@ const AjaxCache = {
 };
 
 function getAjaxResponseEl(text, needForm) {
-	return !text.includes('</html>') ? null :
+	return aib.hasHtmlTag && !text.includes('</html>') ? null :
 		needForm ? $q(aib.qDelForm, $createDoc(text)) : $createDoc(text);
 }
 
@@ -11591,7 +11590,7 @@ class Pview extends AbstractPost {
 		return Pview.top ? Pview.top.parent : null;
 	}
 	static showPview(parent, link) {
-		const tNum = +link.pathname.match(/.+?\/[^\d]*(\d+)/)?.[1] || aib.getPostOfEl(link).tNum;
+		const tNum = +link.pathname.match(/.+?\/[^\d]*(\d+)[^\d]/)?.[1] || aib.getPostOfEl(link).tNum;
 		const pNum = +link.textContent.match(/\d+/g)?.[0] || tNum;
 		const isTop = !(parent instanceof Pview);
 		let pv = isTop ? Pview.top : parent.kid;
@@ -12485,7 +12484,7 @@ class ExpandableImage {
 			this.redirected = true;
 			Object.defineProperty(this, 'src', { value: newSrc });
 			$q('img, video', fullEl).src = this.el.src =
-				this.el.parentNode.href = getImgNameLink(this.el).href = newSrc;
+				this.el.parentNode.href = aib.getImgNameLink(this.el).href = newSrc;
 			if(!this.isVideo) {
 				$q('a', fullEl).href = newSrc;
 			}
@@ -13102,9 +13101,6 @@ const ImagesHashStorage = Object.create({
 	}
 });
 
-function getImgNameLink(el) {
-	return $q(aib.qPostImgNameLink, aib.getImgWrap(el));
-}
 
 function addImgButtons(link) {
 	link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-img">' +
@@ -15426,6 +15422,7 @@ class BaseBoard {
 		this.hasAltCaptcha = false;
 		this.hasArchive = false;
 		this.hasCatalog = false;
+		this.hasHtmlTag = true;
 		this.hasOPNum = false;
 		this.hasPicWrap = false;
 		this.hasRefererErr = false;
@@ -15652,6 +15649,9 @@ class BaseBoard {
 	}
 	getImgInfo(wrap) {
 		return $q(this.qPostImgInfo, wrap)?.textContent || '';
+	}
+	getImgNameLink(img) {
+		return $q(this.qPostImgNameLink, this.getImgWrap(img));
 	}
 	getImgRealName(wrap) {
 		const el = $q(this.qPostImgNameLink, wrap);
@@ -17588,13 +17588,31 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostImgInfo = '.fileinfo';
 			this.qPostRef = '.js';
 
+			this.hasHtmlTag = false;
 			this.res = 'thread/';
 		}
 		get css() {
-			return '.quoted-by { display: none !important; }';
+			return `.quoted-by { display: none !important; }
+				.de-btn-img { float: left; }
+				.thumb { margin-left: 0; }`;
+		}
+		get qPostImgNameLink() {
+			return 'br + a';
+		}
+		fixHTMLHelper(str) {
+			return str.replace(/\/post\/(\d+)"/g, '/$1"');
+		}
+		getImgRealName(wrap) {
+			return $q('.fileinfo', wrap).textContent.split(', ').pop();
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode;
 		}
 		getTNum(thr) {
 			return +$q('.comment', thr).id.match(/\d+/);
+		}
+		getThrUrl(board, tNum) {
+			return this.protocol + '//' + this.host + fixBoardName(board) + this.res + tNum;
 		}
 	}
 	ibDomains['warosu.org'] = Warosu;
@@ -18076,7 +18094,7 @@ function scriptCSS() {
 	#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }
 	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }
-	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0 !important; min-width: auto; transition: all .3s ease; border: none !important; background-color: transparent !important; color: inherit !important; cursor: pointer; }
+	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0 !important; min-width: auto; transition: all .3s ease; border: none !important; background: transparent !important; color: inherit !important; cursor: pointer; }
 	.de-panel-button, #de-panel-logo, #de-panel-logo-svg, .de-panel-svg { width: 25px; height: 25px; }
 	.de-panel-button-active { stroke: #32ff32 !important; fill: #32ff32 !important; }
 	#de-panel-expimg, #de-panel-maskimg, #de-panel-preimg { stroke: currentColor; fill: currentColor; }

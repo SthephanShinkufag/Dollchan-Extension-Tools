@@ -58,6 +58,7 @@ class BaseBoard {
 		this.hasAltCaptcha = false;
 		this.hasArchive = false;
 		this.hasCatalog = false;
+		this.hasHtmlTag = true;
 		this.hasOPNum = false;
 		this.hasPicWrap = false;
 		this.hasRefererErr = false;
@@ -284,6 +285,9 @@ class BaseBoard {
 	}
 	getImgInfo(wrap) {
 		return $q(this.qPostImgInfo, wrap)?.textContent || '';
+	}
+	getImgNameLink(img) {
+		return $q(this.qPostImgNameLink, this.getImgWrap(img));
 	}
 	getImgRealName(wrap) {
 		const el = $q(this.qPostImgNameLink, wrap);

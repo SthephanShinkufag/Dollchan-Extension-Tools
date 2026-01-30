@@ -8218,7 +8218,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = '3cbac89';
+  var commit = 'd092d32';
 
 
   var doc = deWindow.document;
@@ -13647,7 +13647,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
           var _data3 = _slicedToArray(data, 4),
             url = _data3[0],
             fName = _data3[1],
-            el = _data3[2],
+            img = _data3[2],
             parentLink = _data3[3];
           var safeName = delSymbols(fName, '_');
           progress.value = counter.innerHTML = current++;
@@ -13658,28 +13658,28 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
             } else {
               thumbName = 'thumbs/' + thumbName;
               safeName = fileData ? 'images/' + safeName : thumbName;
-              parentLink.href = getImgNameLink(el).href = safeName;
+              parentLink.href = aib.getImgNameLink(img).href = safeName;
             }
             if (fileData) {
               tar.addFile(safeName, fileData);
             } else {
-              warnings += "<br>".concat(Lng.cantLoad[lang], " <a href=\"").concat(url, "\">").concat(url, "</a>") + "<br>".concat(Lng.willSavePview[lang]);
+              warnings += "<br>".concat(Lng.cantLoad[lang], " <a href=\"").concat(url, "\">").concat(url, "</a><br>").concat(Lng.willSavePview[lang]);
               $popup('err-files', Lng.loadErrors[lang] + warnings);
               if (imgOnly) {
-                return _this25.getDataFromImg(el).then(function (data) {
+                return _this25.getDataFromImg(img).then(function (data) {
                   return tar.addFile(thumbName, data);
                 }, Function.prototype);
               }
             }
-            return imgOnly ? null : _this25.getDataFromImg(el).then(function (data) {
-              return tar.addFile(el.src = thumbName, data);
+            return imgOnly ? null : _this25.getDataFromImg(img).then(function (data) {
+              return tar.addFile(img.src = thumbName, data);
             }, function () {
-              return el.src = safeName;
+              return img.src = safeName;
             });
           } else if (fileData !== null && fileData !== void 0 && fileData.length) {
-            tar.addFile(el.href = el.src = 'data/' + safeName, fileData);
+            tar.addFile(img.href = img.src = 'data/' + safeName, fileData);
           } else {
-            el.remove();
+            img.remove();
           }
         });
       }, _asyncToGenerator(_regeneratorRuntime().mark(function _callee18() {
@@ -13857,11 +13857,11 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
               parentLink = _data4[1],
               iType = _data4[2],
               isRepToOrig = _data4[3],
-              el = _data4[4],
+              img = _data4[4],
               isVideo = _data4[5];
             if (fileData) {
               var fName = decodeURIComponent(getFileName(url));
-              var nameLink = getImgNameLink(el);
+              var nameLink = aib.getImgNameLink(img);
               parentLink.setAttribute('download', fName);
               if (!Cfg.imgNames) {
                 nameLink.setAttribute('download', fName);
@@ -13871,10 +13871,10 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                 type: iType
               }));
               if (isVideo) {
-                el.setAttribute('de-video', '');
+                img.setAttribute('de-video', '');
               }
               if (isRepToOrig) {
-                el.src = parentLink.href;
+                img.src = parentLink.href;
               }
               if (rarJpgFinder) {
                 rarJpgFinder.runWorker(fileData.buffer, [fileData.buffer], function (info) {
@@ -14866,7 +14866,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     _data: new Map()
   };
   function getAjaxResponseEl(text, needForm) {
-    return !text.includes('</html>') ? null : needForm ? $q(aib.qDelForm, $createDoc(text)) : $createDoc(text);
+    return aib.hasHtmlTag && !text.includes('</html>') ? null : needForm ? $q(aib.qDelForm, $createDoc(text)) : $createDoc(text);
   }
   function ajaxLoad(url) {
     var needForm = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
@@ -20996,7 +20996,7 @@ Spells.addSpell(9, '', false);
       key: "showPview",
       value: function showPview(parent, link) {
         var _link$pathname$match, _link$textContent$mat;
-        var tNum = +((_link$pathname$match = link.pathname.match(/.+?\/[^\d]*(\d+)/)) === null || _link$pathname$match === void 0 ? void 0 : _link$pathname$match[1]) || aib.getPostOfEl(link).tNum;
+        var tNum = +((_link$pathname$match = link.pathname.match(/.+?\/[^\d]*(\d+)[^\d]/)) === null || _link$pathname$match === void 0 ? void 0 : _link$pathname$match[1]) || aib.getPostOfEl(link).tNum;
         var pNum = +((_link$textContent$mat = link.textContent.match(/\d+/g)) === null || _link$textContent$mat === void 0 ? void 0 : _link$textContent$mat[0]) || tNum;
         var isTop = !(parent instanceof Pview);
         var pv = isTop ? Pview.top : parent.kid;
@@ -21749,7 +21749,7 @@ Spells.addSpell(9, '', false);
           Object.defineProperty(_this83, 'src', {
             value: newSrc
           });
-          $q('img, video', fullEl).src = _this83.el.src = _this83.el.parentNode.href = getImgNameLink(_this83.el).href = newSrc;
+          $q('img, video', fullEl).src = _this83.el.src = _this83.el.parentNode.href = aib.getImgNameLink(_this83.el).href = newSrc;
           if (!_this83.isVideo) {
             $q('a', fullEl).href = newSrc;
           }
@@ -22503,9 +22503,6 @@ Spells.addSpell(9, '', false);
       }))();
     }
   });
-  function getImgNameLink(el) {
-    return $q(aib.qPostImgNameLink, aib.getImgWrap(el));
-  }
   function addImgButtons(link) {
     link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-img">' + '<use xlink:href="#de-symbol-post-img"/></svg>');
   }
@@ -25058,6 +25055,7 @@ Spells.addSpell(9, '', false);
       this.hasAltCaptcha = false;
       this.hasArchive = false;
       this.hasCatalog = false;
+      this.hasHtmlTag = true;
       this.hasOPNum = false;
       this.hasPicWrap = false;
       this.hasRefererErr = false;
@@ -25371,6 +25369,11 @@ Spells.addSpell(9, '', false);
       value: function getImgInfo(wrap) {
         var _$q11;
         return ((_$q11 = $q(this.qPostImgInfo, wrap)) === null || _$q11 === void 0 ? void 0 : _$q11.textContent) || '';
+      }
+    }, {
+      key: "getImgNameLink",
+      value: function getImgNameLink(img) {
+        return $q(this.qPostImgNameLink, this.getImgWrap(img));
       }
     }, {
       key: "getImgRealName",
@@ -27975,6 +27978,7 @@ Spells.addSpell(9, '', false);
         _this136.qOPost = '.comment';
         _this136.qPostImgInfo = '.fileinfo';
         _this136.qPostRef = '.js';
+        _this136.hasHtmlTag = false;
         _this136.res = 'thread/';
         return _this136;
       }
@@ -27982,12 +27986,37 @@ Spells.addSpell(9, '', false);
       return _createClass(Warosu, [{
         key: "css",
         get: function get() {
-          return '.quoted-by { display: none !important; }';
+          return ".quoted-by { display: none !important; }\n\t\t\t\t.de-btn-img { float: left; }\n\t\t\t\t.thumb { margin-left: 0; }";
+        }
+      }, {
+        key: "qPostImgNameLink",
+        get: function get() {
+          return 'br + a';
+        }
+      }, {
+        key: "fixHTMLHelper",
+        value: function fixHTMLHelper(str) {
+          return str.replace(/\/post\/(\d+)"/g, '/$1"');
+        }
+      }, {
+        key: "getImgRealName",
+        value: function getImgRealName(wrap) {
+          return $q('.fileinfo', wrap).textContent.split(', ').pop();
+        }
+      }, {
+        key: "getImgWrap",
+        value: function getImgWrap(img) {
+          return img.parentNode.parentNode;
         }
       }, {
         key: "getTNum",
         value: function getTNum(thr) {
           return +$q('.comment', thr).id.match(/\d+/);
+        }
+      }, {
+        key: "getThrUrl",
+        value: function getThrUrl(board, tNum) {
+          return this.protocol + '//' + this.host + fixBoardName(board) + this.res + tNum;
         }
       }]);
     }(BaseBoard);
@@ -28254,7 +28283,7 @@ Spells.addSpell(9, '', false);
     var contentIcon = function contentIcon(id, src) {
       return "".concat(id, "::before { content: \"\"; display: inline-block; vertical-align: -3px; padding: 16px 16px 0 0; margin-right: 4px; background: url(").concat(src, ") no-repeat center; background-size: contain; white-space: initial; }");
     };
-    var x = "\n\t/* Main panel */\n\t#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\n\t#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\n\t#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\n\t.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0 !important; min-width: auto; transition: all .3s ease; border: none !important; background-color: transparent !important; color: inherit !important; cursor: pointer; }\n\t.de-panel-button, #de-panel-logo, #de-panel-logo-svg, .de-panel-svg { width: 25px; height: 25px; }\n\t.de-panel-button-active { stroke: #32ff32 !important; fill: #32ff32 !important; }\n\t#de-panel-expimg, #de-panel-maskimg, #de-panel-preimg { stroke: currentColor; fill: currentColor; }\n\t#de-panel-goback { transform: rotate(180deg); will-change: transform; }\n\t#de-panel-godown { transform: rotate(90deg); will-change: transform; }\n\t#de-panel-goup { transform: rotate(-90deg); will-change: transform; }\n\t#de-panel-upd-on { fill: #32ff32; }\n\t#de-panel-upd-warn { fill: #fff441; }\n\t#de-panel-upd-off { fill: #ff3232; }\n\t#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\n\t#de-panel-info { display: flex; flex: none; margin-left: 2px; font: 18px arial; }\n\t#de-panel-info > span { background-color: #fff2; margin-right: 4px; padding: 0 1px; border: 1px solid #fff3; border-radius: 4px; }\n\t#de-panel-info > span:empty { display: none; }\n\t#de-svg-icons, #de-svg-icons > svg { height: 0; width: 0; position: fixed; }\n\t.de-svg-fill { stroke: none; fill: currentColor; }\n\t.de-svg-stroke { stroke: currentColor; fill: none; }\n\tuse { fill: inherit; pointer-events: none; }\n\n\t/* Panel theme */\n\t.de-img-btn, #de-panel, .de-win-head ".concat([
+    var x = "\n\t/* Main panel */\n\t#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\n\t#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\n\t#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\n\t.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0 !important; min-width: auto; transition: all .3s ease; border: none !important; background: transparent !important; color: inherit !important; cursor: pointer; }\n\t.de-panel-button, #de-panel-logo, #de-panel-logo-svg, .de-panel-svg { width: 25px; height: 25px; }\n\t.de-panel-button-active { stroke: #32ff32 !important; fill: #32ff32 !important; }\n\t#de-panel-expimg, #de-panel-maskimg, #de-panel-preimg { stroke: currentColor; fill: currentColor; }\n\t#de-panel-goback { transform: rotate(180deg); will-change: transform; }\n\t#de-panel-godown { transform: rotate(90deg); will-change: transform; }\n\t#de-panel-goup { transform: rotate(-90deg); will-change: transform; }\n\t#de-panel-upd-on { fill: #32ff32; }\n\t#de-panel-upd-warn { fill: #fff441; }\n\t#de-panel-upd-off { fill: #ff3232; }\n\t#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\n\t#de-panel-info { display: flex; flex: none; margin-left: 2px; font: 18px arial; }\n\t#de-panel-info > span { background-color: #fff2; margin-right: 4px; padding: 0 1px; border: 1px solid #fff3; border-radius: 4px; }\n\t#de-panel-info > span:empty { display: none; }\n\t#de-svg-icons, #de-svg-icons > svg { height: 0; width: 0; position: fixed; }\n\t.de-svg-fill { stroke: none; fill: currentColor; }\n\t.de-svg-stroke { stroke: currentColor; fill: none; }\n\tuse { fill: inherit; pointer-events: none; }\n\n\t/* Panel theme */\n\t.de-img-btn, #de-panel, .de-win-head ".concat([
     '{ background: linear-gradient(to bottom, #7b849b, #616b86 8%, #121212 60%, #1f2740 100%); }', "{ background: linear-gradient(to bottom, #4b90df, #183d77 60%, #325f9e 100%); }\n\t\t#de-panel-buttons { border-color: #8fbbed; }", "{ background-color: #777; }\n\t\t#de-panel-buttons { border-color: #ccc; }", 
     '{ background-color: rgba(0,20,80,.72); }', "{ background: none; background-color: #333; border-radius: 0 !important; }\n\t\t#de-win-reply.de-win { border-radius: 0 !important; }\n\t\t#de-panel-buttons { border-color: #666; }", "{ background: linear-gradient(to bottom, #e854ca, #8c1273 60%, #832da2 100%); }\n\t\t#de-panel-buttons { border-color: #c15dad; }"][Cfg.scriptStyle], "\n\t.de-logo { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #121212 60%, #1f2740 100%) }\n\t.de-panel-svg:hover, #de-panel-logo-svg:hover { margin: -2px; width: 29px; height: 29px; color: #d0e7ff !important; }\n\t.de-panel-button:hover { background-color: rgba(255,255,255,.15) !important; box-shadow: 0 0 3px rgba(200,200,200,0.5); color: inherit !important; }\r\n");
     if (Cfg.disabled) {

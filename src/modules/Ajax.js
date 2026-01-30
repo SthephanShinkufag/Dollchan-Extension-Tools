@@ -247,7 +247,7 @@ const AjaxCache = {
 };
 
 function getAjaxResponseEl(text, needForm) {
-	return !text.includes('</html>') ? null :
+	return aib.hasHtmlTag && !text.includes('</html>') ? null :
 		needForm ? $q(aib.qDelForm, $createDoc(text)) : $createDoc(text);
 }
 

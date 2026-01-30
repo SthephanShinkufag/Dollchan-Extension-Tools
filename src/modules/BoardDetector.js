@@ -1834,13 +1834,31 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostImgInfo = '.fileinfo';
 			this.qPostRef = '.js';
 
+			this.hasHtmlTag = false;
 			this.res = 'thread/';
 		}
 		get css() {
-			return '.quoted-by { display: none !important; }';
+			return `.quoted-by { display: none !important; }
+				.de-btn-img { float: left; }
+				.thumb { margin-left: 0; }`;
+		}
+		get qPostImgNameLink() {
+			return 'br + a';
+		}
+		fixHTMLHelper(str) {
+			return str.replace(/\/post\/(\d+)"/g, '/$1"');
+		}
+		getImgRealName(wrap) {
+			return $q('.fileinfo', wrap).textContent.split(', ').pop();
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode;
 		}
 		getTNum(thr) {
 			return +$q('.comment', thr).id.match(/\d+/);
+		}
+		getThrUrl(board, tNum) {
+			return this.protocol + '//' + this.host + fixBoardName(board) + this.res + tNum;
 		}
 	}
 	ibDomains['warosu.org'] = Warosu;
