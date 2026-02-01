@@ -132,7 +132,7 @@ async function remove404Favorites(favObj) {
 function isPostRefToYou(post, myPosts) {
 	if(Cfg.markMyPosts && (myPosts || MyPosts)) {
 		const isMatch = myPosts ? num => myPosts[num] : num => MyPosts.has(num);
-		const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
+		const links = $Q(aib.qPostMsg + ' a', post);
 		for(let a = 0, linksLen = links.length; a < linksLen; ++a) {
 			const tc = links[a].textContent;
 			if(tc[0] === '>' && tc[1] === '>' && isMatch(parseInt(tc.substr(2), 10))) {

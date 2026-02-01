@@ -136,9 +136,12 @@ class PostForm {
 		return this.pForm.getBoundingClientRect().top;
 	}
 	addMarkupPanel() {
+		if(aib.noMarkupBtns) {
+			return;
+		}
 		let el = $id('de-txt-panel');
 		if(!Cfg.addTextBtns) {
-			aib.removeMarkupButtons(el);
+			el?.remove();
 			return;
 		}
 		if(!el) {
@@ -146,7 +149,7 @@ class PostForm {
 			['click', 'mouseover'].forEach(e => el.addEventListener(e, this));
 		}
 		el.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
-		aib.insertMarkupButtons(this, el);
+		(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm).after(el);
 		const id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
 		const val = ['B', 'i', 'U', 'S', '%', 'C', 'x\u00b2', 'x\u2082'];
 		const mode = Cfg.addTextBtns;

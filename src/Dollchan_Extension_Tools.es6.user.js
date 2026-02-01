@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = 'd092d32';
+const commit = 'ca14f44';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -3975,7 +3975,7 @@ async function remove404Favorites(favObj) {
 function isPostRefToYou(post, myPosts) {
 	if(Cfg.markMyPosts && (myPosts || MyPosts)) {
 		const isMatch = myPosts ? num => myPosts[num] : num => MyPosts.has(num);
-		const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', post);
+		const links = $Q(aib.qPostMsg + ' a', post);
 		for(let a = 0, linksLen = links.length; a < linksLen; ++a) {
 			const tc = links[a].textContent;
 			if(tc[0] === '>' && tc[1] === '>' && isMatch(parseInt(tc.substr(2), 10))) {
@@ -5114,8 +5114,8 @@ const CfgWindow = {
 			${ postform.captcha ? `${ aib.hasAltCaptcha ? `${ this._getBox('altCaptcha') }<br>` : '' }
 				${ !aib.makaba ? `${ this._getInp('capUpdTime') }<br>` : '' }
 				${ this._getSel('captchaLang') }<br>` : '' }
-			${ postform.txta ? `${ this._getSel('addTextBtns') }
-				${ !aib._4chan ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
+			${ !aib.noMarkupBtns && postform.txta ? `${ this._getSel('addTextBtns') }
+				${ !aib.noMarkupBtns && !aib._4chan ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
 			${ postform.passw ? `${ this._getInp('passwValue', false, 9) }
 				${ this._getBox('userPassw') }<input type="button"` +
 				` id="de-cfg-button-pass" class="de-cfg-button" value="${ Lng.change[lang] }"><br>` : '' }
@@ -8866,9 +8866,12 @@ class PostForm {
 		return this.pForm.getBoundingClientRect().top;
 	}
 	addMarkupPanel() {
+		if(aib.noMarkupBtns) {
+			return;
+		}
 		let el = $id('de-txt-panel');
 		if(!Cfg.addTextBtns) {
-			aib.removeMarkupButtons(el);
+			el?.remove();
 			return;
 		}
 		if(!el) {
@@ -8876,7 +8879,7 @@ class PostForm {
 			['click', 'mouseover'].forEach(e => el.addEventListener(e, this));
 		}
 		el.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
-		aib.insertMarkupButtons(this, el);
+		(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm).after(el);
 		const id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
 		const val = ['B', 'i', 'U', 'S', '%', 'C', 'x\u00b2', 'x\u2082'];
 		const mode = Cfg.addTextBtns;
@@ -13504,25 +13507,31 @@ class MakabaPostsBuilder {
 			filesHTML = `<div class="post__images post__images_type_${
 				files.length === 1 ? 'single' : 'multi' }">`;
 			for(const file of files) {
-				const imgId = num + '-' + file.md5;
 				const { fullname = file.name, displayname: dispName = file.name, type } = file;
 				const isVideo = type === 6 || type === 10;
-				const imgClass = `post__file-preview${ isVideo ? ' post__file-webm' : '' }${
-					data.nsfw ? ' post__file-nsfw' : '' }`;
+				let imgHTML = `<img class="post__file-preview${ isVideo ? ' post__file-webm' : '' }" src="${
+					file.thumbnail }" alt="${ file.width }x${ file.height }" width="${
+					file.tn_width }" height="${ file.tn_height }">`;
+				if(file.nsfw) {
+					imgHTML = `<div class="post__file-nsfw">
+						<div class="file__nsfw">
+							<span class="file__nsfw-title">NSFW</span>
+							<span class="file__nsfw-description">[ Нажмите, чтобы открыть ]</span>
+						</div>
+						${ imgHTML }
+					</div>`;
+				}
 				filesHTML += `<figure class="post__image">
 					<figcaption class="post__file-attr">
-						<a id="title-${ imgId }" class="desktop" target="_blank" href="` +
+						<a id="title-${ num + '-' + file.md5 }" class="desktop" target="_blank" href="` +
 							`${ type === 100 /* is sticker */ ? file.install : file.path }"` +
 							`${ dispName === fullname ? '' : ` title="${ fullname }"` }>${ dispName }</a>
 						<span class="post__filezise">(${ file.size }Кб, ` +
 							`${ file.width }x${ file.height }${ isVideo ? ', ' + file.duration : '' })</span>
 					</figcaption>
-					<div id="exlink-${ imgId }">
-						<a class="post__image-link" href="${ file.path }">
-							<img class="${ imgClass }" src="${ file.thumbnail }" alt="${ file.width }x` +
-								`${ file.height }" width="${ file.tn_width }" height="${ file.tn_height }">
-						</a>
-					</div>
+					<a class="post__image-link" href="${ file.path }" onclick="return false;">
+						${ imgHTML }
+					</a>
 				</figure>`;
 			}
 			filesHTML += '</div>';
@@ -15490,6 +15499,7 @@ class BaseBoard {
 		this.jsonSubmit = false;
 		this.markupBB = false;
 		this.multiFile = false;
+		this.noMarkupBtns = false;
 		this.page = 0;
 		this.protocol = protocol;
 		this.res = 'res/';
@@ -15578,17 +15588,17 @@ class BaseBoard {
 			'[name="subject"]', '[name="field3"]');
 	}
 	get qMsgImgLink() {
-		const value = $match(this.qPostMsg.split(', ').join(' a, ') + ' a',
+		const value = $match(this.qPostMsg + ' a',
 			'[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
 			'[href$=".avif"]', '[href$=".webp"]');
 		Object.defineProperty(this, 'qMsgImgLink', { value });
 		return value;
 	}
 	get qPostImgNameLink() {
-		const value = $match(this.qPostImgInfo.split(', ').join(' a, ') + ' a',
+		const value = $match(this.qPostImgInfo + ' a',
 			'[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
 			'[href$=".avif"]', '[href$=".webm"]', '[href$=".webp"]', '[href$=".mov"]', '[href$=".mp4"]',
-			'[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
+			'[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', '[href^="blob:"]');
 		Object.defineProperty(this, 'qPostImgNameLink', { value });
 		return value;
 	}
@@ -15777,9 +15787,6 @@ class BaseBoard {
 	getTNum(thr) {
 		return +$q('input[type="checkbox"]', thr).value;
 	}
-	insertMarkupButtons(postForm, el) {
-		(Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm).after(el);
-	}
 	isAjaxStatusOK(status) {
 		return status === 200 || status === 206;
 	}
@@ -15801,9 +15808,6 @@ class BaseBoard {
 		if(this.docExt === null) {
 			this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
 		}
-	}
-	removeMarkupButtons(el) {
-		el?.remove();
 	}
 	updateSubmitBtn(el) {
 		el.value = Lng.reply[lang];
@@ -15998,8 +16002,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
-				.de-ref-op + small, #expand-all-images, .fileinfo small, .post-btn, .watchThread,
-					.fileinfo > span[style*="white-space:"] { display: none !important; }
+				.add_image, .de-ref-op + small, #expand-all-images, .fileinfo small, .format-text, .post-btn,
+					.watchThread, .fileinfo > span[style*="white-space:"]
+					${ Cfg.fileInputs === 2 ? ', #upload' : '' } { display: none !important; }
 				.boardlist { z-index: 1 !important; }
 				.de-file-input { margin-left: 0; }`;
 		}
@@ -16344,6 +16349,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormFile = '.postform__raw.filer input[type="file"]';
 			this.qFormRedir = null;
 			this.qFormRules = '.rules';
+			this.qFormSpoiler = '.nsfw-input';
 			this.qFormSubm = '#submit';
 			this.qFormTd = '.postform__raw';
 			this.qFormTr = '.postform__raw';
@@ -16368,47 +16374,34 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasPicWrap = true;
 			this.JsonBuilder = MakabaPostsBuilder;
 			this.jsonSubmit = true;
-			this.markupBB = true;
 			this.multiFile = true;
+			this.noMarkupBtns = true;
 			this.timePattern = 'dd+nn+yy+w+hh+ii+ss';
-			this._isOldMakaba = true;
 		}
 		get css() {
-			return `.js-post-findimg, .js-post-saveimg, .media-expand-button, .media-thumbnail, .newpost,
-					.post__btn:not(.icon_type_active), .post__number, .post__refmap
-					{ display: none !important; }
+			return `._captcha-keyboard-selected-stub, .js-post-findimg, .js-post-saveimg,
+					.media-expand-button, .media-thumbnail, .newpost, .post__btn:not(.icon_type_active),
+					.post__number, .post__refmap { display: none !important; }
 				._captcha-container { margin: 0 !important; }
 				._captcha-keyboard-button { width: 35px !important; height: 35px !important;
 					padding: 0 !important; }
-				._captcha-keyboard-selected-stub { display: none !important; }
-				.de-fullimg-wrap-inpost { margin-right: 16px; }
-				.de-refmap { margin: 0 16px 4px; }
 				.de-pview > .post__details { margin-left: 4px; }
-				.de-reply-class { background: var(--theme_default_postbg);
-					border: 1px solid var(--theme_default_border); border-radius: 3px; }
+				.de-reply-class { background: var(--theme_default_postbg); border-radius: 3px; }
 				#down-nav-arrow, #up-nav-arrow { z-index: 0; }
 				.header__opts_sticky { z-index: 10; }
-				.oekaki-height, .oekaki-width { width: 36px !important; }
+				.post__message { padding-left: 0px; margin-left: 16px; min-width: 15%; word-wrap: normal;
+					word-break: normal; }
 				.post_type_hidden { opacity: unset; cursor: default; }
 				.post_type_hidden .post__message:not(.de-post-hiddencontent),
 					.post_type_hidden .post__images:not(.de-post-hiddencontent) { display: block !important; }
-				.post_type_reply { max-width: 100%; }
 				.postarea { display: initial !important; }
 				.postform { width: auto; }
-				.postform__sticker-btn, .postform__sticker-prev { bottom: ` +
-					`${ !Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 :
-					Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25 }px !important; }
-				.post__message { padding-left: 0px; margin-left: 16px; min-width: 15%; word-wrap: normal;
-					word-break: normal; }
-				${ Cfg.addSageBtn ? `.options__box[onclick="ToggleSage()"]
-					{ display: none !important; }` : '' }
-				${ Cfg.addTextBtns ? '.js-postform-mu { display: none; }' : '' }
+				${ Cfg.addSageBtn ? '.options__box:first-of-type { display: none !important; }' : '' }
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }
 					div[id^="original-post"] { display: block !important; }` : '' }
 				${ Cfg.imgNames === 2 ? `.post__filezise { display: inline !important; }
-					.post__file-attr { margin-bottom: 1px; }` : '' }
-				${ Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '' }`;
+					.post__file-attr { margin-bottom: 1px; }` : '' }`;
 		}
 		get isArchived() {
 			return this.b.includes('/arch');
@@ -16418,9 +16411,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			const value = els ? els.length : 1;
 			Object.defineProperty(this, 'lastPage', { value });
 			return value;
-		}
-		get markupTags() {
-			return ['B', 'I', 'U', 'S', 'SPOILER', '', 'SUP', 'SUB'];
 		}
 		get postersCount() {
 			return $q('span[title="Постеры"]')?.innerHTML.match(/\d+$/)[0] || '';
@@ -16435,7 +16425,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 'input[name="subject"]';
 		}
 		get qPostImgNameLink() {
-			return '.file-attr > .desktop, .post__file-attr > .desktop';
+			return '.post__file-attr > .desktop';
 		}
 		get reportForm() {
 			const value = (pNum, tNum) => ($q('input[type="button"]', $popup(
@@ -16501,12 +16491,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 8 }, (val, i) =>
 				`<div class="de-file-wrap"${ i ? ' style="display: none;"' : '' }>
-				<input type="file" name="file[]"></div>`
+					<input type="file" name="file[]">
+					<input class="nsfw-input" name="file_${ i }_nsfw"` +
+						' type="checkbox" value="1" style="display: none;"></div>'
 			).join('');
-		}
-		fixHTMLHelper(str) {
-			return str.replace(/<a href="https?:\/\/[^"]*"([^>]*)>(https?:\/\/[^<]+)<\/a>([^<$\s\n]+)/ig,
-				'<a href="$2$3"$1>$2$3</a>');
 		}
 		getBanId(postEl) {
 			const el = $q(this.qBan, postEl);
@@ -16522,7 +16510,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +post.getAttribute('data-num');
 		}
 		getPostWrap(el) {
-			return this._isOldMakaba ? el.parentNode : el;
+			return el;
 		}
 		getSage(post) {
 			this.getSage = $q('span[id^="id_tag_"]') ?
@@ -16544,27 +16532,17 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		handlePostClick(post, el, e) {
 			// Click on like/dislike elements
-			let temp;
-			let c = el.classList;
-			if(c.contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div' ||
-				(temp = el.parentNode) && (
-					(c = temp.classList).contains('post__rate') ||
-					c[0] === 'like-div' ||
-					c[0] === 'dislike-div') ||
-				(temp = temp.parentNode) && (
-					(c = temp.className) === 'like-div' ||
-					c === 'dislike-div')
-			) {
-				const task = temp.id.split('-')[0];
-				const num = +temp.id.match(/\d+/);
+			if(el.classList.contains('post__rate') || (el = el.parentNode).classList.contains('post__rate')) {
+				const task = el.id.split('-')[0];
+				const num = +el.id.match(/\d+/);
 				$ajax(`/api/${ task }?board=${ aib.b }&num=${ num }`).then(xhr => {
 					const obj = JSON.parse(xhr.responseText);
 					if(obj.result !== 1) {
 						$popup('err-2chlike', Lng.error[lang] + ': ' + obj.error.message);
 						return;
 					}
-					temp.classList.add(`${ task }-div-checked`, `post__rate_${ task }d`);
-					const countEl = $q(`.${ task }-count, #${ task }-count${ num }`, temp);
+					el.classList.add(`post__rate_${ task }d`);
+					const countEl = $q(`#${ task }-count${ num }`, el);
 					countEl.textContent = +countEl.textContent + 1;
 				}, () => $popup('err-2chlike', Lng.noConnect[lang]));
 			}
@@ -16574,50 +16552,27 @@ function getImageBoard(checkDomains, checkEngines) {
 				e.preventDefault();
 				e.stopPropagation();
 			}
+			// Click on spoiler image
+			if(el.classList.contains('file__nsfw')) {
+				$hide(el);
+			}
+			if(el.classList.contains('post__file-nsfw')) {
+				$hide(el.firstElementChild);
+			}
 		}
 		init() {
+			let isOldMakaba = true;
 			if($id('js-posts')) { // New Makaba engine
-				this._isOldMakaba = false;
+				isOldMakaba = false;
 				$Q('.thread__missed').forEach(el =>
 					el.innerHTML = el.innerHTML.replace(/ (\d+) постов/, (m, i) => ` ${ i - 1 } постов`));
-			} else if($q('section.posts')) { // Old Makaba engine
-				this.cReply = 'post reply';
-				this.qBan = '.pomyanem';
-				this.qFormFile = 'tr input[type="file"]';
-				this.qFormRules = '.rules-area';
-				this.qFormTd = 'td';
-				this.qFormTr = 'tr';
-				this.qOmitted = '.mess-post';
-				this.qOPost = '.oppost';
-				this.qPost = '.post.reply[data-num]';
-				this.qPostHeader = '.post-details';
-				this.qPostImg = '.preview';
-				this.qPostImgInfo = '.file-attr';
-				this.qPostMsg = '.post-message';
-				this.qPostName = '.ananimas, .post-email';
-				this.qPostRef = '.reflink';
-				this.qPostSubj = '.post-title';
-				this.hasArchive = false;
-				const { css } = this;
-				Object.defineProperty(this, 'css', {
-					configurable : true,
-					get          : () => `${ css }
-						#ABU-alert-wait, .ABU-refmap, .fa-media-icon, .kupi-passcode-suka, .logo + hr,
-						.media-expand-button, #media-thumbnail, .message-byte-len, .nav-arrows, .norm-reply,
-						.postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav,
-						.toolbar-area { display: none !important; }
-						${ Cfg.addSageBtn ? `.box[onclick="ToggleSage()"] {
-							display: none !important; }` : '' }
-						${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }
-							.file-attr { margin-bottom: 1px; }` : '' }`
-				});
 			}
 			$script(`(function() {
 				function fixGlobalFunc(name) {
 					Object.defineProperty(window, name,
 						{ value: Function.prototype, writable: false, configurable: false });
 				}
-				${ this._isOldMakaba ? 'fixGlobalFunc("autorefresh_start");' : '' }
+				${ isOldMakaba ? 'fixGlobalFunc("autorefresh_start");' : '' }
 				fixGlobalFunc("linkremover");
 				fixGlobalFunc("Media");
 				window.FormData = void 0;
@@ -16641,12 +16596,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return false;
 		}
-		insertMarkupButtons(postForm, el) {
-			const formEl = Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm;
-			const posEl = formEl.parentNode;
-			posEl.insertAdjacentHTML('afterend', '<div class="postform__raw"></div>');
-			posEl.nextSibling.appendChild(el);
-		}
 		observeContent(checkDomains, dataPromise) {
 			if($q('#posts-form > .thread, #js-posts > .thread, [de-form] > .thread')) {
 				return true;
@@ -16663,18 +16612,44 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return false;
 		}
-		removeMarkupButtons(el) {
-			el?.parentNode.remove();
-		}
 	}
 	ibDomains['2ch.life'] = ibDomains['2ch.org'] = ibDomains['2ch.su'] = Makaba;
 
 	class _2channel extends Makaba {
 		constructor(...args) {
 			super(...args);
+			this.cReply = 'post reply';
+			this.qBan = '.pomyanem';
 			this.qClosed = '.icon-lock';
+			this.qForm = '#de-postform';
+			this.qFormFile = 'input[name="formimages[]"]';
+			this.qFormTd = 'div[class^="freply__"]';
+			this.qFormTr = 'div[class^="freply__"]';
+			this.qFormRules = '.rules-area';
+			this.qOmitted = '.mess-post';
+			this.qOPost = '.oppost';
+			this.qPost = '.post.reply[data-num]';
+			this.qPostHeader = '.post-details';
+			this.qPostImg = '.preview';
+			this.qPostImgInfo = '.file-attr';
+			this.qPostMsg = '.post-message';
+			this.qPostName = '.ananimas, .post-email';
+			this.qPostRef = '.reflink';
+			this.qPostSubj = '.post-title';
 
+			this.hasArchive = false;
 			this.JsonBuilder = null;
+			this.jsonSubmit = true;
+		}
+		get css() {
+			return `.banner_title + hr, .newpost, .newpost + hr, .postpanel > :not(img), .posts > hr, .refmap,
+					.thread-nav, #youtube-thumb-float { display: none !important; }
+				.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }
+				.postform { width: initial; }
+				.preview.lazy { opacity: 1; }`;
+		}
+		get qPostImgNameLink() {
+			return '.file-attr > .desktop';
 		}
 		get reportForm() {
 			return null;
@@ -16683,25 +16658,27 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.captchaUpdate(captcha);
 		}
 		captchaUpdate(captcha) {
-			const url = `/api/captcha/service_id?board=${ this.b }&thread=` + postform.tNum;
+			$script(`grecaptcha.execute(window.recaptcha_site_key, { action: "submit" })
+				.then(function(t) { document.getElementById("g-key").value = t; });`);
+			const url = `/api/captcha/service_id?board=${ this.b }&thread=` + (postform.tNum || 0);
 			return captcha.updateHelper(url, xhr => {
 				const box = $q('.captcha');
 				let data = xhr.responseText;
 				try {
 					data = JSON.parse(data);
 				} catch(err) {}
-				switch(data.result) {
+				switch(data.mode) {
 				case 1: { // Captcha is enabled
 					const el = $q('.captcha__image');
 					const img = $q('img', el) || $aBegin(el, '<img>');
 					img.src = '';
-					img.src = `/api/captcha/image/${ data.id }`;
-					$q('input[name="captcha_id"]').value = data.id;
+					img.src = 'data:image/png;base64,' + data.image;
+					$id('captcha-key').value = data.token;
 					break;
 				}
 				case 2: return CancelablePromise.reject(new CancelError()); // Captcha is disabled
-				case 3: box.innerHTML = 'Вам больше не нужно вводить капчу.'; break;
-				default: box.innerHTML = data;
+				case 3: box.innerHTML = 'Вам больше не нужно вводить капчу.'; break; // Trusted
+				default: box.innerHTML = Lng.error[lang];
 				}
 				$show(box);
 				box.removeAttribute('hidden');
@@ -16720,27 +16697,38 @@ function getImageBoard(checkDomains, checkEngines) {
 		getCaptchaParent() {
 			return $q('.captcha');
 		}
+		getPostWrap(el) {
+			return el.parentNode;
+		}
+		getSubmitData(json) {
+			let error = json.Reason || json.Error || null;
+			let postNum = null;
+			if(error) {
+				error = Lng.error[lang] + ': ' + error;
+			} else if(json.Status) {
+				if(json.Status === 'Redirect') {
+					postNum = +json.Target;
+				} else if(json.Status === 'OK') {
+					postNum = +json.Num;
+				}
+			}
+			return { error, postNum };
+		}
 		init() {
 			super.init();
-			this.qFormFile = 'input[name="formimages[]"]';
-			this.qFormTd = 'div[class^="freply__"]';
-			this.qFormTr = 'div[class^="freply__"]';
-			const { css } = this;
-			Object.defineProperty(this, 'css', {
-				configurable : true,
-				get          : () => `${ css }
-					#AlertBox, .postform__checkbox.first, .postform__header, .refmap, #youtube-thumb-float
-						{ display: none !important; }
-					.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }
-					.preview.lazy { opacity: 1; }`
-			});
-			let el = $q('.captcha');
+			let el = $id('postform');
+			if(el) {
+				el.id = 'de-postform';
+				el.setAttribute('action', '/api' + el.getAttribute('action'));
+			}
+			el = $q('.freply__sendarea');
+			if(el) {
+				el.innerHTML = '<input id="submit" type="submit" tabindex="5" title="Или Ctrl+Enter"' +
+					' class="freply__sendbutton" value="Ответ">';
+			}
+			el = $q('.captcha');
 			if(el) {
 				$q('.freply__files-and-captcha').before(el);
-			}
-			el = $id('postform');
-			if(el) {
-				el.setAttribute('action', el.getAttribute('action') + '?json=1');
 			}
 			return false;
 		}
@@ -17149,8 +17137,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
-				.image_id, .open-form ${ Cfg.fileInputs ? ', #upload' : '' }  { display: none !important; }
+				.format-text > button:not([class]), .image_id, .open-form { display: none !important; }
 				.file { margin-right: 20px; }
+				.format-text { display: block !important; }
 				.postarea { display: initial !important; }
 				.postform__limits { position: initial; }`;
 		}
@@ -17364,7 +17353,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
-				.extraMenuButton, #postingForm, .sage { display: none; }`;
+				.extraMenuButton, #postingForm, .sage { display: none; }
+				::placeholder { color: gray !important; }`;
 		}
 		get fixKCUnixFilenames() {
 			let value = null;
@@ -17528,9 +17518,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 		}
 		get css() {
-			return `${ super.css }
-				.format-text, label[for="email_selectbox"]
-					${ Cfg.fileInputs ? ', #upload' : '' } { display: none !important; }`;
+			return `${ super.css } label[for="email_selectbox"] { display: none !important; }`;
 		}
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
@@ -18221,7 +18209,7 @@ function scriptCSS() {
 	.de-win-title { width: 100%; }
 	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }
 	#de-win-vid .de-entry { white-space: normal; }
-	.de-win-head { display: flex; height: 16px; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }
+	.de-win-head { display: flex; height: 16px; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; -moz-box-sizing: content-box; box-sizing: content-box; cursor: default; }
 
 	/* Settings window */
 	.de-block { display: block; }
@@ -18229,11 +18217,11 @@ function scriptCSS() {
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }
 	.de-cfg-body { min-height: 355px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }
-	.de-cfg-button { padding: 0 ${ nav.isFirefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
+	.de-cfg-button { display: initial; padding: 0 ${ nav.isFirefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
 	#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }
 	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }
 	#de-cfg-buttons > label { flex: 1 0 auto; }
-	.de-cfg-chkbox { ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
+	.de-cfg-chkbox { display: initial; ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
 	#de-cfg-info { display: flex; flex-direction: column; }
 	input[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; border-width: 1px; }
 	.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline-block; width: auto; height: 19px !important; font: 13px/15px arial !important; }
@@ -18334,7 +18322,7 @@ function scriptCSS() {
 	/* Text markup buttons */
 	.de-markup-back { fill: #f0f0f0; stroke: #808080; }
 	#de-txt-panel { display: block; font-weight: bold; white-space: nowrap; cursor: pointer; }
-	#de-txt-panel > div { display: inline-block; }
+	#de-txt-panel > div { display: inline-block; padding: 0; }
 	#de-txt-panel > div > button { margin-right: 2px; min-width: 23px; }
 	#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 1px; }\r\n`;
 
@@ -18446,7 +18434,7 @@ function scriptCSS() {
 	.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }
 	.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { margin: 0 1px; width: 16px; height: 16px; cursor: pointer; }
 	.de-file-btn-del > svg, .de-file-btn-rar > svg, .de-file-btn-ren > svg, .de-file-btn-txt > svg { width: 16px; height: 16px; }
-	.de-file-spoil { margin: 0 3px; vertical-align: 1px; }
+	.de-file-spoil { margin: 0 3px; vertical-align: 1px !important; }
 	.de-file-txt-add { margin-left: 2px; padding: 0 !important; width: 22px; font-weight: bold; }
 	.de-file-txt-input { flex-grow: 1; border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }
 	.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }

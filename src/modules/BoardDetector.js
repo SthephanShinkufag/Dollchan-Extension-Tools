@@ -186,8 +186,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
-				.de-ref-op + small, #expand-all-images, .fileinfo small, .post-btn, .watchThread,
-					.fileinfo > span[style*="white-space:"] { display: none !important; }
+				.add_image, .de-ref-op + small, #expand-all-images, .fileinfo small, .format-text, .post-btn,
+					.watchThread, .fileinfo > span[style*="white-space:"]
+					${ Cfg.fileInputs === 2 ? ', #upload' : '' } { display: none !important; }
 				.boardlist { z-index: 1 !important; }
 				.de-file-input { margin-left: 0; }`;
 		}
@@ -532,6 +533,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormFile = '.postform__raw.filer input[type="file"]';
 			this.qFormRedir = null;
 			this.qFormRules = '.rules';
+			this.qFormSpoiler = '.nsfw-input';
 			this.qFormSubm = '#submit';
 			this.qFormTd = '.postform__raw';
 			this.qFormTr = '.postform__raw';
@@ -556,47 +558,34 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasPicWrap = true;
 			this.JsonBuilder = MakabaPostsBuilder;
 			this.jsonSubmit = true;
-			this.markupBB = true;
 			this.multiFile = true;
+			this.noMarkupBtns = true;
 			this.timePattern = 'dd+nn+yy+w+hh+ii+ss';
-			this._isOldMakaba = true;
 		}
 		get css() {
-			return `.js-post-findimg, .js-post-saveimg, .media-expand-button, .media-thumbnail, .newpost,
-					.post__btn:not(.icon_type_active), .post__number, .post__refmap
-					{ display: none !important; }
+			return `._captcha-keyboard-selected-stub, .js-post-findimg, .js-post-saveimg,
+					.media-expand-button, .media-thumbnail, .newpost, .post__btn:not(.icon_type_active),
+					.post__number, .post__refmap { display: none !important; }
 				._captcha-container { margin: 0 !important; }
 				._captcha-keyboard-button { width: 35px !important; height: 35px !important;
 					padding: 0 !important; }
-				._captcha-keyboard-selected-stub { display: none !important; }
-				.de-fullimg-wrap-inpost { margin-right: 16px; }
-				.de-refmap { margin: 0 16px 4px; }
 				.de-pview > .post__details { margin-left: 4px; }
-				.de-reply-class { background: var(--theme_default_postbg);
-					border: 1px solid var(--theme_default_border); border-radius: 3px; }
+				.de-reply-class { background: var(--theme_default_postbg); border-radius: 3px; }
 				#down-nav-arrow, #up-nav-arrow { z-index: 0; }
 				.header__opts_sticky { z-index: 10; }
-				.oekaki-height, .oekaki-width { width: 36px !important; }
+				.post__message { padding-left: 0px; margin-left: 16px; min-width: 15%; word-wrap: normal;
+					word-break: normal; }
 				.post_type_hidden { opacity: unset; cursor: default; }
 				.post_type_hidden .post__message:not(.de-post-hiddencontent),
 					.post_type_hidden .post__images:not(.de-post-hiddencontent) { display: block !important; }
-				.post_type_reply { max-width: 100%; }
 				.postarea { display: initial !important; }
 				.postform { width: auto; }
-				.postform__sticker-btn, .postform__sticker-prev { bottom: ` +
-					`${ !Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 :
-					Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25 }px !important; }
-				.post__message { padding-left: 0px; margin-left: 16px; min-width: 15%; word-wrap: normal;
-					word-break: normal; }
-				${ Cfg.addSageBtn ? `.options__box[onclick="ToggleSage()"]
-					{ display: none !important; }` : '' }
-				${ Cfg.addTextBtns ? '.js-postform-mu { display: none; }' : '' }
+				${ Cfg.addSageBtn ? '.options__box:first-of-type { display: none !important; }' : '' }
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }
 					div[id^="original-post"] { display: block !important; }` : '' }
 				${ Cfg.imgNames === 2 ? `.post__filezise { display: inline !important; }
-					.post__file-attr { margin-bottom: 1px; }` : '' }
-				${ Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '' }`;
+					.post__file-attr { margin-bottom: 1px; }` : '' }`;
 		}
 		get isArchived() {
 			return this.b.includes('/arch');
@@ -606,9 +595,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			const value = els ? els.length : 1;
 			Object.defineProperty(this, 'lastPage', { value });
 			return value;
-		}
-		get markupTags() {
-			return ['B', 'I', 'U', 'S', 'SPOILER', '', 'SUP', 'SUB'];
 		}
 		get postersCount() {
 			return $q('span[title="Постеры"]')?.innerHTML.match(/\d+$/)[0] || '';
@@ -623,7 +609,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 'input[name="subject"]';
 		}
 		get qPostImgNameLink() {
-			return '.file-attr > .desktop, .post__file-attr > .desktop';
+			return '.post__file-attr > .desktop';
 		}
 		get reportForm() {
 			const value = (pNum, tNum) => ($q('input[type="button"]', $popup(
@@ -689,12 +675,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 8 }, (val, i) =>
 				`<div class="de-file-wrap"${ i ? ' style="display: none;"' : '' }>
-				<input type="file" name="file[]"></div>`
+					<input type="file" name="file[]">
+					<input class="nsfw-input" name="file_${ i }_nsfw"` +
+						' type="checkbox" value="1" style="display: none;"></div>'
 			).join('');
-		}
-		fixHTMLHelper(str) {
-			return str.replace(/<a href="https?:\/\/[^"]*"([^>]*)>(https?:\/\/[^<]+)<\/a>([^<$\s\n]+)/ig,
-				'<a href="$2$3"$1>$2$3</a>');
 		}
 		getBanId(postEl) {
 			const el = $q(this.qBan, postEl);
@@ -710,7 +694,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +post.getAttribute('data-num');
 		}
 		getPostWrap(el) {
-			return this._isOldMakaba ? el.parentNode : el;
+			return el;
 		}
 		getSage(post) {
 			this.getSage = $q('span[id^="id_tag_"]') ?
@@ -732,27 +716,17 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		handlePostClick(post, el, e) {
 			// Click on like/dislike elements
-			let temp;
-			let c = el.classList;
-			if(c.contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div' ||
-				(temp = el.parentNode) && (
-					(c = temp.classList).contains('post__rate') ||
-					c[0] === 'like-div' ||
-					c[0] === 'dislike-div') ||
-				(temp = temp.parentNode) && (
-					(c = temp.className) === 'like-div' ||
-					c === 'dislike-div')
-			) {
-				const task = temp.id.split('-')[0];
-				const num = +temp.id.match(/\d+/);
+			if(el.classList.contains('post__rate') || (el = el.parentNode).classList.contains('post__rate')) {
+				const task = el.id.split('-')[0];
+				const num = +el.id.match(/\d+/);
 				$ajax(`/api/${ task }?board=${ aib.b }&num=${ num }`).then(xhr => {
 					const obj = JSON.parse(xhr.responseText);
 					if(obj.result !== 1) {
 						$popup('err-2chlike', Lng.error[lang] + ': ' + obj.error.message);
 						return;
 					}
-					temp.classList.add(`${ task }-div-checked`, `post__rate_${ task }d`);
-					const countEl = $q(`.${ task }-count, #${ task }-count${ num }`, temp);
+					el.classList.add(`post__rate_${ task }d`);
+					const countEl = $q(`#${ task }-count${ num }`, el);
 					countEl.textContent = +countEl.textContent + 1;
 				}, () => $popup('err-2chlike', Lng.noConnect[lang]));
 			}
@@ -762,50 +736,27 @@ function getImageBoard(checkDomains, checkEngines) {
 				e.preventDefault();
 				e.stopPropagation();
 			}
+			// Click on spoiler image
+			if(el.classList.contains('file__nsfw')) {
+				$hide(el);
+			}
+			if(el.classList.contains('post__file-nsfw')) {
+				$hide(el.firstElementChild);
+			}
 		}
 		init() {
+			let isOldMakaba = true;
 			if($id('js-posts')) { // New Makaba engine
-				this._isOldMakaba = false;
+				isOldMakaba = false;
 				$Q('.thread__missed').forEach(el =>
 					el.innerHTML = el.innerHTML.replace(/ (\d+) постов/, (m, i) => ` ${ i - 1 } постов`));
-			} else if($q('section.posts')) { // Old Makaba engine
-				this.cReply = 'post reply';
-				this.qBan = '.pomyanem';
-				this.qFormFile = 'tr input[type="file"]';
-				this.qFormRules = '.rules-area';
-				this.qFormTd = 'td';
-				this.qFormTr = 'tr';
-				this.qOmitted = '.mess-post';
-				this.qOPost = '.oppost';
-				this.qPost = '.post.reply[data-num]';
-				this.qPostHeader = '.post-details';
-				this.qPostImg = '.preview';
-				this.qPostImgInfo = '.file-attr';
-				this.qPostMsg = '.post-message';
-				this.qPostName = '.ananimas, .post-email';
-				this.qPostRef = '.reflink';
-				this.qPostSubj = '.post-title';
-				this.hasArchive = false;
-				const { css } = this;
-				Object.defineProperty(this, 'css', {
-					configurable : true,
-					get          : () => `${ css }
-						#ABU-alert-wait, .ABU-refmap, .fa-media-icon, .kupi-passcode-suka, .logo + hr,
-						.media-expand-button, #media-thumbnail, .message-byte-len, .nav-arrows, .norm-reply,
-						.postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav,
-						.toolbar-area { display: none !important; }
-						${ Cfg.addSageBtn ? `.box[onclick="ToggleSage()"] {
-							display: none !important; }` : '' }
-						${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }
-							.file-attr { margin-bottom: 1px; }` : '' }`
-				});
 			}
 			$script(`(function() {
 				function fixGlobalFunc(name) {
 					Object.defineProperty(window, name,
 						{ value: Function.prototype, writable: false, configurable: false });
 				}
-				${ this._isOldMakaba ? 'fixGlobalFunc("autorefresh_start");' : '' }
+				${ isOldMakaba ? 'fixGlobalFunc("autorefresh_start");' : '' }
 				fixGlobalFunc("linkremover");
 				fixGlobalFunc("Media");
 				window.FormData = void 0;
@@ -829,12 +780,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return false;
 		}
-		insertMarkupButtons(postForm, el) {
-			const formEl = Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm;
-			const posEl = formEl.parentNode;
-			posEl.insertAdjacentHTML('afterend', '<div class="postform__raw"></div>');
-			posEl.nextSibling.appendChild(el);
-		}
 		observeContent(checkDomains, dataPromise) {
 			if($q('#posts-form > .thread, #js-posts > .thread, [de-form] > .thread')) {
 				return true;
@@ -851,18 +796,44 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return false;
 		}
-		removeMarkupButtons(el) {
-			el?.parentNode.remove();
-		}
 	}
 	ibDomains['2ch.life'] = ibDomains['2ch.org'] = ibDomains['2ch.su'] = Makaba;
 
 	class _2channel extends Makaba {
 		constructor(...args) {
 			super(...args);
+			this.cReply = 'post reply';
+			this.qBan = '.pomyanem';
 			this.qClosed = '.icon-lock';
+			this.qForm = '#de-postform';
+			this.qFormFile = 'input[name="formimages[]"]';
+			this.qFormTd = 'div[class^="freply__"]';
+			this.qFormTr = 'div[class^="freply__"]';
+			this.qFormRules = '.rules-area';
+			this.qOmitted = '.mess-post';
+			this.qOPost = '.oppost';
+			this.qPost = '.post.reply[data-num]';
+			this.qPostHeader = '.post-details';
+			this.qPostImg = '.preview';
+			this.qPostImgInfo = '.file-attr';
+			this.qPostMsg = '.post-message';
+			this.qPostName = '.ananimas, .post-email';
+			this.qPostRef = '.reflink';
+			this.qPostSubj = '.post-title';
 
+			this.hasArchive = false;
 			this.JsonBuilder = null;
+			this.jsonSubmit = true;
+		}
+		get css() {
+			return `.banner_title + hr, .newpost, .newpost + hr, .postpanel > :not(img), .posts > hr, .refmap,
+					.thread-nav, #youtube-thumb-float { display: none !important; }
+				.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }
+				.postform { width: initial; }
+				.preview.lazy { opacity: 1; }`;
+		}
+		get qPostImgNameLink() {
+			return '.file-attr > .desktop';
 		}
 		get reportForm() {
 			return null;
@@ -871,25 +842,27 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.captchaUpdate(captcha);
 		}
 		captchaUpdate(captcha) {
-			const url = `/api/captcha/service_id?board=${ this.b }&thread=` + postform.tNum;
+			$script(`grecaptcha.execute(window.recaptcha_site_key, { action: "submit" })
+				.then(function(t) { document.getElementById("g-key").value = t; });`);
+			const url = `/api/captcha/service_id?board=${ this.b }&thread=` + (postform.tNum || 0);
 			return captcha.updateHelper(url, xhr => {
 				const box = $q('.captcha');
 				let data = xhr.responseText;
 				try {
 					data = JSON.parse(data);
 				} catch(err) {}
-				switch(data.result) {
+				switch(data.mode) {
 				case 1: { // Captcha is enabled
 					const el = $q('.captcha__image');
 					const img = $q('img', el) || $aBegin(el, '<img>');
 					img.src = '';
-					img.src = `/api/captcha/image/${ data.id }`;
-					$q('input[name="captcha_id"]').value = data.id;
+					img.src = 'data:image/png;base64,' + data.image;
+					$id('captcha-key').value = data.token;
 					break;
 				}
 				case 2: return CancelablePromise.reject(new CancelError()); // Captcha is disabled
-				case 3: box.innerHTML = 'Вам больше не нужно вводить капчу.'; break;
-				default: box.innerHTML = data;
+				case 3: box.innerHTML = 'Вам больше не нужно вводить капчу.'; break; // Trusted
+				default: box.innerHTML = Lng.error[lang];
 				}
 				$show(box);
 				box.removeAttribute('hidden');
@@ -908,27 +881,38 @@ function getImageBoard(checkDomains, checkEngines) {
 		getCaptchaParent() {
 			return $q('.captcha');
 		}
+		getPostWrap(el) {
+			return el.parentNode;
+		}
+		getSubmitData(json) {
+			let error = json.Reason || json.Error || null;
+			let postNum = null;
+			if(error) {
+				error = Lng.error[lang] + ': ' + error;
+			} else if(json.Status) {
+				if(json.Status === 'Redirect') {
+					postNum = +json.Target;
+				} else if(json.Status === 'OK') {
+					postNum = +json.Num;
+				}
+			}
+			return { error, postNum };
+		}
 		init() {
 			super.init();
-			this.qFormFile = 'input[name="formimages[]"]';
-			this.qFormTd = 'div[class^="freply__"]';
-			this.qFormTr = 'div[class^="freply__"]';
-			const { css } = this;
-			Object.defineProperty(this, 'css', {
-				configurable : true,
-				get          : () => `${ css }
-					#AlertBox, .postform__checkbox.first, .postform__header, .refmap, #youtube-thumb-float
-						{ display: none !important; }
-					.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }
-					.preview.lazy { opacity: 1; }`
-			});
-			let el = $q('.captcha');
+			let el = $id('postform');
+			if(el) {
+				el.id = 'de-postform';
+				el.setAttribute('action', '/api' + el.getAttribute('action'));
+			}
+			el = $q('.freply__sendarea');
+			if(el) {
+				el.innerHTML = '<input id="submit" type="submit" tabindex="5" title="Или Ctrl+Enter"' +
+					' class="freply__sendbutton" value="Ответ">';
+			}
+			el = $q('.captcha');
 			if(el) {
 				$q('.freply__files-and-captcha').before(el);
-			}
-			el = $id('postform');
-			if(el) {
-				el.setAttribute('action', el.getAttribute('action') + '?json=1');
 			}
 			return false;
 		}
@@ -1337,8 +1321,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
-				.image_id, .open-form ${ Cfg.fileInputs ? ', #upload' : '' }  { display: none !important; }
+				.format-text > button:not([class]), .image_id, .open-form { display: none !important; }
 				.file { margin-right: 20px; }
+				.format-text { display: block !important; }
 				.postarea { display: initial !important; }
 				.postform__limits { position: initial; }`;
 		}
@@ -1552,7 +1537,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
-				.extraMenuButton, #postingForm, .sage { display: none; }`;
+				.extraMenuButton, #postingForm, .sage { display: none; }
+				::placeholder { color: gray !important; }`;
 		}
 		get fixKCUnixFilenames() {
 			let value = null;
@@ -1716,9 +1702,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 		}
 		get css() {
-			return `${ super.css }
-				.format-text, label[for="email_selectbox"]
-					${ Cfg.fileInputs ? ', #upload' : '' } { display: none !important; }`;
+			return `${ super.css } label[for="email_selectbox"] { display: none !important; }`;
 		}
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];

@@ -272,25 +272,31 @@ class MakabaPostsBuilder {
 			filesHTML = `<div class="post__images post__images_type_${
 				files.length === 1 ? 'single' : 'multi' }">`;
 			for(const file of files) {
-				const imgId = num + '-' + file.md5;
 				const { fullname = file.name, displayname: dispName = file.name, type } = file;
 				const isVideo = type === 6 || type === 10;
-				const imgClass = `post__file-preview${ isVideo ? ' post__file-webm' : '' }${
-					data.nsfw ? ' post__file-nsfw' : '' }`;
+				let imgHTML = `<img class="post__file-preview${ isVideo ? ' post__file-webm' : '' }" src="${
+					file.thumbnail }" alt="${ file.width }x${ file.height }" width="${
+					file.tn_width }" height="${ file.tn_height }">`;
+				if(file.nsfw) {
+					imgHTML = `<div class="post__file-nsfw">
+						<div class="file__nsfw">
+							<span class="file__nsfw-title">NSFW</span>
+							<span class="file__nsfw-description">[ Нажмите, чтобы открыть ]</span>
+						</div>
+						${ imgHTML }
+					</div>`;
+				}
 				filesHTML += `<figure class="post__image">
 					<figcaption class="post__file-attr">
-						<a id="title-${ imgId }" class="desktop" target="_blank" href="` +
+						<a id="title-${ num + '-' + file.md5 }" class="desktop" target="_blank" href="` +
 							`${ type === 100 /* is sticker */ ? file.install : file.path }"` +
 							`${ dispName === fullname ? '' : ` title="${ fullname }"` }>${ dispName }</a>
 						<span class="post__filezise">(${ file.size }Кб, ` +
 							`${ file.width }x${ file.height }${ isVideo ? ', ' + file.duration : '' })</span>
 					</figcaption>
-					<div id="exlink-${ imgId }">
-						<a class="post__image-link" href="${ file.path }">
-							<img class="${ imgClass }" src="${ file.thumbnail }" alt="${ file.width }x` +
-								`${ file.height }" width="${ file.tn_width }" height="${ file.tn_height }">
-						</a>
-					</div>
+					<a class="post__image-link" href="${ file.path }" onclick="return false;">
+						${ imgHTML }
+					</a>
 				</figure>`;
 			}
 			filesHTML += '</div>';

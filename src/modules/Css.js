@@ -81,7 +81,7 @@ function scriptCSS() {
 	.de-win-title { width: 100%; }
 	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }
 	#de-win-vid .de-entry { white-space: normal; }
-	.de-win-head { display: flex; height: 16px; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }
+	.de-win-head { display: flex; height: 16px; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; -moz-box-sizing: content-box; box-sizing: content-box; cursor: default; }
 
 	/* Settings window */
 	.de-block { display: block; }
@@ -89,11 +89,11 @@ function scriptCSS() {
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }
 	.de-cfg-body { min-height: 355px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }
-	.de-cfg-button { padding: 0 ${ nav.isFirefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
+	.de-cfg-button { display: initial; padding: 0 ${ nav.isFirefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
 	#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }
 	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }
 	#de-cfg-buttons > label { flex: 1 0 auto; }
-	.de-cfg-chkbox { ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
+	.de-cfg-chkbox { display: initial; ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
 	#de-cfg-info { display: flex; flex-direction: column; }
 	input[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; border-width: 1px; }
 	.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline-block; width: auto; height: 19px !important; font: 13px/15px arial !important; }
@@ -194,7 +194,7 @@ function scriptCSS() {
 	/* Text markup buttons */
 	.de-markup-back { fill: #f0f0f0; stroke: #808080; }
 	#de-txt-panel { display: block; font-weight: bold; white-space: nowrap; cursor: pointer; }
-	#de-txt-panel > div { display: inline-block; }
+	#de-txt-panel > div { display: inline-block; padding: 0; }
 	#de-txt-panel > div > button { margin-right: 2px; min-width: 23px; }
 	#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 1px; }\r\n`;
 
@@ -306,7 +306,7 @@ function scriptCSS() {
 	.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }
 	.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { margin: 0 1px; width: 16px; height: 16px; cursor: pointer; }
 	.de-file-btn-del > svg, .de-file-btn-rar > svg, .de-file-btn-ren > svg, .de-file-btn-txt > svg { width: 16px; height: 16px; }
-	.de-file-spoil { margin: 0 3px; vertical-align: 1px; }
+	.de-file-spoil { margin: 0 3px; vertical-align: 1px !important; }
 	.de-file-txt-add { margin-left: 2px; padding: 0 !important; width: 22px; font-weight: bold; }
 	.de-file-txt-input { flex-grow: 1; border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }
 	.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }

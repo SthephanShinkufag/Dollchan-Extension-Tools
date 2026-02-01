@@ -749,8 +749,8 @@ const CfgWindow = {
 			${ postform.captcha ? `${ aib.hasAltCaptcha ? `${ this._getBox('altCaptcha') }<br>` : '' }
 				${ !aib.makaba ? `${ this._getInp('capUpdTime') }<br>` : '' }
 				${ this._getSel('captchaLang') }<br>` : '' }
-			${ postform.txta ? `${ this._getSel('addTextBtns') }
-				${ !aib._4chan ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
+			${ !aib.noMarkupBtns && postform.txta ? `${ this._getSel('addTextBtns') }
+				${ !aib.noMarkupBtns && !aib._4chan ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
 			${ postform.passw ? `${ this._getInp('passwValue', false, 9) }
 				${ this._getBox('userPassw') }<input type="button"` +
 				` id="de-cfg-button-pass" class="de-cfg-button" value="${ Lng.change[lang] }"><br>` : '' }
