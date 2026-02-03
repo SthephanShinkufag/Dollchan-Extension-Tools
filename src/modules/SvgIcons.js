@@ -95,7 +95,7 @@ function addSVGIcons() {
 	<!-- WINDOW ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-win-arrow">
 		<path class="de-svg-stroke" stroke-width="3.5" d="M8 13V6"/>
-		<path class="de-svg-fill"  d="M3.5 7h9L8 2.5 3.5 7z"/>
+		<path class="de-svg-fill" d="M3.5 7h9L8 2.5 3.5 7z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-win-close">
 		<path class="de-svg-stroke" stroke-width="2.5" d="M3.5 3.5l9 9m-9 0l9-9"/>

@@ -557,8 +557,8 @@ class KeyEditListener {
 	}
 }
 // Browsers have different codes for these keys (see HotKeys.readKeys):
-//    Firefox - '-' - 173, '=' - 61, ';' - 59
-//    Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
+// Firefox - '-' - 173, '=' - 61, ';' - 59
+// Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
 /* eslint-disable comma-spacing, no-sparse-arrays */
 KeyEditListener.keyCodes = [
 	'',,,,,,,,'Backspace','Tab',,,,'Enter',,,'Shift','Ctrl','Alt',/* Pause/Break */,/* Caps Lock */,,,,,,,

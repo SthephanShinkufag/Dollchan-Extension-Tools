@@ -8,6 +8,9 @@ function getImageBoard(checkDomains) {
 	class Dollchan extends BaseBoard {
 		constructor(...args) {
 			super(...args);
+			this.hasCatalog = true;
+			this.markupBB = true;
+			this.multiFile = true;
 			this.qDelForm = $id('posts') ? '#posts' : '#delform';
 			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
 			this.qPages = '.pagelist';
@@ -15,10 +18,6 @@ function getImageBoard(checkDomains) {
 			this.qPostMsg = '.message';
 			this.qPostRef = '.post-reflink';
 			this.qPostUid = '.posteruid';
-
-			this.hasCatalog = true;
-			this.markupBB = true;
-			this.multiFile = true;
 			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
 		}
 		get captchaInit() {
@@ -158,9 +157,9 @@ function getImageBoard(checkDomains) {
 	let domain = localData?.domain;
 	if(checkDomains) {
 		if(!domain) {
+			const host = wLoc.hostname.toLowerCase();
 			const ibKeys = Object.keys(ibDomains);
 			let i = ibKeys.length;
-			const host = wLoc.hostname.toLowerCase();
 			while(i--) {
 				domain = ibKeys[i];
 				if(host === domain || host.endsWith('.' + domain)) {

@@ -49,11 +49,8 @@ class BaseBoard {
 		this.firstPage = 0;
 		this.formHeaders = false;
 		this.formParent = 'parent';
-		this.hasAltCaptcha = false;
 		this.hasCatalog = false;
 		this.hasOPNum = false;
-		this.hasPicWrap = false;
-		this.hasRefererErr = false;
 		this.hasTextLinks = false;
 		this.host = deWindow.location.hostname + port;
 		this.JsonBuilder = null;
@@ -109,17 +106,17 @@ class BaseBoard {
 			'[name="subject"]', '[name="field3"]');
 	}
 	get qMsgImgLink() {
-		const value = $match(this.qPostMsg.split(', ').join(' a, ') + ' a',
+		const value = $match(this.qPostMsg + ' a',
 			'[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
 			'[href$=".avif"]', '[href$=".webp"]');
 		Object.defineProperty(this, 'qMsgImgLink', { value });
 		return value;
 	}
 	get qPostImgNameLink() {
-		const value = $match(this.qPostImgInfo.split(', ').join(' a, ') + ' a',
+		const value = $match(this.qPostImgInfo + ' a',
 			'[href$=".jfif"]', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
 			'[href$=".avif"]', '[href$=".webm"]', '[href$=".webp"]', '[href$=".mov"]', '[href$=".mp4"]',
-			'[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
+			'[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', '[href^="blob:"]');
 		Object.defineProperty(this, 'qPostImgNameLink', { value });
 		return value;
 	}
@@ -178,7 +175,7 @@ class BaseBoard {
 		if(isForm) {
 			const newForm = $bBegin(data, str);
 			$hide(data);
-			deWindow.addEventListener('load', () => $id('de-dform-old').remove());
+			deWindow.addEventListener('load', () => $id('de-dform-old')?.remove());
 			return newForm;
 		}
 		data.innerHTML = str;
@@ -227,6 +224,9 @@ class BaseBoard {
 	}
 	getImgInfo(wrap) {
 		return $q(this.qPostImgInfo, wrap)?.textContent || '';
+	}
+	getImgNameLink(img) {
+		return $q(this.qPostImgNameLink, this.getImgWrap(img));
 	}
 	getImgRealName(wrap) {
 		const el = $q(this.qPostImgNameLink, wrap);
@@ -294,9 +294,6 @@ class BaseBoard {
 	getTNum(thr) {
 		return +$q('input[type="checkbox"]', thr).value;
 	}
-	insertMarkupButtons(postForm, el) {
-		(Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm).after(el);
-	}
 	isAjaxStatusOK(status) {
 		return status === 200 || status === 206;
 	}
@@ -318,9 +315,6 @@ class BaseBoard {
 		if(this.docExt === null) {
 			this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
 		}
-	}
-	removeMarkupButtons(el) {
-		el?.remove();
 	}
 	updateSubmitBtn(el) {
 		el.value = Lng.reply[lang];

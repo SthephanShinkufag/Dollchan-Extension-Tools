@@ -75,7 +75,7 @@ class RefMap {
 			}
 			const lPost = pByNum.get(lNum);
 			if(!aib.t) {
-				link.href = `#${ lNum }`;
+				link.href = aib.anchor + lNum;
 			}
 			if(!isAdd) {
 				lPost.ref.removeLink(pNum);
