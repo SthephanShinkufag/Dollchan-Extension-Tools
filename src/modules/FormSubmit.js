@@ -401,7 +401,7 @@ function readExif(data, off, len) {
 	let xRes = 0;
 	let yRes = 0;
 	let resT = 0;
-	const dv = nav.getUnsafeDataView(data, off);
+	const dv = nav.getUnsafeDataView(data, off || 0);
 	const le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
 	if(dv.getUint16(2, le) !== 0x2A) {
 		return null;

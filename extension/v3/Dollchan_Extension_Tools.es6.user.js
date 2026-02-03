@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = 'a4fa397';
+const commit = '884ba6d';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -9674,7 +9674,7 @@ function readExif(data, off, len) {
 	let xRes = 0;
 	let yRes = 0;
 	let resT = 0;
-	const dv = nav.getUnsafeDataView(data, off);
+	const dv = nav.getUnsafeDataView(data, off || 0);
 	const le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
 	if(dv.getUint16(2, le) !== 0x2A) {
 		return null;
@@ -12119,7 +12119,7 @@ class ImagesViewer {
 		case 'click': {
 			const el = e.target;
 			const tag = el.tagName.toLowerCase();
-			if(this.data.isVideo && ExpandableImage.isControlClick(e) ||
+			if(this.data.isVideo && !nav.isMobile && !nav.isWebkit && ExpandableImage.isControlClick(e) ||
 				tag !== 'img' && tag !== 'video' &&
 				!el.classList.contains('de-fullimg-wrap') &&
 				!el.classList.contains('de-fullimg-wrap-link') &&
@@ -12230,8 +12230,7 @@ class ImagesViewer {
 		img.classList.toggle('de-fullimg-rotated', isRotated);
 		if(isVideo && nav.firefoxVer >= 59) {
 			img.previousElementSibling.style = // .de-fullimg-video-hack
-				(isRotated ? 'width: calc(100% - 40px); height: 100%; ' :
-				'width: 100%; height: calc(100% - 40px);') +
+				(isRotated ? 'width: calc(100% - 40px); height: 100%; ' : '') +
 				(angle === 90 ? 'right: 0; ' : angle === 270 ? 'left: 0; ' : '') +
 				(angle === 180 ? 'bottom: 0;' : '');
 		}
@@ -12901,6 +12900,7 @@ class AttachedImage extends ExpandableImage {
 		Object.defineProperty(this, 'weight', { value });
 		return value;
 	}
+
 	get _getImageParent() {
 		const value = aib.getImgWrap(this.el);
 		Object.defineProperty(this, '_getImageParent', { value });
@@ -13084,7 +13084,6 @@ const ImagesHashStorage = Object.create({
 		return val;
 	}
 });
-
 
 function addImgButtons(link) {
 	link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-img">' +
@@ -18284,7 +18283,10 @@ function scriptCSS() {
 	.de-fullimg-rotated { position: absolute; max-width: none; }
 	.de-fullimg-rotated + .de-fullimg-info { position: absolute; bottom: 0; }
 	.de-fullimg-scale { color: #fff; font: bold 12px tahoma; cursor: default; }
-	.de-fullimg-video-hack { position: absolute; ${ nav.isMobile && nav.isWebkit ? 'display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; top: 0; right: 0; color: #fff; font-size: 2em;' : '' } z-index: 1; cursor: pointer; }
+	.de-fullimg-video-hack { position: absolute; ${ nav.isMobile && nav.isWebkit ?
+		'display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; top: 0; right: 0; color: #fff; font-size: 2em;' :
+		'width: 100%; height: calc(100% - 40px);'
+	} z-index: 1; cursor: pointer; }
 	.de-fullimg-wrap { position: relative; display: inline-flex; flex-direction: column; align-items: center; }
 	.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: 100%; height: 100%; }
 	.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }
