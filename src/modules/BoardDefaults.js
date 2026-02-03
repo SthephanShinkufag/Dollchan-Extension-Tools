@@ -7,7 +7,6 @@ class BaseBoard {
 		// Imageboard-specific booleans
 		this._4chan = false;
 		this.kohlchan = false;
-		this.makaba = false;
 
 		// Query paths
 		this.cReply = 'reply';
@@ -49,18 +48,17 @@ class BaseBoard {
 		port = port ? ':' + port : '';
 		this.anchor = '#';
 		this.b = '';
-		this.captchaRu = false;
+		this.captchaUpdPromise = null;
 		this.docExt = null;
 		this.domain = domain + port;
 		this.firstPage = 0;
 		this.formHeaders = false;
 		this.formParent = 'parent';
-		this.hasAltCaptcha = false;
 		this.hasArchive = false;
 		this.hasCatalog = false;
 		this.hasHtmlTag = true;
 		this.hasOPNum = false;
-		this.hasPicWrap = false;
+		this.hasPostsBreak = false;
 		this.hasRefererErr = false;
 		this.hasTextLinks = false;
 		this.host = deWindow.location.hostname + port;
@@ -68,6 +66,7 @@ class BaseBoard {
 		this.jsonSubmit = false;
 		this.markupBB = false;
 		this.multiFile = false;
+		this.noCapUpdTime = false;
 		this.noMarkupBtns = false;
 		this.page = 0;
 		this.protocol = protocol;
@@ -138,9 +137,6 @@ class BaseBoard {
 	get observeContent() {
 		return null;
 	}
-	get postsBreak() {
-		return null;
-	}
 	get postersCount() {
 		return '';
 	}
@@ -186,6 +182,9 @@ class BaseBoard {
 		return null;
 	}
 	get sendHTML5Post() {
+		return null;
+	}
+	get updateCounters() {
 		return null;
 	}
 	fixHTML(data, isForm = false) {

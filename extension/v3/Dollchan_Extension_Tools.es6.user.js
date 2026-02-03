@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = 'ca14f44';
+const commit = 'a4fa397';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -136,7 +136,6 @@ const defaultCfg = {
 	addSageBtn   : 1,    // replace "Email" with Sage button
 	saveSage     : 1,    //    remember sage
 	sageReply    : 0,    //    reply with sage
-	altCaptcha   : 0,    // use alternative captcha (if available)
 	capUpdTime   : 300,  // captcha update interval (sec)
 	captchaLang  : 0,    // forced captcha input language [0=off, 1=en, 2=ru]
 	addTextBtns  : 1,    // text markup buttons [0=off, 1=graphics, 2=text, 3=usual]
@@ -620,10 +619,6 @@ const Lng = {
 			'Помнить сажу',
 			'Remember sage',
 			'Памʼятати сажу'],
-		altCaptcha: [
-			'Использовать альтернативную капчу',
-			'Use alternative captcha',
-			'Використовувати альтернативну капчу'],
 		capUpdTime: [
 			'Интервал обновления капчи (сек)',
 			'Captcha update interval (sec)',
@@ -2574,7 +2569,6 @@ async function readCfg() {
 			delete obj.captchaLang;
 		}
 	}
-	defaultCfg.captchaLang = aib.captchaRu ? 2 : 1;
 	const browserLang = String(navigator.language).toLowerCase();
 	defaultCfg.language =
 		browserLang.startsWith('ru') ? 0 :
@@ -3269,14 +3263,7 @@ const Panel = Object.create({
 		this._postsCountEl.textContent = postCount;
 		this._filesCountEl.textContent = filesCount;
 		this._postersCountEl.textContent = postersCount;
-		if(aib.makaba) {
-			$Q('.tn__item > span[title="Всего постов в треде"]').forEach(
-				el => el.innerHTML = el.innerHTML.replace(/\d+$/, postCount));
-			$Q('.tn__item > span[title="Всего файлов в треде"]').forEach(
-				el => el.innerHTML = el.innerHTML.replace(/\d+$/, filesCount));
-			$Q('.tn__item > span[title="Постеры"]').forEach(
-				el => el.innerHTML = el.innerHTML.replace(/\d+$/, postersCount));
-		}
+		aib.updateCounters?.(postCount, filesCount, postersCount);
 	},
 
 	_el     : null,
@@ -4699,7 +4686,6 @@ const CfgWindow = {
 				setTimeout(() => postform.toggleSage(), 0);
 				updateCSS();
 				break;
-			case 'altCaptcha': postform.captcha.initCaptchaPromise(); break;
 			case 'txtBtnsLoc':
 				postform.addMarkupPanel();
 				updateCSS();
@@ -5060,8 +5046,7 @@ const CfgWindow = {
 			${ postform.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
 			${ postform.mail ? `${ this._getBox('addSageBtn') }
 				${ this._getBox('saveSage') }<br>` : '' }
-			${ postform.captcha ? `${ aib.hasAltCaptcha ? `${ this._getBox('altCaptcha') }<br>` : '' }
-				${ !aib.makaba ? `${ this._getInp('capUpdTime') }<br>` : '' }
+			${ postform.captcha ? `${ !aib.noCapUpdTime && this._getInp('capUpdTime', true, 4) }<br>
 				${ this._getSel('captchaLang') }<br>` : '' }
 			${ !aib.noMarkupBtns && postform.txta ? `${ this._getSel('addTextBtns') }
 				${ !aib.noMarkupBtns && !aib._4chan ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
@@ -5141,7 +5126,7 @@ const CfgWindow = {
 		<span class="de-info-name">${ val[0] }</span>
 		<span>${ val[1] + (needMs ? 'ms' : '') }</span></div>`).join(''),
 	// Creates a text input for text option values
-	_getInp(id, addText = true, size = 2) {
+	_getInp(id, addText = true, size = 3) {
 		const el = doc.createElement('div');
 		el.append(Cfg[id]); // Escape HTML
 		return `<label class="de-cfg-label">
@@ -6012,8 +5997,8 @@ class KeyEditListener {
 	}
 }
 // Browsers have different codes for these keys (see HotKeys.readKeys):
-//    Firefox - '-' - 173, '=' - 61, ';' - 59
-//    Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
+// Firefox - '-' - 173, '=' - 61, ';' - 59
+// Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
 /* eslint-disable comma-spacing, no-sparse-arrays */
 KeyEditListener.keyCodes = [
 	'',,,,,,,,'Backspace','Tab',,,,'Enter',,,'Shift','Ctrl','Alt',/* Pause/Break */,/* Caps Lock */,,,,,,,
@@ -10277,7 +10262,18 @@ class Captcha {
 			this.parentEl.innerHTML = this.originHTML;
 			this.textEl = $q('input[type="text"][name*="aptcha"]', this.parentEl);
 		}
-		this.initCaptchaPromise();
+		const initPromise = aib.captchaInit?.(this);
+		if(initPromise) {
+			initPromise.then(() => this.showCaptcha(), err => {
+				if(err instanceof AjaxError) {
+					this._setUpdateError(err);
+				} else {
+					this.hasCaptcha = false;
+				}
+			});
+		} else if(this.hasCaptcha) {
+			this.showCaptcha(true);
+		}
 	}
 	handleEvent(e) {
 		switch(e.type) {
@@ -10308,20 +10304,6 @@ class Captcha {
 		}
 		e.preventDefault();
 		e.stopPropagation();
-	}
-	initCaptchaPromise() {
-		const initPromise = aib.captchaInit?.(this);
-		if(initPromise) {
-			initPromise.then(() => this.showCaptcha(), err => {
-				if(err instanceof AjaxError) {
-					this._setUpdateError(err);
-				} else {
-					this.hasCaptcha = false;
-				}
-			});
-		} else if(this.hasCaptcha) {
-			this.showCaptcha(true);
-		}
 	}
 	initImage(img) {
 		img.title = Lng.refresh[lang];
@@ -10380,10 +10362,8 @@ class Captcha {
 		}
 		this._lastUpdate = Date.now();
 		if(aib.captchaUpdate) {
-			const updatePromise = aib.captchaUpdate(this, isError);
-			if(updatePromise) {
-				updatePromise.then(() => this._updateTextEl(isFocus), err => this._setUpdateError(err));
-			}
+			aib.captchaUpdate(this, isError)?.then(
+				() => this._updateTextEl(isFocus), err => this._setUpdateError(err));
 		} else if(this._isRecap) {
 			this._updateRecaptcha();
 		} else if(this.textEl) {
@@ -10406,9 +10386,7 @@ class Captcha {
 		}
 	}
 	updateHelper(url, fn) {
-		if(aib.captchaUpdPromise) {
-			aib.captchaUpdPromise.cancelPromise();
-		}
+		aib.captchaUpdPromise?.cancelPromise();
 		return (aib.captchaUpdPromise = $ajax(url).then(xhr => {
 			aib.captchaUpdPromise = null;
 			fn(xhr);
@@ -10420,7 +10398,7 @@ class Captcha {
 		}));
 	}
 	updateOutdated() {
-		if(!aib.makaba && this._lastUpdate && (Date.now() - this._lastUpdate > Cfg.capUpdTime * 1e3)) {
+		if(!aib.noCapUpdTime && this._lastUpdate && (Date.now() - this._lastUpdate > Cfg.capUpdTime * 1e3)) {
 			this.refreshCaptcha(false);
 		}
 	}
@@ -11825,7 +11803,7 @@ class Pview extends AbstractPost {
 				post.userToggled ? '-user' : '' } de-btn-pview-hide" de-num="${ num }"><!--
 				--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--
 				--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>${ pText }`;
-			$delAll(`${ !aib.t && isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`, pv);
+			$delAll(`${ !aib.t && isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap`, pv);
 			$Q(aib.qPostImg, pv).forEach(el => $show(el.parentNode));
 			const link = $q('.de-link-parent', pv);
 			if(link) {
@@ -12236,17 +12214,25 @@ class ImagesViewer {
 		if(isNextAngle) {
 			this.data.rotate += this.data.rotate === 270 ? -270 : 90;
 		}
+		const { isVideo } = this.data;
 		const angle = this.data.rotate;
-		const isVert = angle === 90 || angle === 270;
+		const isRotated = angle === 90 || angle === 270;
 		const img = $q('img, video', this._fullEl);
+		const ratio = this._height / this._width;
+		const ratio1 = 1 / ratio;
+		img.style.height = `${ (isRotated ? ratio : 1) * 100 }%`;
+		img.style.width = `${ (isRotated ? ratio1 : 1) * 100 }%`;
 		img.style.transform = `rotate(${ angle }deg)${
-			angle === 90 ? ' translateY(-100%)' : angle === 270 ? ' translateX(-100%)' : '' }`;
-		img.classList.toggle('de-fullimg-rotated', isVert);
-		img.style.height = `${ (isVert ? this._height / this._width : 1) * 100 }%`;
-		if(this.data.isVideo && nav.firefoxVer >= 59) {
-			img.previousElementSibling.style =
-				(isVert ? 'width: calc(100% - 40px); height: 100%; ' : '') +
-				(angle === 90 ? 'right: 0; ' : '') +
+			angle === 90 ? ` translate(${ (1 - ratio) * 50 }%, ${
+				isVideo ? 0 : (ratio1 - 1) * 50 }%)` :
+			angle === 270 ? ` translate(${ (ratio - 1) * 50 }%, ${
+				isVideo ? 0 : (1 - ratio1) * 50 }%)` : '' }`;
+		img.classList.toggle('de-fullimg-rotated', isRotated);
+		if(isVideo && nav.firefoxVer >= 59) {
+			img.previousElementSibling.style = // .de-fullimg-video-hack
+				(isRotated ? 'width: calc(100% - 40px); height: 100%; ' :
+				'width: 100%; height: calc(100% - 40px);') +
+				(angle === 90 ? 'right: 0; ' : angle === 270 ? 'left: 0; ' : '') +
 				(angle === 180 ? 'bottom: 0;' : '');
 		}
 		if(isNextAngle || angle !== 180) {
@@ -12384,9 +12370,9 @@ class ImagesViewer {
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
 		const el = $add(`<div class="de-fullimg-center${
-			data.isVideo ? ' de-fullimg-center-video' : '' }" style="top:${ this._oldT -
-			(Cfg.imgInfoLink ? 11 : 0) - (nav.firefoxVer >= 59 && data.isVideo ? 10 : 0) }px; left:${
-			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
+			data.isVideo ? ' de-fullimg-center-video' : '' }" style="top:${
+			this._oldT - (Cfg.imgInfoLink ? 18 : 0) }px; left:${ this._oldL }px; width:${
+			width }px; height:${ height }px; display: block;"></div>`);
 		el.append(this._fullEl);
 		const scale = 100 * width / data.width;
 		$q('.de-fullimg-scale', this._fullEl).textContent = scale === 100 ? '' : `${ parseInt(scale, 10) }%`;
@@ -12506,7 +12492,6 @@ class ExpandableImage {
 		this._fullEl.remove();
 		this._fullEl = null;
 		$show(this.el.parentNode);
-		(aib.hasPicWrap ? this._getImageParent : this.el.parentNode).nextSibling.remove();
 		if(e) {
 			e.preventDefault();
 			if(this.inPview) {
@@ -12550,8 +12535,7 @@ class ExpandableImage {
 			}
 		}
 		const maxWidth = Math.min(Post.sizing.wWidth - 2, Cfg.maxImgSize);
-		const maxHeight = Math.min(Post.sizing.wHeight -
-			(Cfg.imgInfoLink ? 24 : 2) - (nav.firefoxVer >= 59 && this.isVideo ? 19 : 0), Cfg.maxImgSize);
+		const maxHeight = Math.min(Post.sizing.wHeight - 2, Cfg.maxImgSize);
 		if(width > maxWidth || height > maxHeight) {
 			const ar = width / height;
 			if(ar > maxWidth / maxHeight) {
@@ -12590,8 +12574,6 @@ class ExpandableImage {
 			origImgTop = e.target.getBoundingClientRect().top;
 		}
 		this.expanded = true;
-		(aib.hasPicWrap ? this._getImageParent : this.el.parentNode).insertAdjacentHTML('afterend',
-			'<div class="de-fullimg-after"></div>');
 		const fullEl = this._fullEl = this.getFullImg(true, null, null);
 		fullEl.addEventListener('click', e => this.collapseImg(e), true);
 		this.srcBtnEvents(this);
@@ -12919,7 +12901,6 @@ class AttachedImage extends ExpandableImage {
 		Object.defineProperty(this, 'weight', { value });
 		return value;
 	}
-
 	get _getImageParent() {
 		const value = aib.getImgWrap(this.el);
 		Object.defineProperty(this, '_getImageParent', { value });
@@ -13637,7 +13618,7 @@ class RefMap {
 			}
 			const lPost = pByNum.get(lNum);
 			if(!aib.t) {
-				link.href = `#${ aib._4chan ? 'p' : '' }${ lNum }`;
+				link.href = aib.anchor + lNum;
 			}
 			if(!isAdd) {
 				lPost.ref.removeLink(pNum);
@@ -14012,7 +13993,9 @@ class Thread {
 		const wrap = doc.adoptNode(aib.getPostWrap(el, false));
 		const post = new Post(el, this, num, i, false, prev);
 		fragment.append(wrap);
-		aib.postsBreak?.(fragment);
+		if(aib.hasPostsBreak) {
+			fragment.append(doc.createElement('br'));
+		}
 		if(aib.t && !doc.hidden && Cfg.animation) {
 			$animate(el, 'de-post-new');
 		}
@@ -15380,7 +15363,6 @@ class BaseBoard {
 		// Imageboard-specific booleans
 		this._4chan = false;
 		this.kohlchan = false;
-		this.makaba = false;
 
 		// Query paths
 		this.cReply = 'reply';
@@ -15422,18 +15404,17 @@ class BaseBoard {
 		port = port ? ':' + port : '';
 		this.anchor = '#';
 		this.b = '';
-		this.captchaRu = false;
+		this.captchaUpdPromise = null;
 		this.docExt = null;
 		this.domain = domain + port;
 		this.firstPage = 0;
 		this.formHeaders = false;
 		this.formParent = 'parent';
-		this.hasAltCaptcha = false;
 		this.hasArchive = false;
 		this.hasCatalog = false;
 		this.hasHtmlTag = true;
 		this.hasOPNum = false;
-		this.hasPicWrap = false;
+		this.hasPostsBreak = false;
 		this.hasRefererErr = false;
 		this.hasTextLinks = false;
 		this.host = deWindow.location.hostname + port;
@@ -15441,6 +15422,7 @@ class BaseBoard {
 		this.jsonSubmit = false;
 		this.markupBB = false;
 		this.multiFile = false;
+		this.noCapUpdTime = false;
 		this.noMarkupBtns = false;
 		this.page = 0;
 		this.protocol = protocol;
@@ -15511,9 +15493,6 @@ class BaseBoard {
 	get observeContent() {
 		return null;
 	}
-	get postsBreak() {
-		return null;
-	}
 	get postersCount() {
 		return '';
 	}
@@ -15559,6 +15538,9 @@ class BaseBoard {
 		return null;
 	}
 	get sendHTML5Post() {
+		return null;
+	}
+	get updateCounters() {
 		return null;
 	}
 	fixHTML(data, isForm = false) {
@@ -15770,12 +15752,11 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Kusaba extends BaseBoard {
 		constructor(...args) {
 			super(...args);
-			this.qError = 'h1, h2, div[style*="1.25em"]';
-			this.qFormRedir = 'input[name="redirecttothread"][value="1"]';
-
 			this.formHeaders = true;
 			this.formParent = 'replythread';
 			this.markupBB = true;
+			this.qError = 'h1, h2, div[style*="1.25em"]';
+			this.qFormRedir = 'input[name="redirecttothread"][value="1"]';
 		}
 		get css() {
 			return `.extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle,
@@ -15812,6 +15793,12 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 			this.cReply = 'post reply';
+			this.firstPage = 1;
+			this.formParent = 'thread';
+			this.hasCatalog = true;
+			this.hasPostsBreak = true;
+			this.hasRefererErr = true;
+			this.jsonSubmit = true;
 			this.qClosed = '.fa-lock';
 			this.qDelForm = 'form[name*="postcontrols"]';
 			this.qForm = 'form[name="post"]';
@@ -15828,17 +15815,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostSubj = '.subject';
 			this.qPostTrip = '.trip';
 			this.qTrunc = '.toolong';
-
-			this.firstPage = 1;
-			this.formParent = 'thread';
-			this.hasCatalog = true;
-			this.hasRefererErr = true;
-			this.jsonSubmit = true;
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 			this._origInputs = null;
 		}
 		get css() {
-			return `.banner, .hide-thread-link, .mentioned, .post-hover { display: none !important; }
+			return `.banner, .de-win-reply + br, .hide-thread-link, .mentioned,
+					.post-hover { display: none !important; }
+				#de-win-reply.de-win-inpost { display: block; width: fit-content !important; }
 				${ Cfg.imgNames ? `.postfilename, .unimportant > a[download] { display: none }
 					.fileinfo > .unimportant { white-space: nowrap; }` : '' }`;
 		}
@@ -15927,9 +15910,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		isAjaxStatusOK(status) {
 			return status === 200 || status === 206 || status === 400;
 		}
-		postsBreak(fragment) {
-			fragment.append(doc.createElement('br'));
-		}
 		updateSubmitBtn() {}
 	}
 	ibEngines.push(['form[name*="postcontrols"]', Tinyboard]);
@@ -15937,10 +15917,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Vichan extends Tinyboard {
 		constructor(...args) {
 			super(...args);
+			this.multiFile = true;
 			this.qDelPassw = '#password';
 			this.qPostImg = '.post-image[alt]:not(.deleted)';
-
-			this.multiFile = true;
 		}
 		get css() {
 			return `${ super.css }
@@ -15948,7 +15927,9 @@ function getImageBoard(checkDomains, checkEngines) {
 					.watchThread, .fileinfo > span[style*="white-space:"]
 					${ Cfg.fileInputs === 2 ? ', #upload' : '' } { display: none !important; }
 				.boardlist { z-index: 1 !important; }
-				.de-file-input { margin-left: 0; }`;
+				.de-file-input { margin-left: 0; }
+				.multifile { width: auto !important; }
+				.multifile > .fileinfo { width: 275px; padding-right: 0 !important; }`;
 		}
 		get qPostImgNameLink() {
 			return 'p.fileinfo a:first-of-type:not(.hide-image-link)';
@@ -15983,12 +15964,11 @@ function getImageBoard(checkDomains, checkEngines) {
 	class TinyIB extends BaseBoard {
 		constructor(...args) {
 			super(...args);
+			this.hasCatalog = true;
 			this.qDelForm = $id('posts') ? '#posts' : '#delform';
 			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
 			this.qPostImg = 'img.thumb, video.thumb';
 			this.qPostMsg = '.message';
-
-			this.hasCatalog = true;
 		}
 		get css() {
 			return '.backlinks, .replymode { display: none; }';
@@ -16027,6 +16007,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 			this.cReply = 'innerPost';
+			this.firstPage = 1;
+			this.formParent = 'threadId';
+			this.hasCatalog = true;
+			this.jsonSubmit = true;
+			this.multiFile = true;
 			this.qDelBtn = '#deleteFormButton';
 			this.qDelForm = 'form[action$="contentActions.js"]';
 			this.qError = '#errorLabel, #labelMessage';
@@ -16047,12 +16032,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostSubj = '.labelSubject';
 			this.qPostsParent = '.divPosts';
 			this.qTrunc = '.contentOmissionIndicator';
-
-			this.firstPage = 1;
-			this.formParent = 'threadId';
-			this.hasCatalog = true;
-			this.jsonSubmit = true;
-			this.multiFile = true;
 			this._hasNewAPI = false;
 		}
 		get css() {
@@ -16219,6 +16198,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 			this.cReply = 'post_wrapper';
+			this.docExt = '';
+			this.firstPage = 1;
 			this.qDelForm = '#main';
 			this.qOmitted = '.omitted_text';
 			this.qOPostEnd = '.posts';
@@ -16231,14 +16212,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostRef = '.post_data > a[data-function="quote"]';
 			this.qPostSubj = '.post_title';
 			this.qPostsParent = '.posts';
-
-			this.docExt = '';
-			this.firstPage = 1;
 			this.res = 'thread/';
 		}
 		get css() {
 			return `.backlink_list { display: none !important; }
-				.de-oppost > .thread_image_box { float: left; margin: 0 20px 10px 15px; text-align: center;
+				.de-oppost > .thread_image_box { margin: 0 20px 10px 15px; float: left; text-align: center;
 					color: #bfbfbf; font-size: .8em; line-height: 150%; }`;
 		}
 		get isArchived() {
@@ -16282,9 +16260,16 @@ function getImageBoard(checkDomains, checkEngines) {
 	class /* _2ch */ Makaba extends BaseBoard {
 		constructor(...args) {
 			super(...args);
-			this.makaba = true;
-
 			this.cReply = 'de-reply-class';
+			this.formParent = 'thread';
+			this.hasArchive = true;
+			this.hasCatalog = true;
+			this.hasOPNum = true;
+			this.JsonBuilder = MakabaPostsBuilder;
+			this.jsonSubmit = true;
+			this.multiFile = true;
+			this.noCapUpdTime = true;
+			this.noMarkupBtns = true;
 			this.qBan = '.post__pomyanem';
 			this.qClosed = 'use[*|href="#icon__closed"]';
 			this.qDelForm = '#posts-form, #js-posts';
@@ -16308,16 +16293,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostSubj = '.post__title';
 			this.qPostUid = 'span[id^="id_tag_"]';
 			this.qTrunc = null;
-
-			this.formParent = 'thread';
-			this.hasArchive = true;
-			this.hasCatalog = true;
-			this.hasOPNum = true;
-			this.hasPicWrap = true;
-			this.JsonBuilder = MakabaPostsBuilder;
-			this.jsonSubmit = true;
-			this.multiFile = true;
-			this.noMarkupBtns = true;
 			this.timePattern = 'dd+nn+yy+w+hh+ii+ss';
 		}
 		get css() {
@@ -16328,6 +16303,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				._captcha-keyboard-button { width: 35px !important; height: 35px !important;
 					padding: 0 !important; }
 				.de-pview > .post__details { margin-left: 4px; }
+				.de-refmap { margin-top: 0; }
 				.de-reply-class { background: var(--theme_default_postbg); border-radius: 3px; }
 				#down-nav-arrow, #up-nav-arrow { z-index: 0; }
 				.header__opts_sticky { z-index: 10; }
@@ -16554,6 +16530,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return false;
 		}
+		updateCounters(postCount, filesCount, postersCount) {
+			$Q('.tn__item > span[title="Всего постов в треде"]').forEach(
+				el => el.innerHTML = el.innerHTML.replace(/\d+$/, postCount));
+			$Q('.tn__item > span[title="Всего файлов в треде"]').forEach(
+				el => el.innerHTML = el.innerHTML.replace(/\d+$/, filesCount));
+			$Q('.tn__item > span[title="Постеры"]').forEach(
+				el => el.innerHTML = el.innerHTML.replace(/\d+$/, postersCount));
+		}
 	}
 	ibDomains['2ch.life'] = ibDomains['2ch.org'] = ibDomains['2ch.su'] = Makaba;
 
@@ -16561,6 +16545,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 			this.cReply = 'post reply';
+			this.hasArchive = false;
+			this.JsonBuilder = null;
+			this.jsonSubmit = true;
 			this.qBan = '.pomyanem';
 			this.qClosed = '.icon-lock';
 			this.qForm = '#de-postform';
@@ -16578,10 +16565,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostName = '.ananimas, .post-email';
 			this.qPostRef = '.reflink';
 			this.qPostSubj = '.post-title';
-
-			this.hasArchive = false;
-			this.JsonBuilder = null;
-			this.jsonSubmit = true;
 		}
 		get css() {
 			return `.banner_title + hr, .newpost, .newpost + hr, .postpanel > :not(img), .posts > hr, .refmap,
@@ -16681,10 +16664,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	class _2chRip extends BaseBoard {
 		constructor(...args) {
 			super(...args);
-			this.captchaRu = true;
 			this.jsonSubmit = true;
-
-			this.captchaUpdPromise = null;
 		}
 		get css() {
 			return `small[id^="rfmap_"], #submit_button, .qreply_btn { display: none; }
@@ -16704,6 +16684,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			};
 		}
 		init() {
+			defaultCfg.captchaLang = 2;
 			$script('postFormSubmit = Function.prototype;');
 			$id('postform').insertAdjacentHTML('beforeend', '<input type="hidden" name="json" value="1">');
 			return false;
@@ -16714,13 +16695,11 @@ function getImageBoard(checkDomains, checkEngines) {
 	class _410chan extends Kusaba {
 		constructor(...args) {
 			super(...args);
+			this.hasCatalog = true;
+			this.markupBB = false;
 			this.qClosed = '.post-badge-locked';
 			this.qFormRedir = 'input#noko';
 			this.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
-
-			this.captchaUpdPromise = null;
-			this.hasCatalog = true;
-			this.markupBB = false;
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
 		}
 		get css() {
@@ -16765,7 +16744,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(...args);
 			this._4chan = true;
 
+			this.anchor = '#p';
 			this.cReply = 'post reply';
+			this.docExt = '';
+			this.firstPage = 1;
+			this.formParent = 'resto';
+			this.hasCatalog = true;
+			this.hasTextLinks = true;
+			this.JsonBuilder = _4chanPostsBuilder;
 			this.qBan = 'strong[style="color: red;"]';
 			this.qClosed = '.archivedIcon, .closedIcon';
 			this.qDelBtn = '.deleteform > input[type="submit"]';
@@ -16783,37 +16769,26 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostRef = '.postInfo > .postNum';
 			this.qPostSubj = '.subject';
 			this.qPostUid = '.hand';
-
-			this.anchor = '#p';
-			this.docExt = '';
-			this.firstPage = 1;
-			this.formParent = 'resto';
-			this.hasCatalog = true;
-			this.hasTextLinks = true;
-			this.JsonBuilder = _4chanPostsBuilder;
 			this.res = 'thread/';
 			this.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
 		}
 		get captchaUpdate() {
-			let value = null;
-			if($id('captchaFormPart')) {
-				value = captcha => {
-					const containerEl = $id('t-root');
-					if(!containerEl) {
-						captcha.hasCaptcha = false;
-						return;
-					}
-					containerEl.insertAdjacentHTML('afterend', '<div id="t-root"></div>');
-					containerEl.remove();
-					$script('initTCaptcha();');
-					setTimeout(() => {
-						captcha.textEl = $id('t-resp');
-						captcha.textEl.tabIndex = 999;
-						captcha.initTextEl();
-					}, 1e3);
-					return null;
-				};
-			}
+			const value = !$id('captchaFormPart') ? null : captcha => {
+				const containerEl = $id('t-root');
+				if(!containerEl) {
+					captcha.hasCaptcha = false;
+					return;
+				}
+				containerEl.insertAdjacentHTML('afterend', '<div id="t-root"></div>');
+				containerEl.remove();
+				$script('initTCaptcha();');
+				setTimeout(() => {
+					captcha.textEl = $id('t-resp');
+					captcha.textEl.tabIndex = 999;
+					captcha.initTextEl();
+				}, 1e3);
+				return null;
+			};
 			Object.defineProperty(this, 'captchaUpdate', { value });
 			return value;
 		}
@@ -16937,12 +16912,15 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Aoba extends Kusaba {
 		constructor(...args) {
 			super(...args);
-			this.captchaRu = true;
 			this.hasCatalog = true;
 		}
 		get css() {
 			return `.extrabtns, input[name="board"] + hr, .replymode, .replymode + hr,
 				#rswapper + hr { display: none; }`;
+		}
+		init() {
+			defaultCfg.captchaLang = 2;
+			return false;
 		}
 	}
 	ibDomains['aoba.me'] = Aoba;
@@ -16958,6 +16936,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 			this.cReply = 'post';
+			this.docExt = '';
+			this.hasOPNum = true;
 			this.qDelBtn = null;
 			this.qDelForm = 'body > .container-fluid';
 			this.qDelPassw = null;
@@ -16967,9 +16947,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostMsg = '.post_comment_body';
 			this.qPostRef = '.post_id, .post_head > b';
 			this.qPostSubj = '.post_subject';
-
-			this.docExt = '';
-			this.hasOPNum = true;
 			this.res = 'thread/';
 		}
 		get css() {
@@ -17128,9 +17105,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Endchan extends Lynxchan {
 		constructor(...args) {
 			super(...args);
-			this.qTrunc = '.contentOmissionIndicator > p';
-
 			this.jsonSubmit = false;
+			this.qTrunc = '.contentOmissionIndicator > p';
 		}
 		get css() {
 			return `${ super.css }
@@ -17224,6 +17200,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Ivchan extends BaseBoard {
 		constructor(...args) {
 			super(...args);
+			this.anchor = '#i';
+			this.formParent = 'thread_id';
+			this.multiFile = true;
 			this.qClosed = 'img[src="/images/locked.png"]';
 			this.qDelForm = 'form[action*="delete"]';
 			this.qError = '.post-error, h2';
@@ -17234,11 +17213,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostMsg = '.postbody';
 			this.qPostSubj = '.replytitle';
 			this.qTrunc = '.abbrev > span:first-of-type';
-
-			this.anchor = '#i';
-			this.formParent = 'thread_id';
-			this.hasPicWrap = true;
-			this.multiFile = true;
 			this.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
 		}
 		get css() {
@@ -17286,11 +17260,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(...args);
 			this.kohlchan = true;
 
-			this.qFormRules = '#rules_row';
-			this.qPostImg = '.uploadCell > a > img';
-
 			this.hasTextLinks = true;
 			this.markupBB = true;
+			this.qFormRules = '#rules_row';
+			this.qPostImg = '.uploadCell > a > img';
 			this.timePattern = 'yyyy+nn+dd+hh+ii+ss';
 		}
 		get css() {
@@ -17429,9 +17402,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Lainchan extends Vichan {
 		constructor(...args) {
 			super(...args);
-			this.qOPost = '.op';
-
 			this.markupBB = true;
+			this.qOPost = '.op';
 		}
 		get css() {
 			return `${ super.css }
@@ -17454,10 +17426,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Nichan extends Vichan {
 		constructor(...args) {
 			super(...args);
+			this.markupBB = true;
 			this.qPages = '.bottom > .pages';
 			this.qPostImg = '.post-image[alt]:not(.deleted), video.post-image';
-
-			this.markupBB = true;
 		}
 		get css() {
 			return `${ super.css } label[for="email_selectbox"] { display: none !important; }`;
@@ -17482,12 +17453,11 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Ponyach extends BaseBoard {
 		constructor(...args) {
 			super(...args);
-			this.qBan = 'font[color="#FF0000"]';
-			this.qPostImgInfo = '.filesize[style="display: inline;"]';
-
 			this.formParent = 'replythread';
 			this.jsonSubmit = true;
 			this.multiFile = true;
+			this.qBan = 'font[color="#FF0000"]';
+			this.qPostImgInfo = '.filesize[style="display: inline;"]';
 		}
 		get qPostImgNameLink() {
 			return 'a:first-of-type';
@@ -17522,10 +17492,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Synch extends Vichan {
 		constructor(...args) {
 			super(...args);
+			this.markupBB = true;
 			this.qPages = '.pagination';
 			this.qPostImgInfo = '.unimportant';
-
-			this.markupBB = true;
 		}
 		get css() {
 			return `${ super.css }
@@ -17569,14 +17538,13 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Warosu extends BaseBoard {
 		constructor(...args) {
 			super(...args);
+			this.hasHtmlTag = false;
 			this.qDelForm = '.content';
 			this.qForm = '.subreply';
 			this.qFormSubm = '.g-recaptcha';
 			this.qOPost = '.comment';
 			this.qPostImgInfo = '.fileinfo';
 			this.qPostRef = '.js';
-
-			this.hasHtmlTag = false;
 			this.res = 'thread/';
 		}
 		get css() {
@@ -17610,9 +17578,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	let domain = localData?.domain;
 	if(checkDomains) {
 		if(!domain) {
+			const host = wLoc.hostname.toLowerCase();
 			const ibKeys = Object.keys(ibDomains);
 			let i = ibKeys.length;
-			const host = wLoc.hostname.toLowerCase();
 			while(i--) {
 				domain = ibKeys[i];
 				if(host === domain || host.endsWith('.' + domain)) {
@@ -17904,7 +17872,7 @@ function addSVGIcons() {
 	<!-- WINDOW ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-win-arrow">
 		<path class="de-svg-stroke" stroke-width="3.5" d="M8 13V6"/>
-		<path class="de-svg-fill"  d="M3.5 7h9L8 2.5 3.5 7z"/>
+		<path class="de-svg-fill" d="M3.5 7h9L8 2.5 3.5 7z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-win-close">
 		<path class="de-svg-stroke" stroke-width="2.5" d="M3.5 3.5l9 9m-9 0l9-9"/>
@@ -18145,7 +18113,7 @@ function scriptCSS() {
 	.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); color: inherit; }
 	#de-win-cfg { width: 355px; }
 	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-width: calc(100vw - (100vw - 100%)); max-height: calc(100vh - 25px); overflow-x: hidden; overflow-y: auto; }
-	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0 !important; margin: 0 !important; border: none; }
+	#de-win-cfg > .de-win-body { display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0 !important; margin: 0 !important; border: none; float: none; }
 	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 6px; border: 1px solid gray; }
 	#de-win-hid { max-width: 60%; }
 	.de-win-title { width: 100%; }
@@ -18168,9 +18136,9 @@ function scriptCSS() {
 	input[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; border-width: 1px; }
 	.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline-block; width: auto; height: 19px !important; font: 13px/15px arial !important; }
 	.de-cfg-label { padding: 0; margin: 0; }
-	.de-cfg-needreload::after  { content: "* "; color: red; }
+	.de-cfg-needreload::after { content: "* "; color: red; }
 	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; float: none; appearance: auto; }
-	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
+	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; float: none !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
 	.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
 	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }
 	.de-cfg-tab::${ nav.isFirefox ? '-moz-' : '' }selection { background: transparent; }
@@ -18213,7 +18181,7 @@ function scriptCSS() {
 	][Cfg.scriptStyle] }
 
 	/* Favorites window */
-	.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 1px 0 !important; min-width: 0 !important; border: none !important; font-size: 13px; overflow: hidden !important; white-space: nowrap; }
+	.de-entry { display: flex !important; align-items: center; padding: 0 !important; margin: 1px 0 !important; min-width: 0 !important; border: none !important; float: none !important; font-size: 13px; overflow: hidden !important; white-space: nowrap; }
 	.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 	#de-fav-buttons, #de-hid-buttons, #de-fav-del-confirm { padding-top: 6px; }
 	.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }
@@ -18225,7 +18193,7 @@ function scriptCSS() {
 	.de-fav-header-btn { flex: 1 0 auto; margin-right: 2px; font-size: 11px; color: inherit; text-align: right; opacity: 0.65; }
 	.de-fav-header-link { margin-left: 2px; color: inherit; font-weight: bold; text-decoration: none; outline: none; }
 	.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }
-	.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }
+	.de-fav-inf-icon, .de-fav-inf-iwrap { width: 16px; height: 16px; }
 	.de-fav-inf-icon { margin-bottom: -3px; }
 	.de-fav-inf-new { color: #424f79; }
 	.de-fav-inf-new::after { content: " +"; }
@@ -18307,22 +18275,20 @@ function scriptCSS() {
 	.de-img-embed { max-width: 200px; max-height: 200px; }
 	.de-fullimg { display: block; }
 	.de-fullimg, .de-fullimg-wrap-link { flex: 0 0 auto; transition: none !important; max-width: none; max-height: none; }
-	.de-fullimg-after { clear: left; }
 	.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }
-	.de-fullimg-info { position: absolute; bottom: -22px; left: 50%; padding: 1px 4px; transform: translateX(-50%); background-color: rgba(64,64,64,.8); white-space: nowrap; line-height: 17px; }
+	.de-fullimg-info { padding: 1px 4px; margin-bottom: -20px; background-color: rgba(64,64,64,.8); white-space: nowrap; line-height: 17px; }
 	.de-fullimg-info > .de-btn-img { color: #fff; }
-	.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }
+	.de-fullimg-link { display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }
 	.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }
 	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
-	.de-fullimg-rotated { transform-origin: top left; width: auto !important; max-width: none !important; }
+	.de-fullimg-rotated { position: absolute; max-width: none; }
+	.de-fullimg-rotated + .de-fullimg-info { position: absolute; bottom: 0; }
 	.de-fullimg-scale { color: #fff; font: bold 12px tahoma; cursor: default; }
-	.de-fullimg-video-hack { ${ nav.isWebkit && nav.isMobile ?
-		'width: 30px; top: 0; right: 0; color: #fff; font-size: 2em;' :
-		'width: 100%;' } height: calc(100% - 40px); position: absolute; z-index: 1; cursor: pointer; }
-	.de-fullimg-wrap { position: relative; margin-bottom: 24px; }
-	.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: 100%; height: 100%; max-height: 100%; }
+	.de-fullimg-video-hack { position: absolute; ${ nav.isMobile && nav.isWebkit ? 'display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; top: 0; right: 0; color: #fff; font-size: 2em;' : '' } z-index: 1; cursor: pointer; }
+	.de-fullimg-wrap { position: relative; display: inline-flex; flex-direction: column; align-items: center; }
+	.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: 100%; height: 100%; }
 	.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }
-	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
+	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
 	.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }
 	.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }
 	.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }
@@ -18381,7 +18347,7 @@ function scriptCSS() {
 	.de-file-txt-input { flex-grow: 1; border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }
 	.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }
 	.de-file-txt-wrap { display: inline-flex; width: 100%; }
-	.de-file-utils { display: inline-flex; float: none; align-items: center; }
+	.de-file-utils { display: inline-flex; align-items: center; float: none; }
 	.de-file-wrap { display: flex; align-items: center; }
 
 	/* Reply form */
@@ -18390,8 +18356,8 @@ function scriptCSS() {
 	.de-parea-btn-thr::after { content: "${ Lng.makeThr[lang] }"; }
 	.de-parea-btn-reply::after { content: "${ Lng.makeReply[lang] }"; }
 	#de-pform > form { padding: 0; margin: 0; border: none; }
-	#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ${ nav.isPresto ? '-2px -10px' : '0 0 -2px -10px' }; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }
-	.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }
+	#de-resizer-text { display: inline-block !important; padding: 5px; margin: ${ nav.isPresto ? '-2px -10px' : '0 0 -2px -10px' }; border-bottom: 2px solid #666; border-right: 2px solid #666; float: none !important; cursor: se-resize; }
+	.de-win-inpost { display: inline-block; width: auto; padding: 3px; margin: 2px 0; float: none; clear: left; }
 	.de-win-inpost > .de-resizer { display: none; }
 	.de-win-inpost > .de-win-head { background: none; color: inherit; }
 	#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }
@@ -18432,7 +18398,7 @@ function scriptCSS() {
 	.de-omitted { color: grey; }
 	.de-omitted::before { content: "${ Lng.postsOmitted[lang] }"; }
 	.de-page-num { clear: both; }
-	.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; white-space: pre-wrap; }
+	.de-popup { display: block !important; overflow: visible !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; float: right !important; clear: both !important; white-space: pre-wrap; }
 	.de-popup-btn { display: inline-block; vertical-align: -1px; color: green; font-size: 1.5em; line-height: 16px; cursor: pointer; }
 	.de-popup > hr { margin: 0 !important; }
 	.de-post-hiddencontent { display: none !important; }
@@ -18511,7 +18477,7 @@ function updateCSS() {
 	${ Cfg.imgNames === 1 ? '.de-img-name { display: inline-block; max-width: 230px; vertical-align: top; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }' : '' }
 	${ Cfg.imgNames === 2 ? '.de-img-name { text-decoration: none !important; text-transform: capitalize; }' : '' }
 	${ Cfg.imgNames === 3 ? '.de-img-name { display: inline-block; max-width: 230px; vertical-align: top; word-wrap: break-word; white-space: break-spaces; }' : '' }
-	${ Cfg.widePosts ? '.de-reply { float: none; width: 99vw; margin-left: 0; }' : '' }
+	${ Cfg.widePosts ? '.de-reply { width: 99vw; margin-left: 0; float: none; }' : '' }
 	${ aib.qPostMsg } { max-width: ${ Cfg.limitPostMsg }px; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }
 	${ Cfg.noSpoilers === 1 ?

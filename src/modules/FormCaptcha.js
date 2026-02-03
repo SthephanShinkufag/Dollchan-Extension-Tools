@@ -34,7 +34,18 @@ class Captcha {
 			this.parentEl.innerHTML = this.originHTML;
 			this.textEl = $q('input[type="text"][name*="aptcha"]', this.parentEl);
 		}
-		this.initCaptchaPromise();
+		const initPromise = aib.captchaInit?.(this);
+		if(initPromise) {
+			initPromise.then(() => this.showCaptcha(), err => {
+				if(err instanceof AjaxError) {
+					this._setUpdateError(err);
+				} else {
+					this.hasCaptcha = false;
+				}
+			});
+		} else if(this.hasCaptcha) {
+			this.showCaptcha(true);
+		}
 	}
 	handleEvent(e) {
 		switch(e.type) {
@@ -65,20 +76,6 @@ class Captcha {
 		}
 		e.preventDefault();
 		e.stopPropagation();
-	}
-	initCaptchaPromise() {
-		const initPromise = aib.captchaInit?.(this);
-		if(initPromise) {
-			initPromise.then(() => this.showCaptcha(), err => {
-				if(err instanceof AjaxError) {
-					this._setUpdateError(err);
-				} else {
-					this.hasCaptcha = false;
-				}
-			});
-		} else if(this.hasCaptcha) {
-			this.showCaptcha(true);
-		}
 	}
 	initImage(img) {
 		img.title = Lng.refresh[lang];
@@ -137,10 +134,8 @@ class Captcha {
 		}
 		this._lastUpdate = Date.now();
 		if(aib.captchaUpdate) {
-			const updatePromise = aib.captchaUpdate(this, isError);
-			if(updatePromise) {
-				updatePromise.then(() => this._updateTextEl(isFocus), err => this._setUpdateError(err));
-			}
+			aib.captchaUpdate(this, isError)?.then(
+				() => this._updateTextEl(isFocus), err => this._setUpdateError(err));
 		} else if(this._isRecap) {
 			this._updateRecaptcha();
 		} else if(this.textEl) {
@@ -163,9 +158,7 @@ class Captcha {
 		}
 	}
 	updateHelper(url, fn) {
-		if(aib.captchaUpdPromise) {
-			aib.captchaUpdPromise.cancelPromise();
-		}
+		aib.captchaUpdPromise?.cancelPromise();
 		return (aib.captchaUpdPromise = $ajax(url).then(xhr => {
 			aib.captchaUpdPromise = null;
 			fn(xhr);
@@ -177,7 +170,7 @@ class Captcha {
 		}));
 	}
 	updateOutdated() {
-		if(!aib.makaba && this._lastUpdate && (Date.now() - this._lastUpdate > Cfg.capUpdTime * 1e3)) {
+		if(!aib.noCapUpdTime && this._lastUpdate && (Date.now() - this._lastUpdate > Cfg.capUpdTime * 1e3)) {
 			this.refreshCaptcha(false);
 		}
 	}

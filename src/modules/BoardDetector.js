@@ -12,12 +12,11 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Kusaba extends BaseBoard {
 		constructor(...args) {
 			super(...args);
-			this.qError = 'h1, h2, div[style*="1.25em"]';
-			this.qFormRedir = 'input[name="redirecttothread"][value="1"]';
-
 			this.formHeaders = true;
 			this.formParent = 'replythread';
 			this.markupBB = true;
+			this.qError = 'h1, h2, div[style*="1.25em"]';
+			this.qFormRedir = 'input[name="redirecttothread"][value="1"]';
 		}
 		get css() {
 			return `.extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle,
@@ -54,6 +53,12 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 			this.cReply = 'post reply';
+			this.firstPage = 1;
+			this.formParent = 'thread';
+			this.hasCatalog = true;
+			this.hasPostsBreak = true;
+			this.hasRefererErr = true;
+			this.jsonSubmit = true;
 			this.qClosed = '.fa-lock';
 			this.qDelForm = 'form[name*="postcontrols"]';
 			this.qForm = 'form[name="post"]';
@@ -70,17 +75,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostSubj = '.subject';
 			this.qPostTrip = '.trip';
 			this.qTrunc = '.toolong';
-
-			this.firstPage = 1;
-			this.formParent = 'thread';
-			this.hasCatalog = true;
-			this.hasRefererErr = true;
-			this.jsonSubmit = true;
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 			this._origInputs = null;
 		}
 		get css() {
-			return `.banner, .hide-thread-link, .mentioned, .post-hover { display: none !important; }
+			return `.banner, .de-win-reply + br, .hide-thread-link, .mentioned,
+					.post-hover { display: none !important; }
+				#de-win-reply.de-win-inpost { display: block; width: fit-content !important; }
 				${ Cfg.imgNames ? `.postfilename, .unimportant > a[download] { display: none }
 					.fileinfo > .unimportant { white-space: nowrap; }` : '' }`;
 		}
@@ -169,9 +170,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		isAjaxStatusOK(status) {
 			return status === 200 || status === 206 || status === 400;
 		}
-		postsBreak(fragment) {
-			fragment.append(doc.createElement('br'));
-		}
 		updateSubmitBtn() {}
 	}
 	ibEngines.push(['form[name*="postcontrols"]', Tinyboard]);
@@ -179,10 +177,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Vichan extends Tinyboard {
 		constructor(...args) {
 			super(...args);
+			this.multiFile = true;
 			this.qDelPassw = '#password';
 			this.qPostImg = '.post-image[alt]:not(.deleted)';
-
-			this.multiFile = true;
 		}
 		get css() {
 			return `${ super.css }
@@ -190,7 +187,9 @@ function getImageBoard(checkDomains, checkEngines) {
 					.watchThread, .fileinfo > span[style*="white-space:"]
 					${ Cfg.fileInputs === 2 ? ', #upload' : '' } { display: none !important; }
 				.boardlist { z-index: 1 !important; }
-				.de-file-input { margin-left: 0; }`;
+				.de-file-input { margin-left: 0; }
+				.multifile { width: auto !important; }
+				.multifile > .fileinfo { width: 275px; padding-right: 0 !important; }`;
 		}
 		get qPostImgNameLink() {
 			return 'p.fileinfo a:first-of-type:not(.hide-image-link)';
@@ -225,12 +224,11 @@ function getImageBoard(checkDomains, checkEngines) {
 	class TinyIB extends BaseBoard {
 		constructor(...args) {
 			super(...args);
+			this.hasCatalog = true;
 			this.qDelForm = $id('posts') ? '#posts' : '#delform';
 			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
 			this.qPostImg = 'img.thumb, video.thumb';
 			this.qPostMsg = '.message';
-
-			this.hasCatalog = true;
 		}
 		get css() {
 			return '.backlinks, .replymode { display: none; }';
@@ -269,6 +267,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 			this.cReply = 'innerPost';
+			this.firstPage = 1;
+			this.formParent = 'threadId';
+			this.hasCatalog = true;
+			this.jsonSubmit = true;
+			this.multiFile = true;
 			this.qDelBtn = '#deleteFormButton';
 			this.qDelForm = 'form[action$="contentActions.js"]';
 			this.qError = '#errorLabel, #labelMessage';
@@ -289,12 +292,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostSubj = '.labelSubject';
 			this.qPostsParent = '.divPosts';
 			this.qTrunc = '.contentOmissionIndicator';
-
-			this.firstPage = 1;
-			this.formParent = 'threadId';
-			this.hasCatalog = true;
-			this.jsonSubmit = true;
-			this.multiFile = true;
 			this._hasNewAPI = false;
 		}
 		get css() {
@@ -461,6 +458,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 			this.cReply = 'post_wrapper';
+			this.docExt = '';
+			this.firstPage = 1;
 			this.qDelForm = '#main';
 			this.qOmitted = '.omitted_text';
 			this.qOPostEnd = '.posts';
@@ -473,14 +472,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostRef = '.post_data > a[data-function="quote"]';
 			this.qPostSubj = '.post_title';
 			this.qPostsParent = '.posts';
-
-			this.docExt = '';
-			this.firstPage = 1;
 			this.res = 'thread/';
 		}
 		get css() {
 			return `.backlink_list { display: none !important; }
-				.de-oppost > .thread_image_box { float: left; margin: 0 20px 10px 15px; text-align: center;
+				.de-oppost > .thread_image_box { margin: 0 20px 10px 15px; float: left; text-align: center;
 					color: #bfbfbf; font-size: .8em; line-height: 150%; }`;
 		}
 		get isArchived() {
@@ -524,9 +520,16 @@ function getImageBoard(checkDomains, checkEngines) {
 	class /* _2ch */ Makaba extends BaseBoard {
 		constructor(...args) {
 			super(...args);
-			this.makaba = true;
-
 			this.cReply = 'de-reply-class';
+			this.formParent = 'thread';
+			this.hasArchive = true;
+			this.hasCatalog = true;
+			this.hasOPNum = true;
+			this.JsonBuilder = MakabaPostsBuilder;
+			this.jsonSubmit = true;
+			this.multiFile = true;
+			this.noCapUpdTime = true;
+			this.noMarkupBtns = true;
 			this.qBan = '.post__pomyanem';
 			this.qClosed = 'use[*|href="#icon__closed"]';
 			this.qDelForm = '#posts-form, #js-posts';
@@ -550,16 +553,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostSubj = '.post__title';
 			this.qPostUid = 'span[id^="id_tag_"]';
 			this.qTrunc = null;
-
-			this.formParent = 'thread';
-			this.hasArchive = true;
-			this.hasCatalog = true;
-			this.hasOPNum = true;
-			this.hasPicWrap = true;
-			this.JsonBuilder = MakabaPostsBuilder;
-			this.jsonSubmit = true;
-			this.multiFile = true;
-			this.noMarkupBtns = true;
 			this.timePattern = 'dd+nn+yy+w+hh+ii+ss';
 		}
 		get css() {
@@ -570,6 +563,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				._captcha-keyboard-button { width: 35px !important; height: 35px !important;
 					padding: 0 !important; }
 				.de-pview > .post__details { margin-left: 4px; }
+				.de-refmap { margin-top: 0; }
 				.de-reply-class { background: var(--theme_default_postbg); border-radius: 3px; }
 				#down-nav-arrow, #up-nav-arrow { z-index: 0; }
 				.header__opts_sticky { z-index: 10; }
@@ -796,6 +790,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return false;
 		}
+		updateCounters(postCount, filesCount, postersCount) {
+			$Q('.tn__item > span[title="Всего постов в треде"]').forEach(
+				el => el.innerHTML = el.innerHTML.replace(/\d+$/, postCount));
+			$Q('.tn__item > span[title="Всего файлов в треде"]').forEach(
+				el => el.innerHTML = el.innerHTML.replace(/\d+$/, filesCount));
+			$Q('.tn__item > span[title="Постеры"]').forEach(
+				el => el.innerHTML = el.innerHTML.replace(/\d+$/, postersCount));
+		}
 	}
 	ibDomains['2ch.life'] = ibDomains['2ch.org'] = ibDomains['2ch.su'] = Makaba;
 
@@ -803,6 +805,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 			this.cReply = 'post reply';
+			this.hasArchive = false;
+			this.JsonBuilder = null;
+			this.jsonSubmit = true;
 			this.qBan = '.pomyanem';
 			this.qClosed = '.icon-lock';
 			this.qForm = '#de-postform';
@@ -820,10 +825,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostName = '.ananimas, .post-email';
 			this.qPostRef = '.reflink';
 			this.qPostSubj = '.post-title';
-
-			this.hasArchive = false;
-			this.JsonBuilder = null;
-			this.jsonSubmit = true;
 		}
 		get css() {
 			return `.banner_title + hr, .newpost, .newpost + hr, .postpanel > :not(img), .posts > hr, .refmap,
@@ -923,10 +924,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	class _2chRip extends BaseBoard {
 		constructor(...args) {
 			super(...args);
-			this.captchaRu = true;
 			this.jsonSubmit = true;
-
-			this.captchaUpdPromise = null;
 		}
 		get css() {
 			return `small[id^="rfmap_"], #submit_button, .qreply_btn { display: none; }
@@ -946,6 +944,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			};
 		}
 		init() {
+			defaultCfg.captchaLang = 2;
 			$script('postFormSubmit = Function.prototype;');
 			$id('postform').insertAdjacentHTML('beforeend', '<input type="hidden" name="json" value="1">');
 			return false;
@@ -956,13 +955,11 @@ function getImageBoard(checkDomains, checkEngines) {
 	class _410chan extends Kusaba {
 		constructor(...args) {
 			super(...args);
+			this.hasCatalog = true;
+			this.markupBB = false;
 			this.qClosed = '.post-badge-locked';
 			this.qFormRedir = 'input#noko';
 			this.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
-
-			this.captchaUpdPromise = null;
-			this.hasCatalog = true;
-			this.markupBB = false;
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
 		}
 		get css() {
@@ -1007,7 +1004,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(...args);
 			this._4chan = true;
 
+			this.anchor = '#p';
 			this.cReply = 'post reply';
+			this.docExt = '';
+			this.firstPage = 1;
+			this.formParent = 'resto';
+			this.hasCatalog = true;
+			this.hasTextLinks = true;
+			this.JsonBuilder = _4chanPostsBuilder;
 			this.qBan = 'strong[style="color: red;"]';
 			this.qClosed = '.archivedIcon, .closedIcon';
 			this.qDelBtn = '.deleteform > input[type="submit"]';
@@ -1025,37 +1029,26 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostRef = '.postInfo > .postNum';
 			this.qPostSubj = '.subject';
 			this.qPostUid = '.hand';
-
-			this.anchor = '#p';
-			this.docExt = '';
-			this.firstPage = 1;
-			this.formParent = 'resto';
-			this.hasCatalog = true;
-			this.hasTextLinks = true;
-			this.JsonBuilder = _4chanPostsBuilder;
 			this.res = 'thread/';
 			this.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
 		}
 		get captchaUpdate() {
-			let value = null;
-			if($id('captchaFormPart')) {
-				value = captcha => {
-					const containerEl = $id('t-root');
-					if(!containerEl) {
-						captcha.hasCaptcha = false;
-						return;
-					}
-					containerEl.insertAdjacentHTML('afterend', '<div id="t-root"></div>');
-					containerEl.remove();
-					$script('initTCaptcha();');
-					setTimeout(() => {
-						captcha.textEl = $id('t-resp');
-						captcha.textEl.tabIndex = 999;
-						captcha.initTextEl();
-					}, 1e3);
-					return null;
-				};
-			}
+			const value = !$id('captchaFormPart') ? null : captcha => {
+				const containerEl = $id('t-root');
+				if(!containerEl) {
+					captcha.hasCaptcha = false;
+					return;
+				}
+				containerEl.insertAdjacentHTML('afterend', '<div id="t-root"></div>');
+				containerEl.remove();
+				$script('initTCaptcha();');
+				setTimeout(() => {
+					captcha.textEl = $id('t-resp');
+					captcha.textEl.tabIndex = 999;
+					captcha.initTextEl();
+				}, 1e3);
+				return null;
+			};
 			Object.defineProperty(this, 'captchaUpdate', { value });
 			return value;
 		}
@@ -1179,12 +1172,15 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Aoba extends Kusaba {
 		constructor(...args) {
 			super(...args);
-			this.captchaRu = true;
 			this.hasCatalog = true;
 		}
 		get css() {
 			return `.extrabtns, input[name="board"] + hr, .replymode, .replymode + hr,
 				#rswapper + hr { display: none; }`;
+		}
+		init() {
+			defaultCfg.captchaLang = 2;
+			return false;
 		}
 	}
 	ibDomains['aoba.me'] = Aoba;
@@ -1200,6 +1196,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 			this.cReply = 'post';
+			this.docExt = '';
+			this.hasOPNum = true;
 			this.qDelBtn = null;
 			this.qDelForm = 'body > .container-fluid';
 			this.qDelPassw = null;
@@ -1209,9 +1207,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostMsg = '.post_comment_body';
 			this.qPostRef = '.post_id, .post_head > b';
 			this.qPostSubj = '.post_subject';
-
-			this.docExt = '';
-			this.hasOPNum = true;
 			this.res = 'thread/';
 		}
 		get css() {
@@ -1370,9 +1365,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Endchan extends Lynxchan {
 		constructor(...args) {
 			super(...args);
-			this.qTrunc = '.contentOmissionIndicator > p';
-
 			this.jsonSubmit = false;
+			this.qTrunc = '.contentOmissionIndicator > p';
 		}
 		get css() {
 			return `${ super.css }
@@ -1466,6 +1460,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Ivchan extends BaseBoard {
 		constructor(...args) {
 			super(...args);
+			this.anchor = '#i';
+			this.formParent = 'thread_id';
+			this.multiFile = true;
 			this.qClosed = 'img[src="/images/locked.png"]';
 			this.qDelForm = 'form[action*="delete"]';
 			this.qError = '.post-error, h2';
@@ -1476,11 +1473,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostMsg = '.postbody';
 			this.qPostSubj = '.replytitle';
 			this.qTrunc = '.abbrev > span:first-of-type';
-
-			this.anchor = '#i';
-			this.formParent = 'thread_id';
-			this.hasPicWrap = true;
-			this.multiFile = true;
 			this.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
 		}
 		get css() {
@@ -1528,11 +1520,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(...args);
 			this.kohlchan = true;
 
-			this.qFormRules = '#rules_row';
-			this.qPostImg = '.uploadCell > a > img';
-
 			this.hasTextLinks = true;
 			this.markupBB = true;
+			this.qFormRules = '#rules_row';
+			this.qPostImg = '.uploadCell > a > img';
 			this.timePattern = 'yyyy+nn+dd+hh+ii+ss';
 		}
 		get css() {
@@ -1671,9 +1662,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Lainchan extends Vichan {
 		constructor(...args) {
 			super(...args);
-			this.qOPost = '.op';
-
 			this.markupBB = true;
+			this.qOPost = '.op';
 		}
 		get css() {
 			return `${ super.css }
@@ -1696,10 +1686,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Nichan extends Vichan {
 		constructor(...args) {
 			super(...args);
+			this.markupBB = true;
 			this.qPages = '.bottom > .pages';
 			this.qPostImg = '.post-image[alt]:not(.deleted), video.post-image';
-
-			this.markupBB = true;
 		}
 		get css() {
 			return `${ super.css } label[for="email_selectbox"] { display: none !important; }`;
@@ -1724,12 +1713,11 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Ponyach extends BaseBoard {
 		constructor(...args) {
 			super(...args);
-			this.qBan = 'font[color="#FF0000"]';
-			this.qPostImgInfo = '.filesize[style="display: inline;"]';
-
 			this.formParent = 'replythread';
 			this.jsonSubmit = true;
 			this.multiFile = true;
+			this.qBan = 'font[color="#FF0000"]';
+			this.qPostImgInfo = '.filesize[style="display: inline;"]';
 		}
 		get qPostImgNameLink() {
 			return 'a:first-of-type';
@@ -1764,10 +1752,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Synch extends Vichan {
 		constructor(...args) {
 			super(...args);
+			this.markupBB = true;
 			this.qPages = '.pagination';
 			this.qPostImgInfo = '.unimportant';
-
-			this.markupBB = true;
 		}
 		get css() {
 			return `${ super.css }
@@ -1811,14 +1798,13 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Warosu extends BaseBoard {
 		constructor(...args) {
 			super(...args);
+			this.hasHtmlTag = false;
 			this.qDelForm = '.content';
 			this.qForm = '.subreply';
 			this.qFormSubm = '.g-recaptcha';
 			this.qOPost = '.comment';
 			this.qPostImgInfo = '.fileinfo';
 			this.qPostRef = '.js';
-
-			this.hasHtmlTag = false;
 			this.res = 'thread/';
 		}
 		get css() {
@@ -1852,9 +1838,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	let domain = localData?.domain;
 	if(checkDomains) {
 		if(!domain) {
+			const host = wLoc.hostname.toLowerCase();
 			const ibKeys = Object.keys(ibDomains);
 			let i = ibKeys.length;
-			const host = wLoc.hostname.toLowerCase();
 			while(i--) {
 				domain = ibKeys[i];
 				if(host === domain || host.endsWith('.' + domain)) {

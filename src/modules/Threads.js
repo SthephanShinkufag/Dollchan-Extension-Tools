@@ -241,7 +241,9 @@ class Thread {
 		const wrap = doc.adoptNode(aib.getPostWrap(el, false));
 		const post = new Post(el, this, num, i, false, prev);
 		fragment.append(wrap);
-		aib.postsBreak?.(fragment);
+		if(aib.hasPostsBreak) {
+			fragment.append(doc.createElement('br'));
+		}
 		if(aib.t && !doc.hidden && Cfg.animation) {
 			$animate(el, 'de-post-new');
 		}

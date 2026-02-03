@@ -209,14 +209,7 @@ const Panel = Object.create({
 		this._postsCountEl.textContent = postCount;
 		this._filesCountEl.textContent = filesCount;
 		this._postersCountEl.textContent = postersCount;
-		if(aib.makaba) {
-			$Q('.tn__item > span[title="Всего постов в треде"]').forEach(
-				el => el.innerHTML = el.innerHTML.replace(/\d+$/, postCount));
-			$Q('.tn__item > span[title="Всего файлов в треде"]').forEach(
-				el => el.innerHTML = el.innerHTML.replace(/\d+$/, filesCount));
-			$Q('.tn__item > span[title="Постеры"]').forEach(
-				el => el.innerHTML = el.innerHTML.replace(/\d+$/, postersCount));
-		}
+		aib.updateCounters?.(postCount, filesCount, postersCount);
 	},
 
 	_el     : null,

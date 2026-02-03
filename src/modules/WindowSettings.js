@@ -385,7 +385,6 @@ const CfgWindow = {
 				setTimeout(() => postform.toggleSage(), 0);
 				updateCSS();
 				break;
-			case 'altCaptcha': postform.captcha.initCaptchaPromise(); break;
 			case 'txtBtnsLoc':
 				postform.addMarkupPanel();
 				updateCSS();
@@ -746,8 +745,7 @@ const CfgWindow = {
 			${ postform.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
 			${ postform.mail ? `${ this._getBox('addSageBtn') }
 				${ this._getBox('saveSage') }<br>` : '' }
-			${ postform.captcha ? `${ aib.hasAltCaptcha ? `${ this._getBox('altCaptcha') }<br>` : '' }
-				${ !aib.makaba ? `${ this._getInp('capUpdTime') }<br>` : '' }
+			${ postform.captcha ? `${ !aib.noCapUpdTime && this._getInp('capUpdTime', true, 4) }<br>
 				${ this._getSel('captchaLang') }<br>` : '' }
 			${ !aib.noMarkupBtns && postform.txta ? `${ this._getSel('addTextBtns') }
 				${ !aib.noMarkupBtns && !aib._4chan ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
@@ -827,7 +825,7 @@ const CfgWindow = {
 		<span class="de-info-name">${ val[0] }</span>
 		<span>${ val[1] + (needMs ? 'ms' : '') }</span></div>`).join(''),
 	// Creates a text input for text option values
-	_getInp(id, addText = true, size = 2) {
+	_getInp(id, addText = true, size = 3) {
 		const el = doc.createElement('div');
 		el.append(Cfg[id]); // Escape HTML
 		return `<label class="de-cfg-label">
