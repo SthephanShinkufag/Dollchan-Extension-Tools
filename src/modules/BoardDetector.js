@@ -580,7 +580,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					div[id^="shrinked-post"] { display: none !important; }
 					div[id^="original-post"] { display: block !important; }` : '' }
 				${ Cfg.imgNames === 2 ? `.post__filezise { display: inline !important; }
-					.post__file-attr { margin-bottom: 1px; }` : '' }`;
+					.post__file-attr { margin-bottom: 1px; }` : '' }
+				${ Cfg.widePosts ? '.post__message { max-width: 98vw; }' : '' }`;
 		}
 		get isArchived() {
 			return this.b.includes('/arch');
