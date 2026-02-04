@@ -8218,7 +8218,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this26 = this;
   var _marked = _regeneratorRuntime().mark(getFormElements);
   var version = '24.9.16.0';
-  var commit = '3e1ef11';
+  var commit = 'e96b010';
 
 
   var doc = deWindow.document;
@@ -26508,17 +26508,18 @@ Spells.addSpell(9, '', false);
       }, {
         key: "handlePostClick",
         value: function handlePostClick(post, el, e) {
-          if (el.classList.contains('post__rate') || (el = el.parentNode).classList.contains('post__rate')) {
-            var task = el.id.split('-')[0];
-            var num = +el.id.match(/\d+/);
+          var likeEl = el;
+          if (likeEl.classList.contains('post__rate') || (likeEl = el.parentNode).classList.contains('post__rate')) {
+            var task = likeEl.id.split('-')[0];
+            var num = +likeEl.id.match(/\d+/);
             $ajax("/api/".concat(task, "?board=").concat(aib.b, "&num=").concat(num)).then(function (xhr) {
               var obj = JSON.parse(xhr.responseText);
               if (obj.result !== 1) {
                 $popup('err-2chlike', Lng.error[lang] + ': ' + obj.error.message);
                 return;
               }
-              el.classList.add("post__rate_".concat(task, "d"));
-              var countEl = $q("#".concat(task, "-count").concat(num), el);
+              likeEl.classList.add("post__rate_".concat(task, "d"));
+              var countEl = $q("#".concat(task, "-count").concat(num), likeEl);
               countEl.textContent = +countEl.textContent + 1;
             }, function () {
               return $popup('err-2chlike', Lng.noConnect[lang]);

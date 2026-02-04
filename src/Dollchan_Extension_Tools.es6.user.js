@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '3e1ef11';
+const commit = 'e96b010';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -16528,17 +16528,20 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		handlePostClick(post, el, e) {
 			// Click on like/dislike elements
-			if(el.classList.contains('post__rate') || (el = el.parentNode).classList.contains('post__rate')) {
-				const task = el.id.split('-')[0];
-				const num = +el.id.match(/\d+/);
+			let likeEl = el;
+			if(likeEl.classList.contains('post__rate') ||
+				(likeEl = el.parentNode).classList.contains('post__rate')
+			) {
+				const task = likeEl.id.split('-')[0];
+				const num = +likeEl.id.match(/\d+/);
 				$ajax(`/api/${ task }?board=${ aib.b }&num=${ num }`).then(xhr => {
 					const obj = JSON.parse(xhr.responseText);
 					if(obj.result !== 1) {
 						$popup('err-2chlike', Lng.error[lang] + ': ' + obj.error.message);
 						return;
 					}
-					el.classList.add(`post__rate_${ task }d`);
-					const countEl = $q(`#${ task }-count${ num }`, el);
+					likeEl.classList.add(`post__rate_${ task }d`);
+					const countEl = $q(`#${ task }-count${ num }`, likeEl);
 					countEl.textContent = +countEl.textContent + 1;
 				}, () => $popup('err-2chlike', Lng.noConnect[lang]));
 			}
