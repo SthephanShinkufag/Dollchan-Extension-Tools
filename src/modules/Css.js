@@ -446,7 +446,7 @@ function updateCSS() {
 	${ Cfg.imgNames === 1 ? '.de-img-name { display: inline-block; max-width: 230px; vertical-align: top; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }' : '' }
 	${ Cfg.imgNames === 2 ? '.de-img-name { text-decoration: none !important; text-transform: capitalize; }' : '' }
 	${ Cfg.imgNames === 3 ? '.de-img-name { display: inline-block; max-width: 230px; vertical-align: top; word-wrap: break-word; white-space: break-spaces; }' : '' }
-	${ Cfg.widePosts ? '.de-reply { width: 99vw; margin-left: 0; float: none; }' : '' }
+	${ Cfg.widePosts ? '.de-oppost, .de-reply { width: 98vw; max-width: 98vw; margin-left: 0; float: none; }' : '' }
 	${ aib.qPostMsg } { max-width: ${ Cfg.limitPostMsg }px; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }
 	${ Cfg.noSpoilers === 1 ?
