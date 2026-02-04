@@ -24,7 +24,6 @@ async function getStored(id) {
 }
 
 // Saves data into the global storage
-// FIXME: make async?
 function setStored(id, value) {
 	if(nav.hasNewGM) {
 		return GM.setValue(id, value);
@@ -54,7 +53,6 @@ function setStored(id, value) {
 }
 
 // Removes data from the global storage
-// FIXME: make async?
 function delStored(id) {
 	if(nav.hasNewGM) {
 		return GM.deleteValue(id);

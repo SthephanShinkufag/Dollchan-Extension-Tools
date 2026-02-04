@@ -161,7 +161,7 @@ function initNavFuncs() {
 		},
 		// XXX: Firefox + old Greasemonkey - hack to prevent
 		//    'Accessing TypedArray data over Xrays is slow, and forbidden' errors
-		getUnsafeUint8Array(data, i, len) {
+		unsafeUint8Array(data, i, len) {
 			let Ctor = Uint8Array;
 			if(this.isFirefox && (this.hasOldGM || this.isTampermonkey)) {
 				try {
@@ -179,10 +179,10 @@ function initNavFuncs() {
 			}
 			throw new Error();
 		},
-		getUnsafeDataView(data, offset) { // XXX: Firefox + old Greasemonkey
-			const value = new DataView(data, offset || 0);
+		unsafeDataView(data, offset = 0) { // XXX: Firefox + old Greasemonkey
+			const value = new DataView(data, offset);
 			return this.isFirefox && this.hasOldGM && !(value instanceof DataView) ?
-				new unsafeWindow.DataView(data, offset || 0) : value;
+				new unsafeWindow.DataView(data, offset) : value;
 		}
 	};
 }

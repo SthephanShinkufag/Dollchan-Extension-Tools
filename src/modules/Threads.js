@@ -23,7 +23,10 @@ class Thread {
 			prev.next = this;
 		}
 		let lastPost = this.op = new Post(aib.getOp(el), this, num, 0, true, prev ? prev.last : null);
-		pByEl.set(el, lastPost);
+		pByEl.set(el, this.op);
+		if(!aib.t) {
+			Thread._updateReplyBtn(this.op.el);
+		}
 		for(let i = 0; i < len; ++i) {
 			const pEl = els[i];
 			lastPost = new Post(pEl, this, aib.getPNum(pEl), omitted + i, false, lastPost);
@@ -34,15 +37,15 @@ class Thread {
 		if(localData) {
 			return;
 		}
-		this.btns = $bEnd(el, `<div class="de-thr-buttons">${ Post.getPostBtns(true, true) }
-			<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>` +
-			(!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>') +
+		this.btns = $bEnd(el, '<div class="de-thr-buttons">' + Post.getPostBtns(true, true) +
+			'<span class="de-thr-updater"><a class="de-thr-updater-link link-button" href="#"></a>' +
+			(!aib.t ? '</span>' : '<span id="de-updater-count" style="display: none;"></span></span>') +
 			'</div>');
 		['click', 'mouseover'].forEach(e => this.btns.addEventListener(e, this));
 		[this.btnHide,, this.btnFav, this.btnUpd] = [...this.btns.children];
 		if(!aib.t && Cfg.hideReplies) {
 			this.btnReplies = $bEnd(this.btns,
-				' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
+				' <span class="de-btn-replies"><a class="link-button" href="#"></a></span>');
 			this._toggleReplies();
 		}
 	}
@@ -236,6 +239,21 @@ class Thread {
 		} while((thr = thr.next));
 	}
 
+	static _updateReplyBtn(postEl) {
+		const el = $q(aib.qReplyBtn, postEl);
+		if(!el) {
+			return;
+		}
+		const prevEl = el.previousSibling;
+		if(prevEl?.nodeType === Node.TEXT_NODE) {
+			prevEl.nodeValue = prevEl.nodeValue.replace(/\s*\[$/, '');
+		}
+		const nextEl = el.nextSibling;
+		if(nextEl?.nodeType === Node.TEXT_NODE) {
+			nextEl.nodeValue = nextEl.nodeValue.replace(/^\]/, '');
+		}
+		el.className = 'link-button de-gotothr-button';
+	}
 	_addPost(fragment, el, i, prev, maybeVParser) {
 		const num = aib.getPNum(el);
 		const wrap = doc.adoptNode(aib.getPostWrap(el, false));
@@ -404,8 +422,8 @@ class Thread {
 		const btns = this._moveBtnsToEnd();
 		if(!$q('.de-thr-collapse', btns)) {
 			btns.insertAdjacentHTML('beforeend',
-				`<span class="de-thr-collapse"> [<a class="de-thr-collapse-link de-abtn" href="${
-					aib.getThrUrl(aib.b, this.num) }"></a>]</span>`);
+				`<span class="de-thr-collapse">&nbsp;<a class="de-thr-collapse-link link-button" href="${
+					aib.getThrUrl(aib.b, this.num) }"></a></span>`);
 		}
 		if(needToShow > Thread.visPosts) {
 			thrNavPanel.addThr(this);
@@ -422,7 +440,7 @@ class Thread {
 		}
 		Pview.updatePosition(false);
 		if(Cfg.hideReplies) {
-			this.btnReplies.firstElementChild.className = 'de-replies-hide de-abtn';
+			this.btnReplies.firstElementChild.className = 'de-replies-hide link-button';
 			if(Cfg.updThrBtns) {
 				$show(this.btnUpd);
 			}
@@ -548,7 +566,7 @@ class Thread {
 			post.wrap.classList.toggle('de-hidden', isHide);
 		}
 		this.btnReplies.firstElementChild.className =
-			`${ isHide ? 'de-replies-show' : 'de-replies-hide' } de-abtn`;
+			`${ isHide ? 'de-replies-show' : 'de-replies-hide' } link-button`;
 		[...this.btns.children].forEach(el => el !== this.btnReplies && $toggle(el, !isHide));
 		$q(aib.qOmitted + ', .de-omitted', this.el)?.remove();
 		i = this.postsCount - 1 - (isHide ? 0 : i);

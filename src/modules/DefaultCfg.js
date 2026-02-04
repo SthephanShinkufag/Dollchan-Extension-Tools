@@ -92,7 +92,7 @@ const defaultCfg = {
 	saveSage     : 1,    //    remember sage
 	sageReply    : 0,    //    reply with sage
 	capUpdTime   : 300,  // captcha update interval (sec)
-	captchaLang  : 0,    // forced captcha input language [0=off, 1=en, 2=ru]
+	captchaLang  : 1,    // forced captcha input language [0=off, 1=en, 2=ru]
 	addTextBtns  : 1,    // text markup buttons [0=off, 1=graphics, 2=text, 3=usual]
 	txtBtnsLoc   : 1,    //    located at [0=top, 1=bottom]
 	userPassw    : 1,    // user password

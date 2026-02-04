@@ -295,7 +295,7 @@ async function html5Submit(form, submitter, needProgress = false) {
 }
 
 function cleanFile(data, extraData) {
-	const img = nav.getUnsafeUint8Array(data);
+	const img = nav.unsafeUint8Array(data);
 	const rand = Cfg.postSameImg && String(Math.round(Math.random() * 1e6));
 	const rv = extraData ?
 		rand ? [img, extraData, rand] : [img, extraData] :
@@ -305,7 +305,7 @@ function cleanFile(data, extraData) {
 		return rv;
 	}
 	let i, len, val, lIdx, jpgDat;
-	const subarray = (begin, end) => nav.getUnsafeUint8Array(data, begin, end - begin);
+	const subarray = (begin, end) => nav.unsafeUint8Array(data, begin, end - begin);
 	// JPG
 	if(img[0] === 0xFF && img[1] === 0xD8) {
 		let deep = 1;
@@ -348,7 +348,7 @@ function cleanFile(data, extraData) {
 		if(lIdx === 2) {
 			// Remove data after the end marker
 			if(i < len) {
-				rv[0] = nav.getUnsafeUint8Array(data, 0, i);
+				rv[0] = nav.unsafeUint8Array(data, 0, i);
 			}
 			return rv;
 		}
@@ -375,7 +375,7 @@ function cleanFile(data, extraData) {
 		i += 8;
 		// Remove data after the end marker
 		if(i !== len && (extraData || len - i <= 75)) {
-			rv[0] = nav.getUnsafeUint8Array(data, 0, i);
+			rv[0] = nav.unsafeUint8Array(data, 0, i);
 		}
 		return rv;
 	}
@@ -386,7 +386,7 @@ function cleanFile(data, extraData) {
 		while(i && img[--i - 1] !== 0x00 && img[i] !== 0x3B) /* empty */;
 		// Remove data after the end marker
 		if(++i !== len) {
-			rv[0] = nav.getUnsafeUint8Array(data, 0, i);
+			rv[0] = nav.unsafeUint8Array(data, 0, i);
 		}
 		return rv;
 	}
@@ -397,11 +397,11 @@ function cleanFile(data, extraData) {
 	return null;
 }
 
-function readExif(data, off, len) {
+function readExif(data, offset, len) {
 	let xRes = 0;
 	let yRes = 0;
 	let resT = 0;
-	const dv = nav.getUnsafeDataView(data, off || 0);
+	const dv = nav.unsafeDataView(data, offset);
 	const le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
 	if(dv.getUint16(2, le) !== 0x2A) {
 		return null;

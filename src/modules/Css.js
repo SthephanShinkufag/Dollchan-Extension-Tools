@@ -317,6 +317,7 @@ function scriptCSS() {
 
 	/* Reply form */
 	.de-parea { text-align: center; clear: both; }
+	.de-parea > #de-pform { margin-top: 4px; }
 	.de-parea-btn-close::after { content: "${ Lng.hideForm[lang] }"; }
 	.de-parea-btn-thr::after { content: "${ Lng.makeThr[lang] }"; }
 	.de-parea-btn-reply::after { content: "${ Lng.makeReply[lang] }"; }
@@ -344,9 +345,11 @@ function scriptCSS() {
 	:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }
 
 	/* Other */
-	.de-abtn { text-decoration: none !important; outline: none; }
+	.de-abtn, a.link-button { text-decoration: none !important; outline: none; }
 	.de-button { flex: none; padding: 0 ${ nav.isFirefox ? 2 : 4 }px !important; margin: 1px 2px; min-width: auto !iportant; height: 24px; font: 13px arial; }
 	.de-editor { display: block; width: 600px; height: 300px; max-width: calc(100vw - 20px); font: 12px courier new; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }
+	.de-gotothr-button { vertical-align: 5px; font-size: 0 !important; }
+	.de-gotothr-button::after { content: "${ Lng.goToThr[lang] }"; font-size: 14px; }
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }
 	.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }
 	input[type="text"].de-input-selected { background: rgba(255,255,150,0.4) !important }
@@ -386,8 +389,9 @@ function scriptCSS() {
 	.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }
 	.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }
 	#de-wrapper-popup { max-width: calc(100vw - (100vw - 100%)); overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }
+	.link-button { display: inline-flex; padding: 3px 5px; margin-left: 4px; background: rgba(0, 40, 140, 0.06); border: 1px solid rgba(120, 120, 120, .5); border-radius: 4px; font: 14px/14px arial; }
+	.link-button:hover { background: rgba(60, 60, 160, 0.12); }
 	@keyframes de-wait-anim { to { transform: rotate(360deg); } }
-	form > hr { clear: both }
 
 	/* Mobile devices */
 	@media screen and (max-width: 768px) {
@@ -472,7 +476,7 @@ function updateCSS() {
 	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
 	${ !aib.formHeaders && (aib.multiFile || Cfg.fileInputs !== 2) ?
 		'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form table > tbody > tr > th:first-child, ' : '' }
-	body > hr, .postarea, .theader { display: none !important; }\r\n`;
+	.postarea, .postarea + hr, .postarea + * + hr, .theader { display: none !important; }\r\n`;
 	$id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 }

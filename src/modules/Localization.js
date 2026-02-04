@@ -701,6 +701,11 @@ const Lng = {
 		'Закрепить превью',
 		'Attach preview',
 		'Закріпити превʼю'],
+	goToThr: [
+		'В тред',
+		'To thread',
+		'До треду'
+	],
 
 	// Windows buttons: tooltips
 	closeWindow: [

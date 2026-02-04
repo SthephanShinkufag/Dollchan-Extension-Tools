@@ -592,7 +592,7 @@ class TarBuilder {
 class WebmParser {
 	constructor(data) {
 		let offset = 0;
-		const dv = nav.getUnsafeDataView(data);
+		const dv = nav.unsafeDataView(data);
 		const len = dv.byteLength;
 		const el = new WebmParser.Element(dv, len, 0);
 		const voids = [];
@@ -646,7 +646,7 @@ class WebmParser {
 		if(this.error) {
 			return null;
 		}
-		this.rv[0] = nav.getUnsafeUint8Array(this.data, 0, this.segment.endOffset);
+		this.rv[0] = nav.unsafeUint8Array(this.data, 0, this.segment.endOffset);
 		return this.rv;
 	}
 }

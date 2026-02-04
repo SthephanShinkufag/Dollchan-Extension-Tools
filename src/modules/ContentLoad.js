@@ -166,7 +166,7 @@ const ContentLoader = {
 		$ajax(url, { responseType: 'arraybuffer' }, !url.startsWith('blob')).then(xhr => {
 			if('response' in xhr) {
 				try {
-					return nav.getUnsafeUint8Array(xhr.response);
+					return nav.unsafeUint8Array(xhr.response);
 				} catch(err) {}
 			}
 			const txt = xhr.responseText;
@@ -267,7 +267,7 @@ const ContentLoader = {
 		}
 		const ext = ['7z', 'zip', 'rar', 'ogg', 'mp3'][type];
 		nameLink.insertAdjacentHTML('afterend', `<a href="${ deWindow.URL.createObjectURL(
-			new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {
+			new Blob([nav.unsafeUint8Array(info.data, info.idx)], {
 				type: [
 					'application/x-7z-compressed',
 					'application/zip',

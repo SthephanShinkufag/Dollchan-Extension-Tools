@@ -8,7 +8,7 @@ const CfgWindow = {
 			e => winBody.addEventListener(e, this));
 
 		// Create tab bar and bottom buttons
-		let div = $bEnd(winBody, `<div id="de-cfg-bar">${
+		const div = $bEnd(winBody, `<div id="de-cfg-bar">${
 			this._getTab('filters') +
 			this._getTab('posts') +
 			this._getTab('images') +
@@ -44,7 +44,7 @@ const CfgWindow = {
 					}
 				};
 				// "Save" button. Copies the domain settings into global.
-				div = $bEnd(el, `<div id="de-list"><input type="button" value="${
+				$bEnd(el, `<div id="de-list"><input type="button" value="${
 					Lng.save[lang] }"> ${ Lng.saveGlobal[lang] }</div>`
 				).firstElementChild.onclick = async () => {
 					const data = await getStoredObj('DESU_Config');

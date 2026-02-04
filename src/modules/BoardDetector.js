@@ -552,6 +552,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostRef = '.post__reflink:nth-child(2)';
 			this.qPostSubj = '.post__title';
 			this.qPostUid = 'span[id^="id_tag_"]';
+			this.qReplyBtn = '.post__detailpart.desktop > a';
 			this.qTrunc = null;
 			this.timePattern = 'dd+nn+yy+w+hh+ii+ss';
 		}
@@ -825,10 +826,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostName = '.ananimas, .post-email';
 			this.qPostRef = '.reflink';
 			this.qPostSubj = '.post-title';
+			this.qReplyBtn = '.post-details > .desktop > a';
 		}
 		get css() {
-			return `.banner_title + hr, .newpost, .newpost + hr, .postpanel > :not(img), .posts > hr, .refmap,
-					.thread-nav, #youtube-thumb-float { display: none !important; }
+			return `.newpost, .newpost + hr, .postpanel > :not(img), .refmap, #youtube-thumb-float
+					{ display: none !important; }
 				.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }
 				.postform { width: initial; }
 				.preview.lazy { opacity: 1; }`;
@@ -925,6 +927,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 			this.jsonSubmit = true;
+			this.qReplyBtn = '.replytothread > a';
 		}
 		get css() {
 			return `small[id^="rfmap_"], #submit_button, .qreply_btn { display: none; }
@@ -1029,6 +1032,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostRef = '.postInfo > .postNum';
 			this.qPostSubj = '.subject';
 			this.qPostUid = '.hand';
+			this.qReplyBtn = '.replylink';
 			this.res = 'thread/';
 			this.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
 		}
@@ -1175,8 +1179,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasCatalog = true;
 		}
 		get css() {
-			return `.extrabtns, input[name="board"] + hr, .replymode, .replymode + hr,
-				#rswapper + hr { display: none; }`;
+			return '.extrabtns, input[name="board"] + hr, .replymode, #rswapper + hr { display: none; }';
 		}
 		init() {
 			defaultCfg.captchaLang = 2;
@@ -1334,6 +1337,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Dobrochan extends Vichan {
 		get css() {
 			return `${ super.css }
+				.de-parea > hr { margin-top: 0.7em; }
 				#de-pform input[type="text"] { float: none !important; }`;
 		}
 		get markupTags() {
@@ -1425,7 +1429,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ this.protocol }//${ this.host }/${ this.b }/catalogue.html`;
 		}
 		get css() {
-			return `${ !this.t ? '' : 'hr + #de-main { margin-top: -32px; } .logo { margin-bottom: 14px; }' }
+			return `${ !this.t ? '' : 'hr + #de-main { margin-top: -17px; }' }
 			.iichan-hide-thread-btn, .iichan-quick-reply-btn, .postnum { display: none; }
 			.replypage div[id^="thread"] span.reflink::after { content: none; }`;
 		}
@@ -1524,6 +1528,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 			this.qFormRules = '#rules_row';
 			this.qPostImg = '.uploadCell > a > img';
+			this.qReplyBtn = '.linkReply';
 			this.timePattern = 'yyyy+nn+dd+hh+ii+ss';
 		}
 		get css() {
@@ -1691,7 +1696,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostImg = '.post-image[alt]:not(.deleted), video.post-image';
 		}
 		get css() {
-			return `${ super.css } label[for="email_selectbox"] { display: none !important; }`;
+			return `${ super.css }
+				.createbutton, label[for="email_selectbox"] { display: none !important; }`;
 		}
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];

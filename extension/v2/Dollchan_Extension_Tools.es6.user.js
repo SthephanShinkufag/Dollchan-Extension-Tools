@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '884ba6d';
+const commit = '05b1aee';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -137,7 +137,7 @@ const defaultCfg = {
 	saveSage     : 1,    //    remember sage
 	sageReply    : 0,    //    reply with sage
 	capUpdTime   : 300,  // captcha update interval (sec)
-	captchaLang  : 0,    // forced captcha input language [0=off, 1=en, 2=ru]
+	captchaLang  : 1,    // forced captcha input language [0=off, 1=en, 2=ru]
 	addTextBtns  : 1,    // text markup buttons [0=off, 1=graphics, 2=text, 3=usual]
 	txtBtnsLoc   : 1,    //    located at [0=top, 1=bottom]
 	userPassw    : 1,    // user password
@@ -895,6 +895,11 @@ const Lng = {
 		'Закрепить превью',
 		'Attach preview',
 		'Закріпити превʼю'],
+	goToThr: [
+		'В тред',
+		'To thread',
+		'До треду'
+	],
 
 	// Windows buttons: tooltips
 	closeWindow: [
@@ -2308,7 +2313,7 @@ class TarBuilder {
 class WebmParser {
 	constructor(data) {
 		let offset = 0;
-		const dv = nav.getUnsafeDataView(data);
+		const dv = nav.unsafeDataView(data);
 		const len = dv.byteLength;
 		const el = new WebmParser.Element(dv, len, 0);
 		const voids = [];
@@ -2362,7 +2367,7 @@ class WebmParser {
 		if(this.error) {
 			return null;
 		}
-		this.rv[0] = nav.getUnsafeUint8Array(this.data, 0, this.segment.endOffset);
+		this.rv[0] = nav.unsafeUint8Array(this.data, 0, this.segment.endOffset);
 		return this.rv;
 	}
 }
@@ -2436,7 +2441,6 @@ async function getStored(id) {
 }
 
 // Saves data into the global storage
-// FIXME: make async?
 function setStored(id, value) {
 	if(nav.hasNewGM) {
 		return GM.setValue(id, value);
@@ -2466,7 +2470,6 @@ function setStored(id, value) {
 }
 
 // Removes data from the global storage
-// FIXME: make async?
 function delStored(id) {
 	if(nav.hasNewGM) {
 		return GM.deleteValue(id);
@@ -3099,7 +3102,7 @@ const Panel = Object.create({
 					</span>` : '') }
 				</span>
 			</div>
-			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">' }
+			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div>' }
 		</div>`);
 		this._el = $id('de-panel');
 		this._el.addEventListener('click', this, true);
@@ -4309,7 +4312,7 @@ const CfgWindow = {
 			e => winBody.addEventListener(e, this));
 
 		// Create tab bar and bottom buttons
-		let div = $bEnd(winBody, `<div id="de-cfg-bar">${
+		const div = $bEnd(winBody, `<div id="de-cfg-bar">${
 			this._getTab('filters') +
 			this._getTab('posts') +
 			this._getTab('images') +
@@ -4345,7 +4348,7 @@ const CfgWindow = {
 					}
 				};
 				// "Save" button. Copies the domain settings into global.
-				div = $bEnd(el, `<div id="de-list"><input type="button" value="${
+				$bEnd(el, `<div id="de-list"><input type="button" value="${
 					Lng.save[lang] }"> ${ Lng.saveGlobal[lang] }</div>`
 				).firstElementChild.onclick = async () => {
 					const data = await getStoredObj('DESU_Config');
@@ -6180,7 +6183,7 @@ const ContentLoader = {
 		$ajax(url, { responseType: 'arraybuffer' }, !url.startsWith('blob')).then(xhr => {
 			if('response' in xhr) {
 				try {
-					return nav.getUnsafeUint8Array(xhr.response);
+					return nav.unsafeUint8Array(xhr.response);
 				} catch(err) {}
 			}
 			const txt = xhr.responseText;
@@ -6281,7 +6284,7 @@ const ContentLoader = {
 		}
 		const ext = ['7z', 'zip', 'rar', 'ogg', 'mp3'][type];
 		nameLink.insertAdjacentHTML('afterend', `<a href="${ deWindow.URL.createObjectURL(
-			new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {
+			new Blob([nav.unsafeUint8Array(info.data, info.idx)], {
 				type: [
 					'application/x-7z-compressed',
 					'application/zip',
@@ -8955,7 +8958,7 @@ class PostForm {
 			this.isQuick = true;
 			this.setReply(true, false);
 			$q('a', this._pBtn[+this.isBottom]).className =
-				`de-abtn de-parea-btn-${ aib.t ? 'reply' : 'thr' }`;
+				`link-button de-parea-btn-${ aib.t ? 'reply' : 'thr' }`;
 		} else if(isCloseReply && !this.quotedText && post.wrap.nextElementSibling === this.qArea) {
 			this.closeReply();
 			return;
@@ -9004,7 +9007,7 @@ class PostForm {
 		}
 	}
 	updatePAreaBtns() {
-		const txt = 'de-abtn de-parea-btn-';
+		const txt = 'link-button de-parea-btn-';
 		const rep = aib.t ? 'reply' : 'thr';
 		$q('a', this._pBtn[+this.isBottom]).className = txt + (!this.pForm.style.display ? 'close' : rep);
 		$q('a', this._pBtn[+!this.isBottom]).className = txt + rep;
@@ -9184,11 +9187,8 @@ class PostForm {
 	_makeHideableContainer() {
 		(this.pForm = $add('<div id="de-pform" class="de-win-body"></div>'))
 			.append(this.form || '', this.oeForm || '');
-		const html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
-		this.pArea = [
-			$bBegin(DelForm.first.el, html),
-			$aEnd(aib._4chan ? $q('.board', DelForm.first.el) : DelForm.first.el, html)
-		];
+		const html = '<div class="de-parea"><div><a href="#"></a></div><hr></div>';
+		this.pArea = [$bBegin(DelForm.first.el, html), $aEnd(DelForm.first.el, html)];
 		this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 		this._pBtn[0].firstElementChild.onclick = e => this.showMainReply(false, e);
 		this._pBtn[1].firstElementChild.onclick = e => this.showMainReply(true, e);
@@ -9568,7 +9568,7 @@ async function html5Submit(form, submitter, needProgress = false) {
 }
 
 function cleanFile(data, extraData) {
-	const img = nav.getUnsafeUint8Array(data);
+	const img = nav.unsafeUint8Array(data);
 	const rand = Cfg.postSameImg && String(Math.round(Math.random() * 1e6));
 	const rv = extraData ?
 		rand ? [img, extraData, rand] : [img, extraData] :
@@ -9578,7 +9578,7 @@ function cleanFile(data, extraData) {
 		return rv;
 	}
 	let i, len, val, lIdx, jpgDat;
-	const subarray = (begin, end) => nav.getUnsafeUint8Array(data, begin, end - begin);
+	const subarray = (begin, end) => nav.unsafeUint8Array(data, begin, end - begin);
 	// JPG
 	if(img[0] === 0xFF && img[1] === 0xD8) {
 		let deep = 1;
@@ -9621,7 +9621,7 @@ function cleanFile(data, extraData) {
 		if(lIdx === 2) {
 			// Remove data after the end marker
 			if(i < len) {
-				rv[0] = nav.getUnsafeUint8Array(data, 0, i);
+				rv[0] = nav.unsafeUint8Array(data, 0, i);
 			}
 			return rv;
 		}
@@ -9648,7 +9648,7 @@ function cleanFile(data, extraData) {
 		i += 8;
 		// Remove data after the end marker
 		if(i !== len && (extraData || len - i <= 75)) {
-			rv[0] = nav.getUnsafeUint8Array(data, 0, i);
+			rv[0] = nav.unsafeUint8Array(data, 0, i);
 		}
 		return rv;
 	}
@@ -9659,7 +9659,7 @@ function cleanFile(data, extraData) {
 		while(i && img[--i - 1] !== 0x00 && img[i] !== 0x3B) /* empty */;
 		// Remove data after the end marker
 		if(++i !== len) {
-			rv[0] = nav.getUnsafeUint8Array(data, 0, i);
+			rv[0] = nav.unsafeUint8Array(data, 0, i);
 		}
 		return rv;
 	}
@@ -9670,11 +9670,11 @@ function cleanFile(data, extraData) {
 	return null;
 }
 
-function readExif(data, off, len) {
+function readExif(data, offset, len) {
 	let xRes = 0;
 	let yRes = 0;
 	let resT = 0;
-	const dv = nav.getUnsafeDataView(data, off || 0);
+	const dv = nav.unsafeDataView(data, offset);
 	const le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
 	if(dv.getUint16(2, le) !== 0x2A) {
 		return null;
@@ -13774,7 +13774,10 @@ class Thread {
 			prev.next = this;
 		}
 		let lastPost = this.op = new Post(aib.getOp(el), this, num, 0, true, prev ? prev.last : null);
-		pByEl.set(el, lastPost);
+		pByEl.set(el, this.op);
+		if(!aib.t) {
+			Thread._updateReplyBtn(this.op.el);
+		}
 		for(let i = 0; i < len; ++i) {
 			const pEl = els[i];
 			lastPost = new Post(pEl, this, aib.getPNum(pEl), omitted + i, false, lastPost);
@@ -13785,15 +13788,15 @@ class Thread {
 		if(localData) {
 			return;
 		}
-		this.btns = $bEnd(el, `<div class="de-thr-buttons">${ Post.getPostBtns(true, true) }
-			<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>` +
-			(!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>') +
+		this.btns = $bEnd(el, '<div class="de-thr-buttons">' + Post.getPostBtns(true, true) +
+			'<span class="de-thr-updater"><a class="de-thr-updater-link link-button" href="#"></a>' +
+			(!aib.t ? '</span>' : '<span id="de-updater-count" style="display: none;"></span></span>') +
 			'</div>');
 		['click', 'mouseover'].forEach(e => this.btns.addEventListener(e, this));
 		[this.btnHide,, this.btnFav, this.btnUpd] = [...this.btns.children];
 		if(!aib.t && Cfg.hideReplies) {
 			this.btnReplies = $bEnd(this.btns,
-				' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
+				' <span class="de-btn-replies"><a class="link-button" href="#"></a></span>');
 			this._toggleReplies();
 		}
 	}
@@ -13987,6 +13990,21 @@ class Thread {
 		} while((thr = thr.next));
 	}
 
+	static _updateReplyBtn(postEl) {
+		const el = $q(aib.qReplyBtn, postEl);
+		if(!el) {
+			return;
+		}
+		const prevEl = el.previousSibling;
+		if(prevEl?.nodeType === Node.TEXT_NODE) {
+			prevEl.nodeValue = prevEl.nodeValue.replace(/\s*\[$/, '');
+		}
+		const nextEl = el.nextSibling;
+		if(nextEl?.nodeType === Node.TEXT_NODE) {
+			nextEl.nodeValue = nextEl.nodeValue.replace(/^\]/, '');
+		}
+		el.className = 'link-button de-gotothr-button';
+	}
 	_addPost(fragment, el, i, prev, maybeVParser) {
 		const num = aib.getPNum(el);
 		const wrap = doc.adoptNode(aib.getPostWrap(el, false));
@@ -14155,8 +14173,8 @@ class Thread {
 		const btns = this._moveBtnsToEnd();
 		if(!$q('.de-thr-collapse', btns)) {
 			btns.insertAdjacentHTML('beforeend',
-				`<span class="de-thr-collapse"> [<a class="de-thr-collapse-link de-abtn" href="${
-					aib.getThrUrl(aib.b, this.num) }"></a>]</span>`);
+				`<span class="de-thr-collapse">&nbsp;<a class="de-thr-collapse-link link-button" href="${
+					aib.getThrUrl(aib.b, this.num) }"></a></span>`);
 		}
 		if(needToShow > Thread.visPosts) {
 			thrNavPanel.addThr(this);
@@ -14173,7 +14191,7 @@ class Thread {
 		}
 		Pview.updatePosition(false);
 		if(Cfg.hideReplies) {
-			this.btnReplies.firstElementChild.className = 'de-replies-hide de-abtn';
+			this.btnReplies.firstElementChild.className = 'de-replies-hide link-button';
 			if(Cfg.updThrBtns) {
 				$show(this.btnUpd);
 			}
@@ -14299,7 +14317,7 @@ class Thread {
 			post.wrap.classList.toggle('de-hidden', isHide);
 		}
 		this.btnReplies.firstElementChild.className =
-			`${ isHide ? 'de-replies-show' : 'de-replies-hide' } de-abtn`;
+			`${ isHide ? 'de-replies-show' : 'de-replies-hide' } link-button`;
 		[...this.btns.children].forEach(el => el !== this.btnReplies && $toggle(el, !isHide));
 		$q(aib.qOmitted + ', .de-omitted', this.el)?.remove();
 		i = this.postsCount - 1 - (isHide ? 0 : i);
@@ -15327,7 +15345,7 @@ function initNavFuncs() {
 		},
 		// XXX: Firefox + old Greasemonkey - hack to prevent
 		//    'Accessing TypedArray data over Xrays is slow, and forbidden' errors
-		getUnsafeUint8Array(data, i, len) {
+		unsafeUint8Array(data, i, len) {
 			let Ctor = Uint8Array;
 			if(this.isFirefox && (this.hasOldGM || this.isTampermonkey)) {
 				try {
@@ -15345,10 +15363,10 @@ function initNavFuncs() {
 			}
 			throw new Error();
 		},
-		getUnsafeDataView(data, offset) { // XXX: Firefox + old Greasemonkey
-			const value = new DataView(data, offset || 0);
+		unsafeDataView(data, offset = 0) { // XXX: Firefox + old Greasemonkey
+			const value = new DataView(data, offset);
 			return this.isFirefox && this.hasOldGM && !(value instanceof DataView) ?
-				new unsafeWindow.DataView(data, offset || 0) : value;
+				new unsafeWindow.DataView(data, offset) : value;
 		}
 	};
 }
@@ -15396,6 +15414,7 @@ class BaseBoard {
 		this.qPostTrip = '.postertrip';
 		this.qPostUid = null;
 		this.qPostsParent = null;
+		this.qReplyBtn = '.de-post-btns ~ a';
 		this.qTrunc = '.abbrev, .abbr, .shortened';
 
 		// Other properties
@@ -16291,6 +16310,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostRef = '.post__reflink:nth-child(2)';
 			this.qPostSubj = '.post__title';
 			this.qPostUid = 'span[id^="id_tag_"]';
+			this.qReplyBtn = '.post__detailpart.desktop > a';
 			this.qTrunc = null;
 			this.timePattern = 'dd+nn+yy+w+hh+ii+ss';
 		}
@@ -16564,10 +16584,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostName = '.ananimas, .post-email';
 			this.qPostRef = '.reflink';
 			this.qPostSubj = '.post-title';
+			this.qReplyBtn = '.post-details > .desktop > a';
 		}
 		get css() {
-			return `.banner_title + hr, .newpost, .newpost + hr, .postpanel > :not(img), .posts > hr, .refmap,
-					.thread-nav, #youtube-thumb-float { display: none !important; }
+			return `.newpost, .newpost + hr, .postpanel > :not(img), .refmap, #youtube-thumb-float
+					{ display: none !important; }
 				.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }
 				.postform { width: initial; }
 				.preview.lazy { opacity: 1; }`;
@@ -16664,6 +16685,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 			this.jsonSubmit = true;
+			this.qReplyBtn = '.replytothread > a';
 		}
 		get css() {
 			return `small[id^="rfmap_"], #submit_button, .qreply_btn { display: none; }
@@ -16768,6 +16790,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostRef = '.postInfo > .postNum';
 			this.qPostSubj = '.subject';
 			this.qPostUid = '.hand';
+			this.qReplyBtn = '.replylink';
 			this.res = 'thread/';
 			this.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
 		}
@@ -16914,8 +16937,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasCatalog = true;
 		}
 		get css() {
-			return `.extrabtns, input[name="board"] + hr, .replymode, .replymode + hr,
-				#rswapper + hr { display: none; }`;
+			return '.extrabtns, input[name="board"] + hr, .replymode, #rswapper + hr { display: none; }';
 		}
 		init() {
 			defaultCfg.captchaLang = 2;
@@ -17073,6 +17095,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Dobrochan extends Vichan {
 		get css() {
 			return `${ super.css }
+				.de-parea > hr { margin-top: 0.7em; }
 				#de-pform input[type="text"] { float: none !important; }`;
 		}
 		get markupTags() {
@@ -17164,7 +17187,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ this.protocol }//${ this.host }/${ this.b }/catalogue.html`;
 		}
 		get css() {
-			return `${ !this.t ? '' : 'hr + #de-main { margin-top: -32px; } .logo { margin-bottom: 14px; }' }
+			return `${ !this.t ? '' : 'hr + #de-main { margin-top: -17px; }' }
 			.iichan-hide-thread-btn, .iichan-quick-reply-btn, .postnum { display: none; }
 			.replypage div[id^="thread"] span.reflink::after { content: none; }`;
 		}
@@ -17263,6 +17286,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 			this.qFormRules = '#rules_row';
 			this.qPostImg = '.uploadCell > a > img';
+			this.qReplyBtn = '.linkReply';
 			this.timePattern = 'yyyy+nn+dd+hh+ii+ss';
 		}
 		get css() {
@@ -17430,7 +17454,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostImg = '.post-image[alt]:not(.deleted), video.post-image';
 		}
 		get css() {
-			return `${ super.css } label[for="email_selectbox"] { display: none !important; }`;
+			return `${ super.css }
+				.createbutton, label[for="email_selectbox"] { display: none !important; }`;
 		}
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
@@ -18354,6 +18379,7 @@ function scriptCSS() {
 
 	/* Reply form */
 	.de-parea { text-align: center; clear: both; }
+	.de-parea > #de-pform { margin-top: 4px; }
 	.de-parea-btn-close::after { content: "${ Lng.hideForm[lang] }"; }
 	.de-parea-btn-thr::after { content: "${ Lng.makeThr[lang] }"; }
 	.de-parea-btn-reply::after { content: "${ Lng.makeReply[lang] }"; }
@@ -18381,9 +18407,11 @@ function scriptCSS() {
 	:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }
 
 	/* Other */
-	.de-abtn { text-decoration: none !important; outline: none; }
+	.de-abtn, a.link-button { text-decoration: none !important; outline: none; }
 	.de-button { flex: none; padding: 0 ${ nav.isFirefox ? 2 : 4 }px !important; margin: 1px 2px; min-width: auto !iportant; height: 24px; font: 13px arial; }
 	.de-editor { display: block; width: 600px; height: 300px; max-width: calc(100vw - 20px); font: 12px courier new; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }
+	.de-gotothr-button { vertical-align: 5px; font-size: 0 !important; }
+	.de-gotothr-button::after { content: "${ Lng.goToThr[lang] }"; font-size: 14px; }
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }
 	.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }
 	input[type="text"].de-input-selected { background: rgba(255,255,150,0.4) !important }
@@ -18423,8 +18451,9 @@ function scriptCSS() {
 	.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }
 	.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }
 	#de-wrapper-popup { max-width: calc(100vw - (100vw - 100%)); overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }
+	.link-button { display: inline-flex; padding: 3px 5px; margin-left: 4px; background: rgba(0, 40, 140, 0.06); border: 1px solid rgba(120, 120, 120, .5); border-radius: 4px; font: 14px/14px arial; }
+	.link-button:hover { background: rgba(60, 60, 160, 0.12); }
 	@keyframes de-wait-anim { to { transform: rotate(360deg); } }
-	form > hr { clear: both }
 
 	/* Mobile devices */
 	@media screen and (max-width: 768px) {
@@ -18509,7 +18538,7 @@ function updateCSS() {
 	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
 	${ !aib.formHeaders && (aib.multiFile || Cfg.fileInputs !== 2) ?
 		'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form table > tbody > tr > th:first-child, ' : '' }
-	body > hr, .postarea, .theader { display: none !important; }\r\n`;
+	.postarea, .postarea + hr, .postarea + * + hr, .theader { display: none !important; }\r\n`;
 	$id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 }

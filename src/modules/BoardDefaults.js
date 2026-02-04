@@ -41,6 +41,7 @@ class BaseBoard {
 		this.qPostTrip = '.postertrip';
 		this.qPostUid = null;
 		this.qPostsParent = null;
+		this.qReplyBtn = '.de-post-btns ~ a';
 		this.qTrunc = '.abbrev, .abbr, .shortened';
 
 		// Other properties
