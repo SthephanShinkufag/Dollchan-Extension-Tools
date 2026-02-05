@@ -1336,6 +1336,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return super.fixHTMLHelper(str).replace(/<img class="post-image/g, '<img class="post-img');
 		}
 	}
+
+	ibDomains['ib.crba.tw'] = Vichan;
+
 	ibDomains['deada.ch'] = Deadach;
 
 	class Dobrochan extends Vichan {
