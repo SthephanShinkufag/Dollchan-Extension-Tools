@@ -176,7 +176,7 @@ class Pview extends AbstractPost {
 			case 'mouseout': break;
 			default: break checkMouse;
 			}
-			const el = nav.fixEventEl(e.relatedTarget);
+			const el = e.relatedTarget;
 			if(!el ||
 				isOverEvent && (el.tagName.toLowerCase() !== 'a' || el.isNotRefLink) ||
 				el !== this.el && !this.el.contains(el)

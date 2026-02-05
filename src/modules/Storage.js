@@ -17,8 +17,6 @@ async function getStored(id) {
 				chrome.storage.sync.get(id, obj => resolve(obj[id]));
 			}
 		}));
-	} else if(nav.hasPrestoStorage) {
-		return prestoStorage.getItem(id);
 	}
 	return locStorage[id];
 }
@@ -44,8 +42,6 @@ function setStored(id, value) {
 				resolve();
 			});
 		});
-	} else if(nav.hasPrestoStorage) {
-		prestoStorage.setItem(id, value);
 	} else {
 		locStorage[id] = value;
 	}
@@ -60,8 +56,6 @@ function delStored(id) {
 		GM_deleteValue(id);
 	} else if(nav.hasWebStorage) {
 		chrome.storage.sync.remove(id, Function.prototype);
-	} else if(nav.hasPrestoStorage) {
-		prestoStorage.removeItem(id);
 	} else {
 		locStorage.removeItem(id);
 	}
@@ -175,14 +169,6 @@ async function readCfg() {
 	}
 	if(!('Notification' in deWindow)) {
 		Cfg.desktNotif = 0;
-	}
-	if(nav.isPresto) {
-		Cfg.preLoadImgs = 0;
-		Cfg.findImgFile = 0;
-		if(!nav.hasOldGM) {
-			Cfg.updDollchan = 0;
-		}
-		Cfg.fileInputs = 0;
 	}
 	if(nav.scriptHandler === 'WebExtension') {
 		Cfg.updDollchan = 0;
@@ -373,16 +359,13 @@ function readViewedPosts() {
 	if(!Cfg.markViewed) {
 		return;
 	}
-	const data = sesStorage['de-viewed'];
-	if(data) {
-		data.split(',').forEach(pNum => {
-			const post = pByNum.get(+pNum);
-			if(post) {
-				post.el.classList.add('de-viewed');
-				post.isViewed = true;
-			}
-		});
-	}
+	sesStorage['de-viewed']?.split(',').forEach(pNum => {
+		const post = pByNum.get(+pNum);
+		if(post) {
+			post.el.classList.add('de-viewed');
+			post.isViewed = true;
+		}
+	});
 }
 
 class PostsStorage {

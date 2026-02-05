@@ -176,12 +176,11 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 		}
 		el = $q('.de-win-buttons', winEl);
 		el.onmouseover = e => {
-			const el = nav.fixEventEl(e.target);
-			const parent = el.parentNode;
+			const el = e.target;
 			switch(el.classList[0]) {
-			case 'de-win-btn-close': parent.title = Lng.closeWindow[lang]; break;
+			case 'de-win-btn-close': el.parentNode.title = Lng.closeWindow[lang]; break;
 			case 'de-win-btn-toggle':
-				parent.title = Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
+				el.parentNode.title = Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
 			}
 		};
 		el.lastElementChild.onclick = () => toggleWindow(name, false);

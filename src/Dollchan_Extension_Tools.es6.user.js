@@ -24,11 +24,11 @@
 
 /* eslint indent: ["error", "tab", { "flatTernaryExpressions": true, "outerIIFEBody": 0 }] */
 
-(function deMainFuncInner(deWindow, prestoStorage, FormData, scrollTo, localData) {
+(function deMainFuncInner(deWindow, FormData, scrollTo, localData) {
 'use strict';
 
 const version = '24.9.16.0';
-const commit = 'e96b010';
+const commit = 'a0ddacc';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -2434,8 +2434,6 @@ async function getStored(id) {
 				chrome.storage.sync.get(id, obj => resolve(obj[id]));
 			}
 		}));
-	} else if(nav.hasPrestoStorage) {
-		return prestoStorage.getItem(id);
 	}
 	return locStorage[id];
 }
@@ -2461,8 +2459,6 @@ function setStored(id, value) {
 				resolve();
 			});
 		});
-	} else if(nav.hasPrestoStorage) {
-		prestoStorage.setItem(id, value);
 	} else {
 		locStorage[id] = value;
 	}
@@ -2477,8 +2473,6 @@ function delStored(id) {
 		GM_deleteValue(id);
 	} else if(nav.hasWebStorage) {
 		chrome.storage.sync.remove(id, Function.prototype);
-	} else if(nav.hasPrestoStorage) {
-		prestoStorage.removeItem(id);
 	} else {
 		locStorage.removeItem(id);
 	}
@@ -2592,14 +2586,6 @@ async function readCfg() {
 	}
 	if(!('Notification' in deWindow)) {
 		Cfg.desktNotif = 0;
-	}
-	if(nav.isPresto) {
-		Cfg.preLoadImgs = 0;
-		Cfg.findImgFile = 0;
-		if(!nav.hasOldGM) {
-			Cfg.updDollchan = 0;
-		}
-		Cfg.fileInputs = 0;
 	}
 	if(nav.scriptHandler === 'WebExtension') {
 		Cfg.updDollchan = 0;
@@ -2790,16 +2776,13 @@ function readViewedPosts() {
 	if(!Cfg.markViewed) {
 		return;
 	}
-	const data = sesStorage['de-viewed'];
-	if(data) {
-		data.split(',').forEach(pNum => {
-			const post = pByNum.get(+pNum);
-			if(post) {
-				post.el.classList.add('de-viewed');
-				post.isViewed = true;
-			}
-		});
-	}
+	sesStorage['de-viewed']?.split(',').forEach(pNum => {
+		const post = pByNum.get(+pNum);
+		if(post) {
+			post.el.classList.add('de-viewed');
+			post.isViewed = true;
+		}
+	});
 }
 
 class PostsStorage {
@@ -3083,7 +3066,7 @@ const Panel = Object.create({
 					this._getButton('goup') +
 					this._getButton('godown') +
 					(filesCount ? this._getButton('expimg') + this._getButton('maskimg') : '') +
-					(!localData && !nav.isPresto ?
+					(!localData ?
 						(filesCount && !Cfg.preLoadImgs ? this._getButton('preimg') : '') +
 						(isThr ? this._getButton('savethr') : '') : '') +
 					(!localData && isThr ?
@@ -3125,7 +3108,7 @@ const Panel = Object.create({
 		if('isTrusted' in e && !e.isTrusted) {
 			return;
 		}
-		let el = nav.fixEventEl(e.target);
+		let el = e.target;
 		el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 		switch(e.type) {
 		case 'click':
@@ -3254,7 +3237,7 @@ const Panel = Object.create({
 			}
 			return;
 		default: // mouseout
-			this._setHideTimeout(nav.fixEventEl(e.relatedTarget));
+			this._setHideTimeout(e.relatedTarget);
 			switch(el.id) {
 			case 'de-panel-refresh':
 			case 'de-panel-savethr':
@@ -3522,12 +3505,11 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 		}
 		el = $q('.de-win-buttons', winEl);
 		el.onmouseover = e => {
-			const el = nav.fixEventEl(e.target);
-			const parent = el.parentNode;
+			const el = e.target;
 			switch(el.classList[0]) {
-			case 'de-win-btn-close': parent.title = Lng.closeWindow[lang]; break;
+			case 'de-win-btn-close': el.parentNode.title = Lng.closeWindow[lang]; break;
 			case 'de-win-btn-toggle':
-				parent.title = Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
+				el.parentNode.title = Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
 			}
 		};
 		el.lastElementChild.onclick = () => toggleWindow(name, false);
@@ -3690,7 +3672,8 @@ function showVideosWindow(winBody) {
 		playerInfo  : null,
 		handleEvent(e) {
 			const el = e.target;
-			if(el.classList.contains('de-abtn')) {
+			const { classList } = el;
+			if(classList.contains('de-abtn')) {
 				let node;
 				switch(el.id) {
 				case 'de-video-btn-hide': { // Fold/unfold list of links
@@ -3719,7 +3702,7 @@ function showVideosWindow(winBody) {
 				}
 				e.preventDefault();
 				return;
-			} else if(!el.classList.contains('de-video-link')) { // Clicking on ">" before link
+			} else if(!classList.contains('de-video-link')) { // Clicking on ">" before link
 				// Go to post that contains this link
 				pByNum.get(+el.getAttribute('de-num')).selectAndScrollTo();
 				return;
@@ -3731,8 +3714,8 @@ function showVideosWindow(winBody) {
 					this.currentLink.classList.remove('de-current');
 				}
 				this.currentLink = el;
-				el.classList.add('de-current');
-				Videos.addPlayer(this, info, el.classList.contains('de-ytube'), true);
+				classList.add('de-current');
+				Videos.addPlayer(this, info, classList.contains('de-ytube'), true);
 			}
 			e.preventDefault();
 		}
@@ -4204,7 +4187,7 @@ function showFavoritesWindow(winBody, favObj) {
 	// Appending DOM and events
 	if(html) {
 		$bEnd(winBody, `<div class="de-fav-table">${ html }</div>`).addEventListener('click', e => {
-			let el = nav.fixEventEl(e.target);
+			let el = e.target;
 			let parentEl = el.parentNode;
 			if(el.tagName.toLowerCase() === 'svg') {
 				el = parentEl;
@@ -4420,7 +4403,7 @@ const CfgWindow = {
 			}) : '',
 
 			// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
-			!nav.isPresto ? $button(Lng.file[lang], Lng.fileImpExp[lang], () => {
+			$button(Lng.file[lang], Lng.fileImpExp[lang], () => {
 				const list = this._getList([
 					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
 					Lng.panelBtn.fav[lang],
@@ -4525,7 +4508,7 @@ const CfgWindow = {
 					}
 					e.preventDefault();
 				}, true);
-			}) : '',
+			}),
 
 			// "Clear" button. Allows to clear settings/favorites/hidden/etc optionally.
 			$button(Lng.reset[lang] + '…', Lng.resetCfg[lang], () => $popup(
@@ -4573,8 +4556,8 @@ const CfgWindow = {
 	// Event handler for Setting window and its controls.
 	async handleEvent(e) {
 		const { type, target: el } = e;
-		const tag = el.tagName.toLowerCase();
 		const { classList } = el;
+		const tag = el.tagName.toLowerCase();
 		if(type === 'mouseover' && classList.contains('de-cfg-needreload') && !el.title) {
 			el.title = Lng.cfgNeedReload[lang];
 		}
@@ -4615,12 +4598,6 @@ const CfgWindow = {
 				break;
 			}
 			case 'postBtnsCSS':
-				updateCSS();
-				if(nav.isPresto) {
-					$q('.de-svg-icons').remove();
-					addSVGIcons();
-				}
-				break;
 			case 'thrBtns':
 			case 'noSpoilers':
 			case 'resizeImgs': updateCSS(); break;
@@ -4846,7 +4823,9 @@ const CfgWindow = {
 			case 'minImgSize':
 				await CfgSaver.save('minImgSize', Math.min(Math.max(+el.value, 1)), Cfg.maxImgSize);
 				break;
-			case 'maxImgSize': await CfgSaver.save('maxImgSize', Math.max(+el.value, Cfg.minImgSize)); break;
+			case 'maxImgSize':
+				await CfgSaver.save('maxImgSize', Math.max(+el.value, Cfg.minImgSize));
+				break;
 			case 'zoomFactor':
 				await CfgSaver.save('zoomFactor', Math.min(Math.max(+el.value, 1), 100));
 				break;
@@ -5038,10 +5017,8 @@ const CfgWindow = {
 				${ this._getInp('webmVolume') }<br>
 				${ this._getInp('minWebmWidth') }
 			</div>
-			${ nav.isPresto ? '' : this._getSel('preLoadImgs', true) + '<br>' }
-			${ nav.isPresto || aib._4chan ? '' : `<div class="de-depend">
-				${ this._getBox('findImgFile', true) }
-			</div>` }
+			${ this._getSel('preLoadImgs', true) + '<br>' }
+			${ aib._4chan ? '' : `<div class="de-depend">${ this._getBox('findImgFile', true) }</div>` }
 			${ this._getSel('openImgs', true) }<br>
 			${ this._getBox('imgSrcBtns') }<br>
 			${ this._getSel('imgNames') }<br>
@@ -5092,7 +5069,7 @@ const CfgWindow = {
 				${ this._getSel('removeFName') }<br>
 				${ this._getBox('sendErrNotif') }<br>
 				${ this._getBox('scrAfterRep') }<br>
-				${ postform.files && !nav.isPresto ? this._getSel('fileInputs') : '' }
+				${ postform.files ? this._getSel('fileInputs') : '' }
 			</div>` : '' }
 			${ postform.form ? this._getSel('addPostForm') + '<br>' : '' }
 			${ postform.txta ? this._getBox('spacedQuote') + '<br>' : '' }
@@ -5161,7 +5138,7 @@ const CfgWindow = {
 				<div id="de-info-stats">${ statsTable }</div>
 				<div id="de-info-log">${ this._getInfoTable(Logger.getLogData(false), true) }</div>
 			</div>
-			${ !nav.hasWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
+			${ !nav.hasWebStorage && !localData || nav.hasGMXHR ? `
 				${ this._getSel('updDollchan') }
 				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
 					<input type="button" id="de-cfg-button-updnow" value="${ Lng.checkNow[lang] }">
@@ -5290,7 +5267,7 @@ function $popup(id, txt, isWait = false) {
 		el = $bEnd($id('de-wrapper-popup'),
 			`<div class="${ aib.cReply } de-popup" id="de-popup-${ id }">${ html }</div>`);
 		el.onclick = e => {
-			let el = nav.fixEventEl(e.target);
+			let el = e.target;
 			el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 			if(el.className === 'de-popup-btn') {
 				closePopup(el.parentNode);
@@ -5463,7 +5440,7 @@ class Menu {
 			/* falls through */
 		case 'mouseout': {
 			clearTimeout(this._closeTO);
-			const targetEl = nav.fixEventEl(e.relatedTarget);
+			const targetEl = e.relatedTarget;
 			if(!$contains(this.el, targetEl)) {
 				if(isOverEvent) {
 					this.onover?.();
@@ -6051,8 +6028,8 @@ class KeyEditListener {
 	}
 }
 // Browsers have different codes for these keys (see HotKeys.readKeys):
-// Firefox - '-' - 173, '=' - 61, ';' - 59
-// Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
+// Firefox: '-' - 173, '=' - 61, ';' - 59
+// Chrome: '-' - 189, '=' - 187, ';' - 186
 /* eslint-disable comma-spacing, no-sparse-arrays */
 KeyEditListener.keyCodes = [
 	'',,,,,,,,'Backspace','Tab',,,,'Enter',,,'Shift','Ctrl','Alt',/* Pause/Break */,/* Caps Lock */,,,,,,,
@@ -6623,21 +6600,23 @@ class Videos {
 		if(this.playerInfo !== m) {
 			this.currentLink.classList.remove('de-current');
 			this.currentLink = el;
+			const isYTube = el.classList.contains('de-ytube');
 			if(mode === 1) {
-				this._addThumb(m, el.classList.contains('de-ytube'));
+				this._addThumb(m, isYTube);
 			} else {
 				el.classList.add('de-current');
-				this.setPlayer(m, el.classList.contains('de-ytube'));
+				this.setPlayer(m, isYTube);
 			}
 			return;
 		}
 		if(mode === 1) {
+			const isYTube = el.classList.contains('de-ytube');
 			if($q('.de-video-thumb', this.player)) {
 				el.classList.add('de-current');
-				this.setPlayer(m, el.classList.contains('de-ytube'));
+				this.setPlayer(m, isYTube);
 			} else {
 				el.classList.remove('de-current');
-				this._addThumb(m, el.classList.contains('de-ytube'));
+				this._addThumb(m, isYTube);
 			}
 		} else {
 			el.classList.remove('de-current');
@@ -8224,14 +8203,14 @@ class SpellsCodegen {
 			m = str.match(/^\(([\d-, ]+)\)/);
 			if(m) {
 				let val;
-				m[1].split(/, */).forEach(function(v) {
+				m[1].split(/, */).forEach(v => {
 					if(v.includes('-')) {
 						const nums = v.split('-');
 						nums[0] = +nums[0];
 						nums[1] = +nums[1];
-						this[1].push(nums);
+						val[1].push(nums);
 					} else {
-						this[0].push(+v);
+						val[0].push(+v);
 					}
 				}, val = [[], []]);
 				return [i + m[0].length, [spellType, val, scope]];
@@ -9265,7 +9244,7 @@ class PostForm {
 		const buttons = $q('.de-win-buttons', this.qArea);
 		buttons.onmouseover = ({ target }) => {
 			const el = target.parentNode;
-			switch(nav.fixEventEl(target).classList[0]) {
+			switch(target.classList[0]) {
 			case 'de-win-btn-clear': el.title = Lng.clearForm[lang]; break;
 			case 'de-win-btn-close': el.title = Lng.closeReply[lang]; break;
 			case 'de-win-btn-toggle': el.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];
@@ -10227,7 +10206,7 @@ class FileInput {
 			this._txtInput.placeholder = Lng.dropFileHere[lang];
 		}
 		this._parent.hideEmpty();
-		if(!nav.isPresto && !aib._4chan &&
+		if(!aib._4chan &&
 			/^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile.type : this._input.files[0].type)
 		) {
 			this._rarMsg?.remove();
@@ -10556,7 +10535,8 @@ class AbstractPost {
 	}
 	handleEvent(e) {
 		let temp;
-		let el = nav.fixEventEl(e.target);
+		let el = e.target;
+		let { classList } = el;
 		const { type } = e;
 		const isOutEvent = type === 'mouseout';
 		const isPview = this instanceof Pview;
@@ -10566,13 +10546,13 @@ class AbstractPost {
 			aib.handlePostClick?.(this, el, e);
 			// Skip the click by wheel button
 			switch(e.button) {
-			case 0: break;
-			case 1: e.stopPropagation();
+			case 0: break; // Primary button
+			case 1: e.stopPropagation(); // Wheel button
 				/* falls through */
 			default: return;
 			}
 			// Hide the dropdown menu after the click on its option
-			if(this._menu && el.classList.contains('de-menu-item')) {
+			if(this._menu && classList.contains('de-menu-item')) {
 				this._menu.removeMenu();
 				this._menu = null;
 			}
@@ -10580,7 +10560,7 @@ class AbstractPost {
 			switch(el.tagName.toLowerCase()) {
 			case 'a':
 				// Click on YouTube link - show/hide player or thumbnail
-				if(el.classList.contains('de-video-link')) {
+				if(classList.contains('de-video-link')) {
 					this.videos.clickLink(el, Cfg.embedYTube);
 					e.preventDefault();
 					return;
@@ -10623,13 +10603,14 @@ class AbstractPost {
 					return;
 				}
 				el = temp; // The link is an image container
+				({ classList } = el);
 				/* falls through */
 			case 'img': // Click on attached image - expand/collapse
-				if(el.classList.contains('de-video-thumb')) {
+				if(classList.contains('de-video-thumb')) {
 					if(Cfg.embedYTube === 1) {
 						const { videos } = this;
 						videos.currentLink.classList.add('de-current');
-						videos.setPlayer(videos.playerInfo, el.classList.contains('de-ytube'));
+						videos.setPlayer(videos.playerInfo, classList.contains('de-ytube'));
 						e.preventDefault();
 					}
 				} else if(Cfg.expandImgs !== 0) {
@@ -10644,7 +10625,7 @@ class AbstractPost {
 				return;
 			}
 			// Click on post buttons
-			switch(el.classList[0]) {
+			switch(classList[0]) {
 			case 'de-btn-expthr':
 				if(nav.isMobile) {
 					this._menuToggleClickBtn(el, arrTags(Lng.selExpandThr[lang],
@@ -10722,18 +10703,18 @@ class AbstractPost {
 			['click', 'mouseout'].forEach(e => this.el.addEventListener(e, this, true));
 		}
 		// Mouseover/mouseout on YouTube links
-		if(Cfg.embedYTube === 2 && el.classList.contains('de-video-link')) {
+		if(Cfg.embedYTube === 2 && classList.contains('de-video-link')) {
 			this.videos.toggleFloatedThumb(el, isOutEvent);
 		}
 		// Mouseover/mouseout on attached images/videos - update title
 		if(!isOutEvent && Cfg.expandImgs &&
-			el.tagName.toLowerCase() === 'img' && !el.classList.contains('de-fullimg') &&
+			el.tagName.toLowerCase() === 'img' && !classList.contains('de-fullimg') &&
 			(temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)
 		) {
 			el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
 		}
 		// Mouseover/mouseout on post buttons - update title, add/delete dropdown menu
-		switch(el.classList[0]) {
+		switch(classList[0]) {
 		case 'de-btn-expthr':
 			this.btns.title = Lng.expandThr[lang];
 			if(!nav.isMobile) {
@@ -10790,7 +10771,7 @@ class AbstractPost {
 			}
 			if(isOutEvent) { // Mouseout - We need to delete previews
 				clearTimeout(this._linkTO);
-				if(!(aib.getPostOfEl(nav.fixEventEl(e.relatedTarget)) instanceof Pview) && Pview.top) {
+				if(!(aib.getPostOfEl(e.relatedTarget) instanceof Pview) && Pview.top) {
 					Pview.top.markToDel(); // If cursor is not over one of previews - delete all previews
 				} else if(this.kid) {
 					this.kid.markToDel(); // If cursor is over any preview - delete its kids
@@ -11379,15 +11360,15 @@ class Post extends AbstractPost {
 	_getMenuHide() {
 		const item = name => `<span info="hide-${ name }" class="de-menu-item">${
 			Lng.selHiderMenu[name][lang] }</span>`;
-		const sel = deWindow.getSelection();
-		const ssel = sel.toString().trim();
-		if(ssel) {
-			this._selText = ssel;
-			this._selRange = sel.getRangeAt(0);
+		const selection = deWindow.getSelection();
+		const selText = selection.rangeCount > 0 ? selection.toString().trim() : '';
+		if(selText) {
+			this._selText = selText;
+			this._selRange = selection.getRangeAt(0);
 		}
 		return `${ nav.isMobile ? `<span info="hide-post" class="de-menu-item">${
 			this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang] }</span>` : '' }${
-			ssel ? item('sel') : '' }${
+			selText ? item('sel') : '' }${
 			this.posterName ? item('name') : '' }${
 			this.posterTrip ? item('trip') : '' }${
 			this.posterUid ? item('uid') : '' }${
@@ -11761,7 +11742,7 @@ class Pview extends AbstractPost {
 			case 'mouseout': break;
 			default: break checkMouse;
 			}
-			const el = nav.fixEventEl(e.relatedTarget);
+			const el = e.relatedTarget;
 			if(!el ||
 				isOverEvent && (el.tagName.toLowerCase() !== 'a' || el.isNotRefLink) ||
 				el !== this.el && !this.el.contains(el)
@@ -12175,18 +12156,20 @@ class ImagesViewer {
 	handleEvent(e) {
 		switch(e.type) {
 		case 'click': {
-			const el = e.target;
-			const tag = el.tagName.toLowerCase();
-			if(this.data.isVideo && !nav.isMobile && !nav.isWebkit && ExpandableImage.isControlClick(e) ||
-				tag !== 'img' && tag !== 'video' &&
-				!el.classList.contains('de-fullimg-wrap') &&
-				!el.classList.contains('de-fullimg-wrap-link') &&
-				!el.classList.contains('de-fullimg-video-hack') &&
-				el.className !== 'de-fullimg-load'
-			) {
+			// If click on image/video then close ImagesViewer
+			if(!nav.isMobile && !nav.isWebkit && this.data.isVideo && ExpandableImage.isControlClick(e)) {
 				return;
 			}
-			if(e.button === 0) {
+			const tag = e.target.tagName.toLowerCase();
+			if(tag !== 'img' && tag !== 'video') {
+				const { classList } = e.target;
+				if(['de-fullimg-load', 'de-fullimg-video-hack', 'de-fullimg-wrap', 'de-fullimg-wrap-link']
+					.every(c => !classList.contains(c))
+				) {
+					return;
+				}
+			}
+			if(e.button === 0) { // Primary button
 				if(this._moved && !nav.isMobile) {
 					this._moved = false;
 				} else {
@@ -12206,11 +12189,12 @@ class ImagesViewer {
 			this._oldY = e.clientY;
 			['mousemove', 'mouseup'].forEach(e => doc.body.addEventListener(e, this, true));
 			break;
-		case 'mousemove': this._moveFullImg(e.clientX, e.clientY); return;
+		case 'mousemove':
+			this._moveFullImg(e.clientX, e.clientY);
+			return;
 		case 'mouseup':
 			['mousemove', 'mouseup'].forEach(e => doc.body.removeEventListener(e, this, true));
 			return;
-
 		case 'mousewheel':
 			this._handleZoom(e.clientX, e.clientY,
 				-1 / 40 * ('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta));
@@ -13917,12 +13901,11 @@ class Thread {
 	}
 	handleEvent(e) {
 		e.preventDefault();
-		const el = nav.fixEventEl(e.target);
-		const elClass = el.classList[0];
+		const el = e.target;
 		const nextThr = this.next;
 		let oldCoord = false;
 		if(e.type === 'click') {
-			switch(elClass) {
+			switch(el.classList[0]) {
 			case 'de-btn-fav': this.toggleFavState(true); break;
 			case 'de-btn-fav-sel': this.toggleFavState(false); break;
 			case 'de-btn-hide':
@@ -14399,8 +14382,8 @@ const thrNavPanel = {
 	handleEvent(e) {
 		switch(e.type) {
 		case 'scroll': deWindow.requestAnimationFrame(() => this._checkThreads()); break;
-		case 'mouseover': this._expandCollapse(true, nav.fixEventEl(e.relatedTarget)); break;
-		case 'mouseout': this._expandCollapse(false, nav.fixEventEl(e.relatedTarget)); break;
+		case 'mouseover': this._expandCollapse(true, e.relatedTarget); break;
+		case 'mouseout': this._expandCollapse(false, e.relatedTarget); break;
 		case 'click': this._handleClick(e); break;
 		}
 	},
@@ -14471,7 +14454,7 @@ const thrNavPanel = {
 		return this._findCurrentThread();
 	},
 	_handleClick(e) {
-		const el = nav.fixEventEl(e.target);
+		const el = e.target;
 		switch((el.tagName.toLowerCase() === 'svg' ? el.parentNode : el).id) {
 		case 'de-thr-navup':
 			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset +
@@ -14941,10 +14924,6 @@ function initThreadUpdater(title, enableUpdate) {
 			if(this._panelButton) {
 				this._panelButton.id = 'de-panel-upd-' + status;
 				this._panelButton.title = Lng.panelBtn[`upd-${ status === 'off' ? 'off' : 'on' }`][lang];
-				if(nav.isPresto) {
-					this._panelButton.innerHTML =
-						'<svg class="de-panel-svg"><use xlink:href="#de-symbol-panel-upd"/></svg>';
-				}
 			}
 		}
 	};
@@ -15269,7 +15248,6 @@ function initNavFuncs() {
 	const isWebkit = ua.includes('WebKit/');
 	const isChrome = isWebkit && ua.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
-	const hasPrestoStorage = !!prestoStorage && !ua.includes('Opera Mobi');
 	const canUseFetch = 'AbortController' in deWindow; // Firefox 57+, Chrome 66+, Safari 11.1+
 	const hasNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 	let hasGMXHR, hasOldGM, hasWebStorage, scriptHandler;
@@ -15299,9 +15277,6 @@ function initNavFuncs() {
 			typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' :
 			GM_info.scriptHandler ? `${ GM_info.scriptHandler } ${ GM_info.version }` :
 			isFirefox ? 'Greasemonkey' : 'Unknown';
-	}
-	if(!('requestAnimationFrame' in deWindow)) { // XXX: Opera Presto
-		deWindow.requestAnimationFrame = fn => setTimeout(fn, 0);
 	}
 	let needFileHack = false;
 	try {
@@ -15335,17 +15310,15 @@ function initNavFuncs() {
 		canUseFetch,
 		canUseNativeXHR  : true,
 		firefoxVer       : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
-		hasGlobalStorage : hasOldGM || hasNewGM || hasWebStorage || hasPrestoStorage,
+		hasGlobalStorage : hasOldGM || hasNewGM || hasWebStorage,
 		hasGMXHR,
 		hasNewGM,
 		hasOldGM,
-		hasPrestoStorage,
 		hasWebStorage,
 		isESNext         : typeof deMainFuncOuter === 'undefined',
 		isFirefox,
 		isMsEdge         : ua.includes('Edge/'),
 		isMobile         : /Android|iPhone/i.test(ua),
-		isPresto         : !!deWindow.opera,
 		isSafari,
 		isTampermonkey   : scriptHandler.startsWith('Tampermonkey'),
 		isViolentmonkey  : scriptHandler.startsWith('Violentmonkey'),
@@ -15392,13 +15365,6 @@ function initNavFuncs() {
 			const value = doc.compatMode && doc.compatMode === 'CSS1Compat' ?
 				() => doc.documentElement.clientWidth : () => doc.body.clientWidth;
 			Object.defineProperty(this, 'viewportWidth', { value });
-			return value;
-		},
-		// XXX: Opera Presto - hack for SVG events
-		get fixEventEl() {
-			const value = !this.isPresto ? el => el :
-				el => el?.correspondingUseElement?.ownerSVGElement || el;
-			Object.defineProperty(this, 'fixEventEl', { value });
 			return value;
 		},
 		// XXX: Firefox + old Greasemonkey - hack to prevent
@@ -16527,9 +16493,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return { error, postNum };
 		}
 		handlePostClick(post, el, e) {
+			const { classList } = el;
 			// Click on like/dislike elements
 			let likeEl = el;
-			if(likeEl.classList.contains('post__rate') ||
+			if(classList.contains('post__rate') ||
 				(likeEl = el.parentNode).classList.contains('post__rate')
 			) {
 				const task = likeEl.id.split('-')[0];
@@ -16546,16 +16513,16 @@ function getImageBoard(checkDomains, checkEngines) {
 				}, () => $popup('err-2chlike', Lng.noConnect[lang]));
 			}
 			// Click on "truncated message" link
-			if(el.classList.contains('expand-large-comment')) {
+			if(classList.contains('expand-large-comment')) {
 				post._getFullMsg(el, false);
 				e.preventDefault();
 				e.stopPropagation();
 			}
 			// Click on spoiler image
-			if(el.classList.contains('file__nsfw')) {
+			if(classList.contains('file__nsfw')) {
 				$hide(el);
 			}
-			if(el.classList.contains('post__file-nsfw')) {
+			if(classList.contains('post__file-nsfw')) {
 				$hide(el.firstElementChild);
 			}
 		}
@@ -18217,7 +18184,7 @@ function scriptCSS() {
 	#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }
 	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }
 	#de-cfg-buttons > label { flex: 1 0 auto; }
-	.de-cfg-chkbox { display: initial; ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
+	.de-cfg-chkbox { display: initial; vertical-align: -1px !important; margin: 2px 1px !important; }
 	#de-cfg-info { display: flex; flex-direction: column; }
 	input[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; border-width: 1px; }
 	.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline-block; width: auto; height: 19px !important; font: 13px/15px arial !important; }
@@ -18238,7 +18205,7 @@ function scriptCSS() {
 	.de-spell-btn { padding: 0 4px; }
 	#de-spell-editor { display: flex; align-items: stretch; height: 256px; padding: 2px 0; }
 	#de-spell-panel { display: flex; }
-	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ${ nav.isPresto ? '' : 'resize: none !important; ' }}
+	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; resize: none !important; }
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }
 	#de-win-cfg.de-win-fixed { z-index: 10001 !important; }
 
@@ -18446,7 +18413,7 @@ function scriptCSS() {
 	.de-parea-btn-thr::after { content: "${ Lng.makeThr[lang] }"; }
 	.de-parea-btn-reply::after { content: "${ Lng.makeReply[lang] }"; }
 	#de-pform > form { padding: 0; margin: 0; border: none; }
-	#de-resizer-text { display: inline-block !important; padding: 5px; margin: ${ nav.isPresto ? '-2px -10px' : '0 0 -2px -10px' }; border-bottom: 2px solid #666; border-right: 2px solid #666; float: none !important; cursor: se-resize; }
+	#de-resizer-text { display: inline-block !important; padding: 5px; margin: 0 0 -2px -10px; border-bottom: 2px solid #666; border-right: 2px solid #666; float: none !important; cursor: se-resize; }
 	.de-win-inpost { display: inline-block; width: auto; padding: 3px; margin: 2px 0; float: none; clear: left; }
 	.de-win-inpost > .de-resizer { display: none; }
 	.de-win-inpost > .de-win-head { background: none; color: inherit; }
@@ -18510,7 +18477,7 @@ function scriptCSS() {
 	.de-thr-updater-link::after { content: "${ Lng.getNewPosts[lang] }"; }
 	#de-updater-count::before { content: ": "; }
 	.de-viewed { color: #747488 !important; }
-	.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }
+	.de-wait, .de-fav-wait, .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }
 	.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }
 	#de-wrapper-popup { max-width: calc(100vw - (100vw - 100%)); overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }
 	.link-button { display: inline-flex; padding: 3px 5px; margin-left: 4px; background: rgba(0, 40, 140, 0.06); border: 1px solid rgba(120, 120, 120, .5); border-radius: 4px; font: 14px/14px arial; }
@@ -18532,17 +18499,10 @@ function scriptCSS() {
 function updateCSS() {
 	const x = `
 	.de-video-obj { width: ${ Cfg.YTubeWidth }px; height: ${ Cfg.YTubeHeigh }px; }
-	.de-new-post { ${ nav.isPresto ?
-		'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' :
-		'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)' } !important; }
-	.de-selected, .de-input-error { ${ nav.isPresto ?
-		'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' :
-		'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)' } !important; }
+	.de-new-post { box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8) !important; }
+	.de-selected, .de-input-error { box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8) !important; }
 	${ Cfg.markMyPosts ?
-		`.de-mypost { ${ nav.isPresto ?
-			'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' :
-			'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)'
-		} !important; }
+		`.de-mypost { box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8) !important; }
 		.de-mypost-reply:not(.de-pview) { position: relative; }
 		.de-mypost-reply::before { content: ""; position: absolute; top: -0; bottom: 0; left: -1px; border-left: 5px dotted rgba(97,107,134,.8) !important; }` : '' }
 	${ Cfg.markMyLinks ?
@@ -18554,7 +18514,7 @@ function updateCSS() {
 		`.de-btn-expthr, .de-btn-fav, .de-btn-hide, .de-btn-img, .de-btn-reply, .de-btn-stick, .de-btn-unhide { fill: rgba(0,0,0,0); color: currentColor; }
 			.de-btn-fav-sel, .de-btn-hide-user, .de-btn-sage, .de-btn-stick-on, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }` :
 		`.de-btn-expthr, .de-btn-fav, .de-btn-hide, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-unhide { color: #F5F5F5; }
-			.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user { fill: ${ Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }
+			.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user { fill: ${ Cfg.postBtnsCSS === 1 ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }
 			.de-btn-fav-sel { color: #FFE100; }
 			.de-btn-hide-user { color: #BFFFBF; }
 			.de-btn-sage { fill: #4B4B4B; }
@@ -18634,7 +18594,6 @@ function runFrames() {
 			const deWindow = fDoc.defaultView;
 			deMainFuncInner(
 				deWindow,
-				deWindow.opera?.scriptStorage,
 				deWindow.FormData,
 				(x, y) => deWindow.scrollTo(x, y),
 				typeof localData === 'object' ? localData : null
@@ -18810,7 +18769,6 @@ initMain();
 /* ==[ Tail ]== */
 }(
 	window,
-	window.opera?.scriptStorage,
 	window.FormData,
 	(x, y) => window.scrollTo(x, y),
 	/* global localData */ typeof localData === 'object' ? localData : null

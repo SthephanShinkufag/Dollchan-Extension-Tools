@@ -875,14 +875,14 @@ class SpellsCodegen {
 			m = str.match(/^\(([\d-, ]+)\)/);
 			if(m) {
 				let val;
-				m[1].split(/, */).forEach(function(v) {
+				m[1].split(/, */).forEach(v => {
 					if(v.includes('-')) {
 						const nums = v.split('-');
 						nums[0] = +nums[0];
 						nums[1] = +nums[1];
-						this[1].push(nums);
+						val[1].push(nums);
 					} else {
-						this[0].push(+v);
+						val[0].push(+v);
 					}
 				}, val = [[], []]);
 				return [i + m[0].length, [spellType, val, scope]];

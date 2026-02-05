@@ -27,7 +27,6 @@ function initNavFuncs() {
 	const isWebkit = ua.includes('WebKit/');
 	const isChrome = isWebkit && ua.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
-	const hasPrestoStorage = !!prestoStorage && !ua.includes('Opera Mobi');
 	const canUseFetch = 'AbortController' in deWindow; // Firefox 57+, Chrome 66+, Safari 11.1+
 	const hasNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 	let hasGMXHR, hasOldGM, hasWebStorage, scriptHandler;
@@ -57,9 +56,6 @@ function initNavFuncs() {
 			typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' :
 			GM_info.scriptHandler ? `${ GM_info.scriptHandler } ${ GM_info.version }` :
 			isFirefox ? 'Greasemonkey' : 'Unknown';
-	}
-	if(!('requestAnimationFrame' in deWindow)) { // XXX: Opera Presto
-		deWindow.requestAnimationFrame = fn => setTimeout(fn, 0);
 	}
 	let needFileHack = false;
 	try {
@@ -93,17 +89,15 @@ function initNavFuncs() {
 		canUseFetch,
 		canUseNativeXHR  : true,
 		firefoxVer       : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
-		hasGlobalStorage : hasOldGM || hasNewGM || hasWebStorage || hasPrestoStorage,
+		hasGlobalStorage : hasOldGM || hasNewGM || hasWebStorage,
 		hasGMXHR,
 		hasNewGM,
 		hasOldGM,
-		hasPrestoStorage,
 		hasWebStorage,
 		isESNext         : typeof deMainFuncOuter === 'undefined',
 		isFirefox,
 		isMsEdge         : ua.includes('Edge/'),
 		isMobile         : /Android|iPhone/i.test(ua),
-		isPresto         : !!deWindow.opera,
 		isSafari,
 		isTampermonkey   : scriptHandler.startsWith('Tampermonkey'),
 		isViolentmonkey  : scriptHandler.startsWith('Violentmonkey'),
@@ -150,13 +144,6 @@ function initNavFuncs() {
 			const value = doc.compatMode && doc.compatMode === 'CSS1Compat' ?
 				() => doc.documentElement.clientWidth : () => doc.body.clientWidth;
 			Object.defineProperty(this, 'viewportWidth', { value });
-			return value;
-		},
-		// XXX: Opera Presto - hack for SVG events
-		get fixEventEl() {
-			const value = !this.isPresto ? el => el :
-				el => el?.correspondingUseElement?.ownerSVGElement || el;
-			Object.defineProperty(this, 'fixEventEl', { value });
 			return value;
 		},
 		// XXX: Firefox + old Greasemonkey - hack to prevent

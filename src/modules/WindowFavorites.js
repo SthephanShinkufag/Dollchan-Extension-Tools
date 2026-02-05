@@ -371,7 +371,7 @@ function showFavoritesWindow(winBody, favObj) {
 	// Appending DOM and events
 	if(html) {
 		$bEnd(winBody, `<div class="de-fav-table">${ html }</div>`).addEventListener('click', e => {
-			let el = nav.fixEventEl(e.target);
+			let el = e.target;
 			let parentEl = el.parentNode;
 			if(el.tagName.toLowerCase() === 'svg') {
 				el = parentEl;

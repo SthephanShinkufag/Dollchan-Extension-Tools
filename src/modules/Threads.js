@@ -108,12 +108,11 @@ class Thread {
 	}
 	handleEvent(e) {
 		e.preventDefault();
-		const el = nav.fixEventEl(e.target);
-		const elClass = el.classList[0];
+		const el = e.target;
 		const nextThr = this.next;
 		let oldCoord = false;
 		if(e.type === 'click') {
-			switch(elClass) {
+			switch(el.classList[0]) {
 			case 'de-btn-fav': this.toggleFavState(true); break;
 			case 'de-btn-fav-sel': this.toggleFavState(false); break;
 			case 'de-btn-hide':
@@ -590,8 +589,8 @@ const thrNavPanel = {
 	handleEvent(e) {
 		switch(e.type) {
 		case 'scroll': deWindow.requestAnimationFrame(() => this._checkThreads()); break;
-		case 'mouseover': this._expandCollapse(true, nav.fixEventEl(e.relatedTarget)); break;
-		case 'mouseout': this._expandCollapse(false, nav.fixEventEl(e.relatedTarget)); break;
+		case 'mouseover': this._expandCollapse(true, e.relatedTarget); break;
+		case 'mouseout': this._expandCollapse(false, e.relatedTarget); break;
 		case 'click': this._handleClick(e); break;
 		}
 	},
@@ -662,7 +661,7 @@ const thrNavPanel = {
 		return this._findCurrentThread();
 	},
 	_handleClick(e) {
-		const el = nav.fixEventEl(e.target);
+		const el = e.target;
 		switch((el.tagName.toLowerCase() === 'svg' ? el.parentNode : el).id) {
 		case 'de-thr-navup':
 			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset +

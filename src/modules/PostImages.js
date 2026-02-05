@@ -118,18 +118,20 @@ class ImagesViewer {
 	handleEvent(e) {
 		switch(e.type) {
 		case 'click': {
-			const el = e.target;
-			const tag = el.tagName.toLowerCase();
-			if(this.data.isVideo && !nav.isMobile && !nav.isWebkit && ExpandableImage.isControlClick(e) ||
-				tag !== 'img' && tag !== 'video' &&
-				!el.classList.contains('de-fullimg-wrap') &&
-				!el.classList.contains('de-fullimg-wrap-link') &&
-				!el.classList.contains('de-fullimg-video-hack') &&
-				el.className !== 'de-fullimg-load'
-			) {
+			// If click on image/video then close ImagesViewer
+			if(!nav.isMobile && !nav.isWebkit && this.data.isVideo && ExpandableImage.isControlClick(e)) {
 				return;
 			}
-			if(e.button === 0) {
+			const tag = e.target.tagName.toLowerCase();
+			if(tag !== 'img' && tag !== 'video') {
+				const { classList } = e.target;
+				if(['de-fullimg-load', 'de-fullimg-video-hack', 'de-fullimg-wrap', 'de-fullimg-wrap-link']
+					.every(c => !classList.contains(c))
+				) {
+					return;
+				}
+			}
+			if(e.button === 0) { // Primary button
 				if(this._moved && !nav.isMobile) {
 					this._moved = false;
 				} else {
@@ -149,11 +151,12 @@ class ImagesViewer {
 			this._oldY = e.clientY;
 			['mousemove', 'mouseup'].forEach(e => doc.body.addEventListener(e, this, true));
 			break;
-		case 'mousemove': this._moveFullImg(e.clientX, e.clientY); return;
+		case 'mousemove':
+			this._moveFullImg(e.clientX, e.clientY);
+			return;
 		case 'mouseup':
 			['mousemove', 'mouseup'].forEach(e => doc.body.removeEventListener(e, this, true));
 			return;
-
 		case 'mousewheel':
 			this._handleZoom(e.clientX, e.clientY,
 				-1 / 40 * ('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta));

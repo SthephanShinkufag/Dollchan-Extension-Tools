@@ -65,7 +65,7 @@ const CfgWindow = {
 			}) : '',
 
 			// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
-			!nav.isPresto ? $button(Lng.file[lang], Lng.fileImpExp[lang], () => {
+			$button(Lng.file[lang], Lng.fileImpExp[lang], () => {
 				const list = this._getList([
 					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
 					Lng.panelBtn.fav[lang],
@@ -170,7 +170,7 @@ const CfgWindow = {
 					}
 					e.preventDefault();
 				}, true);
-			}) : '',
+			}),
 
 			// "Clear" button. Allows to clear settings/favorites/hidden/etc optionally.
 			$button(Lng.reset[lang] + '…', Lng.resetCfg[lang], () => $popup(
@@ -218,8 +218,8 @@ const CfgWindow = {
 	// Event handler for Setting window and its controls.
 	async handleEvent(e) {
 		const { type, target: el } = e;
-		const tag = el.tagName.toLowerCase();
 		const { classList } = el;
+		const tag = el.tagName.toLowerCase();
 		if(type === 'mouseover' && classList.contains('de-cfg-needreload') && !el.title) {
 			el.title = Lng.cfgNeedReload[lang];
 		}
@@ -260,12 +260,6 @@ const CfgWindow = {
 				break;
 			}
 			case 'postBtnsCSS':
-				updateCSS();
-				if(nav.isPresto) {
-					$q('.de-svg-icons').remove();
-					addSVGIcons();
-				}
-				break;
 			case 'thrBtns':
 			case 'noSpoilers':
 			case 'resizeImgs': updateCSS(); break;
@@ -491,7 +485,9 @@ const CfgWindow = {
 			case 'minImgSize':
 				await CfgSaver.save('minImgSize', Math.min(Math.max(+el.value, 1)), Cfg.maxImgSize);
 				break;
-			case 'maxImgSize': await CfgSaver.save('maxImgSize', Math.max(+el.value, Cfg.minImgSize)); break;
+			case 'maxImgSize':
+				await CfgSaver.save('maxImgSize', Math.max(+el.value, Cfg.minImgSize));
+				break;
 			case 'zoomFactor':
 				await CfgSaver.save('zoomFactor', Math.min(Math.max(+el.value, 1), 100));
 				break;
@@ -683,10 +679,8 @@ const CfgWindow = {
 				${ this._getInp('webmVolume') }<br>
 				${ this._getInp('minWebmWidth') }
 			</div>
-			${ nav.isPresto ? '' : this._getSel('preLoadImgs', true) + '<br>' }
-			${ nav.isPresto || aib._4chan ? '' : `<div class="de-depend">
-				${ this._getBox('findImgFile', true) }
-			</div>` }
+			${ this._getSel('preLoadImgs', true) + '<br>' }
+			${ aib._4chan ? '' : `<div class="de-depend">${ this._getBox('findImgFile', true) }</div>` }
 			${ this._getSel('openImgs', true) }<br>
 			${ this._getBox('imgSrcBtns') }<br>
 			${ this._getSel('imgNames') }<br>
@@ -737,7 +731,7 @@ const CfgWindow = {
 				${ this._getSel('removeFName') }<br>
 				${ this._getBox('sendErrNotif') }<br>
 				${ this._getBox('scrAfterRep') }<br>
-				${ postform.files && !nav.isPresto ? this._getSel('fileInputs') : '' }
+				${ postform.files ? this._getSel('fileInputs') : '' }
 			</div>` : '' }
 			${ postform.form ? this._getSel('addPostForm') + '<br>' : '' }
 			${ postform.txta ? this._getBox('spacedQuote') + '<br>' : '' }
@@ -806,7 +800,7 @@ const CfgWindow = {
 				<div id="de-info-stats">${ statsTable }</div>
 				<div id="de-info-log">${ this._getInfoTable(Logger.getLogData(false), true) }</div>
 			</div>
-			${ !nav.hasWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
+			${ !nav.hasWebStorage && !localData || nav.hasGMXHR ? `
 				${ this._getSel('updDollchan') }
 				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
 					<input type="button" id="de-cfg-button-updnow" value="${ Lng.checkNow[lang] }">

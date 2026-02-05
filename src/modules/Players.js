@@ -113,21 +113,23 @@ class Videos {
 		if(this.playerInfo !== m) {
 			this.currentLink.classList.remove('de-current');
 			this.currentLink = el;
+			const isYTube = el.classList.contains('de-ytube');
 			if(mode === 1) {
-				this._addThumb(m, el.classList.contains('de-ytube'));
+				this._addThumb(m, isYTube);
 			} else {
 				el.classList.add('de-current');
-				this.setPlayer(m, el.classList.contains('de-ytube'));
+				this.setPlayer(m, isYTube);
 			}
 			return;
 		}
 		if(mode === 1) {
+			const isYTube = el.classList.contains('de-ytube');
 			if($q('.de-video-thumb', this.player)) {
 				el.classList.add('de-current');
-				this.setPlayer(m, el.classList.contains('de-ytube'));
+				this.setPlayer(m, isYTube);
 			} else {
 				el.classList.remove('de-current');
-				this._addThumb(m, el.classList.contains('de-ytube'));
+				this._addThumb(m, isYTube);
 			}
 		} else {
 			el.classList.remove('de-current');

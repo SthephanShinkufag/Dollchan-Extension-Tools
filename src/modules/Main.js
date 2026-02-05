@@ -25,7 +25,6 @@ function runFrames() {
 			const deWindow = fDoc.defaultView;
 			deMainFuncInner(
 				deWindow,
-				deWindow.opera?.scriptStorage,
 				deWindow.FormData,
 				(x, y) => deWindow.scrollTo(x, y),
 				typeof localData === 'object' ? localData : null

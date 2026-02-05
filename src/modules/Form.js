@@ -547,7 +547,7 @@ class PostForm {
 		const buttons = $q('.de-win-buttons', this.qArea);
 		buttons.onmouseover = ({ target }) => {
 			const el = target.parentNode;
-			switch(nav.fixEventEl(target).classList[0]) {
+			switch(target.classList[0]) {
 			case 'de-win-btn-clear': el.title = Lng.clearForm[lang]; break;
 			case 'de-win-btn-close': el.title = Lng.closeReply[lang]; break;
 			case 'de-win-btn-toggle': el.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];

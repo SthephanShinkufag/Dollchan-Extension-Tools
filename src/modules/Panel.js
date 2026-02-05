@@ -26,7 +26,7 @@ const Panel = Object.create({
 					this._getButton('goup') +
 					this._getButton('godown') +
 					(filesCount ? this._getButton('expimg') + this._getButton('maskimg') : '') +
-					(!localData && !nav.isPresto ?
+					(!localData ?
 						(filesCount && !Cfg.preLoadImgs ? this._getButton('preimg') : '') +
 						(isThr ? this._getButton('savethr') : '') : '') +
 					(!localData && isThr ?
@@ -68,7 +68,7 @@ const Panel = Object.create({
 		if('isTrusted' in e && !e.isTrusted) {
 			return;
 		}
-		let el = nav.fixEventEl(e.target);
+		let el = e.target;
 		el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 		switch(e.type) {
 		case 'click':
@@ -197,7 +197,7 @@ const Panel = Object.create({
 			}
 			return;
 		default: // mouseout
-			this._setHideTimeout(nav.fixEventEl(e.relatedTarget));
+			this._setHideTimeout(e.relatedTarget);
 			switch(el.id) {
 			case 'de-panel-refresh':
 			case 'de-panel-savethr':

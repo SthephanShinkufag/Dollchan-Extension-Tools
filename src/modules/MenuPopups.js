@@ -28,7 +28,7 @@ function $popup(id, txt, isWait = false) {
 		el = $bEnd($id('de-wrapper-popup'),
 			`<div class="${ aib.cReply } de-popup" id="de-popup-${ id }">${ html }</div>`);
 		el.onclick = e => {
-			let el = nav.fixEventEl(e.target);
+			let el = e.target;
 			el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 			if(el.className === 'de-popup-btn') {
 				closePopup(el.parentNode);
@@ -201,7 +201,7 @@ class Menu {
 			/* falls through */
 		case 'mouseout': {
 			clearTimeout(this._closeTO);
-			const targetEl = nav.fixEventEl(e.relatedTarget);
+			const targetEl = e.relatedTarget;
 			if(!$contains(this.el, targetEl)) {
 				if(isOverEvent) {
 					this.onover?.();

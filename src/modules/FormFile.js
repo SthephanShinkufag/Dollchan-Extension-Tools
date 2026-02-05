@@ -469,7 +469,7 @@ class FileInput {
 			this._txtInput.placeholder = Lng.dropFileHere[lang];
 		}
 		this._parent.hideEmpty();
-		if(!nav.isPresto && !aib._4chan &&
+		if(!aib._4chan &&
 			/^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile.type : this._input.files[0].type)
 		) {
 			this._rarMsg?.remove();

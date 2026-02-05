@@ -79,7 +79,8 @@ function showVideosWindow(winBody) {
 		playerInfo  : null,
 		handleEvent(e) {
 			const el = e.target;
-			if(el.classList.contains('de-abtn')) {
+			const { classList } = el;
+			if(classList.contains('de-abtn')) {
 				let node;
 				switch(el.id) {
 				case 'de-video-btn-hide': { // Fold/unfold list of links
@@ -108,7 +109,7 @@ function showVideosWindow(winBody) {
 				}
 				e.preventDefault();
 				return;
-			} else if(!el.classList.contains('de-video-link')) { // Clicking on ">" before link
+			} else if(!classList.contains('de-video-link')) { // Clicking on ">" before link
 				// Go to post that contains this link
 				pByNum.get(+el.getAttribute('de-num')).selectAndScrollTo();
 				return;
@@ -120,8 +121,8 @@ function showVideosWindow(winBody) {
 					this.currentLink.classList.remove('de-current');
 				}
 				this.currentLink = el;
-				el.classList.add('de-current');
-				Videos.addPlayer(this, info, el.classList.contains('de-ytube'), true);
+				classList.add('de-current');
+				Videos.addPlayer(this, info, classList.contains('de-ytube'), true);
 			}
 			e.preventDefault();
 		}

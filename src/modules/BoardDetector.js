@@ -711,9 +711,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return { error, postNum };
 		}
 		handlePostClick(post, el, e) {
+			const { classList } = el;
 			// Click on like/dislike elements
 			let likeEl = el;
-			if(likeEl.classList.contains('post__rate') ||
+			if(classList.contains('post__rate') ||
 				(likeEl = el.parentNode).classList.contains('post__rate')
 			) {
 				const task = likeEl.id.split('-')[0];
@@ -730,16 +731,16 @@ function getImageBoard(checkDomains, checkEngines) {
 				}, () => $popup('err-2chlike', Lng.noConnect[lang]));
 			}
 			// Click on "truncated message" link
-			if(el.classList.contains('expand-large-comment')) {
+			if(classList.contains('expand-large-comment')) {
 				post._getFullMsg(el, false);
 				e.preventDefault();
 				e.stopPropagation();
 			}
 			// Click on spoiler image
-			if(el.classList.contains('file__nsfw')) {
+			if(classList.contains('file__nsfw')) {
 				$hide(el);
 			}
-			if(el.classList.contains('post__file-nsfw')) {
+			if(classList.contains('post__file-nsfw')) {
 				$hide(el.firstElementChild);
 			}
 		}
