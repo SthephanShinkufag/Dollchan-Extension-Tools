@@ -14,8 +14,8 @@ function initThreadUpdater(title, enableUpdate) {
 	const storageName = `de-last-postscount-${ aib.b }-${ aib.t }`;
 
 	const audio = {
-		enabled  : false,
-		repeatMS : 0,
+		enabled : false,
+		repeatMS: 0,
 		disableAudio() {
 			this.stopAudio();
 			this.enabled = false;
@@ -85,9 +85,9 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 
-		_countingTO : null,
-		_countingIV : null,
-		_enabled    : false,
+		_countingTO: null,
+		_countingIV: null,
+		_enabled   : false,
 		get _el() {
 			const value = $id('de-updater-count');
 			Object.defineProperty(this, '_el', { value });
@@ -173,24 +173,24 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 
-		_blinkInterv : null,
-		_blinkMS     : 800,
-		_currentIcon : null,
-		_emptyIcon   : 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
-		_getIconNew  : () => null,
-		_getIconYou  : () => null,
-		_hasIcons    : false,
-		_iconError   : null,
-		_iconsNew    : [],
-		_iconsYou    : [],
-		_isInited    : false,
-		_isOrigIcon  : true,
+		_blinkInterv: null,
+		_blinkMS    : 800,
+		_currentIcon: null,
+		_emptyIcon  : 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
+		_getIconNew : () => null,
+		_getIconYou : () => null,
+		_hasIcons   : false,
+		_iconError  : null,
+		_iconsNew   : [],
+		_iconsYou   : [],
+		_isInited   : false,
+		_isOrigIcon : true,
 		get _iconEl() {
 			const el = $q('link[rel="shortcut icon"]', doc.head) ||
 				$bEnd(doc.head, '<link href="/favicon.ico" rel="shortcut icon"/>');
 			Object.defineProperties(this, {
-				_iconEl      : { value: el, writable: true },
-				originalIcon : { value: el.href }
+				_iconEl     : { value: el, writable: true },
+				originalIcon: { value: el.href }
 			});
 			return el;
 		},
@@ -295,9 +295,9 @@ function initThreadUpdater(title, enableUpdate) {
 				Lng.newPost[lang][lngQuantity(newPosts)] }. ${
 				toYou ? `${ toYou } ${ Lng.youReplies[lang][lngQuantity(toYou)] }.` : '' }`,
 			{
-				body : Lng.latestPost[lang] + ':\n' + post.text.substring(0, 250).replace(/\s+/g, ' '),
-				icon : post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon,
-				tag  : aib.domain + aib.b + aib.t
+				body: Lng.latestPost[lang] + ':\n' + post.text.substring(0, 250).replace(/\s+/g, ' '),
+				icon: post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon,
+				tag : aib.domain + aib.b + aib.t
 			});
 			notif.onshow = () => setTimeout(() => notif === this._notifEl && this.closeNotif(), 12e3);
 			notif.onclick = () => deWindow.focus();
@@ -308,8 +308,8 @@ function initThreadUpdater(title, enableUpdate) {
 			this._notifEl = notif;
 		},
 
-		_granted : true,
-		_notifEl : null,
+		_granted: true,
+		_notifEl: null,
 		_requestPermission() {
 			this._granted = false;
 			Notification.requestPermission(async state => {
@@ -349,12 +349,12 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 
-		_delay       : 0,
-		_initDelay   : 0,
-		_loadOnce    : false,
-		_loadPromise : null,
-		_seconds     : 0,
-		_state       : -1,
+		_delay      : 0,
+		_initDelay  : 0,
+		_loadOnce   : false,
+		_loadPromise: null,
+		_seconds    : 0,
+		_state      : -1,
 		get _panelButton() {
 			const value = $q('button[id^="de-panel-upd"]');
 			if(value) {

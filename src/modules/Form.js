@@ -431,7 +431,7 @@ class PostForm {
 			}
 			if(this.tNum && pByNum.get(this.tNum).subj === 'Dollchan Extension Tools') {
 				const temp = `\n\n${ PostForm._wrapText(aib.markupTags[5],
-					`${ '-'.repeat(50) }\n${ nav.ua }\nv${ version }.${ commit }${
+					`${ '-'.repeat(50) }\n${ nav.userAgent }\nv${ version }.${ commit }${
 						nav.isESNext ? '.es6' : '' } [${ nav.scriptHandler }]`
 				)[1] }`;
 				if(!val.includes(temp)) {
@@ -471,7 +471,7 @@ class PostForm {
 		// Add image from clipboard to file inputs on Ctrl+V
 		el.addEventListener('paste', async e => {
 			const files = e?.clipboardData?.files;
-			for(const file of files) {
+			for(const file of files || []) {
 				const inputs = this.files._inputs;
 				for(let i = 0, len = inputs.length; i < len; ++i) {
 					const input = inputs[i];
@@ -482,7 +482,7 @@ class PostForm {
 				}
 			}
 		});
-		// Make textarea resizer
+		// Saving the textarea size when resizing.
 		if(nav.isFirefox || nav.isWebkit) {
 			el.addEventListener('mouseup', ({ target }) => {
 				const s = target.style;
@@ -494,9 +494,10 @@ class PostForm {
 			});
 			return;
 		}
+		// Creating a resizer in browsers that don't have one.
 		$aEnd(el, '<div id="de-resizer-text"></div>').addEventListener('mousedown', {
-			_el      : el,
-			_elStyle : style,
+			_el     : el,
+			_elStyle: style,
 			handleEvent(e) {
 				switch(e.type) {
 				case 'mousedown':

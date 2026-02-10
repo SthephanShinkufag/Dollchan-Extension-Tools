@@ -2,61 +2,51 @@
                                       BROWSER DETECTORS AND DEPENDENCIES
 =========================================================================================================== */
 
-function checkStorage() {
-	try {
-		locStorage = deWindow.localStorage;
-		sesStorage = deWindow.sessionStorage;
-		sesStorage['de-test'] = 1;
-	} catch(err) {
-		if(typeof unsafeWindow !== 'undefined') {
-			locStorage = unsafeWindow.localStorage;
-			sesStorage = unsafeWindow.sessionStorage;
-		}
-	}
-	if(!(locStorage && (typeof locStorage === 'object') && sesStorage)) {
-		console.error('Webstorage error: please, enable webstorage!');
-		return false;
-	}
-	return true;
-}
-
 // Browser identification and browser-specific hacks
-function initNavFuncs() {
-	const ua = navigator.userAgent;
-	const isFirefox = ua.includes('Gecko/');
-	const isWebkit = ua.includes('WebKit/');
-	const isChrome = isWebkit && ua.includes('Chrome/');
+function initBrowser() {
+	locStorage = deWindow.localStorage;
+	sesStorage = deWindow.sessionStorage;
+	const { userAgent } = navigator;
+	const isFirefox = userAgent.includes('Gecko/');
+	const isWebkit = userAgent.includes('WebKit/');
+	const isChrome = isWebkit && userAgent.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
-	const canUseFetch = 'AbortController' in deWindow; // Firefox 57+, Chrome 66+, Safari 11.1+
-	const hasNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
-	let hasGMXHR, hasOldGM, hasWebStorage, scriptHandler;
+
+	// Dollchan installation detection (userscript manager / webextension / in-page)
+	let scriptHandler;
+	let isInPage = false;
+	let isWebExtension = false;
+	let hasGMXHR = false;
+	let hasOldGM = false;
+	let hasWebStorage = false;
+	const hasNewGM = typeof GM !== 'undefined';
 	if(hasNewGM) {
-		const inf = GM.info;
-		const handlerName = inf ? inf.scriptHandler : '';
+		const handlerName = GM.info?.scriptHandler;
 		if(handlerName === 'FireMonkey') {
-			hasGMXHR = false;
 			hasOldGM = true;
 		} else {
 			hasGMXHR = typeof GM.xmlHttpRequest === 'function';
-			hasOldGM = false;
 		}
-		hasWebStorage = false;
-		scriptHandler = inf ? handlerName + ' ' + inf.version : 'Greasemonkey';
-	} else {
-		hasGMXHR = typeof GM_xmlhttpRequest === 'function';
-		try {
-			hasOldGM = (typeof GM_setValue === 'function') &&
-				(!isChrome || !GM_setValue.toString().includes('not supported'));
-		} catch(err) {
-			hasOldGM = err.message === 'Permission denied to access property "toString"'; // Chrome
-		}
-		hasWebStorage = !hasOldGM && (isFirefox || ('chrome' in deWindow)) &&
-			(typeof chrome === 'object') && !!chrome && !!chrome.storage;
-		scriptHandler = hasWebStorage ? 'WebExtension' :
-			typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' :
-			GM_info.scriptHandler ? `${ GM_info.scriptHandler } ${ GM_info.version }` :
+		scriptHandler = handlerName ? handlerName + ' ' + GM.info.version :
 			isFirefox ? 'Greasemonkey' : 'Unknown';
+	} else if(typeof GM_info !== 'undefined') {
+		const handlerName = GM_info?.scriptHandler;
+		hasGMXHR = typeof GM_xmlhttpRequest === 'function';
+		scriptHandler = handlerName ? handlerName + ' ' + GM_info.version :
+			isFirefox ? 'Greasemonkey' : 'Unknown';
+	} else {
+		hasWebStorage = (isFirefox || ('chrome' in deWindow)) &&
+			(typeof chrome === 'object') && !!chrome && !!chrome.storage;
+		if(hasWebStorage) {
+			isWebExtension = true;
+			scriptHandler = 'WebExtension';
+		} else {
+			isInPage = true;
+			scriptHandler = 'In-page';
+		}
 	}
+
+	// XXX: Firefox < 39, Chrome < 50, Safari < 11 - FormData hack
 	let needFileHack = false;
 	try {
 		new File([''], '');
@@ -66,7 +56,7 @@ function initNavFuncs() {
 	} catch(err) {
 		needFileHack = true;
 	}
-	if(needFileHack && FormData) { // XXX: Firefox < 39, Chrome < 50, Safari < 11 - FormData hack
+	if(needFileHack && FormData) {
 		const OrigFormData = FormData;
 		const origAppend = FormData.prototype.append;
 		FormData = function FormData(form) {
@@ -85,25 +75,28 @@ function initNavFuncs() {
 			return rv;
 		};
 	}
-	nav = {
-		canUseFetch,
-		canUseNativeXHR  : true,
-		firefoxVer       : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
-		hasGlobalStorage : hasOldGM || hasNewGM || hasWebStorage,
+
+	return {
+		canUseFetch     : 'AbortController' in deWindow, // Firefox 57+, Chrome 66+, Safari 11.1+,
+		canUseNativeXHR : true,
+		firefoxVer      : isFirefox ? +(userAgent.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
+		hasGlobalStorage: hasOldGM || hasNewGM || hasWebStorage,
 		hasGMXHR,
 		hasNewGM,
 		hasOldGM,
 		hasWebStorage,
-		isESNext         : typeof deMainFuncOuter === 'undefined',
+		isESNext        : typeof deMainFuncOuter === 'undefined',
 		isFirefox,
-		isMsEdge         : ua.includes('Edge/'),
-		isMobile         : /Android|iPhone/i.test(ua),
+		isInPage,
+		isMsEdge        : userAgent.includes('Edge/'),
+		isMobile        : /Android|iPhone/i.test(userAgent),
 		isSafari,
-		isTampermonkey   : scriptHandler.startsWith('Tampermonkey'),
-		isViolentmonkey  : scriptHandler.startsWith('Violentmonkey'),
+		isTampermonkey  : scriptHandler.startsWith('Tampermonkey'),
+		isViolentmonkey : scriptHandler.startsWith('Violentmonkey'),
+		isWebExtension,
 		isWebkit,
 		scriptHandler,
-		ua               : ua + (isFirefox ? ` [${ navigator.buildID }]` : ''),
+		userAgent       : userAgent + (isFirefox ? ` [${ navigator.buildID }]` : ''),
 
 		get canPlayMP3() {
 			const value = !!new Audio().canPlayType('audio/mpeg;');
@@ -128,8 +121,7 @@ function initNavFuncs() {
 		},
 		get matchesSelector() {
 			const dE = doc.documentElement;
-			const func = dE.matches || dE.mozMatchesSelector ||
-				dE.webkitMatchesSelector || dE.oMatchesSelector;
+			const func = dE.matches || dE.mozMatchesSelector || dE.webkitMatchesSelector;
 			const value = (el, sel) => func.call(el, sel);
 			Object.defineProperty(this, 'matchesSelector', { value });
 			return value;
@@ -146,8 +138,8 @@ function initNavFuncs() {
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
 		},
-		// XXX: Firefox + old Greasemonkey - hack to prevent
-		//    'Accessing TypedArray data over Xrays is slow, and forbidden' errors
+		// XXX: Firefox + old Greasemonkey
+		// Hack to prevent 'Accessing TypedArray data over Xrays is slow, and forbidden' errors
 		unsafeUint8Array(data, i, len) {
 			let Ctor = Uint8Array;
 			if(this.isFirefox && (this.hasOldGM || this.isTampermonkey)) {
@@ -166,7 +158,8 @@ function initNavFuncs() {
 			}
 			throw new Error();
 		},
-		unsafeDataView(data, offset = 0) { // XXX: Firefox + old Greasemonkey
+		// XXX: Firefox + old Greasemonkey
+		unsafeDataView(data, offset = 0) {
 			const value = new DataView(data, offset);
 			return this.isFirefox && this.hasOldGM && !(value instanceof DataView) ?
 				new unsafeWindow.DataView(data, offset) : value;

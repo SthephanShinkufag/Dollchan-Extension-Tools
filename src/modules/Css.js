@@ -247,6 +247,7 @@ function scriptCSS() {
 	.de-fullimg-rotated + .de-fullimg-info { position: absolute; bottom: 0; }
 	.de-fullimg-scale { color: #fff; font: bold 12px tahoma; cursor: default; }
 	.de-fullimg-video-hack { position: absolute; ${ nav.isMobile && nav.isWebkit ?
+		// XXX: Videos won't close in Chrome Mobile. Create a close button.
 		'display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; top: 0; right: 0; color: #fff; font-size: 2em;' :
 		'width: 100%; height: calc(100% - 40px);'
 	} z-index: 1; cursor: pointer; }

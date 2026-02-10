@@ -8475,7 +8475,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this24 = this;
   var _marked = _regenerator().m(getFormElements);
   var version = '24.9.16.0';
-  var commit = 'a0ddacc';
+  var commit = '241e6f8';
 
 
   var doc = deWindow.document;
@@ -8686,8 +8686,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
         txt: ['Раскрывать картинки по клику', 'Expand images on click', 'Розгортати зображення по кліку']
       },
       imgNavBtns: ['Добавлять кнопки навигации по картинкам', 'Add buttons to navigate images', 'Додавати кнопки навігації по зображеннях'],
-      imgInfoLink: ['Имя файла под раскрытой картинкой', 'Show file name under expanded image', 'Імʼя файлу під розкритим зображенням'],
-      resizeDPI: ['Не растягивать на дисплеях с высоким DPI', 'Donʼt upscale images on high DPI displays', 'Не розтягувати на дисплеях з високим DPI'],
+      imgInfoLink: ['Имя файла под раскрытой картинкой', 'Show file name under expanded image', 'Ім\'я файлу під розкритим зображенням'],
+      resizeDPI: ['Не растягивать на дисплеях с высоким DPI', 'Don\'t upscale images on high DPI displays', 'Не розтягувати на дисплеях з високим DPI'],
       resizeImgs: {
         sel: [['Откл.', 'По ширине', 'Шир.+выс.'], ['Disable', 'By width', 'Width+Height'], ['Вимк.', 'По ширині', 'Шир.+выс.']],
         txt: ['Уменьшать при раскрытии в посте', 'Fit to screen for expanding in post', 'Зменшувати при розкритті в дописі']
@@ -8710,7 +8710,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       },
       imgSrcBtns: ['Добавлять кнопки "Поиск" для картинок', 'Add "Search" buttons for images', 'Додавати кнопки "Пошук" для зображень'],
       imgNames: {
-        sel: [['Не изменять', 'Настоящие (сокр.)', 'Скрывать', 'Настоящие (полные)'], ['Donʼt change', 'Original (trunc.)', 'Hide', 'Original (full)'], ['Не змінювати', 'Справжні (скороч.)', 'Ховати', 'Справжні (повні)']],
+        sel: [['Не изменять', 'Настоящие (сокр.)', 'Скрывать', 'Настоящие (полные)'], ['Don\'t change', 'Original (trunc.)', 'Hide', 'Original (full)'], ['Не змінювати', 'Справжні (скороч.)', 'Ховати', 'Справжні (повні)']],
         txt: ['имена картинок', 'filenames', 'імена зображень']
       },
       maskVisib: ['Видимость для NSFW-картинок [0-100%]', 'Visibility for NSFW images [0-100%]', 'Видимість для NSFW-зображень [0-100%]'],
@@ -8720,7 +8720,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       markViewed: ['Помечать просмотренные посты', 'Mark viewed posts', 'Позначати переглянуті дописи'],
       strikeHidd: ['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts', 'Закреслювати >>посилання на сховані дописи'],
       removeHidd: ['Также удалять из обратных >>ссылок', 'Also remove from >>backlinks', 'Також видаляти із зворотніх >>посилань'],
-      noNavigHidd: ['Не отображать превью для скрытых постов', 'Donʼt show previews for hidden posts', 'Не показувати превʼю до cхованих дописів'],
+      noNavigHidd: ['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts', 'Не показувати прев\'ю до cхованих дописів'],
       markMyLinks: ['Помечать ссылки на мои посты как (You)', 'Mark links to my posts with (You)', 'Позначати посилання на мої дописи як (You)'],
       crossLinks: ['Заменять http:// на >>/b/ссылки', 'Replace http:// with >>/b/links', 'Замінювати https:// на >>/b/посилання'],
       decodeLinks: ['Декодировать %D0%A5%D1 в ссылках', 'Decode %D0%A5%D1 in links', 'Декодувати %D0%A5%D1 в посиланнях'],
@@ -8731,7 +8731,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       addVocaroo: ['к Vocaroo ссылкам', 'for Vocaroo links', 'до Vocaroo посилань'],
       addVimeo: ['Добавлять плеер к Vimeo ссылкам', 'Add player for Vimeo links', 'Додавати плеєр до Vimeo посилань'],
       embedYTube: {
-        sel: [['Ничего', 'Превью+плеер', 'Плеер по клику'], ['Nothing', 'Preview+player', 'On click player'], ['Нічого', 'Превʼю+плеєр', 'Плеєр по кліку']],
+        sel: [['Ничего', 'Превью+плеер', 'Плеер по клику'], ['Nothing', 'Preview+player', 'On click player'], ['Нічого', 'Прев\'ю+плеєр', 'Плеєр по кліку']],
         txt: ['к YouTube ссылкам', 'for YouTube links', 'до YouTube посилань']
       },
       YTubeTitles: ['Загружать названия к YouTube ссылкам', 'Load titles for YouTube links', 'Отримувати назви до YouTube посилань'],
@@ -8740,13 +8740,13 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       postSameImg: ['Возможность отправки одинаковых картинок', 'Ability to post duplicate images', 'Можливість надсилання однакових зображень'],
       removeEXIF: ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG ', 'Видаляти EXIF з JPEG '],
       removeFName: {
-        sel: [['Не изменять', 'Удалять', 'Unixtime', 'Unixtime-random'], ['Donʼt change', 'Clear', 'Unixtime', 'Unixtime-random'], ['Не змінювати', 'Видаляти', 'Unixtime', 'Unixtime-random']],
+        sel: [['Не изменять', 'Удалять', 'Unixtime', 'Unixtime-random'], ['Don\'t change', 'Clear', 'Unixtime', 'Unixtime-random'], ['Не змінювати', 'Видаляти', 'Unixtime', 'Unixtime-random']],
         txt: ['имена файлов', 'file names', 'імена файлів']
       },
       sendErrNotif: ['Оповещать в заголовке об ошибке отправки', 'Inform in title about post send error', 'Сповіщати в заголовку про помилку надсилання'],
       scrAfterRep: ['Перемещаться в конец треда после отправки', 'Scroll to bottom after reply', 'Гортати в кінець треду після надсилання'],
       fileInputs: {
-        sel: [['Откл.', 'Упрощ.', 'Превью'], ['Disable', 'Simple', 'Preview'], ['Вимкн.', 'Спрощене', 'Превʼю']],
+        sel: [['Откл.', 'Упрощ.', 'Превью'], ['Disable', 'Simple', 'Preview'], ['Вимкн.', 'Спрощене', 'Прев\'ю']],
         txt: ['Улучшенное поле добавления файлов', 'Enhanced file attachment field', 'Покращене поле додавання файлів']
       },
       addPostForm: {
@@ -8757,7 +8757,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       favOnReply: ['Добавлять тред в Избранное после ответа', 'Add thread to Favorites after reply', 'Додавати тред в Вибране після відповіді'],
       warnSubjTrip: ['Оповещать о трипкоде в поле "Тема"', 'Warn about a tripcode in "Subject" field', 'Сповіщувати про трипкод в полі "Тема"'],
       addSageBtn: ['Кнопка Sage вместо поля "Email" ', 'Replace "Email" with Sage button ', 'Кнопка Sage замість "E-mail" '],
-      saveSage: ['Помнить сажу', 'Remember sage', 'Памʼятати сажу'],
+      saveSage: ['Помнить сажу', 'Remember sage', 'Пам\'ятати сажу'],
       capUpdTime: ['Интервал обновления капчи (сек)', 'Captcha update interval (sec)', 'Інтервал оновлення капчі (сек)'],
       captchaLang: {
         sel: [['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus'], ['Вимк.', 'Eng', 'Ukr']],
@@ -8769,10 +8769,10 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       },
       txtBtnsLoc: ['Внизу', 'At bottom', 'Знизу'],
       userPassw: ['Постоянный пароль', 'Fixed password', 'Постійний пароль'],
-      userName: ['Постоянное имя', 'Fixed name', 'Постійне імʼя'],
+      userName: ['Постоянное имя', 'Fixed name', 'Постійне ім\'я'],
       noBoardRule: ['Правила ', 'Rules ', 'Правила '],
       noPassword: ['Пароль ', 'Password ', 'Пароль '],
-      noName: ['Имя ', 'Name ', 'Імʼя '],
+      noName: ['Имя ', 'Name ', 'Ім\'я '],
       noSubj: ['Тему', 'Subject', 'Тему'],
       scriptStyle: {
         sel: [['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark', 'Gradient pink'], ['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark', 'Gradient pink'], ['Gradient darkblue', 'Gradient blue', 'Solid grey', 'Transparent blue', 'Square dark', 'Gradient pink']],
@@ -8835,7 +8835,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     expandThr: ['Развернуть тред', 'Expand thread', 'Розгорнути тред'],
     addFav: ['Добавить тред в Избранное', 'Add thread to Favorites', 'Додати тред в Вибране'],
     delFav: ['Убрать тред из Избранного', 'Remove thread from Favorites', 'Прибрати тред з Вибраного'],
-    attachPview: ['Закрепить превью', 'Attach preview', 'Закріпити превʼю'],
+    attachPview: ['Закрепить превью', 'Attach preview', 'Закріпити прев\'ю'],
     goToThr: ['В тред', 'To thread', 'До треду'],
     closeWindow: ['Закрыть окно', 'Close window', 'Закрити вікно'],
     closeReply: ['Закрыть форму', 'Close form', 'Закрити форму'],
@@ -8871,18 +8871,18 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     markMyPost: ['Пометить как мой пост', 'Mark as my post', 'Відмітити як мій допис'],
     deleteMyPost: ['Убрать из моих постов', 'Delete from my posts', 'Прибрати з моїх дописів'],
     saveAs: ['Сохр. как ', 'Save as ', 'Збер. як '],
-    origName: ['Оригинальное имя', 'Original name', 'Оригінальне імʼя'],
-    metaName: ['Имя из метаданных', 'Name from metadata', 'Імʼя з метаданих'],
-    boardName: ['Имя, присвоенное доской', 'Name assigned by the board', 'Імʼя, присвоєне дошкою'],
+    origName: ['Оригинальное имя', 'Original name', 'Оригінальне ім\'я'],
+    metaName: ['Имя из метаданных', 'Name from metadata', 'Ім\'я з метаданих'],
+    boardName: ['Имя, присвоенное доской', 'Name assigned by the board', 'Ім\'я, присвоєне дошкою'],
     searchIn: ['Искать в ', 'Search in ', 'Шукати в '],
     frameSearch: ['Поиск кадра в ', 'Frame search in ', 'Пошук кадру в '],
     gotoResults: ['Перейти к результатам поиска', 'Go to search results', 'Перейти до результатів пошуку'],
     getFrameLinks: ['Получить ссылки для поиска этого кадра', 'Get links to search this frame', 'Отримати посилання для пошуку цього кадру'],
     saveFrame: ['Сохранить полученный кадр', 'Save the received frame', 'Зберегти отриманий кадр'],
-    errSaucenao: ['Ошибка: не могу загрузить на saucenao.com', 'Error: canʼt load to saucenao.com', 'Помилка: не можу завантажити на saucenao.com'],
+    errSaucenao: ['Ошибка: не могу загрузить на saucenao.com', 'Error: can\'t load to saucenao.com', 'Помилка: не можу завантажити на saucenao.com'],
     hotKeyEdit: [[
     '%l%i24 – предыдущая страница/картинка%/l', '%l%i217 – следующая страница/картинка%/l', '%l%i21 – тред (на доске)/пост (в треде) ниже%/l', '%l%i20 – тред (на доске)/пост (в треде) выше%/l', '%l%i31 – пост (на доске) ниже%/l', '%l%i30 – пост (на доске) выше%/l', '%l%i23 – скрыть пост/тред%/l', '%l%i32 – перейти в тред%/l', '%l%i33 – развернуть тред%/l', '%l%i211 – раскрыть картинку в посте%/l', '%l%i22 – быстрый ответ%/l', '%l%i25t – отправить пост%/l', '%l%i210 – открыть/закрыть "Настройки"%/l', '%l%i26 – открыть/закрыть "Избранное"%/l', '%l%i27 – открыть/закрыть "Скрытое"%/l', '%l%i218 – открыть/закрыть "Видео"%/l', '%l%i28 – открыть/закрыть панель%/l', '%l%i29 – вкл./выкл. режим NSFW%/l', '%l%i40 – обновить тред (в треде)%/l', '%l%i212t – жирный%/l', '%l%i213t – курсив%/l', '%l%i214t – зачеркнутый%/l', '%l%i215t – спойлер%/l', '%l%i216t – код%/l'], [
-    '%l%i24 – previous page/image%/l', '%l%i217 – next page/image%/l', '%l%i21 – thread (on board)/post (in thread) below%/l', '%l%i20 – thread (on board)/post (in thread) above%/l', '%l%i31 – on board post below%/l', '%l%i30 – on board post above%/l', '%l%i23 – hide post/thread%/l', '%l%i32 – go to thread%/l', '%l%i33 – expand thread%/l', '%l%i211 – expand postʼs images%/l', '%l%i22 – quick reply%/l', '%l%i25t – send post%/l', '%l%i210 – open/close "Settings"%/l', '%l%i26 – open/close "Favorites"%/l', '%l%i27 – open/close "Hidden"%/l', '%l%i218 – open/close "Videos"%/l', '%l%i28 – open/close main panel%/l', '%l%i29 – toggle NSFW mode%/l', '%l%i40 – update thread%/l', '%l%i212t – bold%/l', '%l%i213t – italic%/l', '%l%i214t – strike%/l', '%l%i215t – spoiler%/l', '%l%i216t – code%/l'], [
+    '%l%i24 – previous page/image%/l', '%l%i217 – next page/image%/l', '%l%i21 – thread (on board)/post (in thread) below%/l', '%l%i20 – thread (on board)/post (in thread) above%/l', '%l%i31 – on board post below%/l', '%l%i30 – on board post above%/l', '%l%i23 – hide post/thread%/l', '%l%i32 – go to thread%/l', '%l%i33 – expand thread%/l', '%l%i211 – expand post\'s images%/l', '%l%i22 – quick reply%/l', '%l%i25t – send post%/l', '%l%i210 – open/close "Settings"%/l', '%l%i26 – open/close "Favorites"%/l', '%l%i27 – open/close "Hidden"%/l', '%l%i218 – open/close "Videos"%/l', '%l%i28 – open/close main panel%/l', '%l%i29 – toggle NSFW mode%/l', '%l%i40 – update thread%/l', '%l%i212t – bold%/l', '%l%i213t – italic%/l', '%l%i214t – strike%/l', '%l%i215t – spoiler%/l', '%l%i216t – code%/l'], [
     '%l%i24 – попередня сторінка/зображення%/l', '%l%i217 – наступна сторінка/зображення%/l', '%l%i21 – тред (на дошці)/допис (в треді) нижче%/l', '%l%i20 – тред (на дошці)/допис (в треді) вище%/l', '%l%i31 – допис (на дошці) нижче%/l', '%l%i30 – допис (на дошці) вище%/l', '%l%i23 – приховати допис/тред%/l', '%l%i32 – перейти в тред%/l', '%l%i33 – розгорнути тред%/l', '%l%i211 – розгорнути зображення в дописі%/l', '%l%i22 – швидка відповідь%/l', '%l%i25t – відправити допис%/l', '%l%i210 – відкрити/закрити "Налаштування"%/l', '%l%i26 – відкрити/закрити "Вибране"%/l', '%l%i27 – відкрити/закрити "Сховане"%/l', '%l%i218 – відкрити/закрити "Посилання на відео"%/l', '%l%i28 – відкрити/закрити панель%/l', '%l%i29 – увімкнути/вимкнути режим NSFW%/l', '%l%i40 – оновити тред (в треді)%/l', '%l%i212t – жирний%/l', '%l%i213t – курсив%/l', '%l%i214t – закреслений%/l', '%l%i215t – спойлер%/l', '%l%i216t – код%/l']],
     cTimeError: ['Неправильные настройки времени', 'Invalid time settings', 'Неправильні налаштування часу'],
     month: [['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'], ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], ['січ', 'лют', 'бер', 'кві', 'тра', 'чер', 'лип', 'сер', 'вер', 'жов', 'лис', 'гру']],
@@ -8935,8 +8935,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     seErrRegex: ['синтаксическая ошибка в регулярном выражении: %s', 'syntax error in regular expression: %s', 'синтаксична помилка в регулярному виразі: %s'],
     seUnexpChar: ['неожиданный символ: %s', 'unexpected character: %s', 'неочікуваний символ: %s'],
     seMissClBkt: ['пропущена закрывающая скобка', 'missing \')\' in expression', 'пропущено закривну дужку'],
-    seRepsInParens: ['спелл #%s не должен располагаться в скобках', 'spell #%s shouldnʼt be inside parentheses', 'спелл #%s не може бути в дужках'],
-    seOpInReps: ['недопустимо использовать оператор %s со спеллами #rep и #outrep', 'donʼt use operator %s with spells #rep & #outrep', 'неприпустимо використовувати оператор %s зі спеллами #rep и #outrep'],
+    seRepsInParens: ['спелл #%s не должен располагаться в скобках', 'spell #%s shouldn\'t be inside parentheses', 'спелл #%s не може бути в дужках'],
+    seOpInReps: ['недопустимо использовать оператор %s со спеллами #rep и #outrep', 'don\'t use operator %s with spells #rep & #outrep', 'неприпустимо використовувати оператор %s зі спеллами #rep и #outrep'],
     seRow: [' (строка ', ' (row ', ' (рядок '],
     seCol: [', столбец ', ', column ', ', стовпчик '],
     editInTxt: ['Правка в текстовом формате', 'Edit in text format', 'Правка в текстовому форматі'],
@@ -9011,15 +9011,15 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     openOriginal: ['Открыть оригинал в новой вкладке', 'Open the original image in new tab', 'Відкрити оригінал в новій вкладці'],
     loadImage: ['Загружаются картинки', 'Loading images', 'Завантажуються зображення'],
     loadFile: ['Загружаются файлы', 'Loading files', 'Завантажуються файли'],
-    cantLoad: ['Не могу загрузить', 'Canʼt load', 'Не можу завантажити'],
-    willSavePview: ['Будет сохранено превью', 'Thumbnail will be saved', 'Буде збережено превʼю'],
+    cantLoad: ['Не могу загрузить', 'Can\'t load', 'Не можу завантажити'],
+    willSavePview: ['Будет сохранено превью', 'Thumbnail will be saved', 'Буде збережено прев\'ю'],
     loadErrors: ['Во время загрузки произошли ошибки:', 'An error occurred during the loading:', 'Під час завантаження сталися помилки:'],
     succDeleted: ['Успешно удалено!', 'Succesfully deleted!', 'Успішно видалено!'],
     succReported: ['Жалоба успешно отправлена', 'Succesfully reported', 'Скарга успішно відправлена'],
-    errDelete: ['Не могу удалить', 'Canʼt delete', 'Не можу видалити'],
+    errDelete: ['Не могу удалить', 'Can\'t delete', 'Не можу видалити'],
     fileCorrupt: ['Файл повреждён', 'File is corrupt', 'Файл пошкоджено'],
     errCorruptData: ['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data', 'Помилка: сервер надіслав пошкоджені дані'],
-    noConnect: ['Ошибка подключения', 'Connection failed', 'Помилка зʼєднання'],
+    noConnect: ['Ошибка подключения', 'Connection failed', 'Помилка з\'єднання'],
     thrNotFound: ['Тред недоступен', 'Thread is unavailable', 'Тред недоступний'],
     thrClosed: ['Тред закрыт', 'Thread is closed', 'Тред закрито'],
     thrArchived: ['Тред в архиве', 'Thread is archived', 'Тред заархівовано'],
@@ -9032,13 +9032,13 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     noGlobalCfg: ['Глобальные настройки не найдены', 'Global config not found', 'Глобальні налаштування не знайдено'],
     subjHasTrip: ['Поле "Тема" содержит трипкод!', '"Subject" field contains a tripcode!', 'Поле "Тема" містить трипкод!'],
     errMsEdgeWebm: ['Загрузите скрипт для воспроизведения WebM (VP9/Opus)', 'Please load a script to play WebM (VP9/Opus)', 'Завантажте скрипт для відтворення WebM (VP9/Opus)'],
-    errFormLoad: ['Не удаётся загрузить форму ответа', 'Canʼt load the reply form', 'Не вдалося завантажити форму відповіді'],
+    errFormLoad: ['Не удаётся загрузить форму ответа', 'Can\'t load the reply form', 'Не вдалося завантажити форму відповіді'],
     second: ['с', 's', 'с'],
     sizeByte: [' Байт', ' Byte', ' Байт'],
     sizeKByte: [' КБ', ' KB', ' КБ'],
     sizeMByte: [' МБ', ' MB', ' МБ'],
     sizeGByte: [' ГБ', ' GB', ' ГБ'],
-    name: ['Имя', 'Name', 'Імʼя'],
+    name: ['Имя', 'Name', 'Ім\'я'],
     subj: ['Тема', 'Subject', 'Тема'],
     mail: ['Почта', 'Email', 'Пошта'],
     video: ['Видео', 'Video', 'Відео'],
@@ -9156,7 +9156,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     } catch (err) {}
   }
   function $css(text) {
-    return $bEnd(doc.head, "<style type=\"text/css\">".concat(nav.isSafari && !('flex' in doc.body.style) ? text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1') : text, "</style>"));
+    return $bEnd(doc.head, "<style type=\"text/css\">".concat(
+    nav.isSafari && !('flex' in doc.body.style) ? text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1') : text, "</style>"));
   }
   function $createDoc(html) {
     var myDoc = doc.implementation.createHTMLDocument('');
@@ -10150,7 +10151,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
             if (!('Notification' in deWindow)) {
               Cfg.desktNotif = 0;
             }
-            if (nav.scriptHandler === 'WebExtension') {
+            if (nav.isWebExtension) {
               Cfg.updDollchan = 0;
             }
             if (Cfg.updThrDelay < 10) {
@@ -12698,11 +12699,6 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                 isValidColor = true;
               } else if (color && color !== 'inherit' && color !== 'currentColor') {
                 image = doc.createElement('img');
-                image.style.color = 'rgb(0, 0, 0)';
-                image.style.color = color;
-                if (image.style.color !== 'rgb(0, 0, 0)') {
-                  isValidColor = true;
-                }
                 image.style.color = 'rgb(255, 255, 255)';
                 image.style.color = color;
                 isValidColor = image.style.color !== 'rgb(255, 255, 255)';
@@ -13865,7 +13861,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
           }
         });
       }, _asyncToGenerator(_regenerator().m(function _callee16() {
-        var docName, dcBody, dt, html, title, _t18, _t19;
+        var docName, docBody, dt, html, title, _t18, _t19;
         return _regenerator().w(function (_context17) {
           while (1) switch (_context17.n) {
             case 0:
@@ -13875,11 +13871,11 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                 break;
               }
               $q('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
-              dcBody = $q('body', dc);
-              dcBody.classList.remove('de-runned');
-              dcBody.classList.add('de-mode-local');
+              docBody = $q('body', dc);
+              docBody.classList.remove('de-runned-inpage', 'de-runned-userscript');
+              docBody.classList.add('de-runned-local');
               $delAll('#de-css, #de-css-dynamic, #de-css-user', dc);
-              tar.addString('data/dollscript.js', "".concat(nav.isESNext ? "(".concat(String(deMainFuncInner), ")(window, null, null, (x, y) => window.scrollTo(x, y), ") : "(".concat(String(deMainFuncOuter), ")(")).concat(JSON.stringify({
+              tar.addString('data/dollscript.js', "".concat(nav.isESNext ? "(".concat(String(deMainFuncInner), ")(window, null, (x, y) => window.scrollTo(x, y), ") : "(".concat(String(deMainFuncOuter), ")(")).concat(JSON.stringify({
                 domain: aib.domain,
                 b: aib.b,
                 t: aib.t
@@ -14385,7 +14381,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
         if (loader && (dataObj = Videos._global.vData[+!isYtube][m[1]])) {
           this.vData[+!isYtube].push(dataObj);
         }
-        var time = '';
+        var time;
         var _Videos$_fixTime = Videos._fixTime(m[4], m[3], m[2]);
         var _Videos$_fixTime2 = _slicedToArray(_Videos$_fixTime, 4);
         time = _Videos$_fixTime2[0];
@@ -14931,7 +14927,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
         return $ajax(url, params);
       }
     } else {
-      reject(new AjaxError(0, 'Ajax error: Canʼt send any type of request.'));
+      reject(new AjaxError(0, 'Ajax error: Can\'t send any type of request.'));
     }
     return new CancelablePromise(function (res, rej) {
       resolve = res;
@@ -16537,7 +16533,8 @@ this.disableSpells();
             }
             var val = this._runSpell(type, scope[i][1]);
             if (val instanceof Promise) {
-              this._ctx.push(len, scope, ++i, isNegScope);
+              i++;
+              this._ctx.push(len, scope, i, isNegScope);
               return val.then(function (v) {
                 return _this38._asyncContinue(v);
               });
@@ -17458,7 +17455,7 @@ this.disableSpells();
             val = Spells.outReplace(val);
           }
           if (_this45.tNum && pByNum.get(_this45.tNum).subj === 'Dollchan Extension Tools') {
-            var temp = "\n\n".concat(PostForm._wrapText(aib.markupTags[5], "".concat('-'.repeat(50), "\n").concat(nav.ua, "\nv").concat(version, ".").concat(commit).concat(nav.isESNext ? '.es6' : '', " [").concat(nav.scriptHandler, "]"))[1]);
+            var temp = "\n\n".concat(PostForm._wrapText(aib.markupTags[5], "".concat('-'.repeat(50), "\n").concat(nav.userAgent, "\nv").concat(version, ".").concat(commit).concat(nav.isESNext ? '.es6' : '', " [").concat(nav.scriptHandler, "]"))[1]);
             if (!val.includes(temp)) {
               val += temp;
             }
@@ -17503,7 +17500,7 @@ this.disableSpells();
               while (1) switch (_context30.n) {
                 case 0:
                   files = e === null || e === void 0 || (_e$clipboardData = e.clipboardData) === null || _e$clipboardData === void 0 ? void 0 : _e$clipboardData.files;
-                  _iterator18 = _createForOfIteratorHelperLoose(files);
+                  _iterator18 = _createForOfIteratorHelperLoose(files || []);
                 case 1:
                   if ((_step18 = _iterator18()).done) {
                     _context30.n = 6;
@@ -21494,7 +21491,7 @@ Spells.addSpell(9, '', false);
         switch (e.type) {
           case 'click':
             {
-              if (!nav.isMobile && !nav.isWebkit && this.data.isVideo && ExpandableImage.isControlClick(e)) {
+              if (this.data.isVideo && !(nav.isMobile && nav.isWebkit) && ExpandableImage.isControlClick(e)) {
                 return;
               }
               var tag = e.target.tagName.toLowerCase();
@@ -22131,7 +22128,8 @@ Spells.addSpell(9, '', false);
         }
         var hasTitle = needTitle && this.el.hasAttribute('de-metatitle');
         var title = hasTitle ? this.el.getAttribute('de-metatitle') : '';
-        wrapEl = $add("<div class=\"de-fullimg-wrap".concat(wrapClass, "\"").concat(inPostSize, ">").concat(nav.firefoxVer >= 59 || nav.isMobile ? "<div class=\"de-fullimg-video-hack\">".concat(nav.isMobile && nav.isWebkit ? "\xD7" : '', "</div>") : '', "\n\t\t\t<video src=\"").concat(src, "\" ") + "".concat(hasTitle && title ? "title=\"".concat(title, "\" ") : '', "loop autoplay ") + "".concat(Cfg.webmControl ? 'controls ' : '') + "".concat(Cfg.webmVolume === 0 ? 'muted ' : '', "></video>\n\t\t\t<div class=\"de-fullimg-info\">").concat(imgNameEl, "</a> <span class=\"de-fullimg-scale\"></span>\n\t\t\t\t<span class=\"de-webm-title\">").concat(hasTitle && title ? title : '', "</span>\n\t\t\t\t").concat(needTitle && !hasTitle ? "<svg class=\"de-wait\">\n\t\t\t\t\t<use xlink:href=\"#de-symbol-wait\"/></svg>" : '', "\n\t\t\t</div>\n\t\t</div>"));
+        wrapEl = $add("<div class=\"de-fullimg-wrap".concat(wrapClass, "\"").concat(inPostSize, ">").concat(nav.firefoxVer >= 59 || nav.isMobile ? "<div class=\"de-fullimg-video-hack\">".concat(
+        nav.isMobile && nav.isWebkit ? "\xD7" : '', "</div>") : '', "\n\t\t\t<video src=\"").concat(src, "\" ") + "".concat(hasTitle && title ? "title=\"".concat(title, "\" ") : '', "loop autoplay ") + "".concat(Cfg.webmControl ? 'controls ' : '') + "".concat(Cfg.webmVolume === 0 ? 'muted ' : '', "></video>\n\t\t\t<div class=\"de-fullimg-info\">").concat(imgNameEl, "</a> <span class=\"de-fullimg-scale\"></span>\n\t\t\t\t<span class=\"de-webm-title\">").concat(hasTitle && title ? title : '', "</span>\n\t\t\t\t").concat(needTitle && !hasTitle ? "<svg class=\"de-wait\">\n\t\t\t\t\t<use xlink:href=\"#de-symbol-wait\"/></svg>" : '', "\n\t\t\t</div>\n\t\t</div>"));
         var videoEl = $q('video', wrapEl);
         videoEl.volume = Cfg.webmVolume / 100;
         videoEl.addEventListener('ended', function () {
@@ -22920,12 +22918,11 @@ Spells.addSpell(9, '', false);
           case 'founder':
             ccBy = 'Founder';
         }
-        var ccName = '';
         var ccText = '';
         var ccImg = '';
         var ccClass = '';
         if (cc) {
-          ccName = cc[0].toUpperCase() + cc.slice(1);
+          var ccName = cc[0].toUpperCase() + cc.slice(1);
           ccText = "<strong class=\"capcode hand id_".concat(cc === 'founder' ? 'admin' : cc) + "\" title=\"Highlight posts by ".concat(ccBy, "\">## ").concat(ccName, "</strong>");
           ccImg = "<img src=\"".concat(_icon(cc + 'icon'), "\" alt=\"").concat(ccName, " Icon.\" title=\"This user is 4chan ").concat(ccName, ".\" class=\"identityIcon\">");
           ccClass = 'capcode' + (cc === 'founder' ? 'Admin' : ccName);
@@ -24960,55 +24957,48 @@ Spells.addSpell(9, '', false);
   DelForm.tNums = new Set();
 
 
-  function checkStorage() {
-    try {
-      locStorage = deWindow.localStorage;
-      sesStorage = deWindow.sessionStorage;
-      sesStorage['de-test'] = 1;
-    } catch (err) {
-      if (typeof unsafeWindow !== 'undefined') {
-        locStorage = unsafeWindow.localStorage;
-        sesStorage = unsafeWindow.sessionStorage;
-      }
-    }
-    if (!(locStorage && _typeof(locStorage) === 'object' && sesStorage)) {
-      console.error('Webstorage error: please, enable webstorage!');
-      return false;
-    }
-    return true;
-  }
-
-  function initNavFuncs() {
-    var ua = navigator.userAgent;
-    var isFirefox = ua.includes('Gecko/');
-    var isWebkit = ua.includes('WebKit/');
-    var isChrome = isWebkit && ua.includes('Chrome/');
+  function initBrowser() {
+    locStorage = deWindow.localStorage;
+    sesStorage = deWindow.sessionStorage;
+    var _navigator = navigator,
+      userAgent = _navigator.userAgent;
+    var isFirefox = userAgent.includes('Gecko/');
+    var isWebkit = userAgent.includes('WebKit/');
+    var isChrome = isWebkit && userAgent.includes('Chrome/');
     var isSafari = isWebkit && !isChrome;
-    var canUseFetch = 'AbortController' in deWindow; 
-    var hasNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
-    var hasGMXHR, hasOldGM, hasWebStorage, scriptHandler;
+
+    var scriptHandler;
+    var isInPage = false;
+    var isWebExtension = false;
+    var hasGMXHR = false;
+    var hasOldGM = false;
+    var hasWebStorage = false;
+    var hasNewGM = typeof GM !== 'undefined';
     if (hasNewGM) {
-      var inf = GM.info;
-      var handlerName = inf ? inf.scriptHandler : '';
+      var _GM$info;
+      var handlerName = (_GM$info = GM.info) === null || _GM$info === void 0 ? void 0 : _GM$info.scriptHandler;
       if (handlerName === 'FireMonkey') {
-        hasGMXHR = false;
         hasOldGM = true;
       } else {
         hasGMXHR = typeof GM.xmlHttpRequest === 'function';
-        hasOldGM = false;
       }
-      hasWebStorage = false;
-      scriptHandler = inf ? handlerName + ' ' + inf.version : 'Greasemonkey';
-    } else {
+      scriptHandler = handlerName ? handlerName + ' ' + GM.info.version : isFirefox ? 'Greasemonkey' : 'Unknown';
+    } else if (typeof GM_info !== 'undefined') {
+      var _GM_info;
+      var _handlerName = (_GM_info = GM_info) === null || _GM_info === void 0 ? void 0 : _GM_info.scriptHandler;
       hasGMXHR = typeof GM_xmlhttpRequest === 'function';
-      try {
-        hasOldGM = typeof GM_setValue === 'function' && (!isChrome || !GM_setValue.toString().includes('not supported'));
-      } catch (err) {
-        hasOldGM = err.message === 'Permission denied to access property "toString"'; 
+      scriptHandler = _handlerName ? _handlerName + ' ' + GM_info.version : isFirefox ? 'Greasemonkey' : 'Unknown';
+    } else {
+      hasWebStorage = (isFirefox || 'chrome' in deWindow) && (typeof chrome === "undefined" ? "undefined" : _typeof(chrome)) === 'object' && !!chrome && !!chrome.storage;
+      if (hasWebStorage) {
+        isWebExtension = true;
+        scriptHandler = 'WebExtension';
+      } else {
+        isInPage = true;
+        scriptHandler = 'In-page';
       }
-      hasWebStorage = !hasOldGM && (isFirefox || 'chrome' in deWindow) && (typeof chrome === "undefined" ? "undefined" : _typeof(chrome)) === 'object' && !!chrome && !!chrome.storage;
-      scriptHandler = hasWebStorage ? 'WebExtension' : typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' : GM_info.scriptHandler ? "".concat(GM_info.scriptHandler, " ").concat(GM_info.version) : isFirefox ? 'Greasemonkey' : 'Unknown';
     }
+
     var needFileHack = false;
     try {
       new File([''], '');
@@ -25038,10 +25028,10 @@ Spells.addSpell(9, '', false);
         return rv;
       };
     }
-    nav = {
-      canUseFetch: canUseFetch,
+    return {
+      canUseFetch: 'AbortController' in deWindow,
       canUseNativeXHR: true,
-      firefoxVer: isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
+      firefoxVer: isFirefox ? +(userAgent.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
       hasGlobalStorage: hasOldGM || hasNewGM || hasWebStorage,
       hasGMXHR: hasGMXHR,
       hasNewGM: hasNewGM,
@@ -25049,14 +25039,16 @@ Spells.addSpell(9, '', false);
       hasWebStorage: hasWebStorage,
       isESNext: typeof deMainFuncOuter === 'undefined',
       isFirefox: isFirefox,
-      isMsEdge: ua.includes('Edge/'),
-      isMobile: /Android|iPhone/i.test(ua),
+      isInPage: isInPage,
+      isMsEdge: userAgent.includes('Edge/'),
+      isMobile: /Android|iPhone/i.test(userAgent),
       isSafari: isSafari,
       isTampermonkey: scriptHandler.startsWith('Tampermonkey'),
       isViolentmonkey: scriptHandler.startsWith('Violentmonkey'),
+      isWebExtension: isWebExtension,
       isWebkit: isWebkit,
       scriptHandler: scriptHandler,
-      ua: ua + (isFirefox ? " [".concat(navigator.buildID, "]") : ''),
+      userAgent: userAgent + (isFirefox ? " [".concat(navigator.buildID, "]") : ''),
       get canPlayMP3() {
         var value = !!new Audio().canPlayType('audio/mpeg;');
         Object.defineProperty(this, 'canPlayMP3', {
@@ -25086,7 +25078,7 @@ Spells.addSpell(9, '', false);
       },
       get matchesSelector() {
         var dE = doc.documentElement;
-        var func = dE.matches || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector;
+        var func = dE.matches || dE.mozMatchesSelector || dE.webkitMatchesSelector;
         var value = function value(el, sel) {
           return func.call(el, sel);
         };
@@ -28291,7 +28283,7 @@ Spells.addSpell(9, '', false);
               _context64.n = 1;
               break;
             }
-            throw new Error('Itʼs not time for an update yet');
+            throw new Error('It\'s not time for an update yet');
           case 1:
             _context64.p = 1;
             _context64.n = 2;
@@ -28312,7 +28304,9 @@ Spells.addSpell(9, '', false);
             }
             return _context64.a(2, "<div style=\"color: red; font-weigth: bold;\">".concat(Lng.noConnect[lang], "</div>"));
           case 4:
-            throw new Error(Lng.noConnect[lang]);
+            throw new Error(Lng.noConnect[lang], {
+              cause: _t50
+            });
           case 5:
             v = responseText.match(/const version = '([0-9.]+)';/);
             remoteVer = v === null || v === void 0 || (_v$ = v[1]) === null || _v$ === void 0 ? void 0 : _v$.split('.');
@@ -28320,7 +28314,7 @@ Spells.addSpell(9, '', false);
               _context64.n = 6;
               break;
             }
-            throw new Error('Canʼt get remote version');
+            throw new Error('Can\'t get remote version');
           case 6:
             currentVer = version.split('.');
             src = "".concat(gitRaw).concat(nav.isESNext ? 'src/Dollchan_Extension_Tools.es6' : 'Dollchan_Extension_Tools', ".user.js");
@@ -28442,7 +28436,8 @@ Spells.addSpell(9, '', false);
       Cfg.animation = 0;
     }
     var p = Math.max(Cfg.minImgSize || 0, 50);
-    x += "\n\t/* Full images */\n\t.de-img-embed, .de-fullimg { border: none; outline: none; cursor: pointer; image-orientation: from-image; }\n\t.de-img-embed { max-width: 200px; max-height: 200px; }\n\t.de-fullimg { display: block; }\n\t.de-fullimg, .de-fullimg-wrap-link { flex: 0 0 auto; transition: none !important; max-width: none; max-height: none; }\n\t.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-fullimg-info { padding: 1px 4px; margin-bottom: -20px; background-color: rgba(64,64,64,.8); white-space: nowrap; line-height: 17px; }\n\t.de-fullimg-info > .de-btn-img { color: #fff; }\n\t.de-fullimg-link { display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }\n\t.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }\n\t.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\n\t.de-fullimg-rotated { position: absolute; max-width: none; }\n\t.de-fullimg-rotated + .de-fullimg-info { position: absolute; bottom: 0; }\n\t.de-fullimg-scale { color: #fff; font: bold 12px tahoma; cursor: default; }\n\t.de-fullimg-video-hack { position: absolute; ".concat(nav.isMobile && nav.isWebkit ? 'display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; top: 0; right: 0; color: #fff; font-size: 2em;' : 'width: 100%; height: calc(100% - 40px);', " z-index: 1; cursor: pointer; }\n\t.de-fullimg-wrap { position: relative; display: inline-flex; flex-direction: column; align-items: center; }\n\t.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: 100%; height: 100%; }\n\t.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }\n\t.de-fullimg-wrap-inpost { min-width: ").concat(p, "px; min-height: ").concat(p, "px; ").concat(aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ', " }\n\t.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }\n\t.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }\n\t.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }\n\t#de-img-btn-auto { right: 0; margin-top: 58px; }\n\t.de-img-btn-auto-on { color: #ffe100; }\n\t#de-img-btn-next { right: 0; margin-top: -18px; }\n\t.de-img-btn-none { display: none; }\n\t#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }\n\t#de-img-btn-rotate { right: 0; margin-top: 20px; }\n\t.de-webm-title { color: #ffe100 !important; font: bold 12px tahoma; }\n\n\t/* Embedders */\n\t").concat(contentIcon('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico'), "\n\t").concat(contentIcon('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico'), "\n\t").concat(contentIcon('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw=='), "\n\t").concat(contentIcon('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw=='), "\n\t.de-current::after { content: \" \u25CF\"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }\n\t#de-video-buttons > a:not(:hover) { color: inherit; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; color: inherit; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: \"\u2795\"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC\"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: \" [\" attr(de-time) \"]\"; color: red; }\n\t.de-video-title[de-time].de-current::after { content: \" [\" attr(de-time) \"] \u25CF\"; color: red; }\n\t.de-vocaroo { display: block; }\n\tvideo { background: black; }\n\n\t/* File inputs */\n\t.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ").concat(p = aib.multiFile ? 90 : 130, "px; width: ").concat(p, "px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }\n\t.de-file > .de-file-img > div { display: flex; justify-content: center; align-items: center; height: ").concat(p, "px; cursor: pointer; }\n\t.de-file > .de-file-utils { display: none; height: 18px; margin-top: -20px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; -moz-box-sizing: initial; box-sizing: initial; }\n\t.de-file > .de-file-utils > .de-file-rarmsg { display: block; position: absolute; bottom: 20px; width: 100%; margin: 0; background: rgba(64,64,64,.6); color: #fff; }\n\t#de-file-area { margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }\n\timg.de-file-img, video.de-file-img { max-width: ").concat(p, "px; max-height: ").concat(p, "px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-input + .de-file-utils { margin-left: 4px; }\n\t.de-file-off > .de-file-img > div::after { content: \"").concat(Lng.dropFileHere[lang], "\"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }\n\t.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { margin: 0 1px; width: 16px; height: 16px; cursor: pointer; }\n\t.de-file-btn-del > svg, .de-file-btn-rar > svg, .de-file-btn-ren > svg, .de-file-btn-txt > svg { width: 16px; height: 16px; }\n\t.de-file-spoil { margin: 0 3px; vertical-align: 1px !important; }\n\t.de-file-txt-add { margin-left: 2px; padding: 0 !important; width: 22px; font-weight: bold; }\n\t.de-file-txt-input { flex-grow: 1; border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }\n\t.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }\n\t.de-file-txt-wrap { display: inline-flex; width: 100%; }\n\t.de-file-utils { display: inline-flex; align-items: center; float: none; }\n\t.de-file-wrap { display: flex; align-items: center; }\n\n\t/* Reply form */\n\t.de-parea { text-align: center; clear: both; }\n\t.de-parea > #de-pform { margin-top: 4px; }\n\t.de-parea-btn-close::after { content: \"").concat(Lng.hideForm[lang], "\"; }\n\t.de-parea-btn-thr::after { content: \"").concat(Lng.makeThr[lang], "\"; }\n\t.de-parea-btn-reply::after { content: \"").concat(Lng.makeReply[lang], "\"; }\n\t#de-pform > form { padding: 0; margin: 0; border: none; }\n\t#de-resizer-text { display: inline-block !important; padding: 5px; margin: 0 0 -2px -10px; border-bottom: 2px solid #666; border-right: 2px solid #666; float: none !important; cursor: se-resize; }\n\t.de-win-inpost { display: inline-block; width: auto; padding: 3px; margin: 2px 0; float: none; clear: left; }\n\t.de-win-inpost > .de-resizer { display: none; }\n\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\n\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\n\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\n\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\n\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\n\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\n\t#de-sagebtn { display: inline-block; margin: 3px 4px 0 4px !important; cursor: pointer; }\n\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }\n\n\t/* Thread navigation */\n\t#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px; }\n\t#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\n\t.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\n\t.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\n\t#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\n\t#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\n\t#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\n\t:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }\n\n\t/* Other */\n\t.de-abtn, a.link-button { text-decoration: none !important; outline: none; }\n\t.de-button { flex: none; padding: 0 ").concat(nav.isFirefox ? 2 : 4, "px !important; margin: 1px 2px; min-width: auto !iportant; height: 24px; font: 13px arial; }\n\t.de-editor { display: block; width: 600px; height: 300px; max-width: calc(100vw - 20px); font: 12px courier new; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\n\t.de-gotothr-button { vertical-align: 5px; font-size: 0 !important; }\n\t.de-gotothr-button::after { content: \"").concat(Lng.goToThr[lang], "\"; font-size: 14px; }\n\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\n\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\n\tinput[type=\"text\"].de-input-selected { background: rgba(255,255,150,0.4) !important }\n\t.de-link-backref { text-decoration: none; }\n\t.de-link-parent { outline: 1px dotted !important; }\n\t.de-link-pview { font-weight: bold; }\n\t.de-list { padding-top: 4px; }\n\t.de-list::before { content: \"\u25CF\"; margin-right: 4px; }\n\t.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }\n\t.de-logo > svg { width: 130px; height: 130px; }\n\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }\n\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\n\t.de-menu-item:hover { background-color: #222; color: #fff; }\n\t.de-omitted { color: grey; }\n\t.de-omitted::before { content: \"").concat(Lng.postsOmitted[lang], "\"; }\n\t.de-page-num { clear: both; }\n\t.de-popup { display: block !important; overflow: visible !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; float: right !important; clear: both !important; white-space: pre-wrap; }\n\t.de-popup-btn { display: inline-block; vertical-align: -1px; color: green; font-size: 1.5em; line-height: 16px; cursor: pointer; }\n\t.de-popup > hr { margin: 0 !important; }\n\t.de-post-hiddencontent { display: none !important; }\n\t.de-pview { position: absolute !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\n\t.de-pview-info { padding: 3px 6px !important; }\n\t.de-ref-del::after { content: \" (Del)\"; }\n\t.de-ref-op::after { content: \" (OP)\"; }\n\t.de-refcomma:last-child { display: none; }\n\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\n\t.de-refmap::before { content: \"").concat(Lng.replies[lang], " \"; }\n\t.de-replies-hide::after { content: \"").concat(Lng.hidePosts[lang], "\"; }\n\t.de-replies-show::after { content: \"").concat(Lng.showPosts[lang], "\"; }\n\t.de-thr-buttons { clear: left; margin-top: 5px; }\n\t").concat(aib.t ? '.de-thr-buttons > .de-btn-reply { display: none; }' : '', "\n\t.de-thr-collapse-link::after { content: \"").concat(Lng.collapseThr[lang], "\"; }\n\t.de-thr-hid { display: block; padding: 2px; }\n\t.de-thr-updater-link::after { content: \"").concat(Lng.getNewPosts[lang], "\"; }\n\t#de-updater-count::before { content: \": \"; }\n\t.de-viewed { color: #747488 !important; }\n\t.de-wait, .de-fav-wait, .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }\n\t.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\n\t#de-wrapper-popup { max-width: calc(100vw - (100vw - 100%)); overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\n\t.link-button { display: inline-flex; padding: 3px 5px; margin-left: 4px; background: rgba(0, 40, 140, 0.06); border: 1px solid rgba(120, 120, 120, .5); border-radius: 4px; font: 14px/14px arial; }\n\t.link-button:hover { background: rgba(60, 60, 160, 0.12); }\n\t@keyframes de-wait-anim { to { transform: rotate(360deg); } }\n\n\t/* Mobile devices */\n\t@media screen and (max-width: 768px) {\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user, .de-win-btn-clear, .de-win-btn-close, .de-win-btn-toggle { width: 19px; height: 19px; vertical-align: -5px; }\n\t\t.de-video-obj { max-width: calc(100vw - 6px); margin: 5px 0; }\n\t}");
+    x += "\n\t/* Full images */\n\t.de-img-embed, .de-fullimg { border: none; outline: none; cursor: pointer; image-orientation: from-image; }\n\t.de-img-embed { max-width: 200px; max-height: 200px; }\n\t.de-fullimg { display: block; }\n\t.de-fullimg, .de-fullimg-wrap-link { flex: 0 0 auto; transition: none !important; max-width: none; max-height: none; }\n\t.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-fullimg-info { padding: 1px 4px; margin-bottom: -20px; background-color: rgba(64,64,64,.8); white-space: nowrap; line-height: 17px; }\n\t.de-fullimg-info > .de-btn-img { color: #fff; }\n\t.de-fullimg-link { display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }\n\t.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }\n\t.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\n\t.de-fullimg-rotated { position: absolute; max-width: none; }\n\t.de-fullimg-rotated + .de-fullimg-info { position: absolute; bottom: 0; }\n\t.de-fullimg-scale { color: #fff; font: bold 12px tahoma; cursor: default; }\n\t.de-fullimg-video-hack { position: absolute; ".concat(nav.isMobile && nav.isWebkit ?
+    'display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; top: 0; right: 0; color: #fff; font-size: 2em;' : 'width: 100%; height: calc(100% - 40px);', " z-index: 1; cursor: pointer; }\n\t.de-fullimg-wrap { position: relative; display: inline-flex; flex-direction: column; align-items: center; }\n\t.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: 100%; height: 100%; }\n\t.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }\n\t.de-fullimg-wrap-inpost { min-width: ").concat(p, "px; min-height: ").concat(p, "px; ").concat(aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ', " }\n\t.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }\n\t.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }\n\t.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }\n\t#de-img-btn-auto { right: 0; margin-top: 58px; }\n\t.de-img-btn-auto-on { color: #ffe100; }\n\t#de-img-btn-next { right: 0; margin-top: -18px; }\n\t.de-img-btn-none { display: none; }\n\t#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }\n\t#de-img-btn-rotate { right: 0; margin-top: 20px; }\n\t.de-webm-title { color: #ffe100 !important; font: bold 12px tahoma; }\n\n\t/* Embedders */\n\t").concat(contentIcon('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico'), "\n\t").concat(contentIcon('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico'), "\n\t").concat(contentIcon('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw=='), "\n\t").concat(contentIcon('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw=='), "\n\t.de-current::after { content: \" \u25CF\"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }\n\t#de-video-buttons > a:not(:hover) { color: inherit; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; color: inherit; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: \"\u2795\"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC\"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: \" [\" attr(de-time) \"]\"; color: red; }\n\t.de-video-title[de-time].de-current::after { content: \" [\" attr(de-time) \"] \u25CF\"; color: red; }\n\t.de-vocaroo { display: block; }\n\tvideo { background: black; }\n\n\t/* File inputs */\n\t.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ").concat(p = aib.multiFile ? 90 : 130, "px; width: ").concat(p, "px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }\n\t.de-file > .de-file-img > div { display: flex; justify-content: center; align-items: center; height: ").concat(p, "px; cursor: pointer; }\n\t.de-file > .de-file-utils { display: none; height: 18px; margin-top: -20px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; -moz-box-sizing: initial; box-sizing: initial; }\n\t.de-file > .de-file-utils > .de-file-rarmsg { display: block; position: absolute; bottom: 20px; width: 100%; margin: 0; background: rgba(64,64,64,.6); color: #fff; }\n\t#de-file-area { margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }\n\timg.de-file-img, video.de-file-img { max-width: ").concat(p, "px; max-height: ").concat(p, "px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-input + .de-file-utils { margin-left: 4px; }\n\t.de-file-off > .de-file-img > div::after { content: \"").concat(Lng.dropFileHere[lang], "\"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }\n\t.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { margin: 0 1px; width: 16px; height: 16px; cursor: pointer; }\n\t.de-file-btn-del > svg, .de-file-btn-rar > svg, .de-file-btn-ren > svg, .de-file-btn-txt > svg { width: 16px; height: 16px; }\n\t.de-file-spoil { margin: 0 3px; vertical-align: 1px !important; }\n\t.de-file-txt-add { margin-left: 2px; padding: 0 !important; width: 22px; font-weight: bold; }\n\t.de-file-txt-input { flex-grow: 1; border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }\n\t.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }\n\t.de-file-txt-wrap { display: inline-flex; width: 100%; }\n\t.de-file-utils { display: inline-flex; align-items: center; float: none; }\n\t.de-file-wrap { display: flex; align-items: center; }\n\n\t/* Reply form */\n\t.de-parea { text-align: center; clear: both; }\n\t.de-parea > #de-pform { margin-top: 4px; }\n\t.de-parea-btn-close::after { content: \"").concat(Lng.hideForm[lang], "\"; }\n\t.de-parea-btn-thr::after { content: \"").concat(Lng.makeThr[lang], "\"; }\n\t.de-parea-btn-reply::after { content: \"").concat(Lng.makeReply[lang], "\"; }\n\t#de-pform > form { padding: 0; margin: 0; border: none; }\n\t#de-resizer-text { display: inline-block !important; padding: 5px; margin: 0 0 -2px -10px; border-bottom: 2px solid #666; border-right: 2px solid #666; float: none !important; cursor: se-resize; }\n\t.de-win-inpost { display: inline-block; width: auto; padding: 3px; margin: 2px 0; float: none; clear: left; }\n\t.de-win-inpost > .de-resizer { display: none; }\n\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\n\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\n\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\n\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\n\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\n\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\n\t#de-sagebtn { display: inline-block; margin: 3px 4px 0 4px !important; cursor: pointer; }\n\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }\n\n\t/* Thread navigation */\n\t#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px; }\n\t#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\n\t.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\n\t.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\n\t#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\n\t#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\n\t#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\n\t:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }\n\n\t/* Other */\n\t.de-abtn, a.link-button { text-decoration: none !important; outline: none; }\n\t.de-button { flex: none; padding: 0 ").concat(nav.isFirefox ? 2 : 4, "px !important; margin: 1px 2px; min-width: auto !iportant; height: 24px; font: 13px arial; }\n\t.de-editor { display: block; width: 600px; height: 300px; max-width: calc(100vw - 20px); font: 12px courier new; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\n\t.de-gotothr-button { vertical-align: 5px; font-size: 0 !important; }\n\t.de-gotothr-button::after { content: \"").concat(Lng.goToThr[lang], "\"; font-size: 14px; }\n\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\n\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\n\tinput[type=\"text\"].de-input-selected { background: rgba(255,255,150,0.4) !important }\n\t.de-link-backref { text-decoration: none; }\n\t.de-link-parent { outline: 1px dotted !important; }\n\t.de-link-pview { font-weight: bold; }\n\t.de-list { padding-top: 4px; }\n\t.de-list::before { content: \"\u25CF\"; margin-right: 4px; }\n\t.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }\n\t.de-logo > svg { width: 130px; height: 130px; }\n\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }\n\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\n\t.de-menu-item:hover { background-color: #222; color: #fff; }\n\t.de-omitted { color: grey; }\n\t.de-omitted::before { content: \"").concat(Lng.postsOmitted[lang], "\"; }\n\t.de-page-num { clear: both; }\n\t.de-popup { display: block !important; overflow: visible !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; float: right !important; clear: both !important; white-space: pre-wrap; }\n\t.de-popup-btn { display: inline-block; vertical-align: -1px; color: green; font-size: 1.5em; line-height: 16px; cursor: pointer; }\n\t.de-popup > hr { margin: 0 !important; }\n\t.de-post-hiddencontent { display: none !important; }\n\t.de-pview { position: absolute !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\n\t.de-pview-info { padding: 3px 6px !important; }\n\t.de-ref-del::after { content: \" (Del)\"; }\n\t.de-ref-op::after { content: \" (OP)\"; }\n\t.de-refcomma:last-child { display: none; }\n\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\n\t.de-refmap::before { content: \"").concat(Lng.replies[lang], " \"; }\n\t.de-replies-hide::after { content: \"").concat(Lng.hidePosts[lang], "\"; }\n\t.de-replies-show::after { content: \"").concat(Lng.showPosts[lang], "\"; }\n\t.de-thr-buttons { clear: left; margin-top: 5px; }\n\t").concat(aib.t ? '.de-thr-buttons > .de-btn-reply { display: none; }' : '', "\n\t.de-thr-collapse-link::after { content: \"").concat(Lng.collapseThr[lang], "\"; }\n\t.de-thr-hid { display: block; padding: 2px; }\n\t.de-thr-updater-link::after { content: \"").concat(Lng.getNewPosts[lang], "\"; }\n\t#de-updater-count::before { content: \": \"; }\n\t.de-viewed { color: #747488 !important; }\n\t.de-wait, .de-fav-wait, .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }\n\t.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\n\t#de-wrapper-popup { max-width: calc(100vw - (100vw - 100%)); overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\n\t.link-button { display: inline-flex; padding: 3px 5px; margin-left: 4px; background: rgba(0, 40, 140, 0.06); border: 1px solid rgba(120, 120, 120, .5); border-radius: 4px; font: 14px/14px arial; }\n\t.link-button:hover { background: rgba(60, 60, 160, 0.12); }\n\t@keyframes de-wait-anim { to { transform: rotate(360deg); } }\n\n\t/* Mobile devices */\n\t@media screen and (max-width: 768px) {\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user, .de-win-btn-clear, .de-win-btn-close, .de-win-btn-toggle { width: 19px; height: 19px; vertical-align: -5px; }\n\t\t.de-video-obj { max-width: calc(100vw - 6px); margin: 5px 0; }\n\t}");
     $css(x).id = 'de-css';
     $css('').id = 'de-css-dynamic';
     $css('').id = 'de-css-user';
@@ -28457,20 +28452,7 @@ Spells.addSpell(9, '', false);
 
 
   function runFrames() {
-    var inf;
-    if (typeof GM !== 'undefined') {
-      inf = GM.info;
-    } else {
-      if (typeof GM_info === 'undefined') {
-        return;
-      }
-      inf = GM_info;
-    }
-    if (!inf) {
-      return;
-    }
-    var handlerName = inf.scriptHandler;
-    if (handlerName !== 'Greasemonkey' && handlerName !== 'FireMonkey' || !deWindow.frames[0]) {
+    if (!deWindow.frames[0] || !(nav.scriptHandler.startsWith('Greasemonkey') || nav.scriptHandler.startsWith('FireMonkey'))) {
       return;
     }
     var deMainFuncFrame = function deMainFuncFrame(frameEl) {
@@ -28508,7 +28490,7 @@ Spells.addSpell(9, '', false);
   }
   function _runMain() {
     _runMain = _asyncToGenerator(_regenerator().m(function _callee57(checkDomains, dataPromise) {
-      var _aib$init, _aib9;
+      var _aib$observeContent, _aib9, _aib$init, _aib0;
       var formEl, _yield, _yield2, favObj, storageName, firstThr, _t51;
       return _regenerator().w(function (_context65) {
         while (1) switch (_context65.p = _context65.n) {
@@ -28520,6 +28502,9 @@ Spells.addSpell(9, '', false);
             }
             return _context65.a(2);
           case 1:
+            if (!locStorage) {
+              nav = initBrowser();
+            }
             formEl = $q(aib.qDelForm + ', [de-form]');
             if (formEl) {
               _context65.n = 2;
@@ -28528,48 +28513,36 @@ Spells.addSpell(9, '', false);
             runFrames();
             return _context65.a(2);
           case 2:
-            if (!(doc.body.classList.contains('de-runned') || aib.observeContent && !aib.observeContent(checkDomains, dataPromise))) {
+            if (!(doc.body.classList.contains('de-runned-userscript') || ((_aib$observeContent = (_aib9 = aib).observeContent) === null || _aib$observeContent === void 0 ? void 0 : _aib$observeContent.call(_aib9, checkDomains, dataPromise)) === false)) {
               _context65.n = 3;
               break;
             }
             return _context65.a(2);
           case 3:
             Logger.log('Imageboard check');
-            if (locStorage) {
-              _context65.n = 5;
-              break;
-            }
-            if (checkStorage()) {
-              _context65.n = 4;
-              break;
-            }
-            return _context65.a(2);
-          case 4:
-            initNavFuncs();
-          case 5:
-            _context65.n = 6;
+            _context65.n = 4;
             return dataPromise || Promise.all([readFavorites(), readCfg()]);
-          case 6:
+          case 4:
             _yield = _context65.v;
             _yield2 = _slicedToArray(_yield, 1);
             favObj = _yield2[0];
-            if (!(!Cfg.disabled && (_aib$init = (_aib9 = aib).init) !== null && _aib$init !== void 0 && _aib$init.call(_aib9) || !localData && doc.body.classList.contains('de-mode-local'))) {
-              _context65.n = 7;
+            if (!(!Cfg.disabled && (_aib$init = (_aib0 = aib).init) !== null && _aib$init !== void 0 && _aib$init.call(_aib0) || !localData && doc.body.classList.contains('de-runned-local'))) {
+              _context65.n = 5;
               break;
             }
             return _context65.a(2);
-          case 7:
-            doc.body.classList.add('de-runned');
+          case 5:
+            doc.body.classList.add(nav.isInPage ? 'de-runned-inpage' : 'de-runned-userscript');
             Logger.log('Storage loading');
             addSVGIcons();
             if (!Cfg.disabled) {
-              _context65.n = 8;
+              _context65.n = 6;
               break;
             }
             Panel.initPanel(formEl);
             scriptCSS();
             return _context65.a(2);
-          case 8:
+          case 6:
             if ('toJSON' in Array.prototype) {
               delete Array.prototype.toJSON;
             }
@@ -28604,20 +28577,20 @@ Spells.addSpell(9, '', false);
             Logger.log('Replace delform');
             pByEl = new Map();
             pByNum = new Map();
-            _context65.p = 9;
+            _context65.p = 7;
             DelForm.last = DelForm.first = new DelForm(formEl, aib.page, null);
             if (!Thread.first) {
               console.error('No threads detected!');
             }
-            _context65.n = 11;
+            _context65.n = 9;
             break;
-          case 10:
-            _context65.p = 10;
+          case 8:
+            _context65.p = 8;
             _t51 = _context65.v;
             console.error('Delform parsing error:', getErrorMessage(_t51));
             $show(doc.body);
             return _context65.a(2);
-          case 11:
+          case 9:
             Logger.log('Parse delform');
             if (aib.t) {
               storageName = "de-last-postscount-".concat(aib.b, "-").concat(aib.t);
@@ -28663,17 +28636,14 @@ Spells.addSpell(9, '', false);
               Logger.log('Local changings');
             }
             Logger.finish();
-          case 12:
+          case 10:
             return _context65.a(2);
         }
-      }, _callee57, null, [[9, 10]]);
+      }, _callee57, null, [[7, 8]]);
     }));
     return _runMain.apply(this, arguments);
   }
   function initMain() {
-    if (window.name === 'de-prohibited') {
-      return;
-    }
     if (doc.readyState !== 'loading') {
       needScroll = false;
       runMain(true, null);
@@ -28681,10 +28651,7 @@ Spells.addSpell(9, '', false);
     }
     var dataPromise = null;
     if (aib = getImageBoard(true, false)) {
-      if (!checkStorage()) {
-        return;
-      }
-      initNavFuncs();
+      nav = initBrowser();
       dataPromise = Promise.all([readFavorites(), readCfg()]);
     }
     needScroll = true;

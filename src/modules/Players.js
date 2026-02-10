@@ -77,7 +77,7 @@ class Videos {
 		if(loader && (dataObj = Videos._global.vData[+!isYtube][m[1]])) {
 			this.vData[+!isYtube].push(dataObj);
 		}
-		let time = '';
+		let time;
 		[time, m[2], m[3], m[4]] = Videos._fixTime(m[4], m[3], m[2]);
 		if(link) {
 			link.href = link.href.replace(/^http:/, 'https:');

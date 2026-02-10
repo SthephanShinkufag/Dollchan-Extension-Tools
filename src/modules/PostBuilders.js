@@ -65,8 +65,8 @@ class _4chanPostsBuilder {
 		const decodedName = name.replaceAll('&amp;', '&').replaceAll('&quot;', '"').replaceAll('&#039;', '\'')
 			.replaceAll('&lt;', '<').replaceAll('&gt;', '>');
 		return decodedName.length <= maxLength ? { isFixed: false, name } : {
-			isFixed : true,
-			name    : decodedName.slice(0, 25).replaceAll('&', '&amp;').replaceAll('"', '&quot;')
+			isFixed: true,
+			name   : decodedName.slice(0, 25).replaceAll('&', '&amp;').replaceAll('"', '&quot;')
 				.replaceAll('\'', '&#039;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
 		};
 	}
@@ -149,12 +149,11 @@ class _4chanPostsBuilder {
 		case 'manager': ccBy = 'Managers'; break;
 		case 'founder': ccBy = 'Founder';
 		}
-		let ccName = '';
 		let ccText = '';
 		let ccImg = '';
 		let ccClass = '';
 		if(cc) {
-			ccName = cc[0].toUpperCase() + cc.slice(1);
+			const ccName = cc[0].toUpperCase() + cc.slice(1);
 			ccText = `<strong class="capcode hand id_${ cc === 'founder' ? 'admin' : cc }` +
 				`" title="Highlight posts by ${ ccBy }">## ${ ccName }</strong>`;
 			ccImg = `<img src="${ _icon(cc + 'icon') }" alt="${
@@ -307,12 +306,12 @@ class MakabaPostsBuilder {
 			`<a href="${ data.email }" class="post__email">${ data.name }</a>` :
 			`<span class="post__anon">${ data.name }</span>`;
 		const tripEl = !data.trip ? '' : `<span class="${ _switch(data.trip, {
-			'!!%adm%!!'        : 'post__adm">## Abu ##',
-			'!!%mod%!!'        : 'post__mod">## Mod ##',
-			'!!%Inquisitor%!!' : 'post__inquisitor">## Applejack ##',
-			'!!%coder%!!'      : 'post__mod">## Кодер ##',
-			'!!%curunir%!!'    : 'post__mod">## Curunir ##',
-			'@@default'        : `${ data.trip_style ? data.trip_style : 'post__trip' }">` + data.trip
+			'!!%adm%!!'       : 'post__adm">## Abu ##',
+			'!!%mod%!!'       : 'post__mod">## Mod ##',
+			'!!%Inquisitor%!!': 'post__inquisitor">## Applejack ##',
+			'!!%coder%!!'     : 'post__mod">## Кодер ##',
+			'!!%curunir%!!'   : 'post__mod">## Curunir ##',
+			'@@default'       : `${ data.trip_style ? data.trip_style : 'post__trip' }">` + data.trip
 		}) }</span>`;
 		const refHref = `/${ board }/res/${ parseInt(data.parent) || num }.html#${ num }`;
 		let rate = '';
@@ -376,9 +375,9 @@ class MakabaPostsBuilder {
 			.replace(/<\/script>/ig, '</textarea>-->');
 		return `<article id="m${ data.num }" class="post__message">` +
 			`${ comment }${ _switch(data.banned, {
-				1           : '<br><span class="post__pomyanem">(Автор этого поста был забанен.)</span>',
-				2           : '<br><span class="post__pomyanem">(Автор этого поста был предупрежден.)</span>',
-				'@@default' : ''
+				1          : '<br><span class="post__pomyanem">(Автор этого поста был забанен.)</span>',
+				2          : '<br><span class="post__pomyanem">(Автор этого поста был предупрежден.)</span>',
+				'@@default': ''
 			}) }</article>`;
 	}
 }

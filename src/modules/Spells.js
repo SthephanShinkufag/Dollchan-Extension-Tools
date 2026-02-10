@@ -162,13 +162,13 @@ const Spells = Object.create({
 			const [msgBit, msgData] = wipeMsg || [];
 			const names = [];
 			const bits = {
-				1  : 'samelines',
-				2  : 'samewords',
-				4  : 'longwords',
-				8  : 'symbols',
-				16 : 'capslock',
-				32 : 'numbers',
-				64 : 'whitespace'
+				1 : 'samelines',
+				2 : 'samewords',
+				4 : 'longwords',
+				8 : 'symbols',
+				16: 'capslock',
+				32: 'numbers',
+				64: 'whitespace'
 			};
 			for(const bit in bits) {
 				if(+bit !== msgBit && (val & +bit)) {
@@ -212,9 +212,9 @@ const Spells = Object.create({
 		const value = null;
 		const configurable = true;
 		Object.defineProperties(this, {
-			hiders  : { configurable, value },
-			outreps : { configurable, value },
-			reps    : { configurable, value }
+			hiders : { configurable, value },
+			outreps: { configurable, value },
+			reps   : { configurable, value }
 		});
 		await CfgSaver.save('hideBySpell', 0);
 	},
@@ -329,9 +329,9 @@ const Spells = Object.create({
 			const value = null;
 			const configurable = true;
 			Object.defineProperties(this, {
-				hiders  : { configurable, value },
-				outreps : { configurable, value },
-				reps    : { configurable, value }
+				hiders : { configurable, value },
+				outreps: { configurable, value },
+				reps   : { configurable, value }
 			});
 			return;
 		}
@@ -454,9 +454,9 @@ const Spells = Object.create({
 	_setData(hiders, reps, outreps) {
 		const configurable = true;
 		Object.defineProperties(this, {
-			hiders  : { configurable, value: this._initHiders(hiders) },
-			outreps : { configurable, value: this._initReps(outreps) },
-			reps    : { configurable, value: this._initReps(reps) }
+			hiders : { configurable, value: this._initHiders(hiders) },
+			outreps: { configurable, value: this._initReps(outreps) },
+			reps   : { configurable, value: this._initReps(reps) }
 		});
 	},
 	_sort(sp) {
@@ -976,9 +976,9 @@ class SpellsRunner {
 					}
 				}
 				sesStorage['de-hidden-' + aib.b + aib.t] = !data ? null : JSON.stringify({
-					hash      : Cfg.hideBySpell ? Spells.hash : 0,
-					lastCount : lPost.count,
-					lastNum   : lPost.num,
+					hash     : Cfg.hideBySpell ? Spells.hash : 0,
+					lastCount: lPost.count,
+					lastNum  : lPost.num,
 					data
 				});
 			}
@@ -1024,7 +1024,8 @@ class SpellsInterpreter {
 				}
 				const val = this._runSpell(type, scope[i][1]);
 				if(val instanceof Promise) {
-					this._ctx.push(len, scope, ++i, isNegScope);
+					i++;
+					this._ctx.push(len, scope, i, isNegScope);
 					return val.then(v => this._asyncContinue(v));
 				}
 				[rv, stopCheck] = this._checkRes(scope[i], val, isNegScope);

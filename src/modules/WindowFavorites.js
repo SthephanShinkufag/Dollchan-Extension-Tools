@@ -443,12 +443,12 @@ function showFavoritesWindow(winBody, favObj) {
 				const iconEl = $q('.de-fav-inf-icon', el);
 				const titleEl = iconEl.parentNode;
 				thrInfo.push({
-					found     : false,
-					num       : +el.getAttribute('de-num'),
-					pageEl    : $q('.de-fav-inf-page', el),
-					iconClass : iconEl.getAttribute('class'),
+					found    : false,
+					num      : +el.getAttribute('de-num'),
+					pageEl   : $q('.de-fav-inf-page', el),
+					iconClass: iconEl.getAttribute('class'),
 					iconEl,
-					iconTitle : titleEl.getAttribute('title'),
+					iconTitle: titleEl.getAttribute('title'),
 					titleEl
 				});
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
@@ -456,7 +456,7 @@ function showFavoritesWindow(winBody, favObj) {
 			}
 			// Sequentially load pages and search for favorites threads
 			// We cannot know a count of pages while in the thread
-			const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we donʼt know
+			const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we don't know
 			let infoLoaded = 0;
 			const updateInf = (inf, page) => {
 				inf.iconEl.setAttribute('class', inf.iconClass);

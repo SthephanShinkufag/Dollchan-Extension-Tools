@@ -197,8 +197,8 @@ function* getFormElements(form, submitter) {
 					yield {
 						name,
 						type,
-						el    : field,
-						value : new File([img.data], img.name, { type: img.type })
+						el   : field,
+						value: new File([img.data], img.name, { type: img.type })
 					};
 				} else {
 					yield aib.getEmptyFile(field, fixName(name));
@@ -215,10 +215,10 @@ function* getFormElements(form, submitter) {
 		const dirname = field.getAttribute('dirname');
 		if(dirname) {
 			yield {
-				el    : field,
-				name  : fixName(dirname),
-				type  : 'direction',
-				value : nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr'
+				el   : field,
+				name : fixName(dirname),
+				type : 'direction',
+				value: nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr'
 			};
 		}
 	}

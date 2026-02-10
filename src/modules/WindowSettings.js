@@ -433,12 +433,12 @@ const CfgWindow = {
 				$popup('cfg-debug',
 					Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>'
 				).lastChild.value = JSON.stringify({
-					version  : version + '.' + commit,
-					location : String(deWindow.location),
+					version : version + '.' + commit,
+					location: String(deWindow.location),
 					nav,
 					Cfg,
-					sSpells  : Spells.list.split('\n'),
-					oSpells  : sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`],
+					sSpells : Spells.list.split('\n'),
+					oSpells : sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`],
 					perf
 				}, (key, value) => {
 					switch(key) {
@@ -462,11 +462,6 @@ const CfgWindow = {
 					isValidColor = true;
 				} else if(color && color !== 'inherit' && color !== 'currentColor') {
 					const image = doc.createElement('img');
-					image.style.color = 'rgb(0, 0, 0)';
-					image.style.color = color;
-					if(image.style.color !== 'rgb(0, 0, 0)') {
-						isValidColor = true;
-					}
 					image.style.color = 'rgb(255, 255, 255)';
 					image.style.color = color;
 					isValidColor = image.style.color !== 'rgb(255, 255, 255)';
@@ -573,7 +568,7 @@ const CfgWindow = {
 				this._updateRowMeter($id('de-spell-txt'));
 			}
 			if(id === 'common') {
-				// XXX: remove and make insertion in this._getCfgCommon()
+				// TODO: remove and make insertion in this._getCfgCommon()
 				$q('input[info="userCSS"]').parentNode.after(getEditButton(
 					'css',
 					fn => fn(Cfg.userCSSTxt, false, async inputEl => {
@@ -827,9 +822,9 @@ const CfgWindow = {
 		el.innerHTML }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
 	},
 	// Creates a menu with a list of checkboxes. Uses for popup window.
-	_getList : arr => arrTags(arr, '<label class="de-block"><input type="checkbox"> ', '</label>'),
+	_getList: arr => arrTags(arr, '<label class="de-block"><input type="checkbox"> ', '</label>'),
 	// Creates a select for multiple option values
-	_getSel  : (id, needReload) => `<label class="de-cfg-label${ needReload ? ' de-cfg-needreload' : '' }">
+	_getSel : (id, needReload) => `<label class="de-cfg-label${ needReload ? ' de-cfg-needreload' : '' }">
 		<select class="de-cfg-select" info="${ id }">${ Lng.cfg[id].sel[lang].map((val, i) =>
 		`<option value="${ i }">${ val }</option>`).join('') }</select> ${ Lng.cfg[id].txt[lang] }</label>`,
 	// Creates a tab for tab bar

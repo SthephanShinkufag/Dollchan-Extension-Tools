@@ -10,19 +10,19 @@ const Lng = {
 		'Для застосування необхідне перезавантаження'],
 	// Settings window: tab names
 	cfgTab: {
-		filters : ['Фильтры', 'Filters', 'Фільтри'],
-		posts   : ['Посты', 'Posts', 'Дописи'],
-		images  : ['Картинки', 'Images', 'Зображ.'],
-		links   : ['Ссылки', 'Links', 'Посил.'],
-		form    : ['Форма', 'Form', 'Форма'],
-		common  : ['Общее', 'Common', 'Спільне'],
-		info    : ['Инфо', 'Info', 'Інфо']
+		filters: ['Фильтры', 'Filters', 'Фільтри'],
+		posts  : ['Посты', 'Posts', 'Дописи'],
+		images : ['Картинки', 'Images', 'Зображ.'],
+		links  : ['Ссылки', 'Links', 'Посил.'],
+		form   : ['Форма', 'Form', 'Форма'],
+		common : ['Общее', 'Common', 'Спільне'],
+		info   : ['Инфо', 'Info', 'Інфо']
 	},
 	// Settings window: options
 	cfg: {
 		language: {
-			sel : [['Ru', 'En', 'Ua'], ['Ru', 'En', 'Ua'], ['Ru', 'En', 'Ua']],
-			txt : ['', '', '']
+			sel: [['Ru', 'En', 'Ua'], ['Ru', 'En', 'Ua'], ['Ru', 'En', 'Ua']],
+			txt: ['', '', '']
 		},
 
 		// "Filters" tab
@@ -184,10 +184,10 @@ const Lng = {
 		imgInfoLink: [
 			'Имя файла под раскрытой картинкой',
 			'Show file name under expanded image',
-			'Імʼя файлу під розкритим зображенням'],
+			'Ім\'я файлу під розкритим зображенням'],
 		resizeDPI: [
 			'Не растягивать на дисплеях с высоким DPI',
-			'Donʼt upscale images on high DPI displays',
+			'Don\'t upscale images on high DPI displays',
 			'Не розтягувати на дисплеях з високим DPI'],
 		resizeImgs: {
 			sel: [
@@ -258,7 +258,7 @@ const Lng = {
 		imgNames: {
 			sel: [
 				['Не изменять', 'Настоящие (сокр.)', 'Скрывать', 'Настоящие (полные)'],
-				['Donʼt change', 'Original (trunc.)', 'Hide', 'Original (full)'],
+				['Don\'t change', 'Original (trunc.)', 'Hide', 'Original (full)'],
 				['Не змінювати', 'Справжні (скороч.)', 'Ховати', 'Справжні (повні)']],
 			txt: [
 				'имена картинок',
@@ -297,8 +297,8 @@ const Lng = {
 			'Також видаляти із зворотніх >>посилань'],
 		noNavigHidd: [
 			'Не отображать превью для скрытых постов',
-			'Donʼt show previews for hidden posts',
-			'Не показувати превʼю до cхованих дописів'],
+			'Don\'t show previews for hidden posts',
+			'Не показувати прев\'ю до cхованих дописів'],
 		markMyLinks: [
 			'Помечать ссылки на мои посты как (You)',
 			'Mark links to my posts with (You)',
@@ -339,7 +339,7 @@ const Lng = {
 			sel: [
 				['Ничего', 'Превью+плеер', 'Плеер по клику'],
 				['Nothing', 'Preview+player', 'On click player'],
-				['Нічого', 'Превʼю+плеєр', 'Плеєр по кліку']],
+				['Нічого', 'Прев\'ю+плеєр', 'Плеєр по кліку']],
 			txt: [
 				'к YouTube ссылкам',
 				'for YouTube links',
@@ -370,7 +370,7 @@ const Lng = {
 		removeFName: {
 			sel: [
 				['Не изменять', 'Удалять', 'Unixtime', 'Unixtime-random'],
-				['Donʼt change', 'Clear', 'Unixtime', 'Unixtime-random'],
+				['Don\'t change', 'Clear', 'Unixtime', 'Unixtime-random'],
 				['Не змінювати', 'Видаляти', 'Unixtime', 'Unixtime-random']],
 			txt: [
 				'имена файлов',
@@ -389,7 +389,7 @@ const Lng = {
 			sel: [
 				['Откл.', 'Упрощ.', 'Превью'],
 				['Disable', 'Simple', 'Preview'],
-				['Вимкн.', 'Спрощене', 'Превʼю']],
+				['Вимкн.', 'Спрощене', 'Прев\'ю']],
 			txt: [
 				'Улучшенное поле добавления файлов',
 				'Enhanced file attachment field',
@@ -424,7 +424,7 @@ const Lng = {
 		saveSage: [
 			'Помнить сажу',
 			'Remember sage',
-			'Памʼятати сажу'],
+			'Пам\'ятати сажу'],
 		capUpdTime: [
 			'Интервал обновления капчи (сек)',
 			'Captcha update interval (sec)',
@@ -460,7 +460,7 @@ const Lng = {
 		userName: [
 			'Постоянное имя',
 			'Fixed name',
-			'Постійне імʼя'],
+			'Постійне ім\'я'],
 		noBoardRule: [
 			'Правила ',
 			'Rules ',
@@ -472,7 +472,7 @@ const Lng = {
 		noName: [
 			'Имя ',
 			'Name ',
-			'Імʼя '],
+			'Ім\'я '],
 		noSubj: [
 			'Тему',
 			'Subject',
@@ -700,7 +700,7 @@ const Lng = {
 	attachPview: [
 		'Закрепить превью',
 		'Attach preview',
-		'Закріпити превʼю'],
+		'Закріпити прев\'ю'],
 	goToThr: [
 		'В тред',
 		'To thread',
@@ -839,15 +839,15 @@ const Lng = {
 	origName: [
 		'Оригинальное имя',
 		'Original name',
-		'Оригінальне імʼя'],
+		'Оригінальне ім\'я'],
 	metaName: [
 		'Имя из метаданных',
 		'Name from metadata',
-		'Імʼя з метаданих'],
+		'Ім\'я з метаданих'],
 	boardName: [
 		'Имя, присвоенное доской',
 		'Name assigned by the board',
-		'Імʼя, присвоєне дошкою'],
+		'Ім\'я, присвоєне дошкою'],
 	searchIn: [
 		'Искать в ',
 		'Search in ',
@@ -870,7 +870,7 @@ const Lng = {
 		'Зберегти отриманий кадр'],
 	errSaucenao: [
 		'Ошибка: не могу загрузить на saucenao.com',
-		'Error: canʼt load to saucenao.com',
+		'Error: can\'t load to saucenao.com',
 		'Помилка: не можу завантажити на saucenao.com'],
 
 	// Hotkeys editor
@@ -910,7 +910,7 @@ const Lng = {
 		'%l%i23 – hide post/thread%/l',
 		'%l%i32 – go to thread%/l',
 		'%l%i33 – expand thread%/l',
-		'%l%i211 – expand postʼs images%/l',
+		'%l%i211 – expand post\'s images%/l',
 		'%l%i22 – quick reply%/l',
 		'%l%i25t – send post%/l',
 		'%l%i210 – open/close "Settings"%/l',
@@ -972,11 +972,11 @@ const Lng = {
 		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 		['Нед', 'Пон', 'Вів', 'Сер', 'Чет', 'Птн', 'Сбт']],
 	monthDict: {
-		/* eslint-disable key-spacing, max-len, object-property-newline */
+		/* eslint-disable max-len, object-property-newline */
 		янв: 0, фев: 1, мар: 2, апр: 3, май: 4, мая: 4, июн: 5, июл: 6, авг: 7, сен: 8, окт: 9, ноя: 10, дек: 11,
 		jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
 		січ: 0, лют: 1, бер: 2, кві: 3, тра: 4, чер: 5, лип: 6, сер: 7, вер: 8, жов: 9, лис: 10, гру: 11
-		/* eslint-enable key-spacing, max-len, object-property-newline */
+		/* eslint-enable max-len, object-property-newline */
 	},
 
 	// Spells: popups
@@ -1014,11 +1014,11 @@ const Lng = {
 		'пропущено закривну дужку'],
 	seRepsInParens: [
 		'спелл #%s не должен располагаться в скобках',
-		'spell #%s shouldnʼt be inside parentheses',
+		'spell #%s shouldn\'t be inside parentheses',
 		'спелл #%s не може бути в дужках'],
 	seOpInReps: [
 		'недопустимо использовать оператор %s со спеллами #rep и #outrep',
-		'donʼt use operator %s with spells #rep & #outrep',
+		'don\'t use operator %s with spells #rep & #outrep',
 		'неприпустимо використовувати оператор %s зі спеллами #rep и #outrep'],
 	seRow: [
 		' (строка ',
@@ -1328,12 +1328,12 @@ const Lng = {
 		'Завантажуються файли'],
 	cantLoad: [
 		'Не могу загрузить',
-		'Canʼt load',
+		'Can\'t load',
 		'Не можу завантажити'],
 	willSavePview: [
 		'Будет сохранено превью',
 		'Thumbnail will be saved',
-		'Буде збережено превʼю'],
+		'Буде збережено прев\'ю'],
 	loadErrors: [
 		'Во время загрузки произошли ошибки:',
 		'An error occurred during the loading:',
@@ -1350,7 +1350,7 @@ const Lng = {
 		'Скарга успішно відправлена'],
 	errDelete: [
 		'Не могу удалить',
-		'Canʼt delete',
+		'Can\'t delete',
 		'Не можу видалити'],
 	fileCorrupt: [
 		'Файл повреждён',
@@ -1363,7 +1363,7 @@ const Lng = {
 	noConnect: [
 		'Ошибка подключения',
 		'Connection failed',
-		'Помилка зʼєднання'],
+		'Помилка з\'єднання'],
 	thrNotFound: [
 		'Тред недоступен',
 		'Thread is unavailable',
@@ -1416,46 +1416,46 @@ const Lng = {
 		'Завантажте скрипт для відтворення WebM (VP9/Opus)'],
 	errFormLoad: [
 		'Не удаётся загрузить форму ответа',
-		'Canʼt load the reply form',
+		'Can\'t load the reply form',
 		'Не вдалося завантажити форму відповіді'
 	],
 
 	// Single words
-	second    : ['с', 's', 'с'],
-	sizeByte  : [' Байт', ' Byte', ' Байт'],
-	sizeKByte : [' КБ', ' KB', ' КБ'],
-	sizeMByte : [' МБ', ' MB', ' МБ'],
-	sizeGByte : [' ГБ', ' GB', ' ГБ'],
-	name      : ['Имя', 'Name', 'Імʼя'],
-	subj      : ['Тема', 'Subject', 'Тема'],
-	mail      : ['Почта', 'Email', 'Пошта'],
-	video     : ['Видео', 'Video', 'Відео'],
-	captcha   : ['Капча', 'Captcha', 'Капча'],
-	add       : ['Добавить', 'Add', 'Додати'],
-	apply     : ['Применить', 'Apply', 'Застосувати'],
-	cancel    : ['Отмена', 'Cancel', 'Скасувати'],
-	clear     : ['Очистить', 'Clear', 'Очистити'],
-	refresh   : ['Обновить', 'Refresh', 'Оновити'],
-	save      : ['Сохранить', 'Save', 'Зберегти'],
-	load      : ['Загрузить', 'Load', 'Завантажити'],
-	edit      : ['Правка', 'Edit', 'Правка'],
-	file      : ['Файл', 'File', 'Файл'],
-	global    : ['Глобальные', 'Global', 'Глобальні'],
-	reset     : ['Сброс', 'Reset', 'Скинути'],
-	remove    : ['Удалить', 'Remove', 'Видалити'],
-	change    : ['Сменить', 'Change', 'Змінити'],
-	page      : ['Страница', 'Page', 'Сторінка'],
-	reply     : ['Ответ', 'Reply', 'Відповідь'],
-	replies   : ['Ответы:', 'Replies:', 'Відповіді:'],
-	makeReply : ['Ответить', 'Reply', 'Відповісти'],
-	error     : ['Ошибка', 'Error', 'Помилка'],
-	loading   : ['Загрузка…', 'Loading…', 'Завантаження…'],
-	sending   : ['Отправка…', 'Sending…', 'Надсилання…'],
-	checking  : ['Проверка…', 'Checking…', 'Перевірка…'],
-	updating  : ['Обновление…', 'Updating…', 'Оновлення…'],
-	deleting  : ['Удаление…', 'Deleting…', 'Видалення…'],
-	deleted   : ['удалён', 'deleted', 'видалено'],
-	hide      : ['Скрыть: ', 'Hide: ', 'Сховати: '],
+	second   : ['с', 's', 'с'],
+	sizeByte : [' Байт', ' Byte', ' Байт'],
+	sizeKByte: [' КБ', ' KB', ' КБ'],
+	sizeMByte: [' МБ', ' MB', ' МБ'],
+	sizeGByte: [' ГБ', ' GB', ' ГБ'],
+	name     : ['Имя', 'Name', 'Ім\'я'],
+	subj     : ['Тема', 'Subject', 'Тема'],
+	mail     : ['Почта', 'Email', 'Пошта'],
+	video    : ['Видео', 'Video', 'Відео'],
+	captcha  : ['Капча', 'Captcha', 'Капча'],
+	add      : ['Добавить', 'Add', 'Додати'],
+	apply    : ['Применить', 'Apply', 'Застосувати'],
+	cancel   : ['Отмена', 'Cancel', 'Скасувати'],
+	clear    : ['Очистить', 'Clear', 'Очистити'],
+	refresh  : ['Обновить', 'Refresh', 'Оновити'],
+	save     : ['Сохранить', 'Save', 'Зберегти'],
+	load     : ['Загрузить', 'Load', 'Завантажити'],
+	edit     : ['Правка', 'Edit', 'Правка'],
+	file     : ['Файл', 'File', 'Файл'],
+	global   : ['Глобальные', 'Global', 'Глобальні'],
+	reset    : ['Сброс', 'Reset', 'Скинути'],
+	remove   : ['Удалить', 'Remove', 'Видалити'],
+	change   : ['Сменить', 'Change', 'Змінити'],
+	page     : ['Страница', 'Page', 'Сторінка'],
+	reply    : ['Ответ', 'Reply', 'Відповідь'],
+	replies  : ['Ответы:', 'Replies:', 'Відповіді:'],
+	makeReply: ['Ответить', 'Reply', 'Відповісти'],
+	error    : ['Ошибка', 'Error', 'Помилка'],
+	loading  : ['Загрузка…', 'Loading…', 'Завантаження…'],
+	sending  : ['Отправка…', 'Sending…', 'Надсилання…'],
+	checking : ['Проверка…', 'Checking…', 'Перевірка…'],
+	updating : ['Обновление…', 'Updating…', 'Оновлення…'],
+	deleting : ['Удаление…', 'Deleting…', 'Видалення…'],
+	deleted  : ['удалён', 'deleted', 'видалено'],
+	hide     : ['Скрыть: ', 'Hide: ', 'Сховати: '],
 
 	// Miscellaneous
 	hidePosts: [

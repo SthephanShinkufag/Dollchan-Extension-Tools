@@ -3,13 +3,13 @@
 =========================================================================================================== */
 
 const HotKeys = {
-	cPost          : null,
-	enabled        : false,
-	gKeys          : null,
-	lastPageOffset : 0,
-	ntKeys         : null,
-	tKeys          : null,
-	version        : 7,
+	cPost         : null,
+	enabled       : false,
+	gKeys         : null,
+	lastPageOffset: 0,
+	ntKeys        : null,
+	tKeys         : null,
+	version       : 7,
 	clearCPost() {
 		this.cPost = null;
 		this.lastPageOffset = 0;

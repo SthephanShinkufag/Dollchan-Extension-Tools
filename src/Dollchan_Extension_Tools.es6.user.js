@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = 'a0ddacc';
+const commit = '241e6f8';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -48,148 +48,148 @@ let topWinZ = 10;
 =========================================================================================================== */
 
 const defaultCfg = {
-	disabled     : 0,    // Dollchan enabled by default
-	language     : 1,    // Dollchan language [0=ru, 1=en, 2=ua]
+	disabled    : 0,    // Dollchan enabled by default
+	language    : 1,    // Dollchan language [0=ru, 1=en, 2=ua]
 	// FILTERS
-	hideBySpell  : 1,    // hide posts by spells
-	spells       : null, // user defined spells
-	sortSpells   : 0,    // sort spells and remove duplicates
-	hideRefPsts  : 0,    // hide replies to hidden posts
-	nextPageThr  : 0,    // load threads from next pages instead of hidden
-	delHiddPost  : 0,    // remove placeholders [0=off, 1=all, 2=posts only, 3=threads only]
+	hideBySpell : 1,    // hide posts by spells
+	spells      : null, // user defined spells
+	sortSpells  : 0,    // sort spells and remove duplicates
+	hideRefPsts : 0,    // hide replies to hidden posts
+	nextPageThr : 0,    // load threads from next pages instead of hidden
+	delHiddPost : 0,    // remove placeholders [0=off, 1=all, 2=posts only, 3=threads only]
 	// POSTS
-	ajaxUpdThr   : 1,    // threads updater
-	updThrDelay  : 20,   //    update interval (sec)
-	updCount     : 1,    //    show countdown to thread update
-	favIcoBlink  : 1,    //    blink the favicon on new posts
-	desktNotif   : 0,    //    desktop notifications for new posts
-	markNewPosts : 1,    //    highlight new posts with color
-	markMyPosts  : 1,    // highlight my own posts
-	expandTrunc  : 0,    // auto-expand truncated posts
-	widePosts    : 0,    // stretch posts to screen width
-	limitPostMsg : 2000, // limit text width in posts nessages
-	showHideBtn  : 1,    // show "Hide" buttons [0=off, 1=with menu, 2=no menu]
-	showRepBtn   : 1,    // show "Quick reply" buttons [0=off, 1=with menu, 2=no menu]
-	postBtnsCSS  : 2,    // post buttons style [0=simple, 1=gradient grey, 2=custom]
-	postBtnsBack : '#8c8c8c', //    custom background color
-	thrBtns      : 1,    // buttons under threads [0=off, 1=all, 2=all (on board), 3='New posts' on board]
-	noSpoilers   : 1,    // text spoilers expansion [0=off, 1=grey, 2=native]
-	noPostNames  : 0,    // hide poster names
-	correctTime  : 0,    // time correction in posts
-	timeOffset   : '+0', //    time offset (h)
-	timePattern  : '',   //    search pattern
-	timeRPattern : '',   //    replace pattern
+	ajaxUpdThr  : 1,    // threads updater
+	updThrDelay : 20,   //    update interval (sec)
+	updCount    : 1,    //    show countdown to thread update
+	favIcoBlink : 1,    //    blink the favicon on new posts
+	desktNotif  : 0,    //    desktop notifications for new posts
+	markNewPosts: 1,    //    highlight new posts with color
+	markMyPosts : 1,    // highlight my own posts
+	expandTrunc : 0,    // auto-expand truncated posts
+	widePosts   : 0,    // stretch posts to screen width
+	limitPostMsg: 2000, // limit text width in posts nessages
+	showHideBtn : 1,    // show "Hide" buttons [0=off, 1=with menu, 2=no menu]
+	showRepBtn  : 1,    // show "Quick reply" buttons [0=off, 1=with menu, 2=no menu]
+	postBtnsCSS : 2,    // post buttons style [0=simple, 1=gradient grey, 2=custom]
+	postBtnsBack: '#8c8c8c', //    custom background color
+	thrBtns     : 1,    // buttons under threads [0=off, 1=all, 2=all (on board), 3='New posts' on board]
+	noSpoilers  : 1,    // text spoilers expansion [0=off, 1=grey, 2=native]
+	noPostNames : 0,    // hide poster names
+	correctTime : 0,    // time correction in posts
+	timeOffset  : '+0', //    time offset (h)
+	timePattern : '',   //    search pattern
+	timeRPattern: '',   //    replace pattern
 	// IMAGES
-	expandImgs   : 2,    // expand images on click [0=off, 1=in post, 2=by center]
-	imgNavBtns   : 1,    //    add buttons to navigate images
-	imgInfoLink  : 1,    //    show name under expanded image
-	resizeDPI    : 0,    //    donʼt upscale images on high DPI displays
-	resizeImgs   : 1,    //    resize large images to fit screen [0=off', '1=by width', '2=width+height]
-	minImgSize   : 100,  //    minimal size for expanded images (px)
-	maxImgSize   : 2000, //    maximum size for expanded images (px)
-	zoomFactor   : 20,   //    images zoom sensibility [1-100%]
-	webmControl  : 1,    //    show control bar for WebM
-	webmTitles   : 1,    //    load titles from WebM metadata
-	webmVolume   : 100,  //    default volume for WebM [0-100%]
-	minWebmWidth : 320,  //    minimal width for WebM (px)
-	preLoadImgs  : 0,    // preload images [0=off, 1=all, 2=non-WebM]
-	findImgFile  : 0,    //    detect embedded files in images
-	openImgs     : 0,    // replace thumbs with original images [0=off, 1=all, 2=GIFs only, 3=non-GIFs]
-	imgSrcBtns   : 1,    // add "Search" buttons for images
-	imgNames     : 0,    // image names in links [0=off, 1=original, 2=hide]
-	maskImgs     : 0,    // NSFW mode
-	maskVisib    : 7,    // image opacity in NSFW mode [0-100%]
+	expandImgs  : 2,    // expand images on click [0=off, 1=in post, 2=by center]
+	imgNavBtns  : 1,    //    add buttons to navigate images
+	imgInfoLink : 1,    //    show name under expanded image
+	resizeDPI   : 0,    //    don't upscale images on high DPI displays
+	resizeImgs  : 1,    //    resize large images to fit screen [0=off', '1=by width', '2=width+height]
+	minImgSize  : 100,  //    minimal size for expanded images (px)
+	maxImgSize  : 2000, //    maximum size for expanded images (px)
+	zoomFactor  : 20,   //    images zoom sensibility [1-100%]
+	webmControl : 1,    //    show control bar for WebM
+	webmTitles  : 1,    //    load titles from WebM metadata
+	webmVolume  : 100,  //    default volume for WebM [0-100%]
+	minWebmWidth: 320,  //    minimal width for WebM (px)
+	preLoadImgs : 0,    // preload images [0=off, 1=all, 2=non-WebM]
+	findImgFile : 0,    //    detect embedded files in images
+	openImgs    : 0,    // replace thumbs with original images [0=off, 1=all, 2=GIFs only, 3=non-GIFs]
+	imgSrcBtns  : 1,    // add "Search" buttons for images
+	imgNames    : 0,    // image names in links [0=off, 1=original, 2=hide]
+	maskImgs    : 0,    // NSFW mode
+	maskVisib   : 7,    // image opacity in NSFW mode [0-100%]
 	// LINKS
-	linksNavig   : 1,    // posts navigation by >>links
-	linksOver    : 100,  //    delay appearance (ms)
-	linksOut     : 1500, //    delay disappearance (ms)
-	markViewed   : 0,    //    mark viewed posts
-	strikeHidd   : 0,    //    strike >>links to hidden posts
-	removeHidd   : 0,    //        also remove from reply maps
-	noNavigHidd  : 0,    //    donʼt show previews for hidden posts
-	markMyLinks  : 1,    // mark links to my posts with (You)
-	crossLinks   : 1,    // replace http:// with >>/b/links*
-	decodeLinks  : 1,    // decode %D0%A5%D1 in links
-	insertNum    : 1,    // insert >>link on №postnumber click*
-	addOPLink    : 1,    // insert >>link when replying to OP on board
-	addImgs      : 0,    // load images to jpg/png/gif links*
-	addMP3       : 1,    // embed mp3 links
-	addVocaroo   : 1,    // embed Vocaroo links
-	embedYTube   : 1,    // embed YouTube links [0=off, 1=preview+player, 2=onclick]
-	YTubeWidth   : 360,  //    player width (px)
-	YTubeHeigh   : 270,  //    player height (px)
-	YTubeTitles  : 1,    //    load titles for YouTube links
-	ytApiKey     : '',   //    YouTube API key
-	addVimeo     : 1,    //    embed Vimeo links
+	linksNavig  : 1,    // posts navigation by >>links
+	linksOver   : 100,  //    delay appearance (ms)
+	linksOut    : 1500, //    delay disappearance (ms)
+	markViewed  : 0,    //    mark viewed posts
+	strikeHidd  : 0,    //    strike >>links to hidden posts
+	removeHidd  : 0,    //        also remove from reply maps
+	noNavigHidd : 0,    //    don't show previews for hidden posts
+	markMyLinks : 1,    // mark links to my posts with (You)
+	crossLinks  : 1,    // replace http:// with >>/b/links*
+	decodeLinks : 1,    // decode %D0%A5%D1 in links
+	insertNum   : 1,    // insert >>link on №postnumber click*
+	addOPLink   : 1,    // insert >>link when replying to OP on board
+	addImgs     : 0,    // load images to jpg/png/gif links*
+	addMP3      : 1,    // embed mp3 links
+	addVocaroo  : 1,    // embed Vocaroo links
+	embedYTube  : 1,    // embed YouTube links [0=off, 1=preview+player, 2=onclick]
+	YTubeWidth  : 360,  //    player width (px)
+	YTubeHeigh  : 270,  //    player height (px)
+	YTubeTitles : 1,    //    load titles for YouTube links
+	ytApiKey    : '',   //    YouTube API key
+	addVimeo    : 1,    //    embed Vimeo links
 	// POSTFORM
-	ajaxPosting  : 1,    // posting without refresh
-	postSameImg  : 1,    //    ability to post duplicate images
-	removeEXIF   : 0,    //    remove EXIF from JPEG
-	removeFName  : 0,    //    clear file names [0=off, 1=empty, 2=unixtime, 3=unixtime-random]
-	sendErrNotif : 1,    //    inform in title about post send error
-	scrAfterRep  : 0,    //    scroll to bottom after reply
-	fileInputs   : 2,    //    enhanced file attachment field  [0=off, 1=simple, 2=preview]
-	addPostForm  : 2,    // reply form display in thread [0=at top, 1=at bottom, 2=hidden]
-	spacedQuote  : 1,    // insert a space when quoting "> "
-	favOnReply   : 1,    // add thread to Favorites after reply
-	warnSubjTrip : 0,    // warn about a tripcode in "Subject" field
-	addSageBtn   : 1,    // replace "Email" with Sage button
-	saveSage     : 1,    //    remember sage
-	sageReply    : 0,    //    reply with sage
-	capUpdTime   : 300,  // captcha update interval (sec)
-	captchaLang  : 1,    // forced captcha input language [0=off, 1=en, 2=ru]
-	addTextBtns  : 1,    // text markup buttons [0=off, 1=graphics, 2=text, 3=usual]
-	txtBtnsLoc   : 1,    //    located at [0=top, 1=bottom]
-	userPassw    : 1,    // user password
-	passwValue   : '',   //    value
-	userName     : 0,    // user name
-	nameValue    : '',   //    value
-	noBoardRule  : 0,    // hide board rules
-	noPassword   : 1,    // hide form "Password" field
-	noName       : 0,    // hide form "Name" field
-	noSubj       : 0,    // hide form "Subject" field
+	ajaxPosting : 1,    // posting without refresh
+	postSameImg : 1,    //    ability to post duplicate images
+	removeEXIF  : 0,    //    remove EXIF from JPEG
+	removeFName : 0,    //    clear file names [0=off, 1=empty, 2=unixtime, 3=unixtime-random]
+	sendErrNotif: 1,    //    inform in title about post send error
+	scrAfterRep : 0,    //    scroll to bottom after reply
+	fileInputs  : 2,    //    enhanced file attachment field  [0=off, 1=simple, 2=preview]
+	addPostForm : 2,    // reply form display in thread [0=at top, 1=at bottom, 2=hidden]
+	spacedQuote : 1,    // insert a space when quoting "> "
+	favOnReply  : 1,    // add thread to Favorites after reply
+	warnSubjTrip: 0,    // warn about a tripcode in "Subject" field
+	addSageBtn  : 1,    // replace "Email" with Sage button
+	saveSage    : 1,    //    remember sage
+	sageReply   : 0,    //    reply with sage
+	capUpdTime  : 300,  // captcha update interval (sec)
+	captchaLang : 1,    // forced captcha input language [0=off, 1=en, 2=ru]
+	addTextBtns : 1,    // text markup buttons [0=off, 1=graphics, 2=text, 3=usual]
+	txtBtnsLoc  : 1,    //    located at [0=top, 1=bottom]
+	userPassw   : 1,    // user password
+	passwValue  : '',   //    value
+	userName    : 0,    // user name
+	nameValue   : '',   //    value
+	noBoardRule : 0,    // hide board rules
+	noPassword  : 1,    // hide form "Password" field
+	noName      : 0,    // hide form "Name" field
+	noSubj      : 0,    // hide form "Subject" field
 	// COMMON
-	scriptStyle  : 0,    /* Dollchan style [
+	scriptStyle : 0,    /* Dollchan style [
 		0=gradient darkblue, 1=gradient blue, 2=solid grey, 3=transparent blue, 4=square dark,
 		5=gradient pink] */
-	userCSS      : 0,    // user CSS
-	userCSSTxt   : '',   //    css text
-	expandPanel  : 0,    // show full main panel
-	animation    : 1,    // CSS3 animation
-	hotKeys      : 1,    // hotkeys
-	loadPages    : 1,    //    number of pages that are loaded on F5
-	panelCounter : 1,    // panel counter for posts/images [0=off, 1=all posts, 2=except hidden]
-	rePageTitle  : 1,    // show thread title in the page tab
-	inftyScroll  : 1,    // infinite scrolling for pages
-	hideReplies  : 0,    // show only op-posts in threads list
-	scrollToTop  : 0,    // always scroll to top in the threads list
-	saveScroll   : 1,    // remember the scroll position in threads
-	favFolders   : 1,    // boards folders in the Favorites Window
-	favThrOrder  : 0,    /* threads sorting order in the Favorites window
+	userCSS     : 0,    // user CSS
+	userCSSTxt  : '',   //    css text
+	expandPanel : 0,    // show full main panel
+	animation   : 1,    // CSS3 animation
+	hotKeys     : 1,    // hotkeys
+	loadPages   : 1,    //    number of pages that are loaded on F5
+	panelCounter: 1,    // panel counter for posts/images [0=off, 1=all posts, 2=except hidden]
+	rePageTitle : 1,    // show thread title in the page tab
+	inftyScroll : 1,    // infinite scrolling for pages
+	hideReplies : 0,    // show only op-posts in threads list
+	scrollToTop : 0,    // always scroll to top in the threads list
+	saveScroll  : 1,    // remember the scroll position in threads
+	favFolders  : 1,    // boards folders in the Favorites Window
+	favThrOrder : 0,    /* threads sorting order in the Favorites window
 		[0=by opnum, 1=by opnum (desc), 2=by adding, 3=by adding (desc)] */
-	favWinOn     : 0,    // always open the Favorites window
-	closePopups  : 0,    // close popups automatically
-	updDollchan  : 2,    // Check for Dollchan updates [0=off, 1=per day, 2=2days, 3=week, 4=2weeks, 5=month]
+	favWinOn    : 0,    // always open the Favorites window
+	closePopups : 0,    // close popups automatically
+	updDollchan : 2,    // Check for Dollchan updates [0=off, 1=per day, 2=2days, 3=week, 4=2weeks, 5=month]
 	// WINDOWS
-	textaWidth   : 300,  // textarea width (px)
-	textaHeight  : 115,  // textarea height (px)
-	replyWinDrag : 0,          // draggable "Quick Reply" form
-	replyWinX    : 'right: 0', //    "Quick Reply" form X position
-	replyWinY    : 'top: 0',   //    "Quick Reply" form Y position
-	cfgTab       : 'filters',  // remembered tab in "Settings" window
-	cfgWinDrag   : 0,          // draggable "Settings" window
-	cfgWinX      : 'right: 0', //    "Settings" window X position
-	cfgWinY      : 'top: 0',   //    "Settings" window Y position
-	hidWinDrag   : 0,          // draggable "Hidden" window
-	hidWinX      : 'right: 0', //    "Hidden" window X position
-	hidWinY      : 'top: 0',   //    "Hidden" window Y position
-	favWinDrag   : 0,          // draggable "Favorites" window
-	favWinX      : 'right: 0', //    "Favorites" window X position
-	favWinY      : 'top: 0',   //    "Favorites" window Y position
-	favWinWidth  : 500,        //    "Favorites" window width (px)
-	vidWinDrag   : 0,          // draggable "Video" window
-	vidWinX      : 'right: 0', //    "Video" window X position
-	vidWinY      : 'top: 0'    //    "Video" window Y position
+	textaWidth  : 300,  // textarea width (px)
+	textaHeight : 115,  // textarea height (px)
+	replyWinDrag: 0,          // draggable "Quick Reply" form
+	replyWinX   : 'right: 0', //    "Quick Reply" form X position
+	replyWinY   : 'top: 0',   //    "Quick Reply" form Y position
+	cfgTab      : 'filters',  // remembered tab in "Settings" window
+	cfgWinDrag  : 0,          // draggable "Settings" window
+	cfgWinX     : 'right: 0', //    "Settings" window X position
+	cfgWinY     : 'top: 0',   //    "Settings" window Y position
+	hidWinDrag  : 0,          // draggable "Hidden" window
+	hidWinX     : 'right: 0', //    "Hidden" window X position
+	hidWinY     : 'top: 0',   //    "Hidden" window Y position
+	favWinDrag  : 0,          // draggable "Favorites" window
+	favWinX     : 'right: 0', //    "Favorites" window X position
+	favWinY     : 'top: 0',   //    "Favorites" window Y position
+	favWinWidth : 500,        //    "Favorites" window width (px)
+	vidWinDrag  : 0,          // draggable "Video" window
+	vidWinX     : 'right: 0', //    "Video" window X position
+	vidWinY     : 'top: 0'    //    "Video" window Y position
 };
 
 /* ==[ Localization.js ]======================================================================================
@@ -204,19 +204,19 @@ const Lng = {
 		'Для застосування необхідне перезавантаження'],
 	// Settings window: tab names
 	cfgTab: {
-		filters : ['Фильтры', 'Filters', 'Фільтри'],
-		posts   : ['Посты', 'Posts', 'Дописи'],
-		images  : ['Картинки', 'Images', 'Зображ.'],
-		links   : ['Ссылки', 'Links', 'Посил.'],
-		form    : ['Форма', 'Form', 'Форма'],
-		common  : ['Общее', 'Common', 'Спільне'],
-		info    : ['Инфо', 'Info', 'Інфо']
+		filters: ['Фильтры', 'Filters', 'Фільтри'],
+		posts  : ['Посты', 'Posts', 'Дописи'],
+		images : ['Картинки', 'Images', 'Зображ.'],
+		links  : ['Ссылки', 'Links', 'Посил.'],
+		form   : ['Форма', 'Form', 'Форма'],
+		common : ['Общее', 'Common', 'Спільне'],
+		info   : ['Инфо', 'Info', 'Інфо']
 	},
 	// Settings window: options
 	cfg: {
 		language: {
-			sel : [['Ru', 'En', 'Ua'], ['Ru', 'En', 'Ua'], ['Ru', 'En', 'Ua']],
-			txt : ['', '', '']
+			sel: [['Ru', 'En', 'Ua'], ['Ru', 'En', 'Ua'], ['Ru', 'En', 'Ua']],
+			txt: ['', '', '']
 		},
 
 		// "Filters" tab
@@ -378,10 +378,10 @@ const Lng = {
 		imgInfoLink: [
 			'Имя файла под раскрытой картинкой',
 			'Show file name under expanded image',
-			'Імʼя файлу під розкритим зображенням'],
+			'Ім\'я файлу під розкритим зображенням'],
 		resizeDPI: [
 			'Не растягивать на дисплеях с высоким DPI',
-			'Donʼt upscale images on high DPI displays',
+			'Don\'t upscale images on high DPI displays',
 			'Не розтягувати на дисплеях з високим DPI'],
 		resizeImgs: {
 			sel: [
@@ -452,7 +452,7 @@ const Lng = {
 		imgNames: {
 			sel: [
 				['Не изменять', 'Настоящие (сокр.)', 'Скрывать', 'Настоящие (полные)'],
-				['Donʼt change', 'Original (trunc.)', 'Hide', 'Original (full)'],
+				['Don\'t change', 'Original (trunc.)', 'Hide', 'Original (full)'],
 				['Не змінювати', 'Справжні (скороч.)', 'Ховати', 'Справжні (повні)']],
 			txt: [
 				'имена картинок',
@@ -491,8 +491,8 @@ const Lng = {
 			'Також видаляти із зворотніх >>посилань'],
 		noNavigHidd: [
 			'Не отображать превью для скрытых постов',
-			'Donʼt show previews for hidden posts',
-			'Не показувати превʼю до cхованих дописів'],
+			'Don\'t show previews for hidden posts',
+			'Не показувати прев\'ю до cхованих дописів'],
 		markMyLinks: [
 			'Помечать ссылки на мои посты как (You)',
 			'Mark links to my posts with (You)',
@@ -533,7 +533,7 @@ const Lng = {
 			sel: [
 				['Ничего', 'Превью+плеер', 'Плеер по клику'],
 				['Nothing', 'Preview+player', 'On click player'],
-				['Нічого', 'Превʼю+плеєр', 'Плеєр по кліку']],
+				['Нічого', 'Прев\'ю+плеєр', 'Плеєр по кліку']],
 			txt: [
 				'к YouTube ссылкам',
 				'for YouTube links',
@@ -564,7 +564,7 @@ const Lng = {
 		removeFName: {
 			sel: [
 				['Не изменять', 'Удалять', 'Unixtime', 'Unixtime-random'],
-				['Donʼt change', 'Clear', 'Unixtime', 'Unixtime-random'],
+				['Don\'t change', 'Clear', 'Unixtime', 'Unixtime-random'],
 				['Не змінювати', 'Видаляти', 'Unixtime', 'Unixtime-random']],
 			txt: [
 				'имена файлов',
@@ -583,7 +583,7 @@ const Lng = {
 			sel: [
 				['Откл.', 'Упрощ.', 'Превью'],
 				['Disable', 'Simple', 'Preview'],
-				['Вимкн.', 'Спрощене', 'Превʼю']],
+				['Вимкн.', 'Спрощене', 'Прев\'ю']],
 			txt: [
 				'Улучшенное поле добавления файлов',
 				'Enhanced file attachment field',
@@ -618,7 +618,7 @@ const Lng = {
 		saveSage: [
 			'Помнить сажу',
 			'Remember sage',
-			'Памʼятати сажу'],
+			'Пам\'ятати сажу'],
 		capUpdTime: [
 			'Интервал обновления капчи (сек)',
 			'Captcha update interval (sec)',
@@ -654,7 +654,7 @@ const Lng = {
 		userName: [
 			'Постоянное имя',
 			'Fixed name',
-			'Постійне імʼя'],
+			'Постійне ім\'я'],
 		noBoardRule: [
 			'Правила ',
 			'Rules ',
@@ -666,7 +666,7 @@ const Lng = {
 		noName: [
 			'Имя ',
 			'Name ',
-			'Імʼя '],
+			'Ім\'я '],
 		noSubj: [
 			'Тему',
 			'Subject',
@@ -894,7 +894,7 @@ const Lng = {
 	attachPview: [
 		'Закрепить превью',
 		'Attach preview',
-		'Закріпити превʼю'],
+		'Закріпити прев\'ю'],
 	goToThr: [
 		'В тред',
 		'To thread',
@@ -1033,15 +1033,15 @@ const Lng = {
 	origName: [
 		'Оригинальное имя',
 		'Original name',
-		'Оригінальне імʼя'],
+		'Оригінальне ім\'я'],
 	metaName: [
 		'Имя из метаданных',
 		'Name from metadata',
-		'Імʼя з метаданих'],
+		'Ім\'я з метаданих'],
 	boardName: [
 		'Имя, присвоенное доской',
 		'Name assigned by the board',
-		'Імʼя, присвоєне дошкою'],
+		'Ім\'я, присвоєне дошкою'],
 	searchIn: [
 		'Искать в ',
 		'Search in ',
@@ -1064,7 +1064,7 @@ const Lng = {
 		'Зберегти отриманий кадр'],
 	errSaucenao: [
 		'Ошибка: не могу загрузить на saucenao.com',
-		'Error: canʼt load to saucenao.com',
+		'Error: can\'t load to saucenao.com',
 		'Помилка: не можу завантажити на saucenao.com'],
 
 	// Hotkeys editor
@@ -1104,7 +1104,7 @@ const Lng = {
 		'%l%i23 – hide post/thread%/l',
 		'%l%i32 – go to thread%/l',
 		'%l%i33 – expand thread%/l',
-		'%l%i211 – expand postʼs images%/l',
+		'%l%i211 – expand post\'s images%/l',
 		'%l%i22 – quick reply%/l',
 		'%l%i25t – send post%/l',
 		'%l%i210 – open/close "Settings"%/l',
@@ -1166,11 +1166,11 @@ const Lng = {
 		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 		['Нед', 'Пон', 'Вів', 'Сер', 'Чет', 'Птн', 'Сбт']],
 	monthDict: {
-		/* eslint-disable key-spacing, max-len, object-property-newline */
+		/* eslint-disable max-len, object-property-newline */
 		янв: 0, фев: 1, мар: 2, апр: 3, май: 4, мая: 4, июн: 5, июл: 6, авг: 7, сен: 8, окт: 9, ноя: 10, дек: 11,
 		jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
 		січ: 0, лют: 1, бер: 2, кві: 3, тра: 4, чер: 5, лип: 6, сер: 7, вер: 8, жов: 9, лис: 10, гру: 11
-		/* eslint-enable key-spacing, max-len, object-property-newline */
+		/* eslint-enable max-len, object-property-newline */
 	},
 
 	// Spells: popups
@@ -1208,11 +1208,11 @@ const Lng = {
 		'пропущено закривну дужку'],
 	seRepsInParens: [
 		'спелл #%s не должен располагаться в скобках',
-		'spell #%s shouldnʼt be inside parentheses',
+		'spell #%s shouldn\'t be inside parentheses',
 		'спелл #%s не може бути в дужках'],
 	seOpInReps: [
 		'недопустимо использовать оператор %s со спеллами #rep и #outrep',
-		'donʼt use operator %s with spells #rep & #outrep',
+		'don\'t use operator %s with spells #rep & #outrep',
 		'неприпустимо використовувати оператор %s зі спеллами #rep и #outrep'],
 	seRow: [
 		' (строка ',
@@ -1522,12 +1522,12 @@ const Lng = {
 		'Завантажуються файли'],
 	cantLoad: [
 		'Не могу загрузить',
-		'Canʼt load',
+		'Can\'t load',
 		'Не можу завантажити'],
 	willSavePview: [
 		'Будет сохранено превью',
 		'Thumbnail will be saved',
-		'Буде збережено превʼю'],
+		'Буде збережено прев\'ю'],
 	loadErrors: [
 		'Во время загрузки произошли ошибки:',
 		'An error occurred during the loading:',
@@ -1544,7 +1544,7 @@ const Lng = {
 		'Скарга успішно відправлена'],
 	errDelete: [
 		'Не могу удалить',
-		'Canʼt delete',
+		'Can\'t delete',
 		'Не можу видалити'],
 	fileCorrupt: [
 		'Файл повреждён',
@@ -1557,7 +1557,7 @@ const Lng = {
 	noConnect: [
 		'Ошибка подключения',
 		'Connection failed',
-		'Помилка зʼєднання'],
+		'Помилка з\'єднання'],
 	thrNotFound: [
 		'Тред недоступен',
 		'Thread is unavailable',
@@ -1610,46 +1610,46 @@ const Lng = {
 		'Завантажте скрипт для відтворення WebM (VP9/Opus)'],
 	errFormLoad: [
 		'Не удаётся загрузить форму ответа',
-		'Canʼt load the reply form',
+		'Can\'t load the reply form',
 		'Не вдалося завантажити форму відповіді'
 	],
 
 	// Single words
-	second    : ['с', 's', 'с'],
-	sizeByte  : [' Байт', ' Byte', ' Байт'],
-	sizeKByte : [' КБ', ' KB', ' КБ'],
-	sizeMByte : [' МБ', ' MB', ' МБ'],
-	sizeGByte : [' ГБ', ' GB', ' ГБ'],
-	name      : ['Имя', 'Name', 'Імʼя'],
-	subj      : ['Тема', 'Subject', 'Тема'],
-	mail      : ['Почта', 'Email', 'Пошта'],
-	video     : ['Видео', 'Video', 'Відео'],
-	captcha   : ['Капча', 'Captcha', 'Капча'],
-	add       : ['Добавить', 'Add', 'Додати'],
-	apply     : ['Применить', 'Apply', 'Застосувати'],
-	cancel    : ['Отмена', 'Cancel', 'Скасувати'],
-	clear     : ['Очистить', 'Clear', 'Очистити'],
-	refresh   : ['Обновить', 'Refresh', 'Оновити'],
-	save      : ['Сохранить', 'Save', 'Зберегти'],
-	load      : ['Загрузить', 'Load', 'Завантажити'],
-	edit      : ['Правка', 'Edit', 'Правка'],
-	file      : ['Файл', 'File', 'Файл'],
-	global    : ['Глобальные', 'Global', 'Глобальні'],
-	reset     : ['Сброс', 'Reset', 'Скинути'],
-	remove    : ['Удалить', 'Remove', 'Видалити'],
-	change    : ['Сменить', 'Change', 'Змінити'],
-	page      : ['Страница', 'Page', 'Сторінка'],
-	reply     : ['Ответ', 'Reply', 'Відповідь'],
-	replies   : ['Ответы:', 'Replies:', 'Відповіді:'],
-	makeReply : ['Ответить', 'Reply', 'Відповісти'],
-	error     : ['Ошибка', 'Error', 'Помилка'],
-	loading   : ['Загрузка…', 'Loading…', 'Завантаження…'],
-	sending   : ['Отправка…', 'Sending…', 'Надсилання…'],
-	checking  : ['Проверка…', 'Checking…', 'Перевірка…'],
-	updating  : ['Обновление…', 'Updating…', 'Оновлення…'],
-	deleting  : ['Удаление…', 'Deleting…', 'Видалення…'],
-	deleted   : ['удалён', 'deleted', 'видалено'],
-	hide      : ['Скрыть: ', 'Hide: ', 'Сховати: '],
+	second   : ['с', 's', 'с'],
+	sizeByte : [' Байт', ' Byte', ' Байт'],
+	sizeKByte: [' КБ', ' KB', ' КБ'],
+	sizeMByte: [' МБ', ' MB', ' МБ'],
+	sizeGByte: [' ГБ', ' GB', ' ГБ'],
+	name     : ['Имя', 'Name', 'Ім\'я'],
+	subj     : ['Тема', 'Subject', 'Тема'],
+	mail     : ['Почта', 'Email', 'Пошта'],
+	video    : ['Видео', 'Video', 'Відео'],
+	captcha  : ['Капча', 'Captcha', 'Капча'],
+	add      : ['Добавить', 'Add', 'Додати'],
+	apply    : ['Применить', 'Apply', 'Застосувати'],
+	cancel   : ['Отмена', 'Cancel', 'Скасувати'],
+	clear    : ['Очистить', 'Clear', 'Очистити'],
+	refresh  : ['Обновить', 'Refresh', 'Оновити'],
+	save     : ['Сохранить', 'Save', 'Зберегти'],
+	load     : ['Загрузить', 'Load', 'Завантажити'],
+	edit     : ['Правка', 'Edit', 'Правка'],
+	file     : ['Файл', 'File', 'Файл'],
+	global   : ['Глобальные', 'Global', 'Глобальні'],
+	reset    : ['Сброс', 'Reset', 'Скинути'],
+	remove   : ['Удалить', 'Remove', 'Видалити'],
+	change   : ['Сменить', 'Change', 'Змінити'],
+	page     : ['Страница', 'Page', 'Сторінка'],
+	reply    : ['Ответ', 'Reply', 'Відповідь'],
+	replies  : ['Ответы:', 'Replies:', 'Відповіді:'],
+	makeReply: ['Ответить', 'Reply', 'Відповісти'],
+	error    : ['Ошибка', 'Error', 'Помилка'],
+	loading  : ['Загрузка…', 'Loading…', 'Завантаження…'],
+	sending  : ['Отправка…', 'Sending…', 'Надсилання…'],
+	checking : ['Проверка…', 'Checking…', 'Перевірка…'],
+	updating : ['Обновление…', 'Updating…', 'Оновлення…'],
+	deleting : ['Удаление…', 'Deleting…', 'Видалення…'],
+	deleted  : ['удалён', 'deleted', 'видалено'],
+	hide     : ['Скрыть: ', 'Hide: ', 'Сховати: '],
 
 	// Miscellaneous
 	hidePosts: [
@@ -1795,6 +1795,7 @@ function $script(text) {
 
 function $css(text) {
 	return $bEnd(doc.head, `<style type="text/css">${
+		// XXX: Old Safari hack for unsupported style properties.
 		nav.isSafari && !('flex' in doc.body.style) ?
 			text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1') : text
 	}</style>`);
@@ -2014,8 +2015,8 @@ const Logger = {
 		}
 	},
 
-	_finished : false,
-	_marks    : []
+	_finished: false,
+	_marks   : []
 };
 
 // Some async operations should be cancelable, to ignore all the chaining callbacks of promises.
@@ -2539,14 +2540,14 @@ const CfgSaver = {
 			delete val[domain];
 		}
 		const rv = setStored('DESU_Config', JSON.stringify(val));
-		// Violentmonkey bug: GM.setValue promise is not fulfilled.
+		// XXX: Violentmonkey bug. GM.setValue promise is not fulfilled.
 		if(rv && !nav.isViolentmonkey) {
 			await rv;
 		}
 	},
 
-	_isBusy : false,
-	_queue  : []
+	_isBusy: false,
+	_queue : []
 };
 
 // Toggles a particular config option (1|0)
@@ -2587,7 +2588,7 @@ async function readCfg() {
 	if(!('Notification' in deWindow)) {
 		Cfg.desktNotif = 0;
 	}
-	if(nav.scriptHandler === 'WebExtension') {
+	if(nav.isWebExtension) {
 		Cfg.updDollchan = 0;
 	}
 	if(Cfg.updThrDelay < 10) {
@@ -3252,10 +3253,10 @@ const Panel = Object.create({
 		aib.updateCounters?.(postCount, filesCount, postersCount);
 	},
 
-	_el     : null,
-	_hideTO : null,
-	_menu   : null,
-	_menuTO : null,
+	_el    : null,
+	_hideTO: null,
+	_menu  : null,
+	_menuTO: null,
 	get _filesCountEl() {
 		const value = $id('de-panel-info-files');
 		Object.defineProperty(this, '_filesCountEl', { value, configurable: true });
@@ -3303,7 +3304,7 @@ const Panel = Object.create({
 			href = aib.catalogUrl;
 		}
 		return `<${ tag } id="de-panel-${ id }" class="de-abtn de-panel-button"
-			title="${ title || Lng.panelBtn[id][lang] }" ${ href ? 'href="' + href + '"': '' }>
+			title="${ title || Lng.panelBtn[id][lang] }" ${ href ? 'href="' + href + '"' : '' }>
 			<svg class="de-panel-svg">
 			${ id !== 'audio-off' ? `
 				<use xlink:href="#de-symbol-panel-${ useId || id }"/>` : `
@@ -3340,13 +3341,13 @@ function updateWinZ(winEl) {
 
 function makeDraggable(name, winEl, headEl) {
 	headEl.addEventListener('mousedown', {
-		_oldX   : 0,
-		_oldY   : 0,
-		_win    : winEl,
-		_wStyle : winEl.style,
-		_X      : 0,
-		_Y      : 0,
-		_Z      : 0,
+		_oldX  : 0,
+		_oldY  : 0,
+		_win   : winEl,
+		_wStyle: winEl.style,
+		_X     : 0,
+		_Y     : 0,
+		_Z     : 0,
 		async handleEvent(e) {
 			if(!Cfg[name + 'WinDrag']) {
 				return;
@@ -3603,7 +3604,7 @@ function showVideosWindow(winBody) {
 	}
 	// <EXCLUDED_FROM_EXTENSION>
 	if(!$id('de-ytube-api')) {
-		// YouTube APT script. We canʼt insert scripts directly as html.
+		// YouTube APT script. We can't insert scripts directly as html.
 		const script = doc.createElement('script');
 		script.type = 'text/javascript';
 		script.src = aib.protocol + '//www.youtube.com/player_api';
@@ -3666,10 +3667,10 @@ function showVideosWindow(winBody) {
 	// Events for control buttons
 	winBody.addEventListener('click', {
 		linkList,
-		currentLink : null,
-		listHidden  : false,
-		player      : winBody.firstElementChild,
-		playerInfo  : null,
+		currentLink: null,
+		listHidden : false,
+		player     : winBody.firstElementChild,
+		playerInfo : null,
 		handleEvent(e) {
 			const el = e.target;
 			const { classList } = el;
@@ -4259,12 +4260,12 @@ function showFavoritesWindow(winBody, favObj) {
 				const iconEl = $q('.de-fav-inf-icon', el);
 				const titleEl = iconEl.parentNode;
 				thrInfo.push({
-					found     : false,
-					num       : +el.getAttribute('de-num'),
-					pageEl    : $q('.de-fav-inf-page', el),
-					iconClass : iconEl.getAttribute('class'),
+					found    : false,
+					num      : +el.getAttribute('de-num'),
+					pageEl   : $q('.de-fav-inf-page', el),
+					iconClass: iconEl.getAttribute('class'),
 					iconEl,
-					iconTitle : titleEl.getAttribute('title'),
+					iconTitle: titleEl.getAttribute('title'),
 					titleEl
 				});
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
@@ -4272,7 +4273,7 @@ function showFavoritesWindow(winBody, favObj) {
 			}
 			// Sequentially load pages and search for favorites threads
 			// We cannot know a count of pages while in the thread
-			const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we donʼt know
+			const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we don't know
 			let infoLoaded = 0;
 			const updateInf = (inf, page) => {
 				inf.iconEl.setAttribute('class', inf.iconClass);
@@ -4771,12 +4772,12 @@ const CfgWindow = {
 				$popup('cfg-debug',
 					Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>'
 				).lastChild.value = JSON.stringify({
-					version  : version + '.' + commit,
-					location : String(deWindow.location),
+					version : version + '.' + commit,
+					location: String(deWindow.location),
 					nav,
 					Cfg,
-					sSpells  : Spells.list.split('\n'),
-					oSpells  : sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`],
+					sSpells : Spells.list.split('\n'),
+					oSpells : sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`],
 					perf
 				}, (key, value) => {
 					switch(key) {
@@ -4800,11 +4801,6 @@ const CfgWindow = {
 					isValidColor = true;
 				} else if(color && color !== 'inherit' && color !== 'currentColor') {
 					const image = doc.createElement('img');
-					image.style.color = 'rgb(0, 0, 0)';
-					image.style.color = color;
-					if(image.style.color !== 'rgb(0, 0, 0)') {
-						isValidColor = true;
-					}
 					image.style.color = 'rgb(255, 255, 255)';
 					image.style.color = color;
 					isValidColor = image.style.color !== 'rgb(255, 255, 255)';
@@ -4911,7 +4907,7 @@ const CfgWindow = {
 				this._updateRowMeter($id('de-spell-txt'));
 			}
 			if(id === 'common') {
-				// XXX: remove and make insertion in this._getCfgCommon()
+				// TODO: remove and make insertion in this._getCfgCommon()
 				$q('input[info="userCSS"]').parentNode.after(getEditButton(
 					'css',
 					fn => fn(Cfg.userCSSTxt, false, async inputEl => {
@@ -5165,9 +5161,9 @@ const CfgWindow = {
 		el.innerHTML }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
 	},
 	// Creates a menu with a list of checkboxes. Uses for popup window.
-	_getList : arr => arrTags(arr, '<label class="de-block"><input type="checkbox"> ', '</label>'),
+	_getList: arr => arrTags(arr, '<label class="de-block"><input type="checkbox"> ', '</label>'),
 	// Creates a select for multiple option values
-	_getSel  : (id, needReload) => `<label class="de-cfg-label${ needReload ? ' de-cfg-needreload' : '' }">
+	_getSel : (id, needReload) => `<label class="de-cfg-label${ needReload ? ' de-cfg-needreload' : '' }">
 		<select class="de-cfg-select" info="${ id }">${ Lng.cfg[id].sel[lang].map((val, i) =>
 		`<option value="${ i }">${ val }</option>`).join('') }</select> ${ Lng.cfg[id].txt[lang] }</label>`,
 	// Creates a tab for tab bar
@@ -5470,13 +5466,13 @@ class Menu {
 =========================================================================================================== */
 
 const HotKeys = {
-	cPost          : null,
-	enabled        : false,
-	gKeys          : null,
-	lastPageOffset : 0,
-	ntKeys         : null,
-	tKeys          : null,
-	version        : 7,
+	cPost         : null,
+	enabled       : false,
+	gKeys         : null,
+	lastPageOffset: 0,
+	ntKeys        : null,
+	tKeys         : null,
+	version       : 7,
 	clearCPost() {
 		this.cPost = null;
 		this.lastPageOffset = 0;
@@ -6049,9 +6045,9 @@ KeyEditListener.keyCodes = [
 =========================================================================================================== */
 
 const ContentLoader = {
-	afterFn   : null,
-	isLoading : false,
-	popupId   : null,
+	afterFn  : null,
+	isLoading: false,
+	popupId  : null,
 	downloadThread(imgOnly) {
 		let progress, counter;
 		let current = 1;
@@ -6097,12 +6093,12 @@ const ContentLoader = {
 			if(!imgOnly) {
 				$q('head', dc).insertAdjacentHTML('beforeend',
 					'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
-				const dcBody = $q('body', dc);
-				dcBody.classList.remove('de-runned');
-				dcBody.classList.add('de-mode-local');
+				const docBody = $q('body', dc);
+				docBody.classList.remove('de-runned-inpage', 'de-runned-userscript');
+				docBody.classList.add('de-runned-local');
 				$delAll('#de-css, #de-css-dynamic, #de-css-user', dc);
 				tar.addString('data/dollscript.js', `${ nav.isESNext ?
-					`(${ String(deMainFuncInner) })(window, null, null, (x, y) => window.scrollTo(x, y), ` :
+					`(${ String(deMainFuncInner) })(window, null, (x, y) => window.scrollTo(x, y), ` :
 					`(${ String(/* global deMainFuncOuter */ deMainFuncOuter) })(`
 				}${ JSON.stringify({ domain: aib.domain, b: aib.b, t: aib.t }) });`);
 				const dt = doc.doctype;
@@ -6303,8 +6299,8 @@ const ContentLoader = {
 		}
 	},
 
-	_canvas  : null,
-	_thrPool : null,
+	_canvas : null,
+	_thrPool: null,
 	_addImgFileIcon(nameLink, fName, info) {
 		const { type } = info;
 		if(typeof type === 'undefined') {
@@ -6564,7 +6560,7 @@ class Videos {
 		if(loader && (dataObj = Videos._global.vData[+!isYtube][m[1]])) {
 			this.vData[+!isYtube].push(dataObj);
 		}
-		let time = '';
+		let time;
 		[time, m[2], m[3], m[4]] = Videos._fixTime(m[4], m[3], m[2]);
 		if(link) {
 			link.href = link.href.replace(/^http:/, 'https:');
@@ -6929,14 +6925,14 @@ function $ajax(url, params = null, isCORS = false) {
 		};
 		let loadTO = needTO && setTimeout(timeoutFn, WAITING_TIME);
 		const newParams = {
-			method : params?.method || 'GET',
-			url    : nav.isSafari ? aib.getAbsLink(url) : url,
+			method: params?.method || 'GET',
+			url   : nav.isSafari ? aib.getAbsLink(url) : url,
 			onreadystatechange(e) {
 				if(needTO) {
 					clearTimeout(loadTO);
 				}
 				if(e.readyState === 4 && !(
-					// Violentmonkey gives extra stage with undefined responseText and 200 status
+					// XXX: Violentmonkey gives extra stage with undefined responseText and 200 status
 					nav.isViolentmonkey && e.status === 200 &&
 					typeof e.responseText === 'undefined' && typeof e.response === 'undefined'
 				)) {
@@ -7027,7 +7023,7 @@ function $ajax(url, params = null, isCORS = false) {
 			return $ajax(url, params);
 		}
 	} else {
-		reject(new AjaxError(0, 'Ajax error: Canʼt send any type of request.'));
+		reject(new AjaxError(0, 'Ajax error: Can\'t send any type of request.'));
 	}
 	return new CancelablePromise((res, rej) => {
 		resolve = res;
@@ -7292,9 +7288,9 @@ const Pages = {
 		}
 	},
 
-	_addingPromise : null,
-	_isAdding      : false,
-	_scrollY       : 0,
+	_addingPromise: null,
+	_isAdding     : false,
+	_scrollY      : 0,
 	_addForm(formEl, pageNum) {
 		formEl = doc.adoptNode(formEl);
 		$hide(formEl = aib.fixHTML(formEl));
@@ -7490,13 +7486,13 @@ const Spells = Object.create({
 			const [msgBit, msgData] = wipeMsg || [];
 			const names = [];
 			const bits = {
-				1  : 'samelines',
-				2  : 'samewords',
-				4  : 'longwords',
-				8  : 'symbols',
-				16 : 'capslock',
-				32 : 'numbers',
-				64 : 'whitespace'
+				1 : 'samelines',
+				2 : 'samewords',
+				4 : 'longwords',
+				8 : 'symbols',
+				16: 'capslock',
+				32: 'numbers',
+				64: 'whitespace'
 			};
 			for(const bit in bits) {
 				if(+bit !== msgBit && (val & +bit)) {
@@ -7540,9 +7536,9 @@ const Spells = Object.create({
 		const value = null;
 		const configurable = true;
 		Object.defineProperties(this, {
-			hiders  : { configurable, value },
-			outreps : { configurable, value },
-			reps    : { configurable, value }
+			hiders : { configurable, value },
+			outreps: { configurable, value },
+			reps   : { configurable, value }
 		});
 		await CfgSaver.save('hideBySpell', 0);
 	},
@@ -7657,9 +7653,9 @@ const Spells = Object.create({
 			const value = null;
 			const configurable = true;
 			Object.defineProperties(this, {
-				hiders  : { configurable, value },
-				outreps : { configurable, value },
-				reps    : { configurable, value }
+				hiders : { configurable, value },
+				outreps: { configurable, value },
+				reps   : { configurable, value }
 			});
 			return;
 		}
@@ -7782,9 +7778,9 @@ const Spells = Object.create({
 	_setData(hiders, reps, outreps) {
 		const configurable = true;
 		Object.defineProperties(this, {
-			hiders  : { configurable, value: this._initHiders(hiders) },
-			outreps : { configurable, value: this._initReps(outreps) },
-			reps    : { configurable, value: this._initReps(reps) }
+			hiders : { configurable, value: this._initHiders(hiders) },
+			outreps: { configurable, value: this._initReps(outreps) },
+			reps   : { configurable, value: this._initReps(reps) }
 		});
 	},
 	_sort(sp) {
@@ -8304,9 +8300,9 @@ class SpellsRunner {
 					}
 				}
 				sesStorage['de-hidden-' + aib.b + aib.t] = !data ? null : JSON.stringify({
-					hash      : Cfg.hideBySpell ? Spells.hash : 0,
-					lastCount : lPost.count,
-					lastNum   : lPost.num,
+					hash     : Cfg.hideBySpell ? Spells.hash : 0,
+					lastCount: lPost.count,
+					lastNum  : lPost.num,
 					data
 				});
 			}
@@ -8352,7 +8348,8 @@ class SpellsInterpreter {
 				}
 				const val = this._runSpell(type, scope[i][1]);
 				if(val instanceof Promise) {
-					this._ctx.push(len, scope, ++i, isNegScope);
+					i++;
+					this._ctx.push(len, scope, i, isNegScope);
 					return val.then(v => this._asyncContinue(v));
 				}
 				[rv, stopCheck] = this._checkRes(scope[i], val, isNegScope);
@@ -9128,7 +9125,7 @@ class PostForm {
 			}
 			if(this.tNum && pByNum.get(this.tNum).subj === 'Dollchan Extension Tools') {
 				const temp = `\n\n${ PostForm._wrapText(aib.markupTags[5],
-					`${ '-'.repeat(50) }\n${ nav.ua }\nv${ version }.${ commit }${
+					`${ '-'.repeat(50) }\n${ nav.userAgent }\nv${ version }.${ commit }${
 						nav.isESNext ? '.es6' : '' } [${ nav.scriptHandler }]`
 				)[1] }`;
 				if(!val.includes(temp)) {
@@ -9168,7 +9165,7 @@ class PostForm {
 		// Add image from clipboard to file inputs on Ctrl+V
 		el.addEventListener('paste', async e => {
 			const files = e?.clipboardData?.files;
-			for(const file of files) {
+			for(const file of files || []) {
 				const inputs = this.files._inputs;
 				for(let i = 0, len = inputs.length; i < len; ++i) {
 					const input = inputs[i];
@@ -9179,7 +9176,7 @@ class PostForm {
 				}
 			}
 		});
-		// Make textarea resizer
+		// Saving the textarea size when resizing.
 		if(nav.isFirefox || nav.isWebkit) {
 			el.addEventListener('mouseup', ({ target }) => {
 				const s = target.style;
@@ -9191,9 +9188,10 @@ class PostForm {
 			});
 			return;
 		}
+		// Creating a resizer in browsers that don't have one.
 		$aEnd(el, '<div id="de-resizer-text"></div>').addEventListener('mousedown', {
-			_el      : el,
-			_elStyle : style,
+			_el     : el,
+			_elStyle: style,
 			handleEvent(e) {
 				switch(e.type) {
 				case 'mousedown':
@@ -9500,8 +9498,8 @@ function* getFormElements(form, submitter) {
 					yield {
 						name,
 						type,
-						el    : field,
-						value : new File([img.data], img.name, { type: img.type })
+						el   : field,
+						value: new File([img.data], img.name, { type: img.type })
 					};
 				} else {
 					yield aib.getEmptyFile(field, fixName(name));
@@ -9518,10 +9516,10 @@ function* getFormElements(form, submitter) {
 		const dirname = field.getAttribute('dirname');
 		if(dirname) {
 			yield {
-				el    : field,
-				name  : fixName(dirname),
-				type  : 'direction',
-				value : nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr'
+				el   : field,
+				name : fixName(dirname),
+				type : 'direction',
+				value: nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr'
 			};
 		}
 	}
@@ -10676,7 +10674,7 @@ class AbstractPost {
 					el.isNotRefLink = true;
 					return;
 				}
-				// Donʼt use classList here, 'de-link-postref ' should be first
+				// Don't use classList here, 'de-link-postref ' should be first
 				el.className = 'de-link-postref ' + el.className;
 				/* falls through */
 			case 'de-link-backref':
@@ -10761,7 +10759,7 @@ class AbstractPost {
 				el.isNotRefLink = true;
 				return;
 			}
-			// Donʼt use classList here, 'de-link-postref ' should be first
+			// Don't use classList here, 'de-link-postref ' should be first
 			el.className = 'de-link-postref ' + el.className;
 			/* falls through */
 		case 'de-link-backref':
@@ -10799,8 +10797,8 @@ class AbstractPost {
 		}
 		this.msg.replaceWith(newMsg);
 		Object.defineProperties(this, {
-			msg   : { configurable: true, value: newMsg },
-			trunc : { configurable: true, value: null }
+			msg  : { configurable: true, value: newMsg },
+			trunc: { configurable: true, value: null }
 		});
 		Post.Content.removeTempData(this);
 		if(Cfg.embedYTube) {
@@ -11284,11 +11282,11 @@ class Post extends AbstractPost {
 				}
 			}
 			sendStorageEvent('__de-post', {
-				hide   : isHide,
-				brd    : aib.b,
+				hide  : isHide,
+				brd   : aib.b,
 				num,
-				thrNum : this.thr.num,
-				title  : this.isOp ? this.title : ''
+				thrNum: this.thr.num,
+				title : this.isOp ? this.title : ''
 			});
 		}
 		this.ref.toggleRef(isHide, false);
@@ -11539,8 +11537,8 @@ Post.sizing = {
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
-			wHeight : { writable: true, configurable: true, value },
-			wWidth  : { writable: true, configurable: true, value: nav.viewportWidth() }
+			wHeight: { writable: true, configurable: true, value },
+			wWidth : { writable: true, configurable: true, value: nav.viewportWidth() }
 		});
 		return value;
 	},
@@ -11551,8 +11549,8 @@ Post.sizing = {
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
-			wHeight : { writable: true, configurable: true, value: nav.viewportHeight() },
-			wWidth  : { writable: true, configurable: true, value }
+			wHeight: { writable: true, configurable: true, value: nav.viewportHeight() },
+			wWidth : { writable: true, configurable: true, value }
 		});
 		return value;
 	},
@@ -12156,8 +12154,9 @@ class ImagesViewer {
 	handleEvent(e) {
 		switch(e.type) {
 		case 'click': {
-			// If click on image/video then close ImagesViewer
-			if(!nav.isMobile && !nav.isWebkit && this.data.isVideo && ExpandableImage.isControlClick(e)) {
+			// Close ImagesViewer when clicking on image/video.
+			// NOTE: There is a close button in Chrome Mobile, don't need to check the controls area.
+			if(this.data.isVideo && !(nav.isMobile && nav.isWebkit) && ExpandableImage.isControlClick(e)) {
 				return;
 			}
 			const tag = e.target.tagName.toLowerCase();
@@ -12733,6 +12732,7 @@ class ExpandableImage {
 		const title = hasTitle ? this.el.getAttribute('de-metatitle') : '';
 		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>${
 			nav.firefoxVer >= 59 || nav.isMobile ? `<div class="de-fullimg-video-hack">${
+				// XXX: Videos won't close in Chrome Mobile. Create a close button.
 				nav.isMobile && nav.isWebkit ? '\u00D7' : ''
 			}</div>` : '' }
 			<video src="${ src }" ` +
@@ -12956,8 +12956,8 @@ class AttachedImage extends ExpandableImage {
 		return null;
 	}
 	_getImageSrc() {
-		// Donʼt use aib.getImgSrcLink(this.el).href
-		// If #ihash spells enabled, Chrome reads href in ajaxed posts as empty -> image canʼt be expanded!
+		// Don't use aib.getImgSrcLink(this.el).href
+		// If #ihash spells enabled, Chrome reads href in ajaxed posts as empty -> image can't be expanded!
 		return aib.getImgSrcLink(this.el).getAttribute('href');
 	}
 }
@@ -13264,8 +13264,8 @@ class _4chanPostsBuilder {
 		const decodedName = name.replaceAll('&amp;', '&').replaceAll('&quot;', '"').replaceAll('&#039;', '\'')
 			.replaceAll('&lt;', '<').replaceAll('&gt;', '>');
 		return decodedName.length <= maxLength ? { isFixed: false, name } : {
-			isFixed : true,
-			name    : decodedName.slice(0, 25).replaceAll('&', '&amp;').replaceAll('"', '&quot;')
+			isFixed: true,
+			name   : decodedName.slice(0, 25).replaceAll('&', '&amp;').replaceAll('"', '&quot;')
 				.replaceAll('\'', '&#039;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
 		};
 	}
@@ -13348,12 +13348,11 @@ class _4chanPostsBuilder {
 		case 'manager': ccBy = 'Managers'; break;
 		case 'founder': ccBy = 'Founder';
 		}
-		let ccName = '';
 		let ccText = '';
 		let ccImg = '';
 		let ccClass = '';
 		if(cc) {
-			ccName = cc[0].toUpperCase() + cc.slice(1);
+			const ccName = cc[0].toUpperCase() + cc.slice(1);
 			ccText = `<strong class="capcode hand id_${ cc === 'founder' ? 'admin' : cc }` +
 				`" title="Highlight posts by ${ ccBy }">## ${ ccName }</strong>`;
 			ccImg = `<img src="${ _icon(cc + 'icon') }" alt="${
@@ -13506,12 +13505,12 @@ class MakabaPostsBuilder {
 			`<a href="${ data.email }" class="post__email">${ data.name }</a>` :
 			`<span class="post__anon">${ data.name }</span>`;
 		const tripEl = !data.trip ? '' : `<span class="${ _switch(data.trip, {
-			'!!%adm%!!'        : 'post__adm">## Abu ##',
-			'!!%mod%!!'        : 'post__mod">## Mod ##',
-			'!!%Inquisitor%!!' : 'post__inquisitor">## Applejack ##',
-			'!!%coder%!!'      : 'post__mod">## Кодер ##',
-			'!!%curunir%!!'    : 'post__mod">## Curunir ##',
-			'@@default'        : `${ data.trip_style ? data.trip_style : 'post__trip' }">` + data.trip
+			'!!%adm%!!'       : 'post__adm">## Abu ##',
+			'!!%mod%!!'       : 'post__mod">## Mod ##',
+			'!!%Inquisitor%!!': 'post__inquisitor">## Applejack ##',
+			'!!%coder%!!'     : 'post__mod">## Кодер ##',
+			'!!%curunir%!!'   : 'post__mod">## Curunir ##',
+			'@@default'       : `${ data.trip_style ? data.trip_style : 'post__trip' }">` + data.trip
 		}) }</span>`;
 		const refHref = `/${ board }/res/${ parseInt(data.parent) || num }.html#${ num }`;
 		let rate = '';
@@ -13575,9 +13574,9 @@ class MakabaPostsBuilder {
 			.replace(/<\/script>/ig, '</textarea>-->');
 		return `<article id="m${ data.num }" class="post__message">` +
 			`${ comment }${ _switch(data.banned, {
-				1           : '<br><span class="post__pomyanem">(Автор этого поста был забанен.)</span>',
-				2           : '<br><span class="post__pomyanem">(Автор этого поста был предупрежден.)</span>',
-				'@@default' : ''
+				1          : '<br><span class="post__pomyanem">(Автор этого поста был забанен.)</span>',
+				2          : '<br><span class="post__pomyanem">(Автор этого поста был предупрежден.)</span>',
+				'@@default': ''
 			}) }</article>`;
 	}
 }
@@ -14412,11 +14411,11 @@ const thrNavPanel = {
 		}
 	},
 
-	_currentThr : null,
-	_el         : null,
-	_toggleTO   : null,
-	_thrs       : null,
-	_visible    : false,
+	_currentThr: null,
+	_el        : null,
+	_toggleTO  : null,
+	_thrs      : null,
+	_visible   : false,
 	_checkThreads() {
 		const el = this._findCurrentThread();
 		if(el) {
@@ -14431,7 +14430,7 @@ const thrNavPanel = {
 	_expandCollapse(isExpand, targetEl) {
 		if(!$contains(this._el, targetEl)) {
 			clearTimeout(this._toggleTO);
-			this._toggleTO =setTimeout(() => this._el.classList.toggle('de-thr-navpanel-hidden', !isExpand),
+			this._toggleTO = setTimeout(() => this._el.classList.toggle('de-thr-navpanel-hidden', !isExpand),
 				Cfg.linksOver);
 		}
 	},
@@ -14488,8 +14487,8 @@ function initThreadUpdater(title, enableUpdate) {
 	const storageName = `de-last-postscount-${ aib.b }-${ aib.t }`;
 
 	const audio = {
-		enabled  : false,
-		repeatMS : 0,
+		enabled : false,
+		repeatMS: 0,
 		disableAudio() {
 			this.stopAudio();
 			this.enabled = false;
@@ -14559,9 +14558,9 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 
-		_countingTO : null,
-		_countingIV : null,
-		_enabled    : false,
+		_countingTO: null,
+		_countingIV: null,
+		_enabled   : false,
 		get _el() {
 			const value = $id('de-updater-count');
 			Object.defineProperty(this, '_el', { value });
@@ -14647,24 +14646,24 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 
-		_blinkInterv : null,
-		_blinkMS     : 800,
-		_currentIcon : null,
-		_emptyIcon   : 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
-		_getIconNew  : () => null,
-		_getIconYou  : () => null,
-		_hasIcons    : false,
-		_iconError   : null,
-		_iconsNew    : [],
-		_iconsYou    : [],
-		_isInited    : false,
-		_isOrigIcon  : true,
+		_blinkInterv: null,
+		_blinkMS    : 800,
+		_currentIcon: null,
+		_emptyIcon  : 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
+		_getIconNew : () => null,
+		_getIconYou : () => null,
+		_hasIcons   : false,
+		_iconError  : null,
+		_iconsNew   : [],
+		_iconsYou   : [],
+		_isInited   : false,
+		_isOrigIcon : true,
 		get _iconEl() {
 			const el = $q('link[rel="shortcut icon"]', doc.head) ||
 				$bEnd(doc.head, '<link href="/favicon.ico" rel="shortcut icon"/>');
 			Object.defineProperties(this, {
-				_iconEl      : { value: el, writable: true },
-				originalIcon : { value: el.href }
+				_iconEl     : { value: el, writable: true },
+				originalIcon: { value: el.href }
 			});
 			return el;
 		},
@@ -14769,9 +14768,9 @@ function initThreadUpdater(title, enableUpdate) {
 				Lng.newPost[lang][lngQuantity(newPosts)] }. ${
 				toYou ? `${ toYou } ${ Lng.youReplies[lang][lngQuantity(toYou)] }.` : '' }`,
 			{
-				body : Lng.latestPost[lang] + ':\n' + post.text.substring(0, 250).replace(/\s+/g, ' '),
-				icon : post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon,
-				tag  : aib.domain + aib.b + aib.t
+				body: Lng.latestPost[lang] + ':\n' + post.text.substring(0, 250).replace(/\s+/g, ' '),
+				icon: post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon,
+				tag : aib.domain + aib.b + aib.t
 			});
 			notif.onshow = () => setTimeout(() => notif === this._notifEl && this.closeNotif(), 12e3);
 			notif.onclick = () => deWindow.focus();
@@ -14782,8 +14781,8 @@ function initThreadUpdater(title, enableUpdate) {
 			this._notifEl = notif;
 		},
 
-		_granted : true,
-		_notifEl : null,
+		_granted: true,
+		_notifEl: null,
 		_requestPermission() {
 			this._granted = false;
 			Notification.requestPermission(async state => {
@@ -14823,12 +14822,12 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 
-		_delay       : 0,
-		_initDelay   : 0,
-		_loadOnce    : false,
-		_loadPromise : null,
-		_seconds     : 0,
-		_state       : -1,
+		_delay      : 0,
+		_initDelay  : 0,
+		_loadOnce   : false,
+		_loadPromise: null,
+		_seconds    : 0,
+		_state      : -1,
 		get _panelButton() {
 			const value = $q('button[id^="de-panel-upd"]');
 			if(value) {
@@ -15223,61 +15222,51 @@ DelForm.tNums = new Set();
                                       BROWSER DETECTORS AND DEPENDENCIES
 =========================================================================================================== */
 
-function checkStorage() {
-	try {
-		locStorage = deWindow.localStorage;
-		sesStorage = deWindow.sessionStorage;
-		sesStorage['de-test'] = 1;
-	} catch(err) {
-		if(typeof unsafeWindow !== 'undefined') {
-			locStorage = unsafeWindow.localStorage;
-			sesStorage = unsafeWindow.sessionStorage;
-		}
-	}
-	if(!(locStorage && (typeof locStorage === 'object') && sesStorage)) {
-		console.error('Webstorage error: please, enable webstorage!');
-		return false;
-	}
-	return true;
-}
-
 // Browser identification and browser-specific hacks
-function initNavFuncs() {
-	const ua = navigator.userAgent;
-	const isFirefox = ua.includes('Gecko/');
-	const isWebkit = ua.includes('WebKit/');
-	const isChrome = isWebkit && ua.includes('Chrome/');
+function initBrowser() {
+	locStorage = deWindow.localStorage;
+	sesStorage = deWindow.sessionStorage;
+	const { userAgent } = navigator;
+	const isFirefox = userAgent.includes('Gecko/');
+	const isWebkit = userAgent.includes('WebKit/');
+	const isChrome = isWebkit && userAgent.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
-	const canUseFetch = 'AbortController' in deWindow; // Firefox 57+, Chrome 66+, Safari 11.1+
-	const hasNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
-	let hasGMXHR, hasOldGM, hasWebStorage, scriptHandler;
+
+	// Dollchan installation detection (userscript manager / webextension / in-page)
+	let scriptHandler;
+	let isInPage = false;
+	let isWebExtension = false;
+	let hasGMXHR = false;
+	let hasOldGM = false;
+	let hasWebStorage = false;
+	const hasNewGM = typeof GM !== 'undefined';
 	if(hasNewGM) {
-		const inf = GM.info;
-		const handlerName = inf ? inf.scriptHandler : '';
+		const handlerName = GM.info?.scriptHandler;
 		if(handlerName === 'FireMonkey') {
-			hasGMXHR = false;
 			hasOldGM = true;
 		} else {
 			hasGMXHR = typeof GM.xmlHttpRequest === 'function';
-			hasOldGM = false;
 		}
-		hasWebStorage = false;
-		scriptHandler = inf ? handlerName + ' ' + inf.version : 'Greasemonkey';
-	} else {
-		hasGMXHR = typeof GM_xmlhttpRequest === 'function';
-		try {
-			hasOldGM = (typeof GM_setValue === 'function') &&
-				(!isChrome || !GM_setValue.toString().includes('not supported'));
-		} catch(err) {
-			hasOldGM = err.message === 'Permission denied to access property "toString"'; // Chrome
-		}
-		hasWebStorage = !hasOldGM && (isFirefox || ('chrome' in deWindow)) &&
-			(typeof chrome === 'object') && !!chrome && !!chrome.storage;
-		scriptHandler = hasWebStorage ? 'WebExtension' :
-			typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' :
-			GM_info.scriptHandler ? `${ GM_info.scriptHandler } ${ GM_info.version }` :
+		scriptHandler = handlerName ? handlerName + ' ' + GM.info.version :
 			isFirefox ? 'Greasemonkey' : 'Unknown';
+	} else if(typeof GM_info !== 'undefined') {
+		const handlerName = GM_info?.scriptHandler;
+		hasGMXHR = typeof GM_xmlhttpRequest === 'function';
+		scriptHandler = handlerName ? handlerName + ' ' + GM_info.version :
+			isFirefox ? 'Greasemonkey' : 'Unknown';
+	} else {
+		hasWebStorage = (isFirefox || ('chrome' in deWindow)) &&
+			(typeof chrome === 'object') && !!chrome && !!chrome.storage;
+		if(hasWebStorage) {
+			isWebExtension = true;
+			scriptHandler = 'WebExtension';
+		} else {
+			isInPage = true;
+			scriptHandler = 'In-page';
+		}
 	}
+
+	// XXX: Firefox < 39, Chrome < 50, Safari < 11 - FormData hack
 	let needFileHack = false;
 	try {
 		new File([''], '');
@@ -15287,7 +15276,7 @@ function initNavFuncs() {
 	} catch(err) {
 		needFileHack = true;
 	}
-	if(needFileHack && FormData) { // XXX: Firefox < 39, Chrome < 50, Safari < 11 - FormData hack
+	if(needFileHack && FormData) {
 		const OrigFormData = FormData;
 		const origAppend = FormData.prototype.append;
 		FormData = function FormData(form) {
@@ -15306,25 +15295,28 @@ function initNavFuncs() {
 			return rv;
 		};
 	}
-	nav = {
-		canUseFetch,
-		canUseNativeXHR  : true,
-		firefoxVer       : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
-		hasGlobalStorage : hasOldGM || hasNewGM || hasWebStorage,
+
+	return {
+		canUseFetch     : 'AbortController' in deWindow, // Firefox 57+, Chrome 66+, Safari 11.1+,
+		canUseNativeXHR : true,
+		firefoxVer      : isFirefox ? +(userAgent.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
+		hasGlobalStorage: hasOldGM || hasNewGM || hasWebStorage,
 		hasGMXHR,
 		hasNewGM,
 		hasOldGM,
 		hasWebStorage,
-		isESNext         : typeof deMainFuncOuter === 'undefined',
+		isESNext        : typeof deMainFuncOuter === 'undefined',
 		isFirefox,
-		isMsEdge         : ua.includes('Edge/'),
-		isMobile         : /Android|iPhone/i.test(ua),
+		isInPage,
+		isMsEdge        : userAgent.includes('Edge/'),
+		isMobile        : /Android|iPhone/i.test(userAgent),
 		isSafari,
-		isTampermonkey   : scriptHandler.startsWith('Tampermonkey'),
-		isViolentmonkey  : scriptHandler.startsWith('Violentmonkey'),
+		isTampermonkey  : scriptHandler.startsWith('Tampermonkey'),
+		isViolentmonkey : scriptHandler.startsWith('Violentmonkey'),
+		isWebExtension,
 		isWebkit,
 		scriptHandler,
-		ua               : ua + (isFirefox ? ` [${ navigator.buildID }]` : ''),
+		userAgent       : userAgent + (isFirefox ? ` [${ navigator.buildID }]` : ''),
 
 		get canPlayMP3() {
 			const value = !!new Audio().canPlayType('audio/mpeg;');
@@ -15349,8 +15341,7 @@ function initNavFuncs() {
 		},
 		get matchesSelector() {
 			const dE = doc.documentElement;
-			const func = dE.matches || dE.mozMatchesSelector ||
-				dE.webkitMatchesSelector || dE.oMatchesSelector;
+			const func = dE.matches || dE.mozMatchesSelector || dE.webkitMatchesSelector;
 			const value = (el, sel) => func.call(el, sel);
 			Object.defineProperty(this, 'matchesSelector', { value });
 			return value;
@@ -15367,8 +15358,8 @@ function initNavFuncs() {
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
 		},
-		// XXX: Firefox + old Greasemonkey - hack to prevent
-		//    'Accessing TypedArray data over Xrays is slow, and forbidden' errors
+		// XXX: Firefox + old Greasemonkey
+		// Hack to prevent 'Accessing TypedArray data over Xrays is slow, and forbidden' errors
 		unsafeUint8Array(data, i, len) {
 			let Ctor = Uint8Array;
 			if(this.isFirefox && (this.hasOldGM || this.isTampermonkey)) {
@@ -15387,7 +15378,8 @@ function initNavFuncs() {
 			}
 			throw new Error();
 		},
-		unsafeDataView(data, offset = 0) { // XXX: Firefox + old Greasemonkey
+		// XXX: Firefox + old Greasemonkey
+		unsafeDataView(data, offset = 0) {
 			const value = new DataView(data, offset);
 			return this.isFirefox && this.hasOldGM && !(value instanceof DataView) ?
 				new unsafeWindow.DataView(data, offset) : value;
@@ -16130,8 +16122,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getSubmitData({ status, data }) {
 			return {
-				error   : status === 'error' ? data : null,
-				postNum : status === 'ok' ? +data : null
+				error  : status === 'error' ? data : null,
+				postNum: status === 'ok' ? +data : null
 			};
 		}
 		getTNum(thr) {
@@ -16206,21 +16198,21 @@ function getImageBoard(checkDomains, checkEngines) {
 						dataObj.files.push({
 							content: `data:${ file.type };base64,${
 								await getBase64(file).then(data => data.split(',')[1]) }`,
-							name    : file.name,
-							spoiler : false
+							name   : file.name,
+							spoiler: false
 						});
 					}
 				}
 				const cookieObj = getCookies();
 				ajaxParams = {
 					data: JSON.stringify({
-						captchaId  : cookieObj.captchaid,
-						bypassId   : cookieObj.bypass,
-						parameters : dataObj,
-						auth       : { login: cookieObj.login, hash: cookieObj.hash }
+						captchaId : cookieObj.captchaid,
+						bypassId  : cookieObj.bypass,
+						parameters: dataObj,
+						auth      : { login: cookieObj.login, hash: cookieObj.hash }
 					}),
-					headers : { 'Content-Type': 'application/x-www-form-urlencoded' },
-					method  : 'POST'
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+					method : 'POST'
 				};
 			}
 			if(needProgress && hasFiles) {
@@ -16411,11 +16403,11 @@ function getImageBoard(checkDomains, checkEngines) {
 				closePopup('edit-report');
 				$popup('report', Lng.sending[lang], true);
 				$ajax('/user/report', {
-					method      : 'POST',
-					data        : formData,
+					method     : 'POST',
+					data       : formData,
 					success() {},
-					contentType : false,
-					processData : false
+					contentType: false,
+					processData: false
 				}).then(xhr => {
 					let obj;
 					try {
@@ -16729,8 +16721,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getSubmitData(json) {
 			return {
-				error   : json.message ? json.message_title + ': ' + json.message : null,
-				postNum : json.num ? +json.num : null
+				error  : json.message ? json.message_title + ': ' + json.message : null,
+				postNum: json.num ? +json.num : null
 			};
 		}
 		init() {
@@ -17168,8 +17160,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSubmitData(jsonString) {
 			const { status, data } = JSON.parse(jsonString);
 			return {
-				error   : status === 'error' ? data : null,
-				postNum : status === 'ok' ? +data : null
+				error  : status === 'error' ? data : null,
+				postNum: status === 'ok' ? +data : null
 			};
 		}
 		init() {
@@ -17726,7 +17718,7 @@ const DollchanAPI = {
 async function checkForUpdates(isManual, lastUpdateTime) {
 	if(!isManual) {
 		if(Date.now() - +lastUpdateTime < [0, 1, 2, 7, 14, 30][Cfg.updDollchan] * 1e3 * 60 * 60 * 24) {
-			throw new Error('Itʼs not time for an update yet');
+			throw new Error('It\'s not time for an update yet');
 		}
 	}
 	let responseText;
@@ -17737,13 +17729,13 @@ async function checkForUpdates(isManual, lastUpdateTime) {
 		if(isManual) {
 			return `<div style="color: red; font-weigth: bold;">${ Lng.noConnect[lang] }</div>`;
 		} else {
-			throw new Error(Lng.noConnect[lang]);
+			throw new Error(Lng.noConnect[lang], { cause: err });
 		}
 	}
 	const v = responseText.match(/const version = '([0-9.]+)';/);
 	const remoteVer = v?.[1]?.split('.');
 	if(!remoteVer) {
-		throw new Error('Canʼt get remote version');
+		throw new Error('Can\'t get remote version');
 	}
 	const currentVer = version.split('.');
 	const src = `${ gitRaw }${
@@ -18338,6 +18330,7 @@ function scriptCSS() {
 	.de-fullimg-rotated + .de-fullimg-info { position: absolute; bottom: 0; }
 	.de-fullimg-scale { color: #fff; font: bold 12px tahoma; cursor: default; }
 	.de-fullimg-video-hack { position: absolute; ${ nav.isMobile && nav.isWebkit ?
+		// XXX: Videos won't close in Chrome Mobile. Create a close button.
 		'display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; top: 0; right: 0; color: #fff; font-size: 2em;' :
 		'width: 100%; height: calc(100% - 40px);'
 	} z-index: 1; cursor: pointer; }
@@ -18571,21 +18564,11 @@ function updateCSS() {
                                                      MAIN
 =========================================================================================================== */
 
+// XXX: Greasemonkey/Firemonkey hack to run in all frames
 function runFrames() {
-	let inf;
-	if(typeof GM !== 'undefined') {
-		inf = GM.info;
-	} else {
-		if(typeof GM_info === 'undefined') {
-			return;
-		}
-		inf = GM_info;
-	}
-	if(!inf) {
-		return;
-	}
-	const handlerName = inf.scriptHandler;
-	if(handlerName !== 'Greasemonkey' && handlerName !== 'FireMonkey' || !deWindow.frames[0]) {
+	if(!deWindow.frames[0] ||
+		!(nav.scriptHandler.startsWith('Greasemonkey') || nav.scriptHandler.startsWith('FireMonkey'))
+	) {
 		return;
 	}
 	const deMainFuncFrame = frameEl => {
@@ -18620,28 +18603,25 @@ async function runMain(checkDomains, dataPromise) {
 	if(!doc.body || !aib && !(aib = getImageBoard(checkDomains, true))) {
 		return;
 	}
+	if(!locStorage) {
+		nav = initBrowser();
+	}
 	let formEl = $q(aib.qDelForm + ', [de-form]');
 	if(!formEl) {
 		runFrames();
 		return;
 	}
-	if(doc.body.classList.contains('de-runned') ||
-		aib.observeContent && !aib.observeContent(checkDomains, dataPromise)
+	if(doc.body.classList.contains('de-runned-userscript') ||
+		aib.observeContent?.(checkDomains, dataPromise) === false
 	) {
 		return;
 	}
 	Logger.log('Imageboard check');
-	if(!locStorage) {
-		if(!checkStorage()) {
-			return;
-		}
-		initNavFuncs();
-	}
 	const [favObj] = await (dataPromise || Promise.all([readFavorites(), readCfg()]));
-	if(!Cfg.disabled && aib.init?.() || !localData && doc.body.classList.contains('de-mode-local')) {
+	if(!Cfg.disabled && aib.init?.() || !localData && doc.body.classList.contains('de-runned-local')) {
 		return;
 	}
-	doc.body.classList.add('de-runned');
+	doc.body.classList.add(nav.isInPage ? 'de-runned-inpage' : 'de-runned-userscript');
 	Logger.log('Storage loading');
 	addSVGIcons();
 	if(Cfg.disabled) {
@@ -18740,9 +18720,6 @@ async function runMain(checkDomains, dataPromise) {
 }
 
 function initMain() {
-	if(window.name === 'de-prohibited') {
-		return;
-	}
 	if(doc.readyState !== 'loading') {
 		needScroll = false;
 		runMain(true, null);
@@ -18750,10 +18727,7 @@ function initMain() {
 	}
 	let dataPromise = null;
 	if((aib = getImageBoard(true, false))) {
-		if(!checkStorage()) {
-			return;
-		}
-		initNavFuncs();
+		nav = initBrowser();
 		dataPromise = Promise.all([readFavorites(), readCfg()]);
 	}
 	needScroll = true;

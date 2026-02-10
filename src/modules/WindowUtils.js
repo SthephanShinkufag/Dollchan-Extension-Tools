@@ -11,13 +11,13 @@ function updateWinZ(winEl) {
 
 function makeDraggable(name, winEl, headEl) {
 	headEl.addEventListener('mousedown', {
-		_oldX   : 0,
-		_oldY   : 0,
-		_win    : winEl,
-		_wStyle : winEl.style,
-		_X      : 0,
-		_Y      : 0,
-		_Z      : 0,
+		_oldX  : 0,
+		_oldY  : 0,
+		_win   : winEl,
+		_wStyle: winEl.style,
+		_X     : 0,
+		_Y     : 0,
+		_Z     : 0,
 		async handleEvent(e) {
 			if(!Cfg[name + 'WinDrag']) {
 				return;

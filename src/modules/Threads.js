@@ -619,11 +619,11 @@ const thrNavPanel = {
 		}
 	},
 
-	_currentThr : null,
-	_el         : null,
-	_toggleTO   : null,
-	_thrs       : null,
-	_visible    : false,
+	_currentThr: null,
+	_el        : null,
+	_toggleTO  : null,
+	_thrs      : null,
+	_visible   : false,
 	_checkThreads() {
 		const el = this._findCurrentThread();
 		if(el) {
@@ -638,7 +638,7 @@ const thrNavPanel = {
 	_expandCollapse(isExpand, targetEl) {
 		if(!$contains(this._el, targetEl)) {
 			clearTimeout(this._toggleTO);
-			this._toggleTO =setTimeout(() => this._el.classList.toggle('de-thr-navpanel-hidden', !isExpand),
+			this._toggleTO = setTimeout(() => this._el.classList.toggle('de-thr-navpanel-hidden', !isExpand),
 				Cfg.linksOver);
 		}
 	},

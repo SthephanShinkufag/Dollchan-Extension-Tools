@@ -124,9 +124,9 @@ const Pages = {
 		}
 	},
 
-	_addingPromise : null,
-	_isAdding      : false,
-	_scrollY       : 0,
+	_addingPromise: null,
+	_isAdding     : false,
+	_scrollY      : 0,
 	_addForm(formEl, pageNum) {
 		formEl = doc.adoptNode(formEl);
 		$hide(formEl = aib.fixHTML(formEl));

@@ -2,21 +2,11 @@
                                                      MAIN
 =========================================================================================================== */
 
+// XXX: Greasemonkey/Firemonkey hack to run in all frames
 function runFrames() {
-	let inf;
-	if(typeof GM !== 'undefined') {
-		inf = GM.info;
-	} else {
-		if(typeof GM_info === 'undefined') {
-			return;
-		}
-		inf = GM_info;
-	}
-	if(!inf) {
-		return;
-	}
-	const handlerName = inf.scriptHandler;
-	if(handlerName !== 'Greasemonkey' && handlerName !== 'FireMonkey' || !deWindow.frames[0]) {
+	if(!deWindow.frames[0] ||
+		!(nav.scriptHandler.startsWith('Greasemonkey') || nav.scriptHandler.startsWith('FireMonkey'))
+	) {
 		return;
 	}
 	const deMainFuncFrame = frameEl => {
@@ -51,28 +41,25 @@ async function runMain(checkDomains, dataPromise) {
 	if(!doc.body || !aib && !(aib = getImageBoard(checkDomains, true))) {
 		return;
 	}
+	if(!locStorage) {
+		nav = initBrowser();
+	}
 	let formEl = $q(aib.qDelForm + ', [de-form]');
 	if(!formEl) {
 		runFrames();
 		return;
 	}
-	if(doc.body.classList.contains('de-runned') ||
-		aib.observeContent && !aib.observeContent(checkDomains, dataPromise)
+	if(doc.body.classList.contains('de-runned-userscript') ||
+		aib.observeContent?.(checkDomains, dataPromise) === false
 	) {
 		return;
 	}
 	Logger.log('Imageboard check');
-	if(!locStorage) {
-		if(!checkStorage()) {
-			return;
-		}
-		initNavFuncs();
-	}
 	const [favObj] = await (dataPromise || Promise.all([readFavorites(), readCfg()]));
-	if(!Cfg.disabled && aib.init?.() || !localData && doc.body.classList.contains('de-mode-local')) {
+	if(!Cfg.disabled && aib.init?.() || !localData && doc.body.classList.contains('de-runned-local')) {
 		return;
 	}
-	doc.body.classList.add('de-runned');
+	doc.body.classList.add(nav.isInPage ? 'de-runned-inpage' : 'de-runned-userscript');
 	Logger.log('Storage loading');
 	addSVGIcons();
 	if(Cfg.disabled) {
@@ -171,9 +158,6 @@ async function runMain(checkDomains, dataPromise) {
 }
 
 function initMain() {
-	if(window.name === 'de-prohibited') {
-		return;
-	}
 	if(doc.readyState !== 'loading') {
 		needScroll = false;
 		runMain(true, null);
@@ -181,10 +165,7 @@ function initMain() {
 	}
 	let dataPromise = null;
 	if((aib = getImageBoard(true, false))) {
-		if(!checkStorage()) {
-			return;
-		}
-		initNavFuncs();
+		nav = initBrowser();
 		dataPromise = Promise.all([readFavorites(), readCfg()]);
 	}
 	needScroll = true;

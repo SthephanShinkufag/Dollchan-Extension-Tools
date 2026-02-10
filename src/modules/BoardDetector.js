@@ -348,8 +348,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getSubmitData({ status, data }) {
 			return {
-				error   : status === 'error' ? data : null,
-				postNum : status === 'ok' ? +data : null
+				error  : status === 'error' ? data : null,
+				postNum: status === 'ok' ? +data : null
 			};
 		}
 		getTNum(thr) {
@@ -424,21 +424,21 @@ function getImageBoard(checkDomains, checkEngines) {
 						dataObj.files.push({
 							content: `data:${ file.type };base64,${
 								await getBase64(file).then(data => data.split(',')[1]) }`,
-							name    : file.name,
-							spoiler : false
+							name   : file.name,
+							spoiler: false
 						});
 					}
 				}
 				const cookieObj = getCookies();
 				ajaxParams = {
 					data: JSON.stringify({
-						captchaId  : cookieObj.captchaid,
-						bypassId   : cookieObj.bypass,
-						parameters : dataObj,
-						auth       : { login: cookieObj.login, hash: cookieObj.hash }
+						captchaId : cookieObj.captchaid,
+						bypassId  : cookieObj.bypass,
+						parameters: dataObj,
+						auth      : { login: cookieObj.login, hash: cookieObj.hash }
 					}),
-					headers : { 'Content-Type': 'application/x-www-form-urlencoded' },
-					method  : 'POST'
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+					method : 'POST'
 				};
 			}
 			if(needProgress && hasFiles) {
@@ -629,11 +629,11 @@ function getImageBoard(checkDomains, checkEngines) {
 				closePopup('edit-report');
 				$popup('report', Lng.sending[lang], true);
 				$ajax('/user/report', {
-					method      : 'POST',
-					data        : formData,
+					method     : 'POST',
+					data       : formData,
 					success() {},
-					contentType : false,
-					processData : false
+					contentType: false,
+					processData: false
 				}).then(xhr => {
 					let obj;
 					try {
@@ -947,8 +947,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getSubmitData(json) {
 			return {
-				error   : json.message ? json.message_title + ': ' + json.message : null,
-				postNum : json.num ? +json.num : null
+				error  : json.message ? json.message_title + ': ' + json.message : null,
+				postNum: json.num ? +json.num : null
 			};
 		}
 		init() {
@@ -1386,8 +1386,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSubmitData(jsonString) {
 			const { status, data } = JSON.parse(jsonString);
 			return {
-				error   : status === 'error' ? data : null,
-				postNum : status === 'ok' ? +data : null
+				error  : status === 'error' ? data : null,
+				postNum: status === 'ok' ? +data : null
 			};
 		}
 		init() {

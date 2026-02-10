@@ -211,7 +211,7 @@ class AbstractPost {
 					el.isNotRefLink = true;
 					return;
 				}
-				// Donʼt use classList here, 'de-link-postref ' should be first
+				// Don't use classList here, 'de-link-postref ' should be first
 				el.className = 'de-link-postref ' + el.className;
 				/* falls through */
 			case 'de-link-backref':
@@ -296,7 +296,7 @@ class AbstractPost {
 				el.isNotRefLink = true;
 				return;
 			}
-			// Donʼt use classList here, 'de-link-postref ' should be first
+			// Don't use classList here, 'de-link-postref ' should be first
 			el.className = 'de-link-postref ' + el.className;
 			/* falls through */
 		case 'de-link-backref':
@@ -334,8 +334,8 @@ class AbstractPost {
 		}
 		this.msg.replaceWith(newMsg);
 		Object.defineProperties(this, {
-			msg   : { configurable: true, value: newMsg },
-			trunc : { configurable: true, value: null }
+			msg  : { configurable: true, value: newMsg },
+			trunc: { configurable: true, value: null }
 		});
 		Post.Content.removeTempData(this);
 		if(Cfg.embedYTube) {
@@ -819,11 +819,11 @@ class Post extends AbstractPost {
 				}
 			}
 			sendStorageEvent('__de-post', {
-				hide   : isHide,
-				brd    : aib.b,
+				hide  : isHide,
+				brd   : aib.b,
 				num,
-				thrNum : this.thr.num,
-				title  : this.isOp ? this.title : ''
+				thrNum: this.thr.num,
+				title : this.isOp ? this.title : ''
 			});
 		}
 		this.ref.toggleRef(isHide, false);
@@ -1074,8 +1074,8 @@ Post.sizing = {
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
-			wHeight : { writable: true, configurable: true, value },
-			wWidth  : { writable: true, configurable: true, value: nav.viewportWidth() }
+			wHeight: { writable: true, configurable: true, value },
+			wWidth : { writable: true, configurable: true, value: nav.viewportWidth() }
 		});
 		return value;
 	},
@@ -1086,8 +1086,8 @@ Post.sizing = {
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
-			wHeight : { writable: true, configurable: true, value: nav.viewportHeight() },
-			wWidth  : { writable: true, configurable: true, value }
+			wHeight: { writable: true, configurable: true, value: nav.viewportHeight() },
+			wWidth : { writable: true, configurable: true, value }
 		});
 		return value;
 	},

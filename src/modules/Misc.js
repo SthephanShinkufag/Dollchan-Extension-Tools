@@ -64,7 +64,7 @@ const DollchanAPI = {
 async function checkForUpdates(isManual, lastUpdateTime) {
 	if(!isManual) {
 		if(Date.now() - +lastUpdateTime < [0, 1, 2, 7, 14, 30][Cfg.updDollchan] * 1e3 * 60 * 60 * 24) {
-			throw new Error('Itʼs not time for an update yet');
+			throw new Error('It\'s not time for an update yet');
 		}
 	}
 	let responseText;
@@ -75,13 +75,13 @@ async function checkForUpdates(isManual, lastUpdateTime) {
 		if(isManual) {
 			return `<div style="color: red; font-weigth: bold;">${ Lng.noConnect[lang] }</div>`;
 		} else {
-			throw new Error(Lng.noConnect[lang]);
+			throw new Error(Lng.noConnect[lang], { cause: err });
 		}
 	}
 	const v = responseText.match(/const version = '([0-9.]+)';/);
 	const remoteVer = v?.[1]?.split('.');
 	if(!remoteVer) {
-		throw new Error('Canʼt get remote version');
+		throw new Error('Can\'t get remote version');
 	}
 	const currentVer = version.split('.');
 	const src = `${ gitRaw }${

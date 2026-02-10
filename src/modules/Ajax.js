@@ -60,14 +60,14 @@ function $ajax(url, params = null, isCORS = false) {
 		};
 		let loadTO = needTO && setTimeout(timeoutFn, WAITING_TIME);
 		const newParams = {
-			method : params?.method || 'GET',
-			url    : nav.isSafari ? aib.getAbsLink(url) : url,
+			method: params?.method || 'GET',
+			url   : nav.isSafari ? aib.getAbsLink(url) : url,
 			onreadystatechange(e) {
 				if(needTO) {
 					clearTimeout(loadTO);
 				}
 				if(e.readyState === 4 && !(
-					// Violentmonkey gives extra stage with undefined responseText and 200 status
+					// XXX: Violentmonkey gives extra stage with undefined responseText and 200 status
 					nav.isViolentmonkey && e.status === 200 &&
 					typeof e.responseText === 'undefined' && typeof e.response === 'undefined'
 				)) {
@@ -158,7 +158,7 @@ function $ajax(url, params = null, isCORS = false) {
 			return $ajax(url, params);
 		}
 	} else {
-		reject(new AjaxError(0, 'Ajax error: Canʼt send any type of request.'));
+		reject(new AjaxError(0, 'Ajax error: Can\'t send any type of request.'));
 	}
 	return new CancelablePromise((res, rej) => {
 		resolve = res;

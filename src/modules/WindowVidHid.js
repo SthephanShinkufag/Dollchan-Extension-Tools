@@ -10,7 +10,7 @@ function showVideosWindow(winBody) {
 	}
 	// <EXCLUDED_FROM_EXTENSION>
 	if(!$id('de-ytube-api')) {
-		// YouTube APT script. We canʼt insert scripts directly as html.
+		// YouTube APT script. We can't insert scripts directly as html.
 		const script = doc.createElement('script');
 		script.type = 'text/javascript';
 		script.src = aib.protocol + '//www.youtube.com/player_api';
@@ -73,10 +73,10 @@ function showVideosWindow(winBody) {
 	// Events for control buttons
 	winBody.addEventListener('click', {
 		linkList,
-		currentLink : null,
-		listHidden  : false,
-		player      : winBody.firstElementChild,
-		playerInfo  : null,
+		currentLink: null,
+		listHidden : false,
+		player     : winBody.firstElementChild,
+		playerInfo : null,
 		handleEvent(e) {
 			const el = e.target;
 			const { classList } = el;

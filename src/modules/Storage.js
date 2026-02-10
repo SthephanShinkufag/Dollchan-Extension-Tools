@@ -122,14 +122,14 @@ const CfgSaver = {
 			delete val[domain];
 		}
 		const rv = setStored('DESU_Config', JSON.stringify(val));
-		// Violentmonkey bug: GM.setValue promise is not fulfilled.
+		// XXX: Violentmonkey bug. GM.setValue promise is not fulfilled.
 		if(rv && !nav.isViolentmonkey) {
 			await rv;
 		}
 	},
 
-	_isBusy : false,
-	_queue  : []
+	_isBusy: false,
+	_queue : []
 };
 
 // Toggles a particular config option (1|0)
@@ -170,7 +170,7 @@ async function readCfg() {
 	if(!('Notification' in deWindow)) {
 		Cfg.desktNotif = 0;
 	}
-	if(nav.scriptHandler === 'WebExtension') {
+	if(nav.isWebExtension) {
 		Cfg.updDollchan = 0;
 	}
 	if(Cfg.updThrDelay < 10) {
