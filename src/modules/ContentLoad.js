@@ -4,9 +4,9 @@
 =========================================================================================================== */
 
 const ContentLoader = {
-	afterFn   : null,
-	isLoading : false,
-	popupId   : null,
+	afterFn  : null,
+	isLoading: false,
+	popupId  : null,
 	downloadThread(imgOnly) {
 		let progress, counter;
 		let current = 1;
@@ -52,9 +52,9 @@ const ContentLoader = {
 			if(!imgOnly) {
 				$q('head', dc).insertAdjacentHTML('beforeend',
 					'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
-				const dcBody = $q('body', dc);
-				dcBody.classList.remove('de-runned');
-				dcBody.classList.add('de-mode-local');
+				const docBody = $q('body', dc);
+				docBody.classList.remove('de-runned-inpage', 'de-runned-userscript');
+				docBody.classList.add('de-runned-local');
 				$delAll('#de-css, #de-css-dynamic, #de-css-user', dc);
 				tar.addString('data/dollscript.js', `${ nav.isESNext ?
 					`(${ String(deMainFuncInner) })(window, null, (x, y) => window.scrollTo(x, y), ` :
@@ -245,8 +245,8 @@ const ContentLoader = {
 		}
 	},
 
-	_canvas  : null,
-	_thrPool : null,
+	_canvas : null,
+	_thrPool: null,
 	_addImgFileIcon(nameLink, fName, info) {
 		const { type } = info;
 		if(typeof type === 'undefined') {

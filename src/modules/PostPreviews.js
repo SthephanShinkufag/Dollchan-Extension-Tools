@@ -44,7 +44,7 @@ class Pview extends AbstractPost {
 		return Pview.top ? Pview.top.parent : null;
 	}
 	static showPview(parent, link) {
-		const tNum = +link.pathname.match(/.+?\/[^\d]*(\d+)/)?.[1] || aib.getPostOfEl(link).tNum;
+		const tNum = +link.pathname.match(/.+?\/[^\d]*(\d+)[^\d]/)?.[1] || aib.getPostOfEl(link).tNum;
 		const pNum = +link.textContent.match(/\d+/g)?.[0] || tNum;
 		const isTop = !(parent instanceof Pview);
 		let pv = isTop ? Pview.top : parent.kid;
@@ -176,7 +176,7 @@ class Pview extends AbstractPost {
 			case 'mouseout': break;
 			default: break checkMouse;
 			}
-			const el = nav.fixEventEl(e.relatedTarget);
+			const el = e.relatedTarget;
 			if(!el ||
 				isOverEvent && (el.tagName.toLowerCase() !== 'a' || el.isNotRefLink) ||
 				el !== this.el && !this.el.contains(el)

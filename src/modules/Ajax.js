@@ -99,7 +99,7 @@ function $ajax(url, params = null, isCORS = false) {
 			return $ajax(url, params);
 		}
 	} else {
-		reject(new AjaxError(0, 'Ajax error: Canʼt send any type of request.'));
+		reject(new AjaxError(0, 'Ajax error: Can\'t send any type of request.'));
 	}
 	return new CancelablePromise((res, rej) => {
 		resolve = res;

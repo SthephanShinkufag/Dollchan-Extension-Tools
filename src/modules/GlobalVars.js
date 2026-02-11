@@ -1,7 +1,5 @@
 /* ==[ GlobalVars.js ]== */
 
-/* global unsafeWindow */
-
 const doc = deWindow.document;
 const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
 const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';

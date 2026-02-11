@@ -64,6 +64,7 @@ function $button(value, title, fn, className = 'de-button') {
 
 function $css(text) {
 	return $bEnd(doc.head, `<style type="text/css">${
+		// XXX: Old Safari hack for unsupported style properties.
 		nav.isSafari && !('flex' in doc.body.style) ?
 			text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1') : text
 	}</style>`);
@@ -283,8 +284,8 @@ const Logger = {
 		}
 	},
 
-	_finished : false,
-	_marks    : []
+	_finished: false,
+	_marks   : []
 };
 
 // Some async operations should be cancelable, to ignore all the chaining callbacks of promises.

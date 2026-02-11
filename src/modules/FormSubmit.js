@@ -194,8 +194,8 @@ function* getFormElements(form, submitter) {
 					yield {
 						name,
 						type,
-						el    : field,
-						value : new File([img.data], img.name, { type: img.type })
+						el   : field,
+						value: new File([img.data], img.name, { type: img.type })
 					};
 				} else {
 					yield aib.getEmptyFile(field, fixName(name));
@@ -212,10 +212,10 @@ function* getFormElements(form, submitter) {
 		const dirname = field.getAttribute('dirname');
 		if(dirname) {
 			yield {
-				el    : field,
-				name  : fixName(dirname),
-				type  : 'direction',
-				value : nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr'
+				el   : field,
+				name : fixName(dirname),
+				type : 'direction',
+				value: nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr'
 			};
 		}
 	}
@@ -391,11 +391,11 @@ function cleanFile(data, extraData) {
 	return null;
 }
 
-function readExif(data, off, len) {
+function readExif(data, offset, len) {
 	let xRes = 0;
 	let yRes = 0;
 	let resT = 0;
-	const dv = new DataView(data, off || 0);
+	const dv = new DataView(data, offset);
 	const le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
 	if(dv.getUint16(2, le) !== 0x2A) {
 		return null;

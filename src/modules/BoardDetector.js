@@ -68,7 +68,7 @@ function getImageBoard(checkDomains) {
 					(pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) +
 					`<div class="report-form"><input type="text" name="reason" value="" placeholder="${
 						Lng.reportReason[lang] }" style=" width: 300px;">` + captchaHTML + '</div>'));
-				if(recapEl && !isValidPasscode){
+				if(recapEl && !isValidPasscode) {
 					const script = doc.createElement('script');
 					script.type = 'text/javascript';
 					script.textContent = `grecaptcha.render('g-recaptcha2', {'sitekey': '${
@@ -100,11 +100,11 @@ function getImageBoard(checkDomains) {
 					const url = this.protocol + '//' + this.host + '/' + this.b +
 						'/imgboard.php?report&addreport&json=1';
 					$ajax(url, {
-						method      : 'POST',
-						data        : formData,
+						method     : 'POST',
+						data       : formData,
 						success() {},
-						contentType : false,
-						processData : false
+						contentType: false,
+						processData: false
 					}).then(xhr => {
 						let obj;
 						try {

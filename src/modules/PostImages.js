@@ -118,18 +118,21 @@ class ImagesViewer {
 	handleEvent(e) {
 		switch(e.type) {
 		case 'click': {
-			const el = e.target;
-			const tag = el.tagName.toLowerCase();
-			if(this.data.isVideo && !nav.isMobile && !nav.isWebkit && ExpandableImage.isControlClick(e) ||
-				tag !== 'img' && tag !== 'video' &&
-				!el.classList.contains('de-fullimg-wrap') &&
-				!el.classList.contains('de-fullimg-wrap-link') &&
-				!el.classList.contains('de-fullimg-video-hack') &&
-				el.className !== 'de-fullimg-load'
-			) {
+			// Close ImagesViewer when clicking on image/video.
+			// NOTE: There is a close button in Chrome Mobile, don't need to check the controls area.
+			if(this.data.isVideo && !(nav.isMobile && nav.isWebkit) && ExpandableImage.isControlClick(e)) {
 				return;
 			}
-			if(e.button === 0) {
+			const tag = e.target.tagName.toLowerCase();
+			if(tag !== 'img' && tag !== 'video') {
+				const { classList } = e.target;
+				if(['de-fullimg-load', 'de-fullimg-video-hack', 'de-fullimg-wrap', 'de-fullimg-wrap-link']
+					.every(c => !classList.contains(c))
+				) {
+					return;
+				}
+			}
+			if(e.button === 0) { // Primary button
 				if(this._moved && !nav.isMobile) {
 					this._moved = false;
 				} else {
@@ -149,11 +152,12 @@ class ImagesViewer {
 			this._oldY = e.clientY;
 			['mousemove', 'mouseup'].forEach(e => doc.body.addEventListener(e, this, true));
 			break;
-		case 'mousemove': this._moveFullImg(e.clientX, e.clientY); return;
+		case 'mousemove':
+			this._moveFullImg(e.clientX, e.clientY);
+			return;
 		case 'mouseup':
 			['mousemove', 'mouseup'].forEach(e => doc.body.removeEventListener(e, this, true));
 			return;
-
 		case 'mousewheel':
 			this._handleZoom(e.clientX, e.clientY,
 				-1 / 40 * ('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta));
@@ -661,6 +665,7 @@ class ExpandableImage {
 		const title = hasTitle ? this.el.getAttribute('de-metatitle') : '';
 		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>${
 			nav.firefoxVer >= 59 || nav.isMobile ? `<div class="de-fullimg-video-hack">${
+				// XXX: Videos won't close in Chrome Mobile. Create a close button.
 				nav.isMobile && nav.isWebkit ? '\u00D7' : ''
 			}</div>` : '' }
 			<video src="${ src }" ` +
@@ -884,8 +889,8 @@ class AttachedImage extends ExpandableImage {
 		return null;
 	}
 	_getImageSrc() {
-		// Donʼt use aib.getImgSrcLink(this.el).href
-		// If #ihash spells enabled, Chrome reads href in ajaxed posts as empty -> image canʼt be expanded!
+		// Don't use aib.getImgSrcLink(this.el).href
+		// If #ihash spells enabled, Chrome reads href in ajaxed posts as empty -> image can't be expanded!
 		return aib.getImgSrcLink(this.el).getAttribute('href');
 	}
 }

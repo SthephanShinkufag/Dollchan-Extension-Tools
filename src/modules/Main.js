@@ -7,22 +7,22 @@ async function runMain(checkDomains, dataPromise) {
 	if(!doc.body || !aib && !(aib = getImageBoard(checkDomains))) {
 		return;
 	}
+	if(!locStorage) {
+		nav = initBrowser();
+	}
 	let formEl = $q(aib.qDelForm + ', [de-form]');
 	if(!formEl) {
 		return;
 	}
-	Logger.log('Imageboard check');
-	if(!locStorage) {
-		if(!checkStorage()) {
-			return;
-		}
-		initNavFuncs();
-	}
-	const [favObj] = await (dataPromise || Promise.all([readFavorites(), readCfg()]));
-	if(!localData && doc.body.classList.contains('de-mode-local')) {
+	if(doc.body.classList.contains('de-runned-userscript')) {
 		return;
 	}
-	doc.body.classList.add('de-runned');
+	Logger.log('Imageboard check');
+	const [favObj] = await (dataPromise || Promise.all([readFavorites(), readCfg()]));
+	if(!localData && doc.body.classList.contains('de-runned-local')) {
+		return;
+	}
+	doc.body.classList.add(nav.isInPage ? 'de-runned-inpage' : 'de-runned-userscript');
 	Logger.log('Storage loading');
 	addSVGIcons();
 	if(Cfg.disabled) {
@@ -128,10 +128,7 @@ function initMain() {
 	}
 	let dataPromise = null;
 	if((aib = getImageBoard(true))) {
-		if(!checkStorage()) {
-			return;
-		}
-		initNavFuncs();
+		nav = initBrowser();
 		dataPromise = Promise.all([readFavorites(), readCfg()]);
 	}
 	needScroll = true;

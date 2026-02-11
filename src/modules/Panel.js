@@ -26,7 +26,7 @@ const Panel = Object.create({
 					this._getButton('goup') +
 					this._getButton('godown') +
 					(filesCount ? this._getButton('expimg') + this._getButton('maskimg') : '') +
-					(!localData && !nav.isPresto ?
+					(!localData ?
 						(filesCount && !Cfg.preLoadImgs ? this._getButton('preimg') : '') +
 						(isThr ? this._getButton('savethr') : '') : '') +
 					(!localData && isThr ?
@@ -68,7 +68,7 @@ const Panel = Object.create({
 		if('isTrusted' in e && !e.isTrusted) {
 			return;
 		}
-		let el = nav.fixEventEl(e.target);
+		let el = e.target;
 		el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 		switch(e.type) {
 		case 'click':
@@ -197,7 +197,7 @@ const Panel = Object.create({
 			}
 			return;
 		default: // mouseout
-			this._setHideTimeout(nav.fixEventEl(e.relatedTarget));
+			this._setHideTimeout(e.relatedTarget);
 			switch(el.id) {
 			case 'de-panel-refresh':
 			case 'de-panel-savethr':
@@ -211,10 +211,10 @@ const Panel = Object.create({
 		this._postersCountEl.textContent = postersCount;
 	},
 
-	_el     : null,
-	_hideTO : null,
-	_menu   : null,
-	_menuTO : null,
+	_el    : null,
+	_hideTO: null,
+	_menu  : null,
+	_menuTO: null,
 	get _filesCountEl() {
 		const value = $id('de-panel-info-files');
 		Object.defineProperty(this, '_filesCountEl', { value, configurable: true });
@@ -262,7 +262,7 @@ const Panel = Object.create({
 			href = aib.catalogUrl;
 		}
 		return `<${ tag } id="de-panel-${ id }" class="de-abtn de-panel-button"
-			title="${ title || Lng.panelBtn[id][lang] }" ${ href ? 'href="' + href + '"': '' }>
+			title="${ title || Lng.panelBtn[id][lang] }" ${ href ? 'href="' + href + '"' : '' }>
 			<svg class="de-panel-svg">
 			${ id !== 'audio-off' ? `
 				<use xlink:href="#de-symbol-panel-${ useId || id }"/>` : `

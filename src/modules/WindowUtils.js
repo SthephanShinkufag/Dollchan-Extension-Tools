@@ -11,13 +11,13 @@ function updateWinZ(winEl) {
 
 function makeDraggable(name, winEl, headEl) {
 	headEl.addEventListener('mousedown', {
-		_oldX   : 0,
-		_oldY   : 0,
-		_win    : winEl,
-		_wStyle : winEl.style,
-		_X      : 0,
-		_Y      : 0,
-		_Z      : 0,
+		_oldX  : 0,
+		_oldY  : 0,
+		_win   : winEl,
+		_wStyle: winEl.style,
+		_X     : 0,
+		_Y     : 0,
+		_Z     : 0,
 		async handleEvent(e) {
 			if(!Cfg[name + 'WinDrag']) {
 				return;
@@ -176,12 +176,11 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 		}
 		el = $q('.de-win-buttons', winEl);
 		el.onmouseover = e => {
-			const el = nav.fixEventEl(e.target);
-			const parent = el.parentNode;
+			const el = e.target;
 			switch(el.classList[0]) {
-			case 'de-win-btn-close': parent.title = Lng.closeWindow[lang]; break;
+			case 'de-win-btn-close': el.parentNode.title = Lng.closeWindow[lang]; break;
 			case 'de-win-btn-toggle':
-				parent.title = Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
+				el.parentNode.title = Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
 			}
 		};
 		el.lastElementChild.onclick = () => toggleWindow(name, false);

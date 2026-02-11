@@ -81,8 +81,8 @@ const CfgSaver = {
 		setStored('DESU_Config', JSON.stringify(val));
 	},
 
-	_isBusy : false,
-	_queue  : []
+	_isBusy: false,
+	_queue : []
 };
 
 // Toggles a particular config option (1|0)
@@ -117,11 +117,6 @@ async function readCfg() {
 	}
 	if(!('Notification' in deWindow)) {
 		Cfg.desktNotif = 0;
-	}
-	if(nav.isPresto) {
-		Cfg.preLoadImgs = 0;
-		Cfg.findImgFile = 0;
-		Cfg.fileInputs = 0;
 	}
 	if(Cfg.updThrDelay < 10) {
 		Cfg.updThrDelay = 10;
@@ -295,16 +290,13 @@ function readViewedPosts() {
 	if(!Cfg.markViewed) {
 		return;
 	}
-	const data = sesStorage['de-viewed'];
-	if(data) {
-		data.split(',').forEach(pNum => {
-			const post = pByNum.get(+pNum);
-			if(post) {
-				post.el.classList.add('de-viewed');
-				post.isViewed = true;
-			}
-		});
-	}
+	sesStorage['de-viewed']?.split(',').forEach(pNum => {
+		const post = pByNum.get(+pNum);
+		if(post) {
+			post.el.classList.add('de-viewed');
+			post.isViewed = true;
+		}
+	});
 }
 
 class PostsStorage {

@@ -2,34 +2,17 @@
                                       BROWSER DETECTORS AND DEPENDENCIES
 =========================================================================================================== */
 
-function checkStorage() {
-	try {
-		locStorage = deWindow.localStorage;
-		sesStorage = deWindow.sessionStorage;
-		sesStorage['de-test'] = 1;
-	} catch(err) {
-		if(typeof unsafeWindow !== 'undefined') {
-			locStorage = unsafeWindow.localStorage;
-			sesStorage = unsafeWindow.sessionStorage;
-		}
-	}
-	if(!(locStorage && (typeof locStorage === 'object') && sesStorage)) {
-		console.error('Webstorage error: please, enable webstorage!');
-		return false;
-	}
-	return true;
-}
-
 // Browser identification and browser-specific hacks
-function initNavFuncs() {
-	const ua = navigator.userAgent;
-	const isFirefox = ua.includes('Gecko/');
-	const isWebkit = ua.includes('WebKit/');
-	const isSafari = isWebkit && !ua.includes('Chrome/');
-	const canUseFetch = 'AbortController' in deWindow; // Firefox 57+, Chrome 66+, Safari 11.1+
-	if(!('requestAnimationFrame' in deWindow)) { // XXX: Opera Presto
-		deWindow.requestAnimationFrame = fn => setTimeout(fn, 0);
-	}
+function initBrowser() {
+	locStorage = deWindow.localStorage;
+	sesStorage = deWindow.sessionStorage;
+	const { userAgent } = navigator;
+	const isFirefox = userAgent.includes('Gecko/');
+	const isWebkit = userAgent.includes('WebKit/');
+	const isChrome = isWebkit && userAgent.includes('Chrome/');
+	const isSafari = isWebkit && !isChrome;
+
+	// XXX: Firefox < 39, Chrome < 50, Safari < 11 - FormData hack
 	let needFileHack = false;
 	try {
 		new File([''], '');
@@ -39,7 +22,7 @@ function initNavFuncs() {
 	} catch(err) {
 		needFileHack = true;
 	}
-	if(needFileHack && FormData) { // XXX: Firefox < 39, Chrome < 50, Safari < 11 - FormData hack
+	if(needFileHack && FormData) {
 		const OrigFormData = FormData;
 		const origAppend = FormData.prototype.append;
 		FormData = function FormData(form) {
@@ -58,18 +41,19 @@ function initNavFuncs() {
 			return rv;
 		};
 	}
-	nav = {
-		canUseFetch,
-		canUseNativeXHR : true,
-		firefoxVer      : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
-		isESNext        : typeof deMainFuncOuter === 'undefined',
+
+	return {
+		canUseFetch    : 'AbortController' in deWindow, // Firefox 57+, Chrome 66+, Safari 11.1+,
+		canUseNativeXHR: true,
+		firefoxVer     : isFirefox ? +(userAgent.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
+		isESNext       : typeof deMainFuncOuter === 'undefined',
 		isFirefox,
-		isMsEdge        : ua.includes('Edge/'),
-		isMobile        : /Android|iPhone/i.test(ua),
-		isPresto        : !!deWindow.opera,
+		isInPage       : true,
+		isMobile       : /Android|iPhone/i.test(userAgent),
+		isMsEdge       : userAgent.includes('Edge/'),
 		isSafari,
 		isWebkit,
-		ua              : ua + (isFirefox ? ` [${ navigator.buildID }]` : ''),
+		userAgent      : userAgent + (isFirefox ? ` [${ navigator.buildID }]` : ''),
 
 		get canPlayMP3() {
 			const value = !!new Audio().canPlayType('audio/mpeg;');
@@ -94,8 +78,7 @@ function initNavFuncs() {
 		},
 		get matchesSelector() {
 			const dE = doc.documentElement;
-			const func = dE.matches || dE.mozMatchesSelector ||
-				dE.webkitMatchesSelector || dE.oMatchesSelector;
+			const func = dE.matches || dE.mozMatchesSelector || dE.webkitMatchesSelector;
 			const value = (el, sel) => func.call(el, sel);
 			Object.defineProperty(this, 'matchesSelector', { value });
 			return value;
@@ -110,13 +93,6 @@ function initNavFuncs() {
 			const value = doc.compatMode && doc.compatMode === 'CSS1Compat' ?
 				() => doc.documentElement.clientWidth : () => doc.body.clientWidth;
 			Object.defineProperty(this, 'viewportWidth', { value });
-			return value;
-		},
-		// XXX: Opera Presto - hack for SVG events
-		get fixEventEl() {
-			const value = !this.isPresto ? el => el :
-				el => el?.correspondingUseElement?.ownerSVGElement || el;
-			Object.defineProperty(this, 'fixEventEl', { value });
 			return value;
 		}
 	};

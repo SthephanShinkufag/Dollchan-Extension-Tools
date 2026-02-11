@@ -23,7 +23,7 @@ class Thread {
 			prev.next = this;
 		}
 		let lastPost = this.op = new Post(aib.getOp(el), this, num, 0, true, prev ? prev.last : null);
-		pByEl.set(el, lastPost);
+		pByEl.set(el, this.op);
 		for(let i = 0; i < len; ++i) {
 			const pEl = els[i];
 			lastPost = new Post(pEl, this, aib.getPNum(pEl), omitted + i, false, lastPost);
@@ -34,8 +34,8 @@ class Thread {
 		if(localData) {
 			return;
 		}
-		this.btns = $bEnd(el, `<div class="de-thr-buttons">${ Post.getPostBtns(true, true) }
-			<span class="de-thr-updater"><a class="de-thr-updater-link link-button" href="#"></a>` +
+		this.btns = $bEnd(el, '<div class="de-thr-buttons">' + Post.getPostBtns(true, true) +
+			'<span class="de-thr-updater"><a class="de-thr-updater-link link-button" href="#"></a>' +
 			(!aib.t ? '</span>' : '<span id="de-updater-count" style="display: none;"></span></span>') +
 			'</div>');
 		['click', 'mouseover'].forEach(e => this.btns.addEventListener(e, this));
@@ -105,12 +105,11 @@ class Thread {
 	}
 	handleEvent(e) {
 		e.preventDefault();
-		const el = nav.fixEventEl(e.target);
-		const elClass = el.classList[0];
+		const el = e.target;
 		const nextThr = this.next;
 		let oldCoord = false;
 		if(e.type === 'click') {
-			switch(elClass) {
+			switch(el.classList[0]) {
 			case 'de-btn-fav': this.toggleFavState(true); break;
 			case 'de-btn-fav-sel': this.toggleFavState(false); break;
 			case 'de-btn-hide':
@@ -566,8 +565,8 @@ const thrNavPanel = {
 	handleEvent(e) {
 		switch(e.type) {
 		case 'scroll': deWindow.requestAnimationFrame(() => this._checkThreads()); break;
-		case 'mouseover': this._expandCollapse(true, nav.fixEventEl(e.relatedTarget)); break;
-		case 'mouseout': this._expandCollapse(false, nav.fixEventEl(e.relatedTarget)); break;
+		case 'mouseover': this._expandCollapse(true, e.relatedTarget); break;
+		case 'mouseout': this._expandCollapse(false, e.relatedTarget); break;
 		case 'click': this._handleClick(e); break;
 		}
 	},
@@ -596,11 +595,11 @@ const thrNavPanel = {
 		}
 	},
 
-	_currentThr : null,
-	_el         : null,
-	_toggleTO   : null,
-	_thrs       : null,
-	_visible    : false,
+	_currentThr: null,
+	_el        : null,
+	_toggleTO  : null,
+	_thrs      : null,
+	_visible   : false,
 	_checkThreads() {
 		const el = this._findCurrentThread();
 		if(el) {
@@ -615,7 +614,7 @@ const thrNavPanel = {
 	_expandCollapse(isExpand, targetEl) {
 		if(!$contains(this._el, targetEl)) {
 			clearTimeout(this._toggleTO);
-			this._toggleTO =setTimeout(() => this._el.classList.toggle('de-thr-navpanel-hidden', !isExpand),
+			this._toggleTO = setTimeout(() => this._el.classList.toggle('de-thr-navpanel-hidden', !isExpand),
 				Cfg.linksOver);
 		}
 	},
@@ -638,7 +637,7 @@ const thrNavPanel = {
 		return this._findCurrentThread();
 	},
 	_handleClick(e) {
-		const el = nav.fixEventEl(e.target);
+		const el = e.target;
 		switch((el.tagName.toLowerCase() === 'svg' ? el.parentNode : el).id) {
 		case 'de-thr-navup':
 			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset +

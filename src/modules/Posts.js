@@ -70,7 +70,8 @@ class AbstractPost {
 	}
 	handleEvent(e) {
 		let temp;
-		let el = nav.fixEventEl(e.target);
+		let el = e.target;
+		let { classList } = el;
 		const { type } = e;
 		const isOutEvent = type === 'mouseout';
 		const isPview = this instanceof Pview;
@@ -79,13 +80,13 @@ class AbstractPost {
 		if(type === 'click') {
 			// Skip the click by wheel button
 			switch(e.button) {
-			case 0: break;
-			case 1: e.stopPropagation();
+			case 0: break; // Primary button
+			case 1: e.stopPropagation(); // Wheel button
 				/* falls through */
 			default: return;
 			}
 			// Hide the dropdown menu after the click on its option
-			if(this._menu && el.classList.contains('de-menu-item')) {
+			if(this._menu && classList.contains('de-menu-item')) {
 				this._menu.removeMenu();
 				this._menu = null;
 			}
@@ -93,7 +94,7 @@ class AbstractPost {
 			switch(el.tagName.toLowerCase()) {
 			case 'a':
 				// Click on YouTube link - show/hide player or thumbnail
-				if(el.classList.contains('de-video-link')) {
+				if(classList.contains('de-video-link')) {
 					this.videos.clickLink(el, Cfg.embedYTube);
 					e.preventDefault();
 					return;
@@ -136,13 +137,14 @@ class AbstractPost {
 					return;
 				}
 				el = temp; // The link is an image container
+				({ classList } = el);
 				/* falls through */
 			case 'img': // Click on attached image - expand/collapse
-				if(el.classList.contains('de-video-thumb')) {
+				if(classList.contains('de-video-thumb')) {
 					if(Cfg.embedYTube === 1) {
 						const { videos } = this;
 						videos.currentLink.classList.add('de-current');
-						videos.setPlayer(videos.playerInfo, el.classList.contains('de-ytube'));
+						videos.setPlayer(videos.playerInfo, classList.contains('de-ytube'));
 						e.preventDefault();
 					}
 				} else if(Cfg.expandImgs !== 0) {
@@ -157,7 +159,7 @@ class AbstractPost {
 				return;
 			}
 			// Click on post buttons
-			switch(el.classList[0]) {
+			switch(classList[0]) {
 			case 'de-btn-expthr':
 				if(nav.isMobile) {
 					this._menuToggleClickBtn(el, arrTags(Lng.selExpandThr[lang],
@@ -208,7 +210,7 @@ class AbstractPost {
 					el.isNotRefLink = true;
 					return;
 				}
-				// Donʼt use classList here, 'de-link-postref ' should be first
+				// Don't use classList here, 'de-link-postref ' should be first
 				el.className = 'de-link-postref ' + el.className;
 				/* falls through */
 			case 'de-link-backref':
@@ -235,18 +237,18 @@ class AbstractPost {
 			['click', 'mouseout'].forEach(e => this.el.addEventListener(e, this, true));
 		}
 		// Mouseover/mouseout on YouTube links
-		if(Cfg.embedYTube === 2 && el.classList.contains('de-video-link')) {
+		if(Cfg.embedYTube === 2 && classList.contains('de-video-link')) {
 			this.videos.toggleFloatedThumb(el, isOutEvent);
 		}
 		// Mouseover/mouseout on attached images/videos - update title
 		if(!isOutEvent && Cfg.expandImgs &&
-			el.tagName.toLowerCase() === 'img' && !el.classList.contains('de-fullimg') &&
+			el.tagName.toLowerCase() === 'img' && !classList.contains('de-fullimg') &&
 			(temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)
 		) {
 			el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
 		}
 		// Mouseover/mouseout on post buttons - update title, add/delete dropdown menu
-		switch(el.classList[0]) {
+		switch(classList[0]) {
 		case 'de-btn-expthr':
 			this.btns.title = Lng.expandThr[lang];
 			if(!nav.isMobile) {
@@ -293,7 +295,7 @@ class AbstractPost {
 				el.isNotRefLink = true;
 				return;
 			}
-			// Donʼt use classList here, 'de-link-postref ' should be first
+			// Don't use classList here, 'de-link-postref ' should be first
 			el.className = 'de-link-postref ' + el.className;
 			/* falls through */
 		case 'de-link-backref':
@@ -303,7 +305,7 @@ class AbstractPost {
 			}
 			if(isOutEvent) { // Mouseout - We need to delete previews
 				clearTimeout(this._linkTO);
-				if(!(aib.getPostOfEl(nav.fixEventEl(e.relatedTarget)) instanceof Pview) && Pview.top) {
+				if(!(aib.getPostOfEl(e.relatedTarget) instanceof Pview) && Pview.top) {
 					Pview.top.markToDel(); // If cursor is not over one of previews - delete all previews
 				} else if(this.kid) {
 					this.kid.markToDel(); // If cursor is over any preview - delete its kids
@@ -331,8 +333,8 @@ class AbstractPost {
 		}
 		this.msg.replaceWith(newMsg);
 		Object.defineProperties(this, {
-			msg   : { configurable: true, value: newMsg },
-			trunc : { configurable: true, value: null }
+			msg  : { configurable: true, value: newMsg },
+			trunc: { configurable: true, value: null }
 		});
 		Post.Content.removeTempData(this);
 		if(Cfg.embedYTube) {
@@ -812,11 +814,11 @@ class Post extends AbstractPost {
 				}
 			}
 			sendStorageEvent('__de-post', {
-				hide   : isHide,
-				brd    : aib.b,
+				hide  : isHide,
+				brd   : aib.b,
 				num,
-				thrNum : this.thr.num,
-				title  : this.isOp ? this.title : ''
+				thrNum: this.thr.num,
+				title : this.isOp ? this.title : ''
 			});
 		}
 		this.ref.toggleRef(isHide, false);
@@ -888,15 +890,15 @@ class Post extends AbstractPost {
 	_getMenuHide() {
 		const item = name => `<span info="hide-${ name }" class="de-menu-item">${
 			Lng.selHiderMenu[name][lang] }</span>`;
-		const sel = deWindow.getSelection();
-		const ssel = sel.toString().trim();
-		if(ssel) {
-			this._selText = ssel;
-			this._selRange = sel.getRangeAt(0);
+		const selection = deWindow.getSelection();
+		const selText = selection.rangeCount > 0 ? selection.toString().trim() : '';
+		if(selText) {
+			this._selText = selText;
+			this._selRange = selection.getRangeAt(0);
 		}
 		return `${ nav.isMobile ? `<span info="hide-post" class="de-menu-item">${
 			this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang] }</span>` : '' }${
-			ssel ? item('sel') : '' }${
+			selText ? item('sel') : '' }${
 			this.posterName ? item('name') : '' }${
 			this.posterTrip ? item('trip') : '' }${
 			this.posterUid ? item('uid') : '' }${
@@ -1067,8 +1069,8 @@ Post.sizing = {
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
-			wHeight : { writable: true, configurable: true, value },
-			wWidth  : { writable: true, configurable: true, value: nav.viewportWidth() }
+			wHeight: { writable: true, configurable: true, value },
+			wWidth : { writable: true, configurable: true, value: nav.viewportWidth() }
 		});
 		return value;
 	},
@@ -1079,8 +1081,8 @@ Post.sizing = {
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
-			wHeight : { writable: true, configurable: true, value: nav.viewportHeight() },
-			wWidth  : { writable: true, configurable: true, value }
+			wHeight: { writable: true, configurable: true, value: nav.viewportHeight() },
+			wWidth : { writable: true, configurable: true, value }
 		});
 		return value;
 	},
