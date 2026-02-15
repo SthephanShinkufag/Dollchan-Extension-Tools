@@ -4,7 +4,7 @@
 'use strict';
 
 const version = '26.2.15.0';
-const commit = 'c884684';
+const commit = 'be508f5';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -6611,7 +6611,7 @@ class Videos {
 	}
 }
 Videos.ytReg =
-	/^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
+	/^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/|shorts\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 Videos.vimReg =
 	/^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
 Videos._global = {
