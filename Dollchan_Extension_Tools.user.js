@@ -8475,7 +8475,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this24 = this;
   var _marked = _regenerator().m(getFormElements);
   var version = '24.9.16.0';
-  var commit = '83cc239';
+  var commit = '608d445';
 
 
   var doc = deWindow.document;
@@ -8756,7 +8756,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       spacedQuote: ['Вставлять пробел при цитировании "> "', 'Insert a space when quoting "> "', 'Вставляти пробіл при цитуванні "> "'],
       favOnReply: ['Добавлять тред в Избранное после ответа', 'Add thread to Favorites after reply', 'Додавати тред в Вибране після відповіді'],
       warnSubjTrip: ['Оповещать о трипкоде в поле "Тема"', 'Warn about a tripcode in "Subject" field', 'Сповіщувати про трипкод в полі "Тема"'],
-      addSageBtn: ['Кнопка Sage вместо поля "Email" ', 'Replace "Email" with Sage button ', 'Кнопка Sage замість "E-mail" '],
+      addSageBtn: ['Кнопка <svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>Sage ', 'Sage <svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>button ', 'Кнопка <svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>Sage '],
       saveSage: ['Помнить сажу', 'Remember sage', 'Пам\'ятати сажу'],
       capUpdTime: ['Интервал обновления капчи (сек)', 'Captcha update interval (sec)', 'Інтервал оновлення капчі (сек)'],
       captchaLang: {
@@ -8866,8 +8866,11 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     ['Скачать весь тред', 'Скачать картинки'], ['Download thread', 'Download images'], ['Завантажити весь тред', 'Завантажити зображення']],
     selAudioNotif: [
     ['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'], ['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.'], ['Кожні 30 сек.', 'Щохвилини', 'Кожні 2 хв.', 'Кожні 5 хв.']],
+    moderatePost: ['Модерировать пост', 'Moderate a post', 'Модерувати допис'],
+    moderateThread: ['Модерировать тред', 'Moderate a thread', 'Модерувати тред'],
     reportPost: ['Жалоба на пост', 'Report a post', 'Скарга на допис'],
     reportThr: ['Жалоба на тред', 'Report a thread', 'Скарга на тред'],
+    reportReason: ['Причина вашей жалобы', 'A reason for your complaint', 'Причина вашої скарги'],
     markMyPost: ['Пометить как мой пост', 'Mark as my post', 'Відмітити як мій допис'],
     deleteMyPost: ['Убрать из моих постов', 'Delete from my posts', 'Прибрати з моїх дописів'],
     saveAs: ['Сохр. как ', 'Save as ', 'Збер. як '],
@@ -9016,6 +9019,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     loadErrors: ['Во время загрузки произошли ошибки:', 'An error occurred during the loading:', 'Під час завантаження сталися помилки:'],
     succDeleted: ['Успешно удалено!', 'Succesfully deleted!', 'Успішно видалено!'],
     succReported: ['Жалоба успешно отправлена', 'Succesfully reported', 'Скарга успішно відправлена'],
+    alreadyReported: ['Вы уже отправляли жалобу на этот пост!', 'You have already sent a report to this post!', 'Ви вже відправляли скаргу на цей пост!'],
+    reportError: ['При отправке жалобы произошла ошибка.', 'An error occurred while sending the report.', 'Під час надсилання скарги сталася помилка.'],
     errDelete: ['Не могу удалить', 'Can\'t delete', 'Не можу видалити'],
     fileCorrupt: ['Файл повреждён', 'File is corrupt', 'Файл пошкоджено'],
     errCorruptData: ['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data', 'Помилка: сервер надіслав пошкоджені дані'],
@@ -9747,7 +9752,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     function WebmParser(data) {
       _classCallCheck(this, WebmParser);
       var offset = 0;
-      var dv = nav.unsafeDataView(data);
+      var dv = nav.dataView(data);
       var len = dv.byteLength;
       var el = new WebmParser.Element(dv, len, 0);
       var voids = [];
@@ -9805,7 +9810,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
         if (this.error) {
           return null;
         }
-        this.rv[0] = nav.unsafeUint8Array(this.data, 0, this.segment.endOffset);
+        this.rv[0] = nav.uint8Array(this.data, 0, this.segment.endOffset);
         return this.rv;
       }
     }]);
@@ -9942,29 +9947,29 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   } 
   function _getStoredObj() {
     _getStoredObj = _asyncToGenerator(_regenerator().m(function _callee50(id) {
-      var _t45, _t46, _t47;
+      var _t46, _t47, _t48;
       return _regenerator().w(function (_context58) {
         while (1) switch (_context58.n) {
           case 0:
-            _t46 = JSON;
+            _t47 = JSON;
             _context58.n = 1;
             return getStored(id);
           case 1:
-            _t47 = _context58.v;
-            if (_t47) {
+            _t48 = _context58.v;
+            if (_t48) {
               _context58.n = 2;
               break;
             }
-            _t47 = '{}';
+            _t48 = '{}';
           case 2:
-            _t45 = _t46.parse.call(_t46, _t47);
-            if (_t45) {
+            _t46 = _t47.parse.call(_t47, _t48);
+            if (_t46) {
               _context58.n = 3;
               break;
             }
-            _t45 = {};
+            _t46 = {};
           case 3:
-            return _context58.a(2, _t45);
+            return _context58.a(2, _t46);
         }
       }, _callee50);
     }));
@@ -10117,10 +10122,22 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   } 
   function _readCfg() {
     _readCfg = _asyncToGenerator(_regenerator().m(function _callee52() {
-      var obj, val, isGlobal, browserLang;
+      var locObj, locConfig, obj, val, isGlobal, browserLang;
       return _regenerator().w(function (_context60) {
         while (1) switch (_context60.n) {
           case 0:
+            if (!nav.isInPage) {
+              locConfig = JSON.parse(locStorage.DESU_Config || '{}') || {};
+              if (aib.domain in locConfig && !$isEmpty(locObj = locConfig[aib.domain])) {
+                nav.hasInPageDE = true;
+                if (locObj.disabled !== 1) {
+                  locObj.disabled = 1;
+                  locConfig[aib.domain] = locObj;
+                  locStorage.DESU_Config = JSON.stringify(locConfig);
+                  deWindow.location.reload();
+                }
+              }
+            }
             _context60.n = 1;
             return getStoredObj('DESU_Config');
           case 1:
@@ -10297,7 +10314,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       maybeSpells.value.endSpells();
     }
     if (aib.t && Cfg.panelCounter === 2) {
-      $id('de-panel-info-posts').textContent = Thread.first.postsCount - Thread.first.hiddenCount;
+      $q('#de-panel-info-posts', Panel.mainEl).textContent = Thread.first.postsCount - Thread.first.hiddenCount;
     }
     if (updatedFav) {
       saveFavorites(favObj);
@@ -10306,7 +10323,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
 
     var hasFavWinKey = sesStorage['de-fav-win'] === '1';
     if (hasFavWinKey || Cfg.favWinOn) {
-      toggleWindow('fav', !!$q('#de-win-fav.de-win-active'), null, true);
+      toggleWindow('fav', !!$q('#de-win-fav.de-win-opened'), null, true);
       if (hasFavWinKey) {
         sesStorage.removeItem('de-fav-win');
       }
@@ -10686,20 +10703,20 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
 
   var Panel = Object.create({
     isVidEnabled: false,
+    mainEl: null,
     initPanel: function initPanel(formEl) {
-      var _postform,
-        _this10 = this;
+      var _this10 = this;
       var filesCount = $Q(aib.qPostImg, formEl).length;
       var isThr = aib.t;
-      (((_postform = postform) === null || _postform === void 0 ? void 0 : _postform.pArea[0]) || formEl).insertAdjacentHTML('beforebegin', "<div id=\"de-main\">\n\t\t\t<div id=\"de-panel\">\n\t\t\t\t<div id=\"de-panel-logo\" title=\"".concat(Lng.panelBtn.attach[lang], "\">\n\t\t\t\t\t<svg id=\"de-panel-logo-svg\">\n\t\t\t\t\t\t<use xlink:href=\"#de-symbol-panel-logo\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id=\"de-panel-buttons\"").concat(!Cfg.expandPanel ? ' style="display: none;"' : '', ">\n\t\t\t\t").concat(Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (Cfg.embedYTube ? this._getButton('vid') : '') + (!localData ? this._getButton('refresh') + (isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') + (!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') + this._getButton('goup') + this._getButton('godown') + (filesCount ? this._getButton('expimg') + this._getButton('maskimg') : '') + (!localData ? (filesCount && !Cfg.preLoadImgs ? this._getButton('preimg') : '') + (isThr ? this._getButton('savethr') : '') : '') + (!localData && isThr ? this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (!nav.isSafari ? this._getButton('audio-off') : '') : '') + (aib.hasCatalog ? this._getButton('catalog') : '') + this._getButton('enable') + (isThr && Thread.first ? "<span id=\"de-panel-info\">\n\t\t\t\t\t\t<span id=\"de-panel-info-posts\" title=\"".concat(Lng.panelBtn[Cfg.panelCounter !== 2 ? 'postsCount' : 'postsNotHid'][lang], "\">").concat(Thread.first.postsCount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-files\" title=\"").concat(Lng.panelBtn.filesCount[lang], "\">").concat(filesCount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-posters\" title=\"").concat(Lng.panelBtn.postersCount[lang], "\">").concat(aib.postersCount, "</span>\n\t\t\t\t\t</span>") : ''), "\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t").concat(Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div>', "\n\t\t</div>"));
-      this._el = $id('de-panel');
+      this.mainEl = $bBegin(formEl, "<div id=\"de-main-container\" class=\"de-runned-".concat(nav.isInPage ? 'inpage' : 'userscript', "\">\n\t\t\t<div id=\"de-panel\">\n\t\t\t\t<div id=\"de-panel-btn-logo\" class=\"de-panel-btn\" title=\"").concat(Lng.panelBtn.attach[lang], "\">\n\t\t\t\t\t<svg class=\"de-panel-svg\">\n\t\t\t\t\t\t<use xlink:href=\"#de-symbol-panel-logo\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id=\"de-panel-buttons\"").concat(!Cfg.expandPanel ? ' style="display: none;"' : '', ">\n\t\t\t\t").concat(Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (Cfg.embedYTube ? this._getButton('vid') : '') + (!localData ? this._getButton('refresh') + (isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') + (!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') + this._getButton('goup') + this._getButton('godown') + (filesCount ? this._getButton('expimg') + this._getButton('maskimg', Cfg.maskImgs ? 'de-panel-btn-active' : '') : '') + (!localData ? (filesCount && !Cfg.preLoadImgs ? this._getButton('preimg') : '') + (isThr ? this._getButton('savethr') : '') : '') + (!localData && isThr ? this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (!nav.isSafari ? this._getButton('audio-off') : '') : '') + (aib.hasCatalog ? this._getButton('catalog') : '') + this._getButton('enable') + (isThr && Thread.first ? "<span id=\"de-panel-info\">\n\t\t\t\t\t\t<span id=\"de-panel-info-posts\" title=\"".concat(Lng.panelBtn[Cfg.panelCounter !== 2 ? 'postsCount' : 'postsNotHid'][lang], "\">").concat(Thread.first.postsCount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-files\" title=\"").concat(Lng.panelBtn.filesCount[lang], "\">").concat(filesCount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-posters\" title=\"").concat(Lng.panelBtn.postersCount[lang], "\">").concat(aib.postersCount, "</span>\n\t\t\t\t\t</span>") : ''), "\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t").concat(Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div>', "\n\t\t</div>"));
+      this._el = $q('#de-panel', this.mainEl);
       this._el.addEventListener('click', this, true);
       if (!nav.isMobile) {
         ['mouseover', 'mouseout'].forEach(function (e) {
           return _this10._el.addEventListener(e, _this10);
         });
       }
-      this._buttons = $id('de-panel-buttons');
+      this._buttons = $q('#de-panel-buttons', this.mainEl);
     },
     removeMain: function removeMain() {
       var _this11 = this;
@@ -10712,7 +10729,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       delete this._postsCountEl;
       delete this._filesCountEl;
       delete this._postersCountEl;
-      $id('de-main').remove();
+      this.mainEl.remove();
     },
     handleEvent: function handleEvent(e) {
       var _this12 = this;
@@ -10722,76 +10739,95 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
         return _regenerator().w(function (_context5) {
           while (1) switch (_context5.n) {
             case 0:
-              if (!('isTrusted' in e && !e.isTrusted)) {
+              if (!nav.isInPage) {
+                _context5.n = 2;
+                break;
+              }
+              if (Panel.mainEl) {
                 _context5.n = 1;
                 break;
               }
               return _context5.a(2);
             case 1:
-              el = e.target;
-              el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
-              _t3 = e.type;
-              _context5.n = _t3 === 'click' ? 2 : _t3 === 'mouseover' ? 26 : 38;
+              _context5.n = 3;
               break;
             case 2:
-              if (!(el.tagName.toLowerCase() === 'a')) {
-                _context5.n = 3;
+              if (nav.hasInPageDE) {
+                $Q('#de-main, #de-main-container:not(.de-runned-userscript)').forEach(function (el) {
+                  return el !== _this12.mainEl && (el === null || el === void 0 ? void 0 : el.remove());
+                });
+              }
+            case 3:
+              if (!('isTrusted' in e && !e.isTrusted)) {
+                _context5.n = 4;
                 break;
               }
               return _context5.a(2);
-            case 3:
+            case 4:
+              el = e.target;
+              el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
+              _t3 = e.type;
+              _context5.n = _t3 === 'click' ? 5 : _t3 === 'mouseover' ? 29 : 41;
+              break;
+            case 5:
+              if (!(el.tagName.toLowerCase() === 'a')) {
+                _context5.n = 6;
+                break;
+              }
+              return _context5.a(2);
+            case 6:
               e.preventDefault();
               _t4 = el.id;
-              _context5.n = _t4 === 'de-panel-logo' ? 4 : _t4 === 'de-panel-cfg' ? 6 : _t4 === 'de-panel-hid' ? 7 : _t4 === 'de-panel-fav' ? 8 : _t4 === 'de-panel-vid' ? 9 : _t4 === 'de-panel-refresh' ? 10 : _t4 === 'de-panel-goup' ? 11 : _t4 === 'de-panel-godown' ? 12 : _t4 === 'de-panel-expimg' ? 13 : _t4 === 'de-panel-preimg' ? 14 : _t4 === 'de-panel-maskimg' ? 15 : _t4 === 'de-panel-upd-on' ? 17 : _t4 === 'de-panel-upd-warn' ? 17 : _t4 === 'de-panel-upd-off' ? 17 : _t4 === 'de-panel-audio-on' ? 18 : _t4 === 'de-panel-audio-off' ? 19 : _t4 === 'de-panel-savethr' ? 22 : _t4 === 'de-panel-enable' ? 23 : 25;
+              _context5.n = _t4 === 'de-panel-btn-logo' ? 7 : _t4 === 'de-panel-btn-cfg' ? 9 : _t4 === 'de-panel-btn-hid' ? 10 : _t4 === 'de-panel-btn-fav' ? 11 : _t4 === 'de-panel-btn-vid' ? 12 : _t4 === 'de-panel-btn-refresh' ? 13 : _t4 === 'de-panel-btn-goup' ? 14 : _t4 === 'de-panel-btn-godown' ? 15 : _t4 === 'de-panel-btn-expimg' ? 16 : _t4 === 'de-panel-btn-preimg' ? 17 : _t4 === 'de-panel-btn-maskimg' ? 18 : _t4 === 'de-panel-btn-upd-on' ? 20 : _t4 === 'de-panel-btn-upd-warn' ? 20 : _t4 === 'de-panel-btn-upd-off' ? 20 : _t4 === 'de-panel-btn-audio-on' ? 21 : _t4 === 'de-panel-btn-audio-off' ? 22 : _t4 === 'de-panel-btn-savethr' ? 25 : _t4 === 'de-panel-btn-enable' ? 26 : 28;
               break;
-            case 4:
+            case 7:
               if (Cfg.expandPanel) {
-                if (!$q('.de-win-active')) {
+                if (!$q('.de-win-opened', _this12.mainEl)) {
                   $hide(_this12._buttons);
                 }
               } else {
                 $show(_this12._buttons);
               }
-              _context5.n = 5;
+              _context5.n = 8;
               return toggleCfg('expandPanel');
-            case 5:
-              return _context5.a(2);
-            case 6:
-              toggleWindow('cfg', false);
-              return _context5.a(2);
-            case 7:
-              toggleWindow('hid', false);
-              return _context5.a(2);
             case 8:
-              toggleWindow('fav', false);
               return _context5.a(2);
             case 9:
+              toggleWindow('cfg', false);
+              return _context5.a(2);
+            case 10:
+              toggleWindow('hid', false);
+              return _context5.a(2);
+            case 11:
+              toggleWindow('fav', false);
+              return _context5.a(2);
+            case 12:
               _this12.isVidEnabled = !_this12.isVidEnabled;
               toggleWindow('vid', false);
               return _context5.a(2);
-            case 10:
+            case 13:
               if (nav.isMobile && !aib.t) {
                 _this12._menuToggleClickBtn(el);
               } else {
                 deWindow.location.reload();
               }
               return _context5.a(2);
-            case 11:
+            case 14:
               scrollTo(0, 0);
               return _context5.a(2);
-            case 12:
+            case 15:
               scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight);
               return _context5.a(2);
-            case 13:
-              el.classList.toggle('de-panel-button-active');
+            case 16:
+              el.classList.toggle('de-panel-btn-active');
               isExpImg = !isExpImg;
               (_$q = $q('.de-fullimg-center')) === null || _$q === void 0 || _$q.remove();
               for (post = Thread.first.op; post; post = post.next) {
                 post.toggleImages(isExpImg, false);
               }
               return _context5.a(2);
-            case 14:
-              el.classList.toggle('de-panel-button-active');
+            case 17:
+              el.classList.toggle('de-panel-btn-active');
               isPreImg = !isPreImg;
               if (!e.ctrlKey) {
                 for (_iterator2 = _createForOfIteratorHelperLoose(DelForm); !(_step2 = _iterator2()).done;) {
@@ -10800,99 +10836,99 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                 }
               }
               return _context5.a(2);
-            case 15:
-              el.classList.toggle('de-panel-button-active');
-              _context5.n = 16;
+            case 18:
+              el.classList.toggle('de-panel-btn-active');
+              _context5.n = 19;
               return toggleCfg('maskImgs');
-            case 16:
+            case 19:
               updateCSS();
               return _context5.a(2);
-            case 17:
+            case 20:
               updater.toggle();
               return _context5.a(2);
-            case 18:
+            case 21:
               if (!nav.isMobile) {
-                _context5.n = 19;
+                _context5.n = 22;
                 break;
               }
               updater.toggleAudio(0);
-              el.id = 'de-panel-audio-off';
+              el.id = 'de-panel-btn-audio-off';
               return _context5.a(2);
-            case 19:
+            case 22:
               if (!nav.isMobile) {
-                _context5.n = 20;
+                _context5.n = 23;
                 break;
               }
               _this12._menuToggleClickBtn(el);
               return _context5.a(2);
-            case 20:
+            case 23:
               if (updater.toggleAudio(0)) {
                 updater.enableUpdater();
-                el.id = 'de-panel-audio-on';
+                el.id = 'de-panel-btn-audio-on';
               } else {
-                el.id = 'de-panel-audio-off';
+                el.id = 'de-panel-btn-audio-off';
               }
-            case 21:
+            case 24:
               if (_this12._menu) {
                 _this12._menu.removeMenu();
                 _this12._menu = null;
               }
               return _context5.a(2);
-            case 22:
+            case 25:
               if (nav.isMobile) {
                 _this12._menuToggleClickBtn(el);
               }
               return _context5.a(2);
-            case 23:
-              _context5.n = 24;
+            case 26:
+              _context5.n = 27;
               return toggleCfg('disabled');
-            case 24:
+            case 27:
               deWindow.location.reload();
               return _context5.a(2);
-            case 25:
+            case 28:
               return _context5.a(2);
-            case 26:
+            case 29:
               if (!Cfg.expandPanel) {
                 clearTimeout(_this12._hideTO);
                 $show(_this12._buttons);
               }
               _t5 = el.id;
-              _context5.n = _t5 === 'de-panel-cfg' ? 27 : _t5 === 'de-panel-hid' ? 28 : _t5 === 'de-panel-fav' ? 29 : _t5 === 'de-panel-vid' ? 30 : _t5 === 'de-panel-goback' ? 31 : _t5 === 'de-panel-gonext' ? 32 : _t5 === 'de-panel-maskimg' ? 33 : _t5 === 'de-panel-refresh' ? 34 : _t5 === 'de-panel-savethr' ? 35 : _t5 === 'de-panel-audio-off' ? 35 : 37;
+              _context5.n = _t5 === 'de-panel-btn-cfg' ? 30 : _t5 === 'de-panel-btn-hid' ? 31 : _t5 === 'de-panel-btn-fav' ? 32 : _t5 === 'de-panel-btn-vid' ? 33 : _t5 === 'de-panel-btn-goback' ? 34 : _t5 === 'de-panel-btn-gonext' ? 35 : _t5 === 'de-panel-btn-maskimg' ? 36 : _t5 === 'de-panel-btn-refresh' ? 37 : _t5 === 'de-panel-btn-savethr' ? 38 : _t5 === 'de-panel-btn-audio-off' ? 38 : 40;
               break;
-            case 27:
-              KeyEditListener.setTitle(el, 10);
-              return _context5.a(3, 37);
-            case 28:
-              KeyEditListener.setTitle(el, 7);
-              return _context5.a(3, 37);
-            case 29:
-              KeyEditListener.setTitle(el, 6);
-              return _context5.a(3, 37);
             case 30:
-              KeyEditListener.setTitle(el, 18);
-              return _context5.a(3, 37);
+              KeyEditListener.setTitle(el, 10);
+              return _context5.a(3, 40);
             case 31:
-              KeyEditListener.setTitle(el, 4);
-              return _context5.a(3, 37);
+              KeyEditListener.setTitle(el, 7);
+              return _context5.a(3, 40);
             case 32:
-              KeyEditListener.setTitle(el, 17);
-              return _context5.a(3, 37);
+              KeyEditListener.setTitle(el, 6);
+              return _context5.a(3, 40);
             case 33:
-              KeyEditListener.setTitle(el, 9);
-              return _context5.a(3, 37);
+              KeyEditListener.setTitle(el, 18);
+              return _context5.a(3, 40);
             case 34:
-              if (!aib.t) {
-                _context5.n = 35;
-                break;
-              }
-              return _context5.a(2);
+              KeyEditListener.setTitle(el, 4);
+              return _context5.a(3, 40);
             case 35:
-              if (!(((_this12$_menu = _this12._menu) === null || _this12$_menu === void 0 ? void 0 : _this12$_menu.parentEl) === el)) {
-                _context5.n = 36;
+              KeyEditListener.setTitle(el, 17);
+              return _context5.a(3, 40);
+            case 36:
+              KeyEditListener.setTitle(el, 9);
+              return _context5.a(3, 40);
+            case 37:
+              if (!aib.t) {
+                _context5.n = 38;
                 break;
               }
               return _context5.a(2);
-            case 36:
+            case 38:
+              if (!(((_this12$_menu = _this12._menu) === null || _this12$_menu === void 0 ? void 0 : _this12$_menu.parentEl) === el)) {
+                _context5.n = 39;
+                break;
+              }
+              return _context5.a(2);
+            case 39:
               _this12._menuTO = setTimeout(function () {
                 _this12._menu = Menu.addMenu(el);
                 _this12._menu.onover = function () {
@@ -10905,17 +10941,17 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                   return _this12._menu = null;
                 };
               }, Cfg.linksOver);
-            case 37:
+            case 40:
               return _context5.a(2);
-            case 38:
+            case 41:
               _this12._setHideTimeout(e.relatedTarget);
               switch (el.id) {
-                case 'de-panel-refresh':
-                case 'de-panel-savethr':
-                case 'de-panel-audio-off':
+                case 'de-panel-btn-refresh':
+                case 'de-panel-btn-savethr':
+                case 'de-panel-btn-audio-off':
                   clearTimeout(_this12._menuTO);
               }
-            case 39:
+            case 42:
               return _context5.a(2);
           }
         }, _callee5);
@@ -10933,7 +10969,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     _menu: null,
     _menuTO: null,
     get _filesCountEl() {
-      var value = $id('de-panel-info-files');
+      var value = $q('#de-panel-info-files', this.mainEl);
       Object.defineProperty(this, '_filesCountEl', {
         value: value,
         configurable: true
@@ -10941,7 +10977,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       return value;
     },
     get _postersCountEl() {
-      var value = $id('de-panel-info-posters');
+      var value = $q('#de-panel-info-posters', this.mainEl);
       Object.defineProperty(this, '_postersCountEl', {
         value: value,
         configurable: true
@@ -10949,14 +10985,14 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       return value;
     },
     get _postsCountEl() {
-      var value = $id('de-panel-info-posts');
+      var value = $q('#de-panel-info-posts', this.mainEl);
       Object.defineProperty(this, '_postsCountEl', {
         value: value,
         configurable: true
       });
       return value;
     },
-    _getButton: function _getButton(id) {
+    _getButton: function _getButton(id, className) {
       var page, href, title, useId;
       var tag = 'button';
       switch (id) {
@@ -10986,7 +11022,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
           tag = 'a';
           href = aib.catalogUrl;
       }
-      return "<".concat(tag, " id=\"de-panel-").concat(id, "\" class=\"de-abtn de-panel-button\"\n\t\t\ttitle=\"").concat(title || Lng.panelBtn[id][lang], "\" ").concat(href ? 'href="' + href + '"' : '', ">\n\t\t\t<svg class=\"de-panel-svg\">\n\t\t\t").concat(id !== 'audio-off' ? "\n\t\t\t\t<use xlink:href=\"#de-symbol-panel-".concat(useId || id, "\"/>") : "\n\t\t\t\t<use class=\"de-use-audio-off\" xlink:href=\"#de-symbol-panel-audio-off\"/>\n\t\t\t\t<use class=\"de-use-audio-on\" xlink:href=\"#de-symbol-panel-audio-on\"/>", "\n\t\t\t</svg>\n\t\t</").concat(tag, ">");
+      return "<".concat(tag, " id=\"de-panel-btn-").concat(id, "\" class=\"de-abtn de-panel-btn").concat(className ? ' ' + className : '', "\" title=\"").concat(title || Lng.panelBtn[id][lang], "\" ").concat(href ? 'href="' + href + '"' : '', ">\n\t\t\t<svg class=\"de-panel-svg\">\n\t\t\t").concat(id !== 'audio-off' ? "\n\t\t\t\t<use xlink:href=\"#de-symbol-panel-".concat(useId || id, "\"/>") : "\n\t\t\t\t<use class=\"de-use-audio-off\" xlink:href=\"#de-symbol-panel-audio-off\"/>\n\t\t\t\t<use class=\"de-use-audio-on\" xlink:href=\"#de-symbol-panel-audio-on\"/>", "\n\t\t\t</svg>\n\t\t</").concat(tag, ">");
     },
     _menuToggleClickBtn: function _menuToggleClickBtn(buttonEl) {
       var _this$_menu;
@@ -10999,7 +11035,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     },
     _setHideTimeout: function _setHideTimeout(targetEl) {
       var _this13 = this;
-      if (!Cfg.expandPanel && !$q('.de-win-active') && !$contains(this._el, targetEl)) {
+      if (!Cfg.expandPanel && !$q('.de-win-opened', this.mainEl) && !$contains(this._el, targetEl)) {
         this._hideTO = setTimeout(function () {
           return $hide(_this13._buttons);
         }, 500);
@@ -11190,13 +11226,13 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     var _winEl;
     var el;
     var winEl = $id('de-win-' + name);
-    var isActive = (_winEl = winEl) === null || _winEl === void 0 ? void 0 : _winEl.classList.contains('de-win-active');
+    var isActive = (_winEl = winEl) === null || _winEl === void 0 ? void 0 : _winEl.classList.contains('de-win-opened');
     if (isUpdate && !isActive) {
       return;
     }
     if (!winEl) {
       var winAttr = (Cfg[name + 'WinDrag'] ? "de-win\" style=\"".concat(Cfg[name + 'WinX'], "; ").concat(Cfg[name + 'WinY']) : 'de-win-fixed" style="right: 0; bottom: 25px') + (name !== 'fav' ? '' : "; width: ".concat(Cfg.favWinWidth, "px; "));
-      winEl = $aBegin($id('de-main'), "<div id=\"de-win-".concat(name, "\" class=\"").concat(winAttr, "; display: none;\">\n\t\t\t<div class=\"de-win-head\">\n\t\t\t\t<span class=\"de-win-title\">\n\t\t\t\t\t").concat(name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang], "\n\t\t\t\t</span>\n\t\t\t\t<span class=\"de-win-buttons\">\n\t\t\t\t\t<svg class=\"de-win-btn-toggle\"><use xlink:href=\"#de-symbol-win-arrow\"/></svg>\n\t\t\t\t\t<svg class=\"de-win-btn-close\"><use xlink:href=\"#de-symbol-win-close\"/></svg>\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t<div class=\"de-win-body\"></div>\n\t\t\t").concat(name !== 'fav' ? '' : "\n\t\t\t\t<div class=\"de-resizer de-resizer-left\"></div>\n\t\t\t\t<div class=\"de-resizer de-resizer-right\"></div>", "\n\t\t</div>"));
+      winEl = $aBegin(Panel.mainEl, "<div id=\"de-win-".concat(name, "\" class=\"").concat(winAttr, "; display: none;\">\n\t\t\t<div class=\"de-win-head\">\n\t\t\t\t<span class=\"de-win-title\">\n\t\t\t\t\t").concat(name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang], "\n\t\t\t\t</span>\n\t\t\t\t<span class=\"de-win-buttons\">\n\t\t\t\t\t<svg class=\"de-win-btn-toggle\"><use xlink:href=\"#de-symbol-win-arrow\"/></svg>\n\t\t\t\t\t<svg class=\"de-win-btn-close\"><use xlink:href=\"#de-symbol-win-close\"/></svg>\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t<div class=\"de-win-body\"></div>\n\t\t\t").concat(name !== 'fav' ? '' : "\n\t\t\t\t<div class=\"de-resizer de-resizer-left\"></div>\n\t\t\t\t<div class=\"de-resizer de-resizer-right\"></div>", "\n\t\t</div>"));
       var _winBody = $q('.de-win-body', winEl);
       if (name === 'cfg') {
         _winBody.className = 'de-win-body ' + aib.cReply;
@@ -11234,7 +11270,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
             case 1:
               isDrag = Cfg[name + 'WinDrag'];
               if (!isDrag) {
-                temp = $q('.de-win-active.de-win-fixed', winEl.parentNode);
+                temp = $q('.de-win-opened.de-win-fixed', winEl.parentNode);
                 if (temp) {
                   toggleWindow(temp.id.substr(7), false);
                 }
@@ -11253,7 +11289,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     }
     updateWinZ(winEl);
     var isRemove = !isUpdate && isActive;
-    if (!isRemove && !winEl.classList.contains('de-win') && (el = $q(".de-win-active.de-win-fixed:not(#de-win-".concat(name, ")"), winEl.parentNode))) {
+    if (!isRemove && !winEl.classList.contains('de-win') && (el = $q(".de-win-opened.de-win-fixed:not(#de-win-".concat(name, ")"), winEl.parentNode))) {
       toggleWindow(el.id.substr(7), false);
     }
     var isAnim = !noAnim && !isUpdate && Cfg.animation;
@@ -11264,25 +11300,25 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
         showWindow(winEl, winBody, name, isRemove, data, Cfg.animation);
         winEl = winBody = name = isRemove = data = null;
       });
-      winEl.classList.remove('de-win-open');
-      winEl.classList.add('de-win-close');
+      winEl.classList.remove('de-win-anim-open');
+      winEl.classList.add('de-win-anim-close');
     } else {
       showWindow(winEl, winBody, name, isRemove, data, isAnim);
     }
   }
   function showWindow(winEl, winBody, name, isRemove, data, isAnim) {
     winBody.innerHTML = '';
-    winEl.classList.toggle('de-win-active', !isRemove);
+    winEl.classList.toggle('de-win-opened', !isRemove);
     if (isRemove) {
-      winEl.classList.remove('de-win-close');
+      winEl.classList.remove('de-win-anim-close');
       $hide(winEl);
-      if (!Cfg.expandPanel && !$q('.de-win-active')) {
-        $hide($id('de-panel-buttons'));
+      if (!Cfg.expandPanel && !$q('.de-win-opened')) {
+        $hide($q('#de-panel-buttons', Panel.mainEl));
       }
       return;
     }
     if (!Cfg.expandPanel) {
-      $show($id('de-panel-buttons'));
+      $show($q('#de-panel-buttons', Panel.mainEl));
     }
     switch (name) {
       case 'fav':
@@ -11294,7 +11330,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
           showFavoritesWindow(winBody, favObj);
           $show(winEl);
           if (isAnim) {
-            winEl.classList.add('de-win-open');
+            winEl.classList.add('de-win-anim-open');
           }
         });
         return;
@@ -11309,7 +11345,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     }
     $show(winEl);
     if (isAnim) {
-      winEl.classList.add('de-win-open');
+      winEl.classList.add('de-win-anim-open');
     }
   }
 
@@ -11690,7 +11726,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   }
   function _refreshFavorites() {
     _refreshFavorites = _asyncToGenerator(_regenerator().m(function _callee54(needClear404) {
-      var isUpdate, favObj, myPosts, parentEl, entryEls, i, len, _entry$last$match, entryEl, _ref59, titleEl, youEl, newEl, totalEl, iconEl, host, board, num, url, entry, oldClassName, oldTitle, formEl, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, newCount, youCount, lastNum, posts, postsLen, j, post, _t48, _t49;
+      var isUpdate, favObj, myPosts, parentEl, entryEls, i, len, _entry$last$match, entryEl, _ref59, titleEl, youEl, newEl, totalEl, iconEl, host, board, num, url, entry, oldClassName, oldTitle, formEl, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, newCount, youCount, lastNum, posts, postsLen, j, post, _t49, _t50;
       return _regenerator().w(function (_context62) {
         while (1) switch (_context62.p = _context62.n) {
           case 0:
@@ -11753,14 +11789,14 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
             break;
           case 6:
             _context62.p = 6;
-            _t48 = _context62.v;
-            if (!(_t48 instanceof AjaxError) || _t48.code === 0) {
+            _t49 = _context62.v;
+            if (!(_t49 instanceof AjaxError) || _t49.code === 0) {
               $popup('fav-refresh', Lng.noConnect[lang]);
-            } else if (_t48.code === 404) {
+            } else if (_t49.code === 404) {
               entryEl.setAttribute('de-removed', ''); 
             }
             iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-            titleEl.title = entry.err = getErrorMessage(_t48);
+            titleEl.title = entry.err = getErrorMessage(_t49);
             isUpdate = true;
           case 7:
             return _context62.a(3, 20);
@@ -11792,16 +11828,16 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
             break;
           case 14:
             _context62.p = 14;
-            _t49 = _context62.v;
-            if (!(_t49 instanceof AjaxError) || _t49.code === 0) {
+            _t50 = _context62.v;
+            if (!(_t50 instanceof AjaxError) || _t50.code === 0) {
               $popup('fav-refresh', Lng.noConnect[lang]);
-            } else if (_t49.code === 404) {
+            } else if (_t50.code === 404) {
               entryEl.setAttribute('de-removed', '');
             }
             $hide(newEl);
             $hide(youEl);
             iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-            titleEl.title = entry.err = getErrorMessage(_t49);
+            titleEl.title = entry.err = getErrorMessage(_t50);
             isUpdate = true;
             return _context62.a(3, 20);
           case 15:
@@ -12002,7 +12038,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       return refreshFavorites(true);
     }),
     $button(Lng.page[lang], Lng.infoPage[lang], _asyncToGenerator(_regenerator().m(function _callee0() {
-      var els, len, thrInfo, _i3, el, iconEl, titleEl, endPage, infoLoaded, updateInf, page, _tNums, form, _els, _i4, _len3, _i5, inf, _i6, _inf, _t9;
+      var els, len, thrInfo, _i3, el, iconEl, titleEl, endPage, infoLoaded, updateInf, page, _tNums, _els, _i4, _len3, _i5, inf, _i6, _inf, _t9, _t0;
       return _regenerator().w(function (_context1) {
         while (1) switch (_context1.p = _context1.n) {
           case 0:
@@ -12051,11 +12087,11 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
             }
             _tNums = new Set();
             _context1.p = 3;
+            _t9 = DelForm;
             _context1.n = 4;
             return ajaxLoad(aib.getPageUrl(aib.b, page));
           case 4:
-            form = _context1.v;
-            _els = DelForm.getThreads(form);
+            _els = _t9.getThreads.call(_t9, _context1.v);
             for (_i4 = 0, _len3 = _els.length; _i4 < _len3; ++_i4) {
               _tNums.add(aib.getTNum(_els[_i4]));
             }
@@ -12063,7 +12099,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
             break;
           case 5:
             _context1.p = 5;
-            _t9 = _context1.v;
+            _t0 = _context1.v;
             return _context1.a(3, 7);
           case 6:
             for (_i5 = 0; _i5 < len; ++_i5) {
@@ -12097,20 +12133,19 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       }, _callee0, null, [[3, 5]]);
     }))));
 
-    var delBtns = $bEnd(winBody, '<div id="de-fav-del-confirm" style="display: none;"></div>');
-    delBtns.append($button(Lng.remove[lang], Lng.delEntries[lang], function () {
+    $bEnd(winBody, '<div id="de-fav-del-confirm" style="display: none;"></div>').append($button(Lng.remove[lang], Lng.delEntries[lang], function () {
       $Q('.de-entry > .de-fav-del-btn[de-checked]', winBody).forEach(function (el) {
         return el.parentNode.setAttribute('de-removed', '');
       });
       remove404Favorites();
       $show(btns);
-      $hide(delBtns);
+      $hide($id('de-fav-del-confirm'));
     }), $button(Lng.cancel[lang], '', function () {
       $Q('.de-fav-del-btn', winBody).forEach(function (el) {
         return el.removeAttribute('de-checked');
       });
       $show(btns);
-      $hide(delBtns);
+      $hide($id('de-fav-del-confirm'));
     }));
   }
 
@@ -12267,7 +12302,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
         els[0].checked = true;
         expFile.addEventListener('click', function () {
           var _ref0 = _asyncToGenerator(_regenerator().m(function _callee12(e) {
-            var name, nameDomain, d, val, valDomain, i, len, cfgData, _t0, _t1, _t10, _t11;
+            var name, nameDomain, d, val, valDomain, i, len, cfgData, _t1, _t10, _t11, _t12;
             return _regenerator().w(function (_context13) {
               while (1) switch (_context13.n) {
                 case 0:
@@ -12288,8 +12323,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                   }
                   return _context13.a(3, 10);
                 case 2:
-                  _t0 = i;
-                  _context13.n = _t0 === 0 ? 3 : _t0 === 1 ? 5 : _t0 === 2 ? 8 : _t0 === 3 ? 9 : 10;
+                  _t1 = i;
+                  _context13.n = _t1 === 0 ? 3 : _t1 === 1 ? 5 : _t1 === 2 ? 8 : _t1 === 3 ? 9 : 10;
                   break;
                 case 3:
                   name.push('Cfg');
@@ -12301,19 +12336,19 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                   return _context13.a(3, 10);
                 case 5:
                   name.push('Fav');
-                  _t1 = val;
-                  _t10 = "\"favorites\":";
+                  _t10 = val;
+                  _t11 = "\"favorites\":";
                   _context13.n = 6;
                   return getStored('DESU_Favorites');
                 case 6:
-                  _t11 = _context13.v;
-                  if (_t11) {
+                  _t12 = _context13.v;
+                  if (_t12) {
                     _context13.n = 7;
                     break;
                   }
-                  _t11 = '{}';
+                  _t12 = '{}';
                 case 7:
-                  _t1.push.call(_t1, _t10.concat.call(_t10, _t11));
+                  _t10.push.call(_t10, _t11.concat.call(_t11, _t12));
                   return _context13.a(3, 10);
                 case 8:
                   nameDomain.push('Hid');
@@ -12386,7 +12421,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     handleEvent: function handleEvent(e) {
       var _this17 = this;
       return _asyncToGenerator(_regenerator().m(function _callee13() {
-        var type, el, classList, tag, info, _info, isHide, post, _iterator3, _step3, _el4, _info2, _post4, img, _iterator4, _step4, _el5, perf, arr, i, len, _info3, isValidColor, color, image, val, _t12, _t13, _t14, _t15, _t16, _t17;
+        var type, el, classList, tag, info, _info, isHide, post, _iterator3, _step3, _el4, _info2, _post4, img, _iterator4, _step4, _el5, perf, arr, i, len, _info3, isValidColor, color, image, val, _t13, _t14, _t15, _t16, _t17, _t18;
         return _regenerator().w(function (_context14) {
           while (1) switch (_context14.n) {
             case 0:
@@ -12414,8 +12449,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
               return CfgSaver.save(_info, el.selectedIndex);
             case 2:
               _this17._updateDependant();
-              _t12 = _info;
-              _context14.n = _t12 === 'language' ? 3 : _t12 === 'delHiddPost' ? 4 : _t12 === 'postBtnsCSS' ? 5 : _t12 === 'thrBtns' ? 5 : _t12 === 'noSpoilers' ? 5 : _t12 === 'resizeImgs' ? 5 : _t12 === 'expandImgs' ? 6 : _t12 === 'imgNames' ? 7 : _t12 === 'fileInputs' ? 8 : _t12 === 'addPostForm' ? 9 : _t12 === 'addTextBtns' ? 10 : _t12 === 'scriptStyle' ? 11 : _t12 === 'panelCounter' ? 11 : _t12 === 'favThrOrder' ? 12 : 13;
+              _t13 = _info;
+              _context14.n = _t13 === 'language' ? 3 : _t13 === 'delHiddPost' ? 4 : _t13 === 'postBtnsCSS' ? 5 : _t13 === 'thrBtns' ? 5 : _t13 === 'noSpoilers' ? 5 : _t13 === 'resizeImgs' ? 5 : _t13 === 'expandImgs' ? 6 : _t13 === 'imgNames' ? 7 : _t13 === 'fileInputs' ? 8 : _t13 === 'addPostForm' ? 9 : _t13 === 'addTextBtns' ? 10 : _t13 === 'scriptStyle' ? 11 : _t13 === 'panelCounter' ? 11 : _t13 === 'favThrOrder' ? 12 : 13;
               break;
             case 3:
               lang = el.selectedIndex;
@@ -12495,8 +12530,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
               return toggleCfg(_info2);
             case 15:
               _this17._updateDependant();
-              _t13 = _info2;
-              _context14.n = _t13 === 'expandTrunc' ? 16 : _t13 === 'widePosts' ? 16 : _t13 === 'showHideBtn' ? 16 : _t13 === 'showRepBtn' ? 16 : _t13 === 'noPostNames' ? 16 : _t13 === 'imgNavBtns' ? 16 : _t13 === 'strikeHidd' ? 16 : _t13 === 'removeHidd' ? 16 : _t13 === 'noBoardRule' ? 16 : _t13 === 'favFolders' ? 16 : _t13 === 'userCSS' ? 16 : _t13 === 'hideBySpell' ? 17 : _t13 === 'sortSpells' ? 19 : _t13 === 'hideRefPsts' ? 21 : _t13 === 'ajaxUpdThr' ? 22 : _t13 === 'updCount' ? 23 : _t13 === 'desktNotif' ? 24 : _t13 === 'markNewPosts' ? 25 : _t13 === 'markMyPosts' ? 26 : _t13 === 'markMyLinks' ? 26 : _t13 === 'correctTime' ? 27 : _t13 === 'imgInfoLink' ? 29 : _t13 === 'imgSrcBtns' ? 30 : _t13 === 'addSageBtn' ? 31 : _t13 === 'txtBtnsLoc' ? 32 : _t13 === 'userPassw' ? 33 : _t13 === 'userName' ? 35 : _t13 === 'noPassword' ? 37 : _t13 === 'noName' ? 38 : _t13 === 'noSubj' ? 39 : _t13 === 'inftyScroll' ? 40 : _t13 === 'hotKeys' ? 41 : 42;
+              _t14 = _info2;
+              _context14.n = _t14 === 'expandTrunc' ? 16 : _t14 === 'widePosts' ? 16 : _t14 === 'showHideBtn' ? 16 : _t14 === 'showRepBtn' ? 16 : _t14 === 'noPostNames' ? 16 : _t14 === 'imgNavBtns' ? 16 : _t14 === 'strikeHidd' ? 16 : _t14 === 'removeHidd' ? 16 : _t14 === 'noBoardRule' ? 16 : _t14 === 'favFolders' ? 16 : _t14 === 'userCSS' ? 16 : _t14 === 'hideBySpell' ? 17 : _t14 === 'sortSpells' ? 19 : _t14 === 'hideRefPsts' ? 21 : _t14 === 'ajaxUpdThr' ? 22 : _t14 === 'updCount' ? 23 : _t14 === 'desktNotif' ? 24 : _t14 === 'markNewPosts' ? 25 : _t14 === 'markMyPosts' ? 26 : _t14 === 'markMyLinks' ? 26 : _t14 === 'correctTime' ? 27 : _t14 === 'imgInfoLink' ? 29 : _t14 === 'imgSrcBtns' ? 30 : _t14 === 'addSageBtn' ? 31 : _t14 === 'txtBtnsLoc' ? 32 : _t14 === 'userPassw' ? 33 : _t14 === 'userName' ? 35 : _t14 === 'noPassword' ? 37 : _t14 === 'noName' ? 38 : _t14 === 'noSubj' ? 39 : _t14 === 'inftyScroll' ? 40 : _t14 === 'hotKeys' ? 41 : 42;
               break;
             case 16:
               updateCSS();
@@ -12622,8 +12657,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                 _context14.n = 51;
                 break;
               }
-              _t14 = el.id;
-              _context14.n = _t14 === 'de-cfg-button-pass' ? 44 : _t14 === 'de-cfg-button-keys' ? 46 : _t14 === 'de-cfg-button-updnow' ? 48 : _t14 === 'de-cfg-button-donate' ? 49 : _t14 === 'de-cfg-button-debug' ? 50 : 51;
+              _t15 = el.id;
+              _context14.n = _t15 === 'de-cfg-button-pass' ? 44 : _t15 === 'de-cfg-button-keys' ? 46 : _t15 === 'de-cfg-button-updnow' ? 48 : _t15 === 'de-cfg-button-donate' ? 49 : _t15 === 'de-cfg-button-debug' ? 50 : 51;
               break;
             case 44:
               $q('input[info="passwValue"]').value = Math.round(Math.random() * 1e12).toString(32);
@@ -12689,8 +12724,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                 break;
               }
               _info3 = el.getAttribute('info');
-              _t15 = _info3;
-              _context14.n = _t15 === 'postBtnsBack' ? 52 : _t15 === 'limitPostMsg' ? 55 : _t15 === 'minImgSize' ? 57 : _t15 === 'maxImgSize' ? 59 : _t15 === 'zoomFactor' ? 61 : _t15 === 'webmVolume' ? 63 : _t15 === 'minWebmWidth' ? 65 : _t15 === 'maskVisib' ? 67 : _t15 === 'linksOver' ? 69 : _t15 === 'linksOut' ? 71 : _t15 === 'ytApiKey' ? 73 : _t15 === 'passwValue' ? 75 : _t15 === 'nameValue' ? 77 : 79;
+              _t16 = _info3;
+              _context14.n = _t16 === 'postBtnsBack' ? 52 : _t16 === 'limitPostMsg' ? 55 : _t16 === 'minImgSize' ? 57 : _t16 === 'maxImgSize' ? 59 : _t16 === 'zoomFactor' ? 61 : _t16 === 'webmVolume' ? 63 : _t16 === 'minWebmWidth' ? 65 : _t16 === 'maskVisib' ? 67 : _t16 === 'linksOver' ? 69 : _t16 === 'linksOut' ? 71 : _t16 === 'ytApiKey' ? 73 : _t16 === 'passwValue' ? 75 : _t16 === 'nameValue' ? 77 : 79;
               break;
             case 52:
               isValidColor = false;
@@ -12792,8 +12827,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                 _context14.n = 86;
                 break;
               }
-              _t16 = e.type;
-              _context14.n = _t16 === 'click' ? 82 : _t16 === 'mouseover' ? 83 : _t16 === 'mouseout' ? 84 : 85;
+              _t17 = e.type;
+              _context14.n = _t17 === 'click' ? 82 : _t17 === 'mouseover' ? 83 : _t17 === 'mouseout' ? 84 : 85;
               break;
             case 82:
               e.preventDefault();
@@ -12812,8 +12847,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                 _context14.n = 92;
                 break;
               }
-              _t17 = el.id;
-              _context14.n = _t17 === 'de-btn-spell-apply' ? 87 : _t17 === 'de-btn-spell-clear' ? 90 : 92;
+              _t18 = el.id;
+              _context14.n = _t18 === 'de-btn-spell-apply' ? 87 : _t18 === 'de-btn-spell-clear' ? 90 : 92;
               break;
             case 87:
               e.preventDefault();
@@ -12924,7 +12959,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       return "<div id=\"de-cfg-links\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getBox('linksNavig', true), "\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('linksOver'), "\n\t\t\t\t").concat(this._getInp('linksOut'), "<br>\n\t\t\t\t").concat(this._getBox('markViewed'), "<br>\n\t\t\t\t").concat(this._getBox('strikeHidd'), "\n\t\t\t\t<div class=\"de-depend\">").concat(this._getBox('removeHidd'), "</div>\n\t\t\t\t").concat(this._getBox('noNavigHidd'), "\n\t\t\t</div>\n\t\t\t").concat(this._getBox('markMyLinks'), "<br>\n\t\t\t").concat(this._getBox('crossLinks', true), "<br>\n\t\t\t").concat(this._getBox('decodeLinks', true), "<br>\n\t\t\t").concat(this._getBox('insertNum'), "<br>\n\t\t\t").concat(!localData ? "".concat(this._getBox('addOPLink'), "<br>\n\t\t\t\t").concat(this._getBox('addImgs', true), "<br>") : '', "\n\t\t\t<div>\n\t\t\t\t").concat(this._getBox('addMP3', true), "\n\t\t\t\t").concat(this._getBox('addVocaroo', true), "\n\t\t\t</div>\n\t\t\t").concat(this._getSel('embedYTube', true), "\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('YTubeWidth', false), "\xD7\n\t\t\t\t").concat(this._getInp('YTubeHeigh', false), "(px)<br>\n\t\t\t\t").concat(this._getBox('YTubeTitles', true), "<br>\n\t\t\t\t").concat(this._getInp('ytApiKey', true, 25), "<br>\n\t\t\t\t").concat(this._getBox('addVimeo', true), "\n\t\t\t</div>\n\t\t</div>");
     },
     _getCfgForm: function _getCfgForm() {
-      return "<div id=\"de-cfg-form\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getBox('ajaxPosting', true), "<br>\n\t\t\t").concat(postform.form ? "<div class=\"de-depend\">\n\t\t\t\t".concat(this._getBox('postSameImg'), "<br>\n\t\t\t\t").concat(this._getBox('removeEXIF'), "<br>\n\t\t\t\t").concat(this._getSel('removeFName'), "<br>\n\t\t\t\t").concat(this._getBox('sendErrNotif'), "<br>\n\t\t\t\t").concat(this._getBox('scrAfterRep'), "<br>\n\t\t\t\t").concat(postform.files ? this._getSel('fileInputs') : '', "\n\t\t\t</div>") : '', "\n\t\t\t").concat(postform.form ? this._getSel('addPostForm') + '<br>' : '', "\n\t\t\t").concat(postform.txta ? this._getBox('spacedQuote') + '<br>' : '', "\n\t\t\t").concat(this._getBox('favOnReply'), "<br>\n\t\t\t").concat(postform.subj ? this._getBox('warnSubjTrip') + '<br>' : '', "\n\t\t\t").concat(postform.mail ? "".concat(this._getBox('addSageBtn'), "\n\t\t\t\t").concat(this._getBox('saveSage'), "<br>") : '', "\n\t\t\t").concat(postform.captcha ? "".concat(!aib.noCapUpdTime && this._getInp('capUpdTime', true, 4), "<br>\n\t\t\t\t").concat(this._getSel('captchaLang'), "<br>") : '', "\n\t\t\t").concat(!aib.noMarkupBtns && postform.txta ? "".concat(this._getSel('addTextBtns'), "\n\t\t\t\t").concat(!aib.noMarkupBtns && !aib._4chan ? this._getBox('txtBtnsLoc') : '', "<br>") : '', "\n\t\t\t").concat(postform.passw ? "".concat(this._getInp('passwValue', false, 9), "\n\t\t\t\t").concat(this._getBox('userPassw'), "<input type=\"button\"") + " id=\"de-cfg-button-pass\" class=\"de-cfg-button\" value=\"".concat(Lng.change[lang], "\"><br>") : '', "\n\t\t\t").concat(postform.name ? "".concat(this._getInp('nameValue', false, 9), "\n\t\t\t\t").concat(this._getBox('userName'), "<br>") : '', "\n\t\t\t").concat(postform.rules || postform.passw || postform.name ? Lng.hide[lang] + (postform.rules ? this._getBox('noBoardRule') : '') + (postform.passw ? this._getBox('noPassword') : '') + (postform.name ? this._getBox('noName') : '') + (postform.subj ? this._getBox('noSubj') : '') : '', "\n\t\t</div>");
+      return "<div id=\"de-cfg-form\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getBox('ajaxPosting', true), "<br>\n\t\t\t").concat(postform.form ? "<div class=\"de-depend\">\n\t\t\t\t".concat(this._getBox('postSameImg'), "<br>\n\t\t\t\t").concat(this._getBox('removeEXIF'), "<br>\n\t\t\t\t").concat(this._getSel('removeFName'), "<br>\n\t\t\t\t").concat(this._getBox('sendErrNotif'), "<br>\n\t\t\t\t").concat(this._getBox('scrAfterRep'), "<br>\n\t\t\t\t").concat(postform.files ? this._getSel('fileInputs') : '', "\n\t\t\t</div>") : '', "\n\t\t\t").concat(postform.form ? this._getSel('addPostForm') + '<br>' : '', "\n\t\t\t").concat(postform.txta ? this._getBox('spacedQuote') + '<br>' : '', "\n\t\t\t").concat(this._getBox('favOnReply'), "<br>\n\t\t\t").concat(postform.subj ? this._getBox('warnSubjTrip') + '<br>' : '', "\n\t\t\t").concat(postform.mail ? "".concat(this._getBox('addSageBtn'), "\n\t\t\t\t").concat(this._getBox('saveSage'), "<br>") : '', "\n\t\t\t").concat(postform.captcha ? "".concat(!aib.noCapUpdTime ? this._getInp('capUpdTime', true, 4) + '<br>' : '', "\n\t\t\t\t").concat(postform.captcha.textEl ? "".concat(this._getSel('captchaLang'), "<br>") : '') : '', "\n\t\t\t").concat(!aib.noMarkupBtns && postform.txta ? "".concat(this._getSel('addTextBtns'), "\n\t\t\t\t").concat(!aib._4chan ? this._getBox('txtBtnsLoc') : '', "<br>") : '', "\n\t\t\t").concat(postform.passw ? "".concat(this._getInp('passwValue', false, 9), "\n\t\t\t\t").concat(this._getBox('userPassw'), "<input type=\"button\"") + " id=\"de-cfg-button-pass\" class=\"de-cfg-button\" value=\"".concat(Lng.change[lang], "\"><br>") : '', "\n\t\t\t").concat(postform.name ? "".concat(this._getInp('nameValue', false, 9), "\n\t\t\t\t").concat(this._getBox('userName'), "<br>") : '', "\n\t\t\t").concat(postform.rules || postform.passw || postform.name ? Lng.hide[lang] + (postform.rules ? this._getBox('noBoardRule') : '') + (postform.passw ? this._getBox('noPassword') : '') + (postform.name ? this._getBox('noName') : '') + (postform.subj ? this._getBox('noSubj') : '') : '', "\n\t\t</div>");
     },
     _getCfgCommon: function _getCfgCommon() {
       return "<div id=\"de-cfg-common\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getSel('scriptStyle'), "<br>\n\t\t\t").concat(this._getBox('userCSS'), "\n\t\t\t<a href=\"").concat(gitWiki, "css-tricks\" class=\"de-abtn\" target=\"_blank\">[?]</a><br>\n\t\t\t").concat('animation' in doc.body.style ? this._getBox('animation') + '<br>' : '', "\n\t\t\t").concat(this._getBox('hotKeys'), "\n\t\t\t<input type=\"button\" id=\"de-cfg-button-keys\" class=\"de-cfg-button\" value=\"").concat(Lng.edit[lang], "\">\n\t\t\t<div class=\"de-depend\">").concat(this._getInp('loadPages'), "</div>\n\t\t\t").concat(this._getSel('panelCounter'), "<br>\n\t\t\t").concat(this._getBox('rePageTitle', true), "<br>\n\t\t\t").concat(!localData ? "".concat(this._getBox('inftyScroll'), "<br>\n\t\t\t\t").concat(this._getBox('hideReplies', true), "<br>\n\t\t\t\t").concat(this._getBox('scrollToTop'), "<br>") : '', "\n\t\t\t").concat(this._getBox('saveScroll'), "<br>\n\t\t\t").concat(this._getBox('favFolders'), "<br>\n\t\t\t").concat(this._getSel('favThrOrder'), "<br>\n\t\t\t").concat(this._getBox('favWinOn'), "<br>\n\t\t\t").concat(this._getBox('closePopups'), "\n\t\t</div>");
@@ -13106,8 +13141,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
             if (e.target.classList.contains('de-menu-item')) {
               this.removeMenu();
               this._clickFn(e.target, e);
-              if (!Cfg.expandPanel && !$q('.de-win-active')) {
-                $hide($id('de-panel-buttons'));
+              if (!Cfg.expandPanel && !$q('.de-win-opened')) {
+                $hide($q('#de-panel-buttons', Panel.mainEl));
               }
             }
             break;
@@ -13161,11 +13196,11 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
               var s = _ref10.textContent;
               return insertText($id('de-spell-txt'), s + (!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : "[".concat(aib.b, ",").concat(aib.t, "]")) + (Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : ''));
             });
-          case 'de-panel-refresh':
+          case 'de-panel-btn-refresh':
             return new Menu(el, tags(Lng.selAjaxPages[lang]), function (el) {
               return Pages.loadPages(Array.prototype.indexOf.call(el.parentNode.children, el) + 1);
             });
-          case 'de-panel-savethr':
+          case 'de-panel-btn-savethr':
             return new Menu(el, tags($q(aib.qPostImg, DelForm.first.el) ? Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]), function (el) {
               if ($id('de-popup-savethr')) {
                 return;
@@ -13181,11 +13216,11 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                 ContentLoader.downloadThread(imgOnly);
               }
             });
-          case 'de-panel-audio-off':
+          case 'de-panel-btn-audio-off':
             return new Menu(el, tags(Lng.selAudioNotif[lang]), function (el) {
               updater.enableUpdater();
               updater.toggleAudio([3e4, 6e4, 12e4, 3e5][Array.prototype.indexOf.call(el.parentNode.children, el)]);
-              $id('de-panel-audio-off').id = 'de-panel-audio-on';
+              $q('#de-panel-btn-audio-off', Panel.mainEl).id = 'de-panel-btn-audio-on';
             });
         }
       }
@@ -13350,7 +13385,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
             toggleWindow('hid', false);
             break;
           case 8:
-            $toggle($id('de-panel-buttons'));
+            $toggle($q('#de-panel-buttons', Panel.mainEl));
             break;
           case 9:
             toggleCfg('maskImgs').then(function () {
@@ -13861,7 +13896,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
           }
         });
       }, _asyncToGenerator(_regenerator().m(function _callee16() {
-        var docName, docBody, dt, html, title, _t18, _t19;
+        var docName, docBody, dt, html, title, _t19, _t20;
         return _regenerator().w(function (_context17) {
           while (1) switch (_context17.n) {
             case 0:
@@ -13872,7 +13907,6 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
               }
               $q('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
               docBody = $q('body', dc);
-              docBody.classList.remove('de-runned-inpage', 'de-runned-userscript');
               docBody.classList.add('de-runned-local');
               $delAll('#de-css, #de-css-dynamic, #de-css-user', dc);
               tar.addString('data/dollscript.js', "".concat(nav.isESNext ? "(".concat(String(deMainFuncInner), ")(window, null, (x, y) => window.scrollTo(x, y), ") : "(".concat(String(deMainFuncOuter), ")(")).concat(JSON.stringify({
@@ -13887,20 +13921,20 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                 break;
               }
               html = html.replace('</head>', "<style type=\"text/css\">\n\t\t\t\t\t\t.bfl { background-image: url(data/flags-pol.png); }\n\t\t\t\t\t\t.flag { background-image: url(data/flags-country.png); }\n\t\t\t\t\t</style></head>");
-              _t18 = tar;
+              _t19 = tar;
               _context17.n = 1;
               return _this23.loadFileData('//s.4cdn.org/image/flags.8.png', false);
             case 1:
-              _t18.addFile.call(_t18, 'data/flags-country.png', _context17.v);
+              _t19.addFile.call(_t19, 'data/flags-country.png', _context17.v);
               if (!(aib.b === 'pol')) {
                 _context17.n = 3;
                 break;
               }
-              _t19 = tar;
+              _t20 = tar;
               _context17.n = 2;
               return _this23.loadFileData('//s.4cdn.org/image/flags/pol/flags.png?2', false);
             case 2:
-              _t19.addFile.call(_t19, 'data/flags-pol.png', _context17.v);
+              _t20.addFile.call(_t20, 'data/flags-pol.png', _context17.v);
             case 3:
               tar.addString(docName + '.html', "<!DOCTYPE ".concat(dt.name).concat(dt.publicId ? " PUBLIC \"".concat(dt.publicId, "\"") : dt.systemId ? ' SYSTEM' : '').concat(dt.systemId ? " \"".concat(dt.systemId, "\"") : '', ">").concat(html));
             case 4:
@@ -13921,7 +13955,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
         }
       });
       if (!imgOnly) {
-        $delAll('.de-btn-img, #de-main, .de-parea, .de-post-btns, .de-refmap, .de-thr-buttons, ' + '.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' + aib.qForm, dc);
+        $delAll('.de-btn-img, #de-main-container, .de-parea, .de-post-btns, .de-refmap, ' + '.de-thr-buttons, .de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' + aib.qForm, dc);
         $Q('a', dc).forEach(function (el) {
           var num;
           var tc = el.textContent;
@@ -13999,7 +14033,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       }, !url.startsWith('blob')).then(function (xhr) {
         if ('response' in xhr) {
           try {
-            return nav.unsafeUint8Array(xhr.response);
+            return nav.uint8Array(xhr.response);
           } catch (err) {}
         }
         var txt = xhr.responseText;
@@ -14114,7 +14148,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
         return;
       }
       var ext = ['7z', 'zip', 'rar', 'ogg', 'mp3'][type];
-      nameLink.insertAdjacentHTML('afterend', "<a href=\"".concat(deWindow.URL.createObjectURL(new Blob([nav.unsafeUint8Array(info.data, info.idx)], {
+      nameLink.insertAdjacentHTML('afterend', "<a href=\"".concat(deWindow.URL.createObjectURL(new Blob([nav.uint8Array(info.data, info.idx)], {
         type: ['application/x-7z-compressed', 'application/zip', 'application/x-rar-compressed', 'audio/ogg', 'audio/mpeg'][type]
       })), "\" class=\"de-img-").concat(type > 2 ? 'audio' : 'arch', "\" title=\"").concat(Lng.downloadFile[lang], "\" download=\"").concat(cutFileExt(fName), ".").concat(ext, "\">.").concat(ext, "</a>"));
     },
@@ -14771,7 +14805,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       };
       fetch(aib.getAbsLink(url), params).then(function () {
         var _ref14 = _asyncToGenerator(_regenerator().m(function _callee18(res) {
-          var _t20;
+          var _t21;
           return _regenerator().w(function (_context19) {
             while (1) switch (_context19.n) {
               case 0:
@@ -14782,8 +14816,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                 reject(new AjaxError(res.status, res.statusText));
                 return _context19.a(2);
               case 1:
-                _t20 = params.responseType;
-                _context19.n = _t20 === 'arraybuffer' ? 2 : _t20 === 'blob' ? 4 : 6;
+                _t21 = params.responseType;
+                _context19.n = _t21 === 'arraybuffer' ? 2 : _t21 === 'blob' ? 4 : 6;
                 break;
               case 2:
                 _context19.n = 3;
@@ -15073,10 +15107,10 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
         return err.code === 304 ? null : CancelablePromise.reject(err);
       });
     }
-    return aib.hasArchive ? ajaxLoad(aib.getThrUrl(board, tNum), true, useCache, true).then(function (data) {
+    return ajaxLoad(aib.getThrUrl(board, tNum), true, useCache, aib.hasArchive).then(aib.hasArchive ? function (data) {
       return data !== null && data !== void 0 && data[0] ? new DOMPostsBuilder(data[0], data[1]) : null;
-    }) : ajaxLoad(aib.getThrUrl(board, tNum), true, useCache).then(function (form) {
-      return form ? new DOMPostsBuilder(form) : null;
+    } : function (formEl) {
+      return formEl ? new DOMPostsBuilder(formEl) : null;
     });
   }
   function infoLoadErrors(err) {
@@ -15198,7 +15232,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     loadPages: function loadPages(count) {
       var _this30 = this;
       return _asyncToGenerator(_regenerator().m(function _callee20() {
-        var _iterator5, _step5, form, i, len, first, _t21, _t22;
+        var _iterator5, _step5, form, i, len, first, _t22, _t23;
         return _regenerator().w(function (_context21) {
           while (1) switch (_context21.p = _context21.n) {
             case 0:
@@ -15247,17 +15281,17 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                 break;
               }
               _context21.p = 6;
-              _t21 = _this30;
+              _t22 = _this30;
               _context21.n = 7;
               return ajaxLoad(aib.getPageUrl(aib.b, i));
             case 7:
-              _t21._addForm.call(_t21, _context21.v, i);
+              _t22._addForm.call(_t22, _context21.v, i);
               _context21.n = 9;
               break;
             case 8:
               _context21.p = 8;
-              _t22 = _context21.v;
-              $popup('load-pages', getErrorMessage(_t22));
+              _t23 = _context21.v;
+              $popup('load-pages', getErrorMessage(_t23));
             case 9:
               ++i;
               _context21.n = 5;
@@ -15316,16 +15350,16 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     },
     _updateForms: function _updateForms(newForm) {
       return _asyncToGenerator(_regenerator().m(function _callee21() {
-        var _t23, _t24;
+        var _t24, _t25;
         return _regenerator().w(function (_context22) {
           while (1) switch (_context22.n) {
             case 0:
-              _t23 = readPostsData;
-              _t24 = newForm.firstThr.op;
+              _t24 = readPostsData;
+              _t25 = newForm.firstThr.op;
               _context22.n = 1;
               return readFavorites();
             case 1:
-              _t23(_t24, _context22.v);
+              _t24(_t25, _context22.v);
               if (!postform.passw) {
                 _context22.n = 2;
                 break;
@@ -16666,7 +16700,7 @@ this.disableSpells();
       key: "_ihash",
       value: function () {
         var _ihash2 = _asyncToGenerator(_regenerator().m(function _callee26(val) {
-          var _iterator13, _step13, image, _t25, _t26, _t27;
+          var _iterator13, _step13, image, _t26, _t27, _t28;
           return _regenerator().w(function (_context27) {
             while (1) switch (_context27.n) {
               case 0:
@@ -16677,19 +16711,19 @@ this.disableSpells();
                   break;
                 }
                 image = _step13.value;
-                _t25 = image instanceof AttachedImage;
-                if (!_t25) {
+                _t26 = image instanceof AttachedImage;
+                if (!_t26) {
                   _context27.n = 3;
                   break;
                 }
                 _context27.n = 2;
                 return ImagesHashStorage.getHash(image);
               case 2:
-                _t26 = _context27.v;
-                _t27 = val;
-                _t25 = _t26 === _t27;
+                _t27 = _context27.v;
+                _t28 = val;
+                _t26 = _t27 === _t28;
               case 3:
-                if (!_t25) {
+                if (!_t26) {
                   _context27.n = 4;
                   break;
                 }
@@ -17369,7 +17403,7 @@ this.disableSpells();
         }
         this.form.onsubmit = function () {
           var _ref23 = _asyncToGenerator(_regenerator().m(function _callee28(e) {
-            var data, _t28;
+            var data, _t29;
             return _regenerator().w(function (_context29) {
               while (1) switch (_context29.p = _context29.n) {
                 case 0:
@@ -17387,8 +17421,8 @@ this.disableSpells();
                   break;
                 case 4:
                   _context29.p = 4;
-                  _t28 = _context29.v;
-                  showSubmitError(_t28);
+                  _t29 = _context29.v;
+                  showSubmitError(_t29);
                 case 5:
                   return _context29.a(2);
               }
@@ -17832,7 +17866,7 @@ this.disableSpells();
   }
   function _checkSubmit() {
     _checkSubmit = _asyncToGenerator(_regenerator().m(function _callee55(data) {
-      var error, postNum, isDocument, _aib$captchaAfterSubm, _aib8, _data, _aib$getSubmitData, _postform2, tNum, _pByNum$get3, thr, statsParam, dForm;
+      var error, postNum, isDocument, _aib$captchaAfterSubm, _aib8, _data, _aib$getSubmitData, _postform, tNum, _pByNum$get3, thr, statsParam, dForm;
       return _regenerator().w(function (_context63) {
         while (1) switch (_context63.n) {
           case 0:
@@ -17877,7 +17911,7 @@ this.disableSpells();
             showSubmitError(error);
             return _context63.a(2);
           case 5:
-            _postform2 = postform, tNum = _postform2.tNum;
+            _postform = postform, tNum = _postform.tNum;
             if ((Cfg.markMyPosts || Cfg.markMyLinks) && postNum) {
               MyPosts.set(postNum, tNum || postNum);
             }
@@ -18021,7 +18055,7 @@ this.disableSpells();
   }
 
   function getFormElements(form, submitter) {
-    var controls, fixName, i, len, field, tag, type, name, options, j, jlen, option, img, files, _j2, _jlen, dirname, _t29;
+    var controls, fixName, i, len, field, tag, type, name, options, j, jlen, option, img, files, _j2, _jlen, dirname, _t30;
     return _regenerator().w(function (_context35) {
       while (1) switch (_context35.n) {
         case 0:
@@ -18080,8 +18114,8 @@ this.disableSpells();
             _context35.n = 18;
             break;
           }
-          _t29 = type;
-          _context35.n = _t29 === 'image' ? 7 : _t29 === 'checkbox' ? 8 : _t29 === 'radio' ? 8 : _t29 === 'file' ? 10 : 18;
+          _t30 = type;
+          _context35.n = _t30 === 'image' ? 7 : _t30 === 'checkbox' ? 8 : _t30 === 'radio' ? 8 : _t30 === 'file' ? 10 : 18;
           break;
         case 7:
           throw new Error('input[type="image"] is not supported');
@@ -18237,7 +18271,7 @@ this.disableSpells();
         cleanData,
         ajaxParams,
         _args65 = arguments,
-        _t50;
+        _t51;
       return _regenerator().w(function (_context65) {
         while (1) switch (_context65.n) {
           case 0:
@@ -18271,11 +18305,11 @@ this.disableSpells();
               _context65.n = 5;
               break;
             }
-            _t50 = cleanFile;
+            _t51 = cleanFile;
             _context65.n = 3;
             return readFile(value);
           case 3:
-            cleanData = _t50(_context65.v.data, el.obj ? el.obj.extraFile : null);
+            cleanData = _t51(_context65.v.data, el.obj ? el.obj.extraFile : null);
             if (cleanData) {
               _context65.n = 4;
               break;
@@ -18324,7 +18358,7 @@ this.disableSpells();
     return _html5Submit.apply(this, arguments);
   }
   function cleanFile(data, extraData) {
-    var img = nav.unsafeUint8Array(data);
+    var img = nav.uint8Array(data);
     var rand = Cfg.postSameImg && String(Math.round(Math.random() * 1e6));
     var rv = extraData ? rand ? [img, extraData, rand] : [img, extraData] : rand ? [img, rand] : [img];
     var rExif = !!Cfg.removeEXIF;
@@ -18333,7 +18367,7 @@ this.disableSpells();
     }
     var i, len, val, lIdx, jpgDat;
     var subarray = function subarray(begin, end) {
-      return nav.unsafeUint8Array(data, begin, end - begin);
+      return nav.uint8Array(data, begin, end - begin);
     };
     if (img[0] === 0xFF && img[1] === 0xD8) {
       var deep = 1;
@@ -18372,7 +18406,7 @@ this.disableSpells();
       }
       if (lIdx === 2) {
         if (i < len) {
-          rv[0] = nav.unsafeUint8Array(data, 0, i);
+          rv[0] = nav.uint8Array(data, 0, i);
         }
         return rv;
       }
@@ -18391,7 +18425,7 @@ this.disableSpells();
       for (i = 0, len = img.length - 7; i < len && (img[i] !== 0x49 || img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); ++i) ;
       i += 8;
       if (i !== len && (extraData || len - i <= 75)) {
-        rv[0] = nav.unsafeUint8Array(data, 0, i);
+        rv[0] = nav.uint8Array(data, 0, i);
       }
       return rv;
     }
@@ -18399,7 +18433,7 @@ this.disableSpells();
       i = len = img.length;
       while (i && img[--i - 1] !== 0x00 && img[i] !== 0x3B) ;
       if (++i !== len) {
-        rv[0] = nav.unsafeUint8Array(data, 0, i);
+        rv[0] = nav.uint8Array(data, 0, i);
       }
       return rv;
     }
@@ -18412,7 +18446,7 @@ this.disableSpells();
     var xRes = 0;
     var yRes = 0;
     var resT = 0;
-    var dv = nav.unsafeDataView(data, offset);
+    var dv = nav.dataView(data, offset);
     var le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
     if (dv.getUint16(2, le) !== 0x2A) {
       return null;
@@ -19812,13 +19846,13 @@ Spells.addSpell(9, '', false);
         if (!isInit) {
           $popup('load-fullmsg', Lng.loading[lang], true);
         }
-        ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(function (form) {
+        ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(function (formEl) {
           var sourceEl;
           var maybeSpells = new Maybe(SpellsRunner);
           if (_this63.isOp) {
-            sourceEl = form;
+            sourceEl = formEl;
           } else {
-            var posts = $Q(aib.qPost, form);
+            var posts = $Q(aib.qPost, formEl);
             for (var i = 0, len = posts.length; i < len; ++i) {
               var post = posts[i];
               if (_this63.num === aib.getPNum(post)) {
@@ -19848,14 +19882,14 @@ Spells.addSpell(9, '', false);
       key: "_menuClickOnOptions",
       value: function () {
         var _menuClickOnOptions2 = _asyncToGenerator(_regenerator().m(function _callee36(el, e) {
-          var isHide, num, _this$_selRange, start, end, inMsgSel, _this$images$firstAtt, w, wi, h, hash, words, post, isAdd, isPview, task, _t30;
+          var isHide, num, _this$_selRange, start, end, inMsgSel, _this$images$firstAtt, w, wi, h, hash, words, post, isAdd, isPview, task, _t31;
           return _regenerator().w(function (_context39) {
             while (1) switch (_context39.n) {
               case 0:
                 isHide = !this.isHidden;
                 num = this.num;
-                _t30 = el.getAttribute('info');
-                _context39.n = _t30 === 'hide-sel' ? 1 : _t30 === 'hide-name' ? 7 : _t30 === 'hide-trip' ? 9 : _t30 === 'hide-uid' ? 11 : _t30 === 'hide-img' ? 13 : _t30 === 'hide-imgn' ? 15 : _t30 === 'hide-ihash' ? 17 : _t30 === 'hide-noimg' ? 20 : _t30 === 'hide-post' ? 22 : _t30 === 'hide-text' ? 23 : _t30 === 'hide-notext' ? 24 : _t30 === 'hide-refs' ? 26 : _t30 === 'hide-refsonly' ? 27 : _t30 === 'img-load' ? 29 : _t30 === 'post-markmy' ? 30 : _t30 === 'post-reply' ? 31 : _t30 === 'post-report' ? 32 : _t30 === 'thr-exp' ? 33 : 34;
+                _t31 = el.getAttribute('info');
+                _context39.n = _t31 === 'hide-sel' ? 1 : _t31 === 'hide-name' ? 7 : _t31 === 'hide-trip' ? 9 : _t31 === 'hide-uid' ? 11 : _t31 === 'hide-img' ? 13 : _t31 === 'hide-imgn' ? 15 : _t31 === 'hide-ihash' ? 17 : _t31 === 'hide-noimg' ? 20 : _t31 === 'hide-post' ? 22 : _t31 === 'hide-text' ? 23 : _t31 === 'hide-notext' ? 24 : _t31 === 'hide-refs' ? 26 : _t31 === 'hide-refsonly' ? 27 : _t31 === 'img-load' ? 29 : _t31 === 'post-markmy' ? 30 : _t31 === 'post-reply' ? 31 : _t31 === 'post-report' ? 32 : _t31 === 'thr-exp' ? 33 : 34;
                 break;
               case 1:
                 _this$_selRange = this._selRange, start = _this$_selRange.startContainer, end = _this$_selRange.endContainer;
@@ -20919,7 +20953,7 @@ Spells.addSpell(9, '', false);
       value: function () {
         var _buildPview2 = _asyncToGenerator(_regenerator().m(function _callee37(post) {
           var _this$el, _yield$readFavorites$;
-          var isOp, num, pv, isMyPost, isFav, isCached, postsCountHtml, pText, _$q7, btnsEl, link, _t31, _t32, _t33, _t34, _t35, _t36, _t37;
+          var isOp, num, pv, isMyPost, isFav, isCached, postsCountHtml, pText, _$q7, btnsEl, link, _t32, _t33, _t34, _t35, _t36, _t37, _t38;
           return _regenerator().w(function (_context40) {
             while (1) switch (_context40.n) {
               case 0:
@@ -20938,50 +20972,50 @@ Spells.addSpell(9, '', false);
                 }
                 this._pref = $q(aib.qPostRef, pv);
                 this._link.classList.add('de-link-parent');
-                _t31 = isOp;
-                if (!_t31) {
+                _t32 = isOp;
+                if (!_t32) {
                   _context40.n = 7;
                   break;
                 }
-                _t32 = post.thr.isFav;
-                if (_t32) {
+                _t33 = post.thr.isFav;
+                if (_t33) {
                   _context40.n = 6;
                   break;
                 }
                 _context40.n = 1;
                 return readFavorites();
               case 1:
-                _t35 = aib.host;
-                _t36 = _yield$readFavorites$ = _context40.v[_t35];
-                _t34 = _t36 === null;
-                if (_t34) {
+                _t36 = aib.host;
+                _t37 = _yield$readFavorites$ = _context40.v[_t36];
+                _t35 = _t37 === null;
+                if (_t35) {
                   _context40.n = 2;
                   break;
                 }
-                _t34 = _yield$readFavorites$ === void 0;
+                _t35 = _yield$readFavorites$ === void 0;
               case 2:
-                _t33 = _t34;
-                if (_t33) {
+                _t34 = _t35;
+                if (_t34) {
                   _context40.n = 3;
                   break;
                 }
-                _t33 = (_yield$readFavorites$ = _yield$readFavorites$[this.board]) === null || _yield$readFavorites$ === void 0;
+                _t34 = (_yield$readFavorites$ = _yield$readFavorites$[this.board]) === null || _yield$readFavorites$ === void 0;
               case 3:
-                if (!_t33) {
+                if (!_t34) {
                   _context40.n = 4;
                   break;
                 }
-                _t37 = void 0;
+                _t38 = void 0;
                 _context40.n = 5;
                 break;
               case 4:
-                _t37 = _yield$readFavorites$[num];
+                _t38 = _yield$readFavorites$[num];
               case 5:
-                _t32 = _t37;
+                _t33 = _t38;
               case 6:
-                _t31 = _t32;
+                _t32 = _t33;
               case 7:
-                isFav = _t31;
+                isFav = _t32;
                 isCached = post instanceof CacheItem;
                 postsCountHtml = (post.isDeleted ? " de-post-counter-deleted\">".concat(Lng.deleted[lang], "</span>") : "\">".concat(isOp ? '(OP)' : post.count + +!(aib.JsonBuilder && isCached), "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '');
                 pText = '<svg class="de-btn-reply"><use xlink:href="#de-symbol-post-reply"/></svg>' + (isOp ? "<svg class=\"".concat(isFav ? 'de-btn-fav-sel' : 'de-btn-fav', "\">") + '<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') + (post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' + '<span class="de-post-counter' + postsCountHtml;
@@ -23074,7 +23108,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "bannedPostsData",
       value: _regenerator().m(function bannedPostsData() {
-        var _iterator25, _step25, _step25$value, banned, num, _t38;
+        var _iterator25, _step25, _step25$value, banned, num, _t39;
         return _regenerator().w(function (_context47) {
           while (1) switch (_context47.n) {
             case 0:
@@ -23085,8 +23119,8 @@ Spells.addSpell(9, '', false);
                 break;
               }
               _step25$value = _step25.value, banned = _step25$value.banned, num = _step25$value.num;
-              _t38 = banned;
-              _context47.n = _t38 === 1 ? 2 : _t38 === 2 ? 4 : 6;
+              _t39 = banned;
+              _context47.n = _t39 === 1 ? 2 : _t39 === 2 ? 4 : 6;
               break;
             case 2:
               _context47.n = 3;
@@ -24168,9 +24202,9 @@ Spells.addSpell(9, '', false);
       disableAudio: function disableAudio() {
         this.stopAudio();
         this.enabled = false;
-        var btn = $id('de-panel-audio-on');
+        var btn = $q('#de-panel-btn-audio-on', Panel.mainEl);
         if (btn) {
-          btn.id = 'de-panel-audio-off';
+          btn.id = 'de-panel-btn-audio-off';
         }
       },
       playAudio: function playAudio() {
@@ -24425,7 +24459,7 @@ Spells.addSpell(9, '', false);
       checkPermission: function checkPermission() {
         var _this99 = this;
         return _asyncToGenerator(_regenerator().m(function _callee40() {
-          var _t39;
+          var _t40;
           return _regenerator().w(function (_context48) {
             while (1) switch (_context48.n) {
               case 0:
@@ -24433,8 +24467,8 @@ Spells.addSpell(9, '', false);
                   _context48.n = 3;
                   break;
                 }
-                _t39 = Notification.permission.toLowerCase();
-                _context48.n = _t39 === 'default' ? 1 : _t39 === 'denied' ? 2 : 3;
+                _t40 = Notification.permission.toLowerCase();
+                _context48.n = _t40 === 'default' ? 1 : _t40 === 'denied' ? 2 : 3;
                 break;
               case 1:
                 _this99._requestPermission();
@@ -24549,7 +24583,7 @@ Spells.addSpell(9, '', false);
       _seconds: 0,
       _state: -1,
       get _panelButton() {
-        var value = $q('button[id^="de-panel-upd"]');
+        var value = $q('button[id^="de-panel-btn-upd"]');
         if (value) {
           Object.defineProperty(this, '_panelButton', {
             value: value
@@ -24647,7 +24681,7 @@ Spells.addSpell(9, '', false);
       },
       _setUpdateStatus: function _setUpdateStatus(status) {
         if (this._panelButton) {
-          this._panelButton.id = 'de-panel-upd-' + status;
+          this._panelButton.id = 'de-panel-btn-upd-' + status;
           this._panelButton.title = Lng.panelBtn["upd-".concat(status === 'off' ? 'off' : 'on')][lang];
         }
       }
@@ -25034,6 +25068,7 @@ Spells.addSpell(9, '', false);
       firefoxVer: isFirefox ? +(userAgent.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
       hasGlobalStorage: hasOldGM || hasNewGM || hasWebStorage,
       hasGMXHR: hasGMXHR,
+      hasInPageDE: false,
       hasNewGM: hasNewGM,
       hasOldGM: hasOldGM,
       hasWebStorage: hasWebStorage,
@@ -25109,7 +25144,7 @@ Spells.addSpell(9, '', false);
         });
         return value;
       },
-      unsafeUint8Array: function unsafeUint8Array(data, i, len) {
+      uint8Array: function uint8Array(data, i, len) {
         var Ctor = Uint8Array;
         if (this.isFirefox && (this.hasOldGM || this.isTampermonkey)) {
           try {
@@ -25130,7 +25165,7 @@ Spells.addSpell(9, '', false);
         }
         throw new Error();
       },
-      unsafeDataView: function unsafeDataView(data) {
+      dataView: function dataView(data) {
         var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
         var value = new DataView(data, offset);
         return this.isFirefox && this.hasOldGM && !(value instanceof DataView) ? new unsafeWindow.DataView(data, offset) : value;
@@ -26172,7 +26207,7 @@ Spells.addSpell(9, '', false);
         key: "sendHTML5Post",
         value: function () {
           var _sendHTML5Post = _asyncToGenerator(_regenerator().m(function _callee45(form, data, needProgress, hasFiles) {
-            var ajaxParams, getBase64, dataObj, files, i, len, file, cookieObj, task, url, _t40, _t41, _t42, _t43;
+            var ajaxParams, getBase64, dataObj, files, i, len, file, cookieObj, task, url, _t41, _t42, _t43, _t44;
             return _regenerator().w(function (_context53) {
               while (1) switch (_context53.n) {
                 case 0:
@@ -26243,18 +26278,18 @@ Spells.addSpell(9, '', false);
                     _context53.n = 4;
                     break;
                   }
-                  _t40 = dataObj.files;
-                  _t41 = "data:".concat(file.type, ";base64,");
+                  _t41 = dataObj.files;
+                  _t42 = "data:".concat(file.type, ";base64,");
                   _context53.n = 3;
                   return getBase64(file).then(function (data) {
                     return data.split(',')[1];
                   });
                 case 3:
-                  _t42 = _t41.concat.call(_t41, _context53.v);
-                  _t43 = file.name;
-                  _t40.push.call(_t40, {
-                    content: _t42,
-                    name: _t43,
+                  _t43 = _t42.concat.call(_t42, _context53.v);
+                  _t44 = file.name;
+                  _t41.push.call(_t41, {
+                    content: _t43,
+                    name: _t44,
                     spoiler: false
                   });
                 case 4:
@@ -26761,7 +26796,7 @@ Spells.addSpell(9, '', false);
       return _createClass(_2channel, [{
         key: "css",
         get: function get() {
-          return ".newpost, .newpost + hr, .postpanel > :not(img), .refmap, #youtube-thumb-float\n\t\t\t\t\t{ display: none !important; }\n\t\t\t\t.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }\n\t\t\t\t.postform { width: initial; }\n\t\t\t\t.preview.lazy { opacity: 1; }";
+          return ".newpost, .newpost + hr, .postpanel > :not(img), .refmap, #youtube-thumb-float\n\t\t\t\t\t{ display: none !important; }\n\t\t\t\t.de-win-opened:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }\n\t\t\t\t.postform { width: initial; }\n\t\t\t\t.preview.lazy { opacity: 1; }";
         }
       }, {
         key: "qPostImgNameLink",
@@ -27642,7 +27677,7 @@ Spells.addSpell(9, '', false);
         key: "_getPasscodeStatus",
         value: function () {
           var _getPasscodeStatus2 = _asyncToGenerator(_regenerator().m(function _callee47() {
-            var status, xhr, _t44;
+            var status, xhr, _t45;
             return _regenerator().w(function (_context55) {
               while (1) switch (_context55.p = _context55.n) {
                 case 0:
@@ -27661,7 +27696,7 @@ Spells.addSpell(9, '', false);
                   break;
                 case 3:
                   _context55.p = 3;
-                  _t44 = _context55.v;
+                  _t45 = _context55.v;
                   status = 'invalid';
                 case 4:
                   return _context55.a(2, status);
@@ -27718,7 +27753,7 @@ Spells.addSpell(9, '', false);
       return _createClass(Endchan, [{
         key: "css",
         get: function get() {
-          return "".concat(_superPropGet(Endchan, "css", this, 1), "\n\t\t\t\t.bottomNav, .delLink, #expandAll, .hidePost, .hideThread, .linkLast50,\n\t\t\t\t\t.linkPreview, #modeBanner, .watchButton { display: none !important; }\n\t\t\t\t#de-main, .de-pview { font-size: 75%; }");
+          return "".concat(_superPropGet(Endchan, "css", this, 1), "\n\t\t\t\t.bottomNav, .delLink, #expandAll, .hidePost, .hideThread, .linkLast50,\n\t\t\t\t\t.linkPreview, #modeBanner, .watchButton { display: none !important; }\n\t\t\t\t#de-main-container, .de-pview { font-size: 75%; }");
         }
       }, {
         key: "getSubmitData",
@@ -27803,7 +27838,7 @@ Spells.addSpell(9, '', false);
       }, {
         key: "css",
         get: function get() {
-          return "".concat(!this.t ? '' : 'hr + #de-main { margin-top: -17px; }', "\n\t\t\t.iichan-hide-thread-btn, .iichan-quick-reply-btn, .postnum { display: none; }\n\t\t\t.replypage div[id^=\"thread\"] span.reflink::after { content: none; }");
+          return ".iichan-hide-thread-btn, .iichan-quick-reply-btn, .postnum { display: none !important; }\n\t\t\t.replypage div[id^=\"thread\"] span.reflink::after { content: none; }";
         }
       }, {
         key: "isArchived",
@@ -28472,7 +28507,7 @@ Spells.addSpell(9, '', false);
   function _checkForUpdates() {
     _checkForUpdates = _asyncToGenerator(_regenerator().m(function _callee58(isManual, lastUpdateTime) {
       var _v$;
-      var responseText, _yield$$ajax, v, remoteVer, currentVer, src, link, chLogLink, i, len, c, vc, _t51;
+      var responseText, _yield$$ajax, v, remoteVer, currentVer, src, link, chLogLink, i, len, c, vc, _t52;
       return _regenerator().w(function (_context66) {
         while (1) switch (_context66.p = _context66.n) {
           case 0:
@@ -28498,7 +28533,7 @@ Spells.addSpell(9, '', false);
             break;
           case 3:
             _context66.p = 3;
-            _t51 = _context66.v;
+            _t52 = _context66.v;
             if (!isManual) {
               _context66.n = 4;
               break;
@@ -28506,7 +28541,7 @@ Spells.addSpell(9, '', false);
             return _context66.a(2, "<div style=\"color: red; font-weigth: bold;\">".concat(Lng.noConnect[lang], "</div>"));
           case 4:
             throw new Error(Lng.noConnect[lang], {
-              cause: _t51
+              cause: _t52
             });
           case 5:
             v = responseText.match(/const version = '([0-9.]+)';/);
@@ -28568,7 +28603,7 @@ Spells.addSpell(9, '', false);
     var item = function item(name, value) {
       return "<div>- <i>".concat(name, "</i>: <i style=\"font: 14px monospace; color: green;\">").concat(value, "</i></div>");
     };
-    $popup('donate', Lng.donateMsg[lang] + ":<br style=\"margin-bottom: 8px;\"><!--\n\t\t--><div class=\"de-logo\"><svg><use xlink:href=\"#de-symbol-panel-logo\"/></svg></div><!--\n\t\t--><div style=\"display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;\">" + item('BTC', '13NWiiMocssmXiaVKRG4A4SQ6JP4WbLACz') + item('BTC (SegWit)', 'bc1q2x33mkrwv6zadhflvxv2cct45ssn5a7t4ygvtj') + item('ETH', '0xffa96732ae8df25c34444c70c0d59c752a47aafa') + item('Mastercard', '5375411208220306') + "<div>- <a href=\"https://send.monobank.ua/jar/A7Saf6YAaz\" target=\"_blank\">".concat(Lng.donateOnline[lang], "</a></div>") + '</div>');
+    $popup('donate', Lng.donateMsg[lang] + ":<br style=\"margin-bottom: 8px;\"><!--\n\t\t--><div class=\"de-donate-logo\"><svg><use xlink:href=\"#de-symbol-panel-logo\"/></svg></div><!--\n\t\t--><div style=\"display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;\">" + item('BTC', '13NWiiMocssmXiaVKRG4A4SQ6JP4WbLACz') + item('BTC (SegWit)', 'bc1q2x33mkrwv6zadhflvxv2cct45ssn5a7t4ygvtj') + item('ETH', '0xffa96732ae8df25c34444c70c0d59c752a47aafa') + item('Mastercard', '5375411208220306') + "<div>- <a href=\"https://send.monobank.ua/jar/A7Saf6YAaz\" target=\"_blank\">".concat(Lng.donateOnline[lang], "</a></div>") + '</div>');
   }
   function initPage() {
     if (aib.t) {
@@ -28623,22 +28658,22 @@ Spells.addSpell(9, '', false);
     var contentIcon = function contentIcon(id, src) {
       return "".concat(id, "::before { content: \"\"; display: inline-block; vertical-align: -3px; padding: 16px 16px 0 0; margin-right: 4px; background: url(").concat(src, ") no-repeat center; background-size: contain; white-space: initial; }");
     };
-    var x = "\n\t/* Main panel */\n\t#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\n\t#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\n\t#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\n\t.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0 !important; min-width: auto; transition: all .3s ease; border: none !important; background: transparent !important; color: inherit !important; cursor: pointer; }\n\t.de-panel-button, #de-panel-logo, #de-panel-logo-svg, .de-panel-svg { width: 25px; height: 25px; }\n\t.de-panel-button-active { stroke: #32ff32 !important; fill: #32ff32 !important; }\n\t#de-panel-expimg, #de-panel-maskimg, #de-panel-preimg { stroke: currentColor; fill: currentColor; }\n\t#de-panel-goback { transform: rotate(180deg); will-change: transform; }\n\t#de-panel-godown { transform: rotate(90deg); will-change: transform; }\n\t#de-panel-goup { transform: rotate(-90deg); will-change: transform; }\n\t#de-panel-upd-on { fill: #32ff32; }\n\t#de-panel-upd-warn { fill: #fff441; }\n\t#de-panel-upd-off { fill: #ff3232; }\n\t#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\n\t#de-panel-info { display: flex; flex: none; margin-left: 2px; font: 18px arial; }\n\t#de-panel-info > span { background-color: #fff2; margin-right: 4px; padding: 0 1px; border: 1px solid #fff3; border-radius: 4px; }\n\t#de-panel-info > span:empty { display: none; }\n\t#de-svg-icons, #de-svg-icons > svg { height: 0; width: 0; position: fixed; }\n\t.de-svg-fill { stroke: none; fill: currentColor; }\n\t.de-svg-stroke { stroke: currentColor; fill: none; }\n\tuse { fill: inherit; pointer-events: none; }\n\n\t/* Panel theme */\n\t.de-img-btn, #de-panel, .de-win-head ".concat([
+    var x = "\n\t/* Main panel */\n\t#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\n\t.de-panel-btn { display: block; flex: none; margin: 0 1px; padding: 0 !important; min-width: auto; transition: all .3s ease; border: none !important; background: transparent !important; color: inherit !important; cursor: pointer; }\n\t.de-panel-btn, .de-panel-svg { width: 25px; height: 25px; }\n\t.de-panel-btn-active { stroke: #32ff32 !important; fill: #32ff32 !important; }\n\t#de-panel-btn-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-btn-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\n\t#de-panel-btn-expimg, #de-panel-btn-maskimg, #de-panel-btn-preimg { stroke: currentColor; fill: currentColor; }\n\t#de-panel-btn-goback { transform: rotate(180deg); will-change: transform; }\n\t#de-panel-btn-godown { transform: rotate(90deg); will-change: transform; }\n\t#de-panel-btn-goup { transform: rotate(-90deg); will-change: transform; }\n\t#de-panel-btn-info { display: flex; flex: none; margin-left: 2px; font: 18px arial; }\n\t#de-panel-btn-info > span { background-color: #fff2; margin-right: 4px; padding: 0 1px; border: 1px solid #fff3; border-radius: 4px; }\n\t#de-panel-btn-info > span:empty { display: none; }\n\t#de-panel-btn-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\n\t#de-panel-btn-upd-on { fill: #32ff32; }\n\t#de-panel-btn-upd-warn { fill: #fff441; }\n\t#de-panel-btn-upd-off { fill: #ff3232; }\n\t#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\n\t.de-runned-userscript > #de-panel { z-index: 10000; }\n\t#de-svg-icons, #de-svg-icons > svg { height: 0; width: 0; position: fixed; }\n\t.de-svg-fill { stroke: none; fill: currentColor; }\n\t.de-svg-stroke { stroke: currentColor; fill: none; }\n\tuse { fill: inherit; pointer-events: none; }\n\n\t/* Panel theme */\n\t.de-img-btn, #de-panel, .de-win-head ".concat([
     '{ background: linear-gradient(to bottom, #7b849b, #616b86 8%, #121212 60%, #1f2740 100%); }', "{ background: linear-gradient(to bottom, #4b90df, #183d77 60%, #325f9e 100%); }\n\t\t#de-panel-buttons { border-color: #8fbbed; }", "{ background-color: #777; }\n\t\t#de-panel-buttons { border-color: #ccc; }", 
-    '{ background-color: rgba(0,20,80,.72); }', "{ background: none; background-color: #333; border-radius: 0 !important; }\n\t\t#de-win-reply.de-win { border-radius: 0 !important; }\n\t\t#de-panel-buttons { border-color: #666; }", "{ background: linear-gradient(to bottom, #e854ca, #8c1273 60%, #832da2 100%); }\n\t\t#de-panel-buttons { border-color: #c15dad; }"][Cfg.scriptStyle], "\n\t.de-logo { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #121212 60%, #1f2740 100%) }\n\t.de-panel-svg:hover, #de-panel-logo-svg:hover { margin: -2px; width: 29px; height: 29px; color: #d0e7ff !important; }\n\t.de-panel-button:hover { background-color: rgba(255,255,255,.15) !important; box-shadow: 0 0 3px rgba(200,200,200,0.5); color: inherit !important; }\r\n");
+    '{ background-color: rgba(0,20,80,.72); }', "{ background: none; background-color: #333; border-radius: 0 !important; }\n\t\t#de-win-reply.de-win { border-radius: 0 !important; }\n\t\t#de-panel-buttons { border-color: #666; }", "{ background: linear-gradient(to bottom, #e854ca, #8c1273 60%, #832da2 100%); }\n\t\t#de-panel-buttons { border-color: #c15dad; }"][Cfg.scriptStyle], "\n\t.de-donate-logo { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #121212 60%, #1f2740 100%) }\n\t.de-panel-svg:hover { margin: -2px; width: 29px; height: 29px; color: #d0e7ff !important; }\n\t.de-panel-btn:hover { background-color: rgba(255,255,255,.15) !important; box-shadow: 0 0 3px rgba(200,200,200,0.5); color: inherit !important; }\r\n");
     if (Cfg.disabled) {
       $css(x).id = 'de-css';
       return;
     }
     x += "\n\t/* Windows */\n\t.de-win .de-win-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { margin: 0 2px 0 0; font-size: 0; white-space: nowrap; cursor: pointer; }\n\t.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }\n\t.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); color: #d0e7ff; }\n\t.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); color: inherit; }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-width: calc(100vw - (100vw - 100%)); max-height: calc(100vh - 25px); overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0 !important; margin: 0 !important; border: none; float: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 6px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t.de-win-title { width: 100%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { display: flex; height: 16px; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; -moz-box-sizing: content-box; box-sizing: content-box; cursor: default; }\n\n\t/* Settings window */\n\t.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 355px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { display: initial; padding: 0 ".concat(nav.isFirefox ? '2' : '4', "px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { display: initial; vertical-align: -1px !important; margin: 2px 1px !important; }\n\t#de-cfg-info { display: flex; flex-direction: column; }\n\tinput[type=\"text\"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; border-width: 1px; }\n\t.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline-block; width: auto; height: 19px !important; font: 13px/15px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-needreload::after { content: \"* \"; color: red; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; float: none; appearance: auto; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; float: none !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::").concat(nav.isFirefox ? '-moz-' : '', "selection { background: transparent; }\n\t.de-cfg-unvis { display: none !important; }\n\t.de-depend { padding-left: 17px; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; flex: 1 0 auto; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 256px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; resize: none !important; }\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\n\t#de-win-cfg.de-win-fixed { z-index: 10001 !important; }\n\n\t/* Settings window theme */\n\t").concat(["#de-cfg-bar { background-color: #1f2740; }\n\t\t.de-cfg-tab { border-color: #121421 !important; }", "#de-cfg-bar { background-color: #325f9e; }\n\t\t.de-cfg-tab { border-color: #183d77 !important; }", "#de-cfg-bar, #de-spell-rowmeter { background-color: #777; }\n\t\t.de-cfg-body, #de-cfg-buttons { border-color: #444; }", "#de-cfg-bar { background-color: rgba(0,20,80,.72); }\n\t\t.de-cfg-tab { border-color: #001450 !important; }", "#de-cfg-bar { background-color: #222; }\n\t\t.de-cfg-body, #de-cfg-buttons, { border-color: #666; }\n\t\t#de-spell-rowmeter { background-color: #555; }", "#de-cfg-bar { background-color: #832da2; }\n\t\t.de-cfg-body, #de-cfg-buttons { border-color: #c125a1 !important; }\n\t\t.de-cfg-tab { border-color: #832da2 !important; }\n\t\t#de-spell-rowmeter { background-color: #844b83; }"][Cfg.scriptStyle], "\n\n\t/* Favorites window */\n\t.de-entry { display: flex !important; align-items: center; padding: 0 !important; margin: 1px 0 !important; min-width: 0 !important; border: none !important; float: none !important; font-size: 13px; overflow: hidden !important; white-space: nowrap; }\n\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n\t#de-fav-buttons, #de-hid-buttons, #de-fav-del-confirm { padding-top: 6px; }\n\t.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }\n\t.de-fav-entries-hide, .de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }\n\t.de-fav-del-btn { margin-left: 2px; cursor: pointer; }\n\t.de-fav-del-btn > svg { width: 12px; height: 12px; opacity: 0.65; vertical-align: -2px; }\n\t.de-fav-del-btn[de-checked] > svg { color: red; background-color: rgba(255,0,0,.2); border-radius: 7px; opacity: 1; }\n\t.de-fav-header { display: flex; cursor: pointer; font-size: 13px; }\n\t.de-fav-header-btn { flex: 1 0 auto; margin-right: 2px; font-size: 11px; color: inherit; text-align: right; opacity: 0.65; }\n\t.de-fav-header-link { margin-left: 2px; color: inherit; font-weight: bold; text-decoration: none; outline: none; }\n\t.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }\n\t.de-fav-inf-icon, .de-fav-inf-iwrap { width: 16px; height: 16px; }\n\t.de-fav-inf-icon { margin-bottom: -3px; }\n\t.de-fav-inf-new { color: #424f79; }\n\t.de-fav-inf-new::after { content: \" +\"; }\n\t.de-fav-inf-total { color: #4f7942; }\n\t.de-fav-inf-you { padding: 0 4px; margin-right: 4px; border-radius: 3px; color: #fff; background-color: #424f79; opacity: 0.65; }\n\t.de-fav-link { flex: none; margin-left: 2px; text-decoration: none; border: none; }\n\t.de-fav-table { overflow-x: hidden; overflow-y: auto; max-height: calc(100vh - 91px); }\n\t.de-fav-table-unfold > .de-fold-block > .de-fav-entries { display: initial !important; }\n\t.de-fav-unavail { color: #cf4436; }\n\t.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }\n\t.de-fold-block:not(:first-child) { border-top: none; }\n\n\t/* Post panel */\n\t.de-btn-hide > .de-btn-unhide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\n\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user, .de-win-btn-clear, .de-win-btn-close, .de-win-btn-toggle { margin: 0 2px 0 0 !important; cursor: pointer; width: 16px; height: 16px; vertical-align: -3px; }").concat(!postform.form && !postform.oeForm ? '.de-btn-reply { display: none; }' : '', "\n\t.de-btn-img { vertical-align: top; }\n\t.de-post-btns { margin-left: 4px; }\n\t.de-post-btns-back { fill: inherit; stroke: none; }\n\t.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\n\t.de-thread-note { font-style: italic; }\n\n\t/* Sauce buttons */\n\t").concat(contentIcon('.de-src-google', 'data:image/gif;base64,R0lGODlhEAAQAMQAAIy0+tHh/gJc8Qlh8UyM9H2r9/3///7//x+OfACSJy+mTZHQos3Te////f///v3HAP+uAPzWjvWTWeUTAPSdl/79/f////39/f///wAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABgALAAAAAAQABAAAAVuICaKh2Eax6hih+W+bqoaLjXdE+UaY2vhwInrInLhdBYbDEOL3GBQS4X2gEiiUBoEAhMIBl6CpaHlvrxocaO1XUQBgsLYxUgkot7AGONS2N0WCwgCYhZFfXaJCQguDiMvC34JCoCOKlgvK49QKyEAOw=='), "\n\t").concat(contentIcon('.de-src-yandex', 'data:image/gif;base64,R0lGODlhEAAQAMQAAP////v7+/r5+fb29vHx8eLi4tnZ2dTU1NDQ0MvLy8fHx8TExPzJv/immvlXRvq0re4UEdeGhtbFxcnJyby8vKampm5ubv///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABcALAAAAAAQABAAAAVx4CWOZCkOQKqq5uoCQhnMQuPcc2CQuc3YuQBJQHQ8BA8HkUgYDZ6Qx+ABeVoVIoL2RmhAtODmpUD23iDkdEFkaBsiEAfE3a6IDngJJALH4ycjCIJyCXCCgiQJhXuLigl2IwqSk5QUJRQLmZqaFiaeniEAOw=='), "\n\t").concat(contentIcon('.de-src-tineye', 'data:image/gif;base64,R0lGODlhEAAQAMQAAP///wAAAAwOEhg4UDZ7skGNxkuf3Vycxx4nLerw9DlSX2FnanO21Epxg4LO62KOnpXj+ZGcmb7CvbZ6RfxmAIxBCzsGAP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABcALAAAAAAQABAAAAWlYGIUZGGc6HgkxzSRozIgdHMUx0NR5hH8v8VjeFsoDAyFpcKcQByMnIGgYDAikmxkOLQWqNAGQhAQLBC/BgSXC0QivwgAgFbjHLQ5XDKXBBRrBA80WAABRgkJPwxfDw2HCYYBfHABDSQMDgoIEgs/ZgoPDmuYEFEHmQ6jT5ckBKirEE8HCgEWJQe5ZwJjQBYRBwQMsk8RFgJkP04sVrHGNAEVEAAhADs='), "\n\t").concat(contentIcon('.de-src-saucenao', 'data:image/gif;base64,R0lGODlhEAAQAIAAAP///wAAACwAAAAAEAAQAAACJ4yPacDtvpQCkU1KT0P75i49mbSAZACd6HN2pmbBI7pe9K1+4q5KBQA7'), "\n\t").concat(contentIcon('.de-src-iqdb', 'data:image/gif;base64,R0lGODlhEAAQAMQAAP//////AP8A//8AAAD//wD/AAAA/wAAANx/hV1ISW9YWvLOd/u0T+WlTNaqcKdtMv/r1mxML7OCVoxtUbmmlfPRuKKGeHpcTvK3nEEvKGpRTCcbGU48OYVua3tkYv///yH5BAEAAB8ALAAAAAAQABAAAAW4INV5ZDcmibM0iVJRnukpmnJJDdNwnDWSk4vCNMnpGJXfwqHReDQJTuTxmEhmqoTFEtRsNhltRTFZTBKUl2IzAmeE2csFA8kcKADLl5NgSDgaGRYAFVYQABkRgAxnGhcdEJEVhxYSDhwNEQkaEhSRGBgIGBUOGBwXERkcExyeFaGjr4E8qgcHDpKgkQpRGhwZYA4Vw6CvPBOpwD0ODlMSoxcJOQ8ZyhccBxkSkRRFDw4SD1/jF5MQIQA7'), "\n\t").concat(contentIcon('.de-src-tracemoe', 'data:image/gif;base64,R0lGODlhEAAPALMAAAAAAP///9fY18HBwTg4ODw1No6PjoFnZhoBAXNGRf/V1KmRkf///wAAAAAAAAAAACH5BAEAAAwALAAAAAAQAA8AAAQ5EMhJq7046w0I9hMhBAIoiSQ4BiS1tgQrg7EceIM8UDm7S4aBwRIcYgoFjmSxQHASCkWCc6gelJkIADs='), "\n\n\t/* Posts counter */\n\t.de-post-counter { margin: 0 4px 0 2px; vertical-align: 1px; font: bold 11px tahoma; color: #4f7942; cursor: default; }\n\t.de-post-counter-deleted { color: #727579; }\n\t.de-post-counter-you { vertical-align: 1px; font: bold 11px tahoma; color: #505a7a; cursor: default; }\n\n\t/* Text markup buttons */\n\t.de-markup-back { fill: #f0f0f0; stroke: #808080; }\n\t#de-txt-panel { display: block; font-weight: bold; white-space: nowrap; cursor: pointer; }\n\t#de-txt-panel > div { display: inline-block; padding: 0; }\n\t#de-txt-panel > div > button { margin-right: 2px; min-width: 23px; }\n\t#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 1px; }\r\n");
     if ('animation' in doc.body.style) {
-      x += "\n\t\t/* Show/hide animation */\n\t\t@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }\n\t\t@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }\n\t\t@keyframes de-blink {\n\t\t\t0%, 100% { transform: translateX(0); }\n\t\t\t10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\n\t\t\t20%, 40%, 60%, 80% { transform: translateX(10px); }\n\t\t}\n\t\t@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-open-br { from { transform: translate(50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-tl { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\n\t\t@keyframes de-win-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\n\t\t@keyframes de-win-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\n\t\t.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\n\t\t.de-open { animation: de-open .15s ease-out both; }\n\t\t.de-close { animation: de-close .15s ease-in both; }\n\t\t.de-blink { animation: de-blink .7s ease-in-out both; }\n\t\t.de-post-new { animation: de-post-new .2s ease-out both; }\n\t\t.de-win-open { animation: de-win-open .2s ease-out backwards; }\n\t\t.de-win-close { animation: de-win-close .2s ease-in both; }\r\n";
+      x += "\n\t\t/* Show/hide animation */\n\t\t@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }\n\t\t@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }\n\t\t@keyframes de-blink {\n\t\t\t0%, 100% { transform: translateX(0); }\n\t\t\t10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\n\t\t\t20%, 40%, 60%, 80% { transform: translateX(10px); }\n\t\t}\n\t\t@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-open-br { from { transform: translate(50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-tl { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\n\t\t@keyframes de-win-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\n\t\t@keyframes de-win-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\n\t\t.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\n\t\t.de-open { animation: de-open .15s ease-out both; }\n\t\t.de-close { animation: de-close .15s ease-in both; }\n\t\t.de-blink { animation: de-blink .7s ease-in-out both; }\n\t\t.de-post-new { animation: de-post-new .2s ease-out both; }\n\t\t.de-win-anim-open { animation: de-win-open .2s ease-out backwards; }\n\t\t.de-win-anim-close { animation: de-win-close .2s ease-in both; }\r\n";
     } else {
       Cfg.animation = 0;
     }
     var p = Math.max(Cfg.minImgSize || 0, 50);
     x += "\n\t/* Full images */\n\t.de-img-embed, .de-fullimg { border: none; outline: none; cursor: pointer; image-orientation: from-image; }\n\t.de-img-embed { max-width: 200px; max-height: 200px; }\n\t.de-fullimg { display: block; }\n\t.de-fullimg, .de-fullimg-wrap-link { flex: 0 0 auto; transition: none !important; max-width: none; max-height: none; }\n\t.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-fullimg-info { padding: 1px 4px; margin-bottom: -20px; background-color: rgba(64,64,64,.8); white-space: nowrap; line-height: 17px; }\n\t.de-fullimg-info > .de-btn-img { color: #fff; }\n\t.de-fullimg-link { display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }\n\t.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }\n\t.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\n\t.de-fullimg-rotated { position: absolute; max-width: none; }\n\t.de-fullimg-rotated + .de-fullimg-info { position: absolute; bottom: 0; }\n\t.de-fullimg-scale { color: #fff; font: bold 12px tahoma; cursor: default; }\n\t.de-fullimg-video-hack { position: absolute; ".concat(nav.isMobile && nav.isWebkit ?
-    'display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; top: 0; right: 0; color: #fff; font-size: 2em;' : 'width: 100%; height: calc(100% - 40px);', " z-index: 1; cursor: pointer; }\n\t.de-fullimg-wrap { position: relative; display: inline-flex; flex-direction: column; align-items: center; }\n\t.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: 100%; height: 100%; }\n\t.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }\n\t.de-fullimg-wrap-inpost { min-width: ").concat(p, "px; min-height: ").concat(p, "px; ").concat(aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ', " }\n\t.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }\n\t.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }\n\t.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }\n\t#de-img-btn-auto { right: 0; margin-top: 58px; }\n\t.de-img-btn-auto-on { color: #ffe100; }\n\t#de-img-btn-next { right: 0; margin-top: -18px; }\n\t.de-img-btn-none { display: none; }\n\t#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }\n\t#de-img-btn-rotate { right: 0; margin-top: 20px; }\n\t.de-webm-title { color: #ffe100 !important; font: bold 12px tahoma; }\n\n\t/* Embedders */\n\t").concat(contentIcon('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico'), "\n\t").concat(contentIcon('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico'), "\n\t").concat(contentIcon('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw=='), "\n\t").concat(contentIcon('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw=='), "\n\t.de-current::after { content: \" \u25CF\"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }\n\t#de-video-buttons > a:not(:hover) { color: inherit; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; color: inherit; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: \"\u2795\"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC\"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: \" [\" attr(de-time) \"]\"; color: red; }\n\t.de-video-title[de-time].de-current::after { content: \" [\" attr(de-time) \"] \u25CF\"; color: red; }\n\t.de-vocaroo { display: block; }\n\tvideo { background: black; }\n\n\t/* File inputs */\n\t.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ").concat(p = aib.multiFile ? 90 : 130, "px; width: ").concat(p, "px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }\n\t.de-file > .de-file-img > div { display: flex; justify-content: center; align-items: center; height: ").concat(p, "px; cursor: pointer; }\n\t.de-file > .de-file-utils { display: none; height: 18px; margin-top: -20px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; -moz-box-sizing: initial; box-sizing: initial; }\n\t.de-file > .de-file-utils > .de-file-rarmsg { display: block; position: absolute; bottom: 20px; width: 100%; margin: 0; background: rgba(64,64,64,.6); color: #fff; }\n\t#de-file-area { margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }\n\timg.de-file-img, video.de-file-img { max-width: ").concat(p, "px; max-height: ").concat(p, "px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-input + .de-file-utils { margin-left: 4px; }\n\t.de-file-off > .de-file-img > div::after { content: \"").concat(Lng.dropFileHere[lang], "\"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }\n\t.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { margin: 0 1px; width: 16px; height: 16px; cursor: pointer; }\n\t.de-file-btn-del > svg, .de-file-btn-rar > svg, .de-file-btn-ren > svg, .de-file-btn-txt > svg { width: 16px; height: 16px; }\n\t.de-file-spoil { margin: 0 3px; vertical-align: 1px !important; }\n\t.de-file-txt-add { margin-left: 2px; padding: 0 !important; width: 22px; font-weight: bold; }\n\t.de-file-txt-input { flex-grow: 1; border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }\n\t.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }\n\t.de-file-txt-wrap { display: inline-flex; width: 100%; }\n\t.de-file-utils { display: inline-flex; align-items: center; float: none; }\n\t.de-file-wrap { display: flex; align-items: center; }\n\n\t/* Reply form */\n\t.de-parea { text-align: center; clear: both; }\n\t.de-parea > #de-pform { margin-top: 4px; }\n\t.de-parea-btn-close::after { content: \"").concat(Lng.hideForm[lang], "\"; }\n\t.de-parea-btn-thr::after { content: \"").concat(Lng.makeThr[lang], "\"; }\n\t.de-parea-btn-reply::after { content: \"").concat(Lng.makeReply[lang], "\"; }\n\t#de-pform > form { padding: 0; margin: 0; border: none; }\n\t#de-resizer-text { display: inline-block !important; padding: 5px; margin: 0 0 -2px -10px; border-bottom: 2px solid #666; border-right: 2px solid #666; float: none !important; cursor: se-resize; }\n\t.de-win-inpost { display: inline-block; width: auto; padding: 3px; margin: 2px 0; float: none; clear: left; }\n\t.de-win-inpost > .de-resizer { display: none; }\n\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\n\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\n\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\n\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\n\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\n\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\n\t#de-sagebtn { display: inline-block; margin: 3px 4px 0 4px !important; cursor: pointer; }\n\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }\n\n\t/* Thread navigation */\n\t#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px; }\n\t#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\n\t.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\n\t.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\n\t#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\n\t#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\n\t#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\n\t:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }\n\n\t/* Other */\n\t.de-abtn, a.link-button { text-decoration: none !important; outline: none; }\n\t.de-button { flex: none; padding: 0 ").concat(nav.isFirefox ? 2 : 4, "px !important; margin: 1px 2px; min-width: auto !iportant; height: 24px; font: 13px arial; }\n\t.de-editor { display: block; width: 600px; height: 300px; max-width: calc(100vw - 20px); font: 12px courier new; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\n\t.de-gotothr-button { vertical-align: 5px; font-size: 0 !important; }\n\t.de-gotothr-button::after { content: \"").concat(Lng.goToThr[lang], "\"; font-size: 14px; }\n\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\n\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\n\tinput[type=\"text\"].de-input-selected { background: rgba(255,255,150,0.4) !important }\n\t.de-link-backref { text-decoration: none; }\n\t.de-link-parent { outline: 1px dotted !important; }\n\t.de-link-pview { font-weight: bold; }\n\t.de-list { padding-top: 4px; }\n\t.de-list::before { content: \"\u25CF\"; margin-right: 4px; }\n\t.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }\n\t.de-logo > svg { width: 130px; height: 130px; }\n\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }\n\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\n\t.de-menu-item:hover { background-color: #222; color: #fff; }\n\t.de-omitted { color: grey; }\n\t.de-omitted::before { content: \"").concat(Lng.postsOmitted[lang], "\"; }\n\t.de-page-num { clear: both; }\n\t.de-popup { display: block !important; overflow: visible !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; float: right !important; clear: both !important; white-space: pre-wrap; }\n\t.de-popup-btn { display: inline-block; vertical-align: -1px; color: green; font-size: 1.5em; line-height: 16px; cursor: pointer; }\n\t.de-popup > hr { margin: 0 !important; }\n\t.de-post-hiddencontent { display: none !important; }\n\t.de-pview { position: absolute !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\n\t.de-pview-info { padding: 3px 6px !important; }\n\t.de-ref-del::after { content: \" (Del)\"; }\n\t.de-ref-op::after { content: \" (OP)\"; }\n\t.de-refcomma:last-child { display: none; }\n\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\n\t.de-refmap::before { content: \"").concat(Lng.replies[lang], " \"; }\n\t.de-replies-hide::after { content: \"").concat(Lng.hidePosts[lang], "\"; }\n\t.de-replies-show::after { content: \"").concat(Lng.showPosts[lang], "\"; }\n\t.de-thr-buttons { clear: left; margin-top: 5px; }\n\t").concat(aib.t ? '.de-thr-buttons > .de-btn-reply { display: none; }' : '', "\n\t.de-thr-collapse-link::after { content: \"").concat(Lng.collapseThr[lang], "\"; }\n\t.de-thr-hid { display: block; padding: 2px; }\n\t.de-thr-updater-link::after { content: \"").concat(Lng.getNewPosts[lang], "\"; }\n\t#de-updater-count::before { content: \": \"; }\n\t.de-viewed { color: #747488 !important; }\n\t.de-wait, .de-fav-wait, .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }\n\t.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\n\t#de-wrapper-popup { max-width: calc(100vw - (100vw - 100%)); overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\n\t.link-button { display: inline-flex; padding: 3px 5px; margin-left: 4px; background: rgba(0, 40, 140, 0.06); border: 1px solid rgba(120, 120, 120, .5); border-radius: 4px; font: 14px/14px arial; }\n\t.link-button:hover { background: rgba(60, 60, 160, 0.12); }\n\t@keyframes de-wait-anim { to { transform: rotate(360deg); } }\n\n\t/* Mobile devices */\n\t@media screen and (max-width: 768px) {\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user, .de-win-btn-clear, .de-win-btn-close, .de-win-btn-toggle { width: 19px; height: 19px; vertical-align: -5px; }\n\t\t.de-video-obj { max-width: calc(100vw - 6px); margin: 5px 0; }\n\t}");
+    'display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; top: 0; right: 0; color: #fff; font-size: 2em;' : 'width: 100%; height: calc(100% - 40px);', " z-index: 1; cursor: pointer; }\n\t.de-fullimg-wrap { position: relative; display: inline-flex; flex-direction: column; align-items: center; }\n\t.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: 100%; height: 100%; }\n\t.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }\n\t.de-fullimg-wrap-inpost { min-width: ").concat(p, "px; min-height: ").concat(p, "px; ").concat(aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ', " }\n\t.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }\n\t.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }\n\t.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }\n\t#de-img-btn-auto { right: 0; margin-top: 58px; }\n\t.de-img-btn-auto-on { color: #ffe100; }\n\t#de-img-btn-next { right: 0; margin-top: -18px; }\n\t.de-img-btn-none { display: none; }\n\t#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }\n\t#de-img-btn-rotate { right: 0; margin-top: 20px; }\n\t.de-webm-title { color: #ffe100 !important; font: bold 12px tahoma; }\n\n\t/* Embedders */\n\t").concat(contentIcon('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico'), "\n\t").concat(contentIcon('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico'), "\n\t").concat(contentIcon('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw=='), "\n\t").concat(contentIcon('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw=='), "\n\t.de-current::after { content: \" \u25CF\"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }\n\t#de-video-buttons > a:not(:hover) { color: inherit; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; color: inherit; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: \"\u2795\"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC\"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: \" [\" attr(de-time) \"]\"; color: red; }\n\t.de-video-title[de-time].de-current::after { content: \" [\" attr(de-time) \"] \u25CF\"; color: red; }\n\t.de-vocaroo { display: block; }\n\tvideo { background: black; }\n\n\t/* File inputs */\n\t.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ").concat(p = aib.multiFile ? 90 : 130, "px; width: ").concat(p, "px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }\n\t.de-file > .de-file-img > div { display: flex; justify-content: center; align-items: center; height: ").concat(p, "px; cursor: pointer; }\n\t.de-file > .de-file-utils { display: none; height: 18px; margin-top: -20px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; -moz-box-sizing: initial; box-sizing: initial; }\n\t.de-file > .de-file-utils > .de-file-rarmsg { display: block; position: absolute; bottom: 20px; width: 100%; margin: 0; background: rgba(64,64,64,.6); color: #fff; }\n\t#de-file-area { margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }\n\timg.de-file-img, video.de-file-img { max-width: ").concat(p, "px; max-height: ").concat(p, "px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-input + .de-file-utils { margin-left: 4px; }\n\t.de-file-off > .de-file-img > div::after { content: \"").concat(Lng.dropFileHere[lang], "\"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }\n\t.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { margin: 0 1px; width: 16px; height: 16px; cursor: pointer; }\n\t.de-file-btn-del > svg, .de-file-btn-rar > svg, .de-file-btn-ren > svg, .de-file-btn-txt > svg { width: 16px; height: 16px; }\n\t.de-file-spoil { margin: 0 3px; vertical-align: 1px !important; }\n\t.de-file-txt-add { margin-left: 2px; padding: 0 !important; width: 22px; font-weight: bold; }\n\t.de-file-txt-input { flex-grow: 1; border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }\n\t.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }\n\t.de-file-txt-wrap { display: inline-flex; width: 100%; }\n\t.de-file-utils { display: inline-flex; align-items: center; float: none; }\n\t.de-file-wrap { display: flex; align-items: center; }\n\n\t/* Reply form */\n\t.de-parea { text-align: center; clear: both; }\n\t.de-parea > #de-pform { margin-top: 4px; }\n\t.de-parea-btn-close::after { content: \"").concat(Lng.hideForm[lang], "\"; }\n\t.de-parea-btn-thr::after { content: \"").concat(Lng.makeThr[lang], "\"; }\n\t.de-parea-btn-reply::after { content: \"").concat(Lng.makeReply[lang], "\"; }\n\t#de-pform > form { padding: 0; margin: 0; border: none; }\n\t#de-resizer-text { display: inline-block !important; padding: 5px; margin: 0 0 -2px -10px; border-bottom: 2px solid #666; border-right: 2px solid #666; float: none !important; cursor: se-resize; }\n\t.de-win-inpost { display: inline-block; width: auto; padding: 3px; margin: 2px 0; float: none; clear: left; }\n\t.de-win-inpost > .de-resizer { display: none; }\n\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\n\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\n\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\n\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\n\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\n\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\n\t#de-sagebtn { display: inline-block; margin: 3px 4px 0 4px !important; cursor: pointer; }\n\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }\n\n\t/* Thread navigation */\n\t#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px; }\n\t#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\n\t.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\n\t.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\n\t#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\n\t#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\n\t#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\n\t:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }\n\n\t/* Other */\n\t.de-abtn, a.link-button { text-decoration: none !important; outline: none; }\n\t.de-button { flex: none; padding: 0 ").concat(nav.isFirefox ? 2 : 4, "px !important; margin: 1px 2px; min-width: auto !iportant; height: 24px; font: 13px arial; }\n\t.de-donate-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }\n\t.de-donate-logo > svg { width: 130px; height: 130px; }\n\t.de-editor { display: block; width: 600px; height: 300px; max-width: calc(100vw - 20px); font: 12px courier new; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\n\t.de-gotothr-button { vertical-align: 5px; font-size: 0 !important; }\n\t.de-gotothr-button::after { content: \"").concat(Lng.goToThr[lang], "\"; font-size: 14px; }\n\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\n\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\n\tinput[type=\"text\"].de-input-selected { background: rgba(255,255,150,0.4) !important }\n\t.de-link-backref { text-decoration: none; }\n\t.de-link-parent { outline: 1px dotted !important; }\n\t.de-link-pview { font-weight: bold; }\n\t.de-list { padding-top: 4px; }\n\t.de-list::before { content: \"\u25CF\"; margin-right: 4px; }\n\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }\n\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\n\t.de-menu-item:hover { background-color: #222; color: #fff; }\n\t.de-omitted { color: grey; }\n\t.de-omitted::before { content: \"").concat(Lng.postsOmitted[lang], "\"; }\n\t.de-page-num { clear: both; }\n\t.de-popup { display: block !important; overflow: visible !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; float: right !important; clear: both !important; white-space: pre-wrap; }\n\t.de-popup-btn { display: inline-block; vertical-align: -1px; color: green; font-size: 1.5em; line-height: 16px; cursor: pointer; }\n\t.de-popup > hr { margin: 0 !important; }\n\t.de-post-hiddencontent { display: none !important; }\n\t.de-pview { position: absolute !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\n\t.de-pview-info { padding: 3px 6px !important; }\n\t.de-ref-del::after { content: \" (Del)\"; }\n\t.de-ref-op::after { content: \" (OP)\"; }\n\t.de-refcomma:last-child { display: none; }\n\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\n\t.de-refmap::before { content: \"").concat(Lng.replies[lang], " \"; }\n\t.de-replies-hide::after { content: \"").concat(Lng.hidePosts[lang], "\"; }\n\t.de-replies-show::after { content: \"").concat(Lng.showPosts[lang], "\"; }\n\t.de-thr-buttons { clear: left; margin-top: 5px; }\n\t").concat(aib.t ? '.de-thr-buttons > .de-btn-reply { display: none; }' : '', "\n\t.de-thr-collapse-link::after { content: \"").concat(Lng.collapseThr[lang], "\"; }\n\t.de-thr-hid { display: block; padding: 2px; }\n\t.de-thr-updater-link::after { content: \"").concat(Lng.getNewPosts[lang], "\"; }\n\t#de-updater-count::before { content: \": \"; }\n\t.de-viewed { color: #747488 !important; }\n\t.de-wait, .de-fav-wait, .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }\n\t.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\n\t#de-wrapper-popup { max-width: calc(100vw - (100vw - 100%)); overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\n\t.link-button { display: inline-flex; padding: 3px 5px; margin-left: 4px; background: rgba(0, 40, 140, 0.06); border: 1px solid rgba(120, 120, 120, .5); border-radius: 4px; font: 14px/14px arial; }\n\t.link-button:hover { background: rgba(60, 60, 160, 0.12); }\n\t@keyframes de-wait-anim { to { transform: rotate(360deg); } }\n\n\t/* Mobile devices */\n\t@media screen and (max-width: 768px) {\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user, .de-win-btn-clear, .de-win-btn-close, .de-win-btn-toggle { width: 19px; height: 19px; vertical-align: -5px; }\n\t\t.de-video-obj { max-width: calc(100vw - 6px); margin: 5px 0; }\n\t}");
     $css(x).id = 'de-css';
     $css('').id = 'de-css-dynamic';
     $css('').id = 'de-css-user';
@@ -28692,7 +28727,7 @@ Spells.addSpell(9, '', false);
   function _runMain() {
     _runMain = _asyncToGenerator(_regenerator().m(function _callee59(checkDomains, dataPromise) {
       var _aib$observeContent, _aib9, _aib$init, _aib0;
-      var formEl, _yield, _yield2, favObj, storageName, firstThr, _t52;
+      var formEl, _yield, _yield2, favObj, storageName, firstThr, _t53;
       return _regenerator().w(function (_context67) {
         while (1) switch (_context67.p = _context67.n) {
           case 0:
@@ -28714,7 +28749,7 @@ Spells.addSpell(9, '', false);
             runFrames();
             return _context67.a(2);
           case 2:
-            if (!(doc.body.classList.contains('de-runned-userscript') || ((_aib$observeContent = (_aib9 = aib).observeContent) === null || _aib$observeContent === void 0 ? void 0 : _aib$observeContent.call(_aib9, checkDomains, dataPromise)) === false)) {
+            if (!(((_aib$observeContent = (_aib9 = aib).observeContent) === null || _aib$observeContent === void 0 ? void 0 : _aib$observeContent.call(_aib9, checkDomains, dataPromise)) === false)) {
               _context67.n = 3;
               break;
             }
@@ -28733,7 +28768,6 @@ Spells.addSpell(9, '', false);
             }
             return _context67.a(2);
           case 5:
-            doc.body.classList.add(nav.isInPage ? 'de-runned-inpage' : 'de-runned-userscript');
             Logger.log('Storage loading');
             addSVGIcons();
             if (!Cfg.disabled) {
@@ -28787,8 +28821,8 @@ Spells.addSpell(9, '', false);
             break;
           case 8:
             _context67.p = 8;
-            _t52 = _context67.v;
-            console.error('Delform parsing error:', getErrorMessage(_t52));
+            _t53 = _context67.v;
+            console.error('Delform parsing error:', getErrorMessage(_t53));
             $show(doc.body);
             return _context67.a(2);
           case 9:

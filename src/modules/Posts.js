@@ -392,13 +392,13 @@ class AbstractPost {
 		if(!isInit) {
 			$popup('load-fullmsg', Lng.loading[lang], true);
 		}
-		ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(form => {
+		ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(formEl => {
 			let sourceEl;
 			const maybeSpells = new Maybe(SpellsRunner);
 			if(this.isOp) {
-				sourceEl = form;
+				sourceEl = formEl;
 			} else {
-				const posts = $Q(aib.qPost, form);
+				const posts = $Q(aib.qPost, formEl);
 				for(let i = 0, len = posts.length; i < len; ++i) {
 					const post = posts[i];
 					if(this.num === aib.getPNum(post)) {

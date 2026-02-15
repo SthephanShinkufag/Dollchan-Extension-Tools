@@ -112,7 +112,7 @@ function showDonateMsg() {
 	const item = (name, value) =>
 		`<div>- <i>${ name }</i>: <i style="font: 14px monospace; color: green;">${ value }</i></div>`;
 	$popup('donate', Lng.donateMsg[lang] + `:<br style="margin-bottom: 8px;"><!--
-		--><div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div><!--
+		--><div class="de-donate-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div><!--
 		--><div style="display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;">` +
 			item('BTC', '13NWiiMocssmXiaVKRG4A4SQ6JP4WbLACz') +
 			item('BTC (SegWit)', 'bc1q2x33mkrwv6zadhflvxv2cct45ssn5a7t4ygvtj') +

@@ -49,9 +49,7 @@ async function runMain(checkDomains, dataPromise) {
 		runFrames();
 		return;
 	}
-	if(doc.body.classList.contains('de-runned-userscript') ||
-		aib.observeContent?.(checkDomains, dataPromise) === false
-	) {
+	if(aib.observeContent?.(checkDomains, dataPromise) === false) {
 		return;
 	}
 	Logger.log('Imageboard check');
@@ -59,7 +57,6 @@ async function runMain(checkDomains, dataPromise) {
 	if(!Cfg.disabled && aib.init?.() || !localData && doc.body.classList.contains('de-runned-local')) {
 		return;
 	}
-	doc.body.classList.add(nav.isInPage ? 'de-runned-inpage' : 'de-runned-userscript');
 	Logger.log('Storage loading');
 	addSVGIcons();
 	if(Cfg.disabled) {

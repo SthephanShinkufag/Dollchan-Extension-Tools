@@ -274,11 +274,9 @@ function ajaxPostsLoad(board, tNum, useCache, useJson = true) {
 			}
 		}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 	}
-	return aib.hasArchive ?
-		ajaxLoad(aib.getThrUrl(board, tNum), true, useCache, true)
-			.then(data => data?.[0] ? new DOMPostsBuilder(data[0], data[1]) : null) :
-		ajaxLoad(aib.getThrUrl(board, tNum), true, useCache)
-			.then(form => form ? new DOMPostsBuilder(form) : null);
+	return ajaxLoad(aib.getThrUrl(board, tNum), true, useCache, aib.hasArchive).then(aib.hasArchive ?
+		data => data?.[0] ? new DOMPostsBuilder(data[0], data[1]) : null :
+		formEl => formEl ? new DOMPostsBuilder(formEl) : null);
 }
 
 function infoLoadErrors(err, showError = true) {

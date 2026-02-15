@@ -82,6 +82,7 @@ function initBrowser() {
 		firefoxVer      : isFirefox ? +(userAgent.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
 		hasGlobalStorage: hasOldGM || hasNewGM || hasWebStorage,
 		hasGMXHR,
+		hasInPageDE     : false,
 		hasNewGM,
 		hasOldGM,
 		hasWebStorage,
@@ -140,7 +141,7 @@ function initBrowser() {
 		},
 		// XXX: Firefox + old Greasemonkey
 		// Hack to prevent 'Accessing TypedArray data over Xrays is slow, and forbidden' errors
-		unsafeUint8Array(data, i, len) {
+		uint8Array(data, i, len) {
 			let Ctor = Uint8Array;
 			if(this.isFirefox && (this.hasOldGM || this.isTampermonkey)) {
 				try {
@@ -159,7 +160,7 @@ function initBrowser() {
 			throw new Error();
 		},
 		// XXX: Firefox + old Greasemonkey
-		unsafeDataView(data, offset = 0) {
+		dataView(data, offset = 0) {
 			const value = new DataView(data, offset);
 			return this.isFirefox && this.hasOldGM && !(value instanceof DataView) ?
 				new unsafeWindow.DataView(data, offset) : value;

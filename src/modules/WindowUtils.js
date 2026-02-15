@@ -137,7 +137,7 @@ class WinResizer {
 function toggleWindow(name, isUpdate, data, noAnim) {
 	let el;
 	let winEl = $id('de-win-' + name);
-	const isActive = winEl?.classList.contains('de-win-active');
+	const isActive = winEl?.classList.contains('de-win-opened');
 	if(isUpdate && !isActive) {
 		return;
 	}
@@ -146,7 +146,7 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 			`de-win" style="${ Cfg[name + 'WinX'] }; ${ Cfg[name + 'WinY'] }` :
 			'de-win-fixed" style="right: 0; bottom: 25px'
 		) + (name !== 'fav' ? '' : `; width: ${ Cfg.favWinWidth }px; `);
-		winEl = $aBegin($id('de-main'), `<div id="de-win-${ name }" class="${ winAttr }; display: none;">
+		winEl = $aBegin(Panel.mainEl, `<div id="de-win-${ name }" class="${ winAttr }; display: none;">
 			<div class="de-win-head">
 				<span class="de-win-title">
 					${ name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang] }
@@ -188,7 +188,7 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 			await toggleCfg(name + 'WinDrag');
 			const isDrag = Cfg[name + 'WinDrag'];
 			if(!isDrag) {
-				const temp = $q('.de-win-active.de-win-fixed', winEl.parentNode);
+				const temp = $q('.de-win-opened.de-win-fixed', winEl.parentNode);
 				if(temp) {
 					toggleWindow(temp.id.substr(7), false);
 				}
@@ -205,7 +205,7 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 	updateWinZ(winEl);
 	let isRemove = !isUpdate && isActive;
 	if(!isRemove && !winEl.classList.contains('de-win') &&
-		(el = $q(`.de-win-active.de-win-fixed:not(#de-win-${ name })`, winEl.parentNode))
+		(el = $q(`.de-win-opened.de-win-fixed:not(#de-win-${ name })`, winEl.parentNode))
 	) {
 		toggleWindow(el.id.substr(7), false);
 	}
@@ -217,8 +217,8 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 			showWindow(winEl, winBody, name, isRemove, data, Cfg.animation);
 			winEl = winBody = name = isRemove = data = null;
 		});
-		winEl.classList.remove('de-win-open');
-		winEl.classList.add('de-win-close');
+		winEl.classList.remove('de-win-anim-open');
+		winEl.classList.add('de-win-anim-close');
 	} else {
 		showWindow(winEl, winBody, name, isRemove, data, isAnim);
 	}
@@ -226,17 +226,17 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 
 function showWindow(winEl, winBody, name, isRemove, data, isAnim) {
 	winBody.innerHTML = '';
-	winEl.classList.toggle('de-win-active', !isRemove);
+	winEl.classList.toggle('de-win-opened', !isRemove);
 	if(isRemove) {
-		winEl.classList.remove('de-win-close');
+		winEl.classList.remove('de-win-anim-close');
 		$hide(winEl);
-		if(!Cfg.expandPanel && !$q('.de-win-active')) {
-			$hide($id('de-panel-buttons'));
+		if(!Cfg.expandPanel && !$q('.de-win-opened')) {
+			$hide($q('#de-panel-buttons', Panel.mainEl));
 		}
 		return;
 	}
 	if(!Cfg.expandPanel) {
-		$show($id('de-panel-buttons'));
+		$show($q('#de-panel-buttons', Panel.mainEl));
 	}
 	switch(name) {
 	case 'fav':
@@ -248,7 +248,7 @@ function showWindow(winEl, winBody, name, isRemove, data, isAnim) {
 			showFavoritesWindow(winBody, favObj);
 			$show(winEl);
 			if(isAnim) {
-				winEl.classList.add('de-win-open');
+				winEl.classList.add('de-win-anim-open');
 			}
 		});
 		return;
@@ -258,6 +258,6 @@ function showWindow(winEl, winBody, name, isRemove, data, isAnim) {
 	}
 	$show(winEl);
 	if(isAnim) {
-		winEl.classList.add('de-win-open');
+		winEl.classList.add('de-win-anim-open');
 	}
 }

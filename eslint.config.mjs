@@ -87,6 +87,7 @@ export default defineConfig([{
 			'asyncArrow': 'always'
 		}],
 		'space-in-parens': ['error', 'never'],
+		'space-infix-ops': 'error',
 		'template-curly-spacing': ['error', 'always']
 	}
 }]);

@@ -734,10 +734,10 @@ const CfgWindow = {
 			${ postform.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
 			${ postform.mail ? `${ this._getBox('addSageBtn') }
 				${ this._getBox('saveSage') }<br>` : '' }
-			${ postform.captcha ? `${ !aib.noCapUpdTime && this._getInp('capUpdTime', true, 4) }<br>
-				${ this._getSel('captchaLang') }<br>` : '' }
+			${ postform.captcha ? `${ !aib.noCapUpdTime ? this._getInp('capUpdTime', true, 4) + '<br>' : '' }
+				${ postform.captcha.textEl ? `${ this._getSel('captchaLang') }<br>` : '' }` : '' }
 			${ !aib.noMarkupBtns && postform.txta ? `${ this._getSel('addTextBtns') }
-				${ !aib.noMarkupBtns && !aib._4chan ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
+				${ !aib._4chan ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
 			${ postform.passw ? `${ this._getInp('passwValue', false, 9) }
 				${ this._getBox('userPassw') }<input type="button"` +
 				` id="de-cfg-button-pass" class="de-cfg-button" value="${ Lng.change[lang] }"><br>` : '' }

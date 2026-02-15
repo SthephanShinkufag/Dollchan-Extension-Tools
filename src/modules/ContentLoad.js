@@ -53,7 +53,6 @@ const ContentLoader = {
 				$q('head', dc).insertAdjacentHTML('beforeend',
 					'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
 				const docBody = $q('body', dc);
-				docBody.classList.remove('de-runned-inpage', 'de-runned-userscript');
 				docBody.classList.add('de-runned-local');
 				$delAll('#de-css, #de-css-dynamic, #de-css-user', dc);
 				tar.addString('data/dollscript.js', `${ nav.isESNext ?
@@ -93,8 +92,9 @@ const ContentLoader = {
 			}
 		});
 		if(!imgOnly) {
-			$delAll('.de-btn-img, #de-main, .de-parea, .de-post-btns, .de-refmap, .de-thr-buttons, ' +
-				'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' + aib.qForm, dc);
+			$delAll('.de-btn-img, #de-main-container, .de-parea, .de-post-btns, .de-refmap, ' +
+				'.de-thr-buttons, .de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' +
+				aib.qForm, dc);
 			$Q('a', dc).forEach(el => {
 				let num;
 				const tc = el.textContent;
@@ -166,7 +166,7 @@ const ContentLoader = {
 		$ajax(url, { responseType: 'arraybuffer' }, !url.startsWith('blob')).then(xhr => {
 			if('response' in xhr) {
 				try {
-					return nav.unsafeUint8Array(xhr.response);
+					return nav.uint8Array(xhr.response);
 				} catch(err) {}
 			}
 			const txt = xhr.responseText;
@@ -267,7 +267,7 @@ const ContentLoader = {
 		}
 		const ext = ['7z', 'zip', 'rar', 'ogg', 'mp3'][type];
 		nameLink.insertAdjacentHTML('afterend', `<a href="${ deWindow.URL.createObjectURL(
-			new Blob([nav.unsafeUint8Array(info.data, info.idx)], {
+			new Blob([nav.uint8Array(info.data, info.idx)], {
 				type: [
 					'application/x-7z-compressed',
 					'application/zip',

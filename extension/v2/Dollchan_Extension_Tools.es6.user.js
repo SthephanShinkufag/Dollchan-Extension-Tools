@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '83cc239';
+const commit = '608d445';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -612,9 +612,9 @@ const Lng = {
 			'Warn about a tripcode in "Subject" field',
 			'Сповіщувати про трипкод в полі "Тема"'],
 		addSageBtn: [
-			'Кнопка Sage вместо поля "Email" ',
-			'Replace "Email" with Sage button ',
-			'Кнопка Sage замість "E-mail" '],
+			'Кнопка <svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>Sage ',
+			'Sage <svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>button ',
+			'Кнопка <svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>Sage '],
 		saveSage: [
 			'Помнить сажу',
 			'Remember sage',
@@ -1006,6 +1006,14 @@ const Lng = {
 		['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'],
 		['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.'],
 		['Кожні 30 сек.', 'Щохвилини', 'Кожні 2 хв.', 'Кожні 5 хв.']],
+	moderatePost: [
+		'Модерировать пост',
+		'Moderate a post',
+		'Модерувати допис'],
+	moderateThread: [
+		'Модерировать тред',
+		'Moderate a thread',
+		'Модерувати тред'],
 	reportPost: [
 		'Жалоба на пост',
 		'Report a post',
@@ -1014,6 +1022,10 @@ const Lng = {
 		'Жалоба на тред',
 		'Report a thread',
 		'Скарга на тред'],
+	reportReason: [
+		'Причина вашей жалобы',
+		'A reason for your complaint',
+		'Причина вашої скарги'],
 	markMyPost: [
 		'Пометить как мой пост',
 		'Mark as my post',
@@ -1542,6 +1554,14 @@ const Lng = {
 		'Жалоба успешно отправлена',
 		'Succesfully reported',
 		'Скарга успішно відправлена'],
+	alreadyReported: [
+		'Вы уже отправляли жалобу на этот пост!',
+		'You have already sent a report to this post!',
+		'Ви вже відправляли скаргу на цей пост!'],
+	reportError: [
+		'При отправке жалобы произошла ошибка.',
+		'An error occurred while sending the report.',
+		'Під час надсилання скарги сталася помилка.'],
 	errDelete: [
 		'Не могу удалить',
 		'Can\'t delete',
@@ -2314,7 +2334,7 @@ class TarBuilder {
 class WebmParser {
 	constructor(data) {
 		let offset = 0;
-		const dv = nav.unsafeDataView(data);
+		const dv = nav.dataView(data);
 		const len = dv.byteLength;
 		const el = new WebmParser.Element(dv, len, 0);
 		const voids = [];
@@ -2368,7 +2388,7 @@ class WebmParser {
 		if(this.error) {
 			return null;
 		}
-		this.rv[0] = nav.unsafeUint8Array(this.data, 0, this.segment.endOffset);
+		this.rv[0] = nav.uint8Array(this.data, 0, this.segment.endOffset);
 		return this.rv;
 	}
 }
@@ -2557,6 +2577,21 @@ async function toggleCfg(id) {
 
 // Config initialization, checking for Dollchan update.
 async function readCfg() {
+	// Detect built-in-page Dollchan copy and block it
+	if(!nav.isInPage) {
+		let locObj;
+		const locConfig = JSON.parse(locStorage.DESU_Config || '{}') || {};
+		if(aib.domain in locConfig && !$isEmpty(locObj = locConfig[aib.domain])) {
+			nav.hasInPageDE = true;
+			if(locObj.disabled !== 1) {
+				locObj.disabled = 1;
+				locConfig[aib.domain] = locObj;
+				locStorage.DESU_Config = JSON.stringify(locConfig);
+				deWindow.location.reload();
+			}
+		}
+	}
+
 	let obj;
 	const val = await getStoredObj('DESU_Config');
 	if(!(aib.domain in val) || $isEmpty(obj = val[aib.domain])) {
@@ -2729,7 +2764,8 @@ function readPostsData(firstPost, favObj) {
 		maybeSpells.value.endSpells();
 	}
 	if(aib.t && Cfg.panelCounter === 2) {
-		$id('de-panel-info-posts').textContent = Thread.first.postsCount - Thread.first.hiddenCount;
+		$q('#de-panel-info-posts', Panel.mainEl).textContent =
+			Thread.first.postsCount - Thread.first.hiddenCount;
 	}
 	if(updatedFav) {
 		saveFavorites(favObj);
@@ -2740,7 +2776,7 @@ function readPostsData(firstPost, favObj) {
 	// After following a link from Favorites, we need to open Favorites again.
 	const hasFavWinKey = sesStorage['de-fav-win'] === '1';
 	if(hasFavWinKey || Cfg.favWinOn) {
-		toggleWindow('fav', !!$q('#de-win-fav.de-win-active'), null, true);
+		toggleWindow('fav', !!$q('#de-win-fav.de-win-opened'), null, true);
 		if(hasFavWinKey) {
 			sesStorage.removeItem('de-fav-win');
 		}
@@ -3045,13 +3081,15 @@ function initStorageEvent() {
 
 const Panel = Object.create({
 	isVidEnabled: false,
+	mainEl      : null,
 	initPanel(formEl) {
 		const filesCount = $Q(aib.qPostImg, formEl).length;
 		const isThr = aib.t;
-		(postform?.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `<div id="de-main">
+		this.mainEl = $bBegin(formEl, `<div id="de-main-container" class="de-runned-${
+			nav.isInPage ? 'inpage' : 'userscript' }">
 			<div id="de-panel">
-				<div id="de-panel-logo" title="${ Lng.panelBtn.attach[lang] }">
-					<svg id="de-panel-logo-svg">
+				<div id="de-panel-btn-logo" class="de-panel-btn" title="${ Lng.panelBtn.attach[lang] }">
+					<svg class="de-panel-svg">
 						<use xlink:href="#de-symbol-panel-logo"/>
 					</svg>
 				</div>
@@ -3066,7 +3104,8 @@ const Panel = Object.create({
 						(!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') +
 					this._getButton('goup') +
 					this._getButton('godown') +
-					(filesCount ? this._getButton('expimg') + this._getButton('maskimg') : '') +
+					(filesCount ? this._getButton('expimg') +
+						this._getButton('maskimg', Cfg.maskImgs ? 'de-panel-btn-active' : '') : '') +
 					(!localData ?
 						(filesCount && !Cfg.preLoadImgs ? this._getButton('preimg') : '') +
 						(isThr ? this._getButton('savethr') : '') : '') +
@@ -3088,12 +3127,12 @@ const Panel = Object.create({
 			</div>
 			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div>' }
 		</div>`);
-		this._el = $id('de-panel');
+		this._el = $q('#de-panel', this.mainEl);
 		this._el.addEventListener('click', this, true);
 		if(!nav.isMobile) {
 			['mouseover', 'mouseout'].forEach(e => this._el.addEventListener(e, this));
 		}
-		this._buttons = $id('de-panel-buttons');
+		this._buttons = $q('#de-panel-buttons', this.mainEl);
 	},
 	removeMain() {
 		this._el.removeEventListener('click', this, true);
@@ -3103,9 +3142,18 @@ const Panel = Object.create({
 		delete this._postsCountEl;
 		delete this._filesCountEl;
 		delete this._postersCountEl;
-		$id('de-main').remove();
+		this.mainEl.remove();
 	},
 	async handleEvent(e) {
+		if(nav.isInPage) {
+			if(!Panel.mainEl) {
+				return;
+			}
+		} else if(nav.hasInPageDE) {
+			// Removing a Dollchan copy that may be already embedded on the page
+			$Q('#de-main, #de-main-container:not(.de-runned-userscript)').forEach(
+				el => el !== this.mainEl && el?.remove());
+		}
 		if('isTrusted' in e && !e.isTrusted) {
 			return;
 		}
@@ -3118,9 +3166,9 @@ const Panel = Object.create({
 			}
 			e.preventDefault();
 			switch(el.id) {
-			case 'de-panel-logo':
+			case 'de-panel-btn-logo':
 				if(Cfg.expandPanel) {
-					if(!$q('.de-win-active')) {
+					if(!$q('.de-win-opened', this.mainEl)) {
 						$hide(this._buttons);
 					}
 				} else {
@@ -3128,32 +3176,32 @@ const Panel = Object.create({
 				}
 				await toggleCfg('expandPanel');
 				return;
-			case 'de-panel-cfg': toggleWindow('cfg', false); return;
-			case 'de-panel-hid': toggleWindow('hid', false); return;
-			case 'de-panel-fav': toggleWindow('fav', false); return;
-			case 'de-panel-vid':
+			case 'de-panel-btn-cfg': toggleWindow('cfg', false); return;
+			case 'de-panel-btn-hid': toggleWindow('hid', false); return;
+			case 'de-panel-btn-fav': toggleWindow('fav', false); return;
+			case 'de-panel-btn-vid':
 				this.isVidEnabled = !this.isVidEnabled;
 				toggleWindow('vid', false);
 				return;
-			case 'de-panel-refresh':
+			case 'de-panel-btn-refresh':
 				if(nav.isMobile && !aib.t) {
 					this._menuToggleClickBtn(el);
 				} else {
 					deWindow.location.reload();
 				}
 				return;
-			case 'de-panel-goup': scrollTo(0, 0); return;
-			case 'de-panel-godown': scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight); return;
-			case 'de-panel-expimg':
-				el.classList.toggle('de-panel-button-active');
+			case 'de-panel-btn-goup': scrollTo(0, 0); return;
+			case 'de-panel-btn-godown': scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight); return;
+			case 'de-panel-btn-expimg':
+				el.classList.toggle('de-panel-btn-active');
 				isExpImg = !isExpImg;
 				$q('.de-fullimg-center')?.remove();
 				for(let post = Thread.first.op; post; post = post.next) {
 					post.toggleImages(isExpImg, false);
 				}
 				return;
-			case 'de-panel-preimg':
-				el.classList.toggle('de-panel-button-active');
+			case 'de-panel-btn-preimg':
+				el.classList.toggle('de-panel-btn-active');
 				isPreImg = !isPreImg;
 				if(!e.ctrlKey) {
 					for(const { el } of DelForm) {
@@ -3161,32 +3209,32 @@ const Panel = Object.create({
 					}
 				}
 				return;
-			case 'de-panel-maskimg':
-				el.classList.toggle('de-panel-button-active');
+			case 'de-panel-btn-maskimg':
+				el.classList.toggle('de-panel-btn-active');
 				await toggleCfg('maskImgs');
 				updateCSS();
 				return;
-			case 'de-panel-upd-on':
-			case 'de-panel-upd-warn':
-			case 'de-panel-upd-off':
+			case 'de-panel-btn-upd-on':
+			case 'de-panel-btn-upd-warn':
+			case 'de-panel-btn-upd-off':
 				updater.toggle();
 				return;
-			case 'de-panel-audio-on':
+			case 'de-panel-btn-audio-on':
 				if(nav.isMobile) {
 					updater.toggleAudio(0);
-					el.id = 'de-panel-audio-off';
+					el.id = 'de-panel-btn-audio-off';
 					return;
 				}
 				/* falls through */
-			case 'de-panel-audio-off': {
+			case 'de-panel-btn-audio-off': {
 				if(nav.isMobile) {
 					this._menuToggleClickBtn(el);
 					return;
 				} else if(updater.toggleAudio(0)) {
 					updater.enableUpdater();
-					el.id = 'de-panel-audio-on';
+					el.id = 'de-panel-btn-audio-on';
 				} else {
-					el.id = 'de-panel-audio-off';
+					el.id = 'de-panel-btn-audio-off';
 				}
 				if(this._menu) {
 					this._menu.removeMenu();
@@ -3194,12 +3242,12 @@ const Panel = Object.create({
 				}
 				return;
 			}
-			case 'de-panel-savethr':
+			case 'de-panel-btn-savethr':
 				if(nav.isMobile) {
 					this._menuToggleClickBtn(el);
 				}
 				return;
-			case 'de-panel-enable':
+			case 'de-panel-btn-enable':
 				await toggleCfg('disabled');
 				deWindow.location.reload();
 				return;
@@ -3211,20 +3259,20 @@ const Panel = Object.create({
 				$show(this._buttons);
 			}
 			switch(el.id) {
-			case 'de-panel-cfg': KeyEditListener.setTitle(el, 10); break;
-			case 'de-panel-hid': KeyEditListener.setTitle(el, 7); break;
-			case 'de-panel-fav': KeyEditListener.setTitle(el, 6); break;
-			case 'de-panel-vid': KeyEditListener.setTitle(el, 18); break;
-			case 'de-panel-goback': KeyEditListener.setTitle(el, 4); break;
-			case 'de-panel-gonext': KeyEditListener.setTitle(el, 17); break;
-			case 'de-panel-maskimg': KeyEditListener.setTitle(el, 9); break;
-			case 'de-panel-refresh':
+			case 'de-panel-btn-cfg': KeyEditListener.setTitle(el, 10); break;
+			case 'de-panel-btn-hid': KeyEditListener.setTitle(el, 7); break;
+			case 'de-panel-btn-fav': KeyEditListener.setTitle(el, 6); break;
+			case 'de-panel-btn-vid': KeyEditListener.setTitle(el, 18); break;
+			case 'de-panel-btn-goback': KeyEditListener.setTitle(el, 4); break;
+			case 'de-panel-btn-gonext': KeyEditListener.setTitle(el, 17); break;
+			case 'de-panel-btn-maskimg': KeyEditListener.setTitle(el, 9); break;
+			case 'de-panel-btn-refresh':
 				if(aib.t) {
 					return;
 				}
 				/* falls through */
-			case 'de-panel-savethr':
-			case 'de-panel-audio-off': {
+			case 'de-panel-btn-savethr':
+			case 'de-panel-btn-audio-off': {
 				if(this._menu?.parentEl === el) {
 					return;
 				}
@@ -3240,9 +3288,9 @@ const Panel = Object.create({
 		default: // mouseout
 			this._setHideTimeout(e.relatedTarget);
 			switch(el.id) {
-			case 'de-panel-refresh':
-			case 'de-panel-savethr':
-			case 'de-panel-audio-off': clearTimeout(this._menuTO);
+			case 'de-panel-btn-refresh':
+			case 'de-panel-btn-savethr':
+			case 'de-panel-btn-audio-off': clearTimeout(this._menuTO);
 			}
 		}
 	},
@@ -3258,21 +3306,21 @@ const Panel = Object.create({
 	_menu  : null,
 	_menuTO: null,
 	get _filesCountEl() {
-		const value = $id('de-panel-info-files');
+		const value = $q('#de-panel-info-files', this.mainEl);
 		Object.defineProperty(this, '_filesCountEl', { value, configurable: true });
 		return value;
 	},
 	get _postersCountEl() {
-		const value = $id('de-panel-info-posters');
+		const value = $q('#de-panel-info-posters', this.mainEl);
 		Object.defineProperty(this, '_postersCountEl', { value, configurable: true });
 		return value;
 	},
 	get _postsCountEl() {
-		const value = $id('de-panel-info-posts');
+		const value = $q('#de-panel-info-posts', this.mainEl);
 		Object.defineProperty(this, '_postsCountEl', { value, configurable: true });
 		return value;
 	},
-	_getButton(id) {
+	_getButton(id, className) {
 		let page, href, title, useId;
 		let tag = 'button';
 		switch(id) {
@@ -3303,8 +3351,9 @@ const Panel = Object.create({
 			tag = 'a';
 			href = aib.catalogUrl;
 		}
-		return `<${ tag } id="de-panel-${ id }" class="de-abtn de-panel-button"
-			title="${ title || Lng.panelBtn[id][lang] }" ${ href ? 'href="' + href + '"' : '' }>
+		return `<${ tag } id="de-panel-btn-${ id }" class="de-abtn de-panel-btn${
+			className ? ' ' + className : '' }" title="${ title || Lng.panelBtn[id][lang] }" ${
+			href ? 'href="' + href + '"' : '' }>
 			<svg class="de-panel-svg">
 			${ id !== 'audio-off' ? `
 				<use xlink:href="#de-symbol-panel-${ useId || id }"/>` : `
@@ -3322,7 +3371,7 @@ const Panel = Object.create({
 		this._menu = Menu.addMenu(buttonEl);
 	},
 	_setHideTimeout(targetEl) {
-		if(!Cfg.expandPanel && !$q('.de-win-active') && !$contains(this._el, targetEl)) {
+		if(!Cfg.expandPanel && !$q('.de-win-opened', this.mainEl) && !$contains(this._el, targetEl)) {
 			this._hideTO = setTimeout(() => $hide(this._buttons), 500);
 		}
 	}
@@ -3467,7 +3516,7 @@ class WinResizer {
 function toggleWindow(name, isUpdate, data, noAnim) {
 	let el;
 	let winEl = $id('de-win-' + name);
-	const isActive = winEl?.classList.contains('de-win-active');
+	const isActive = winEl?.classList.contains('de-win-opened');
 	if(isUpdate && !isActive) {
 		return;
 	}
@@ -3476,7 +3525,7 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 			`de-win" style="${ Cfg[name + 'WinX'] }; ${ Cfg[name + 'WinY'] }` :
 			'de-win-fixed" style="right: 0; bottom: 25px'
 		) + (name !== 'fav' ? '' : `; width: ${ Cfg.favWinWidth }px; `);
-		winEl = $aBegin($id('de-main'), `<div id="de-win-${ name }" class="${ winAttr }; display: none;">
+		winEl = $aBegin(Panel.mainEl, `<div id="de-win-${ name }" class="${ winAttr }; display: none;">
 			<div class="de-win-head">
 				<span class="de-win-title">
 					${ name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang] }
@@ -3518,7 +3567,7 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 			await toggleCfg(name + 'WinDrag');
 			const isDrag = Cfg[name + 'WinDrag'];
 			if(!isDrag) {
-				const temp = $q('.de-win-active.de-win-fixed', winEl.parentNode);
+				const temp = $q('.de-win-opened.de-win-fixed', winEl.parentNode);
 				if(temp) {
 					toggleWindow(temp.id.substr(7), false);
 				}
@@ -3535,7 +3584,7 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 	updateWinZ(winEl);
 	let isRemove = !isUpdate && isActive;
 	if(!isRemove && !winEl.classList.contains('de-win') &&
-		(el = $q(`.de-win-active.de-win-fixed:not(#de-win-${ name })`, winEl.parentNode))
+		(el = $q(`.de-win-opened.de-win-fixed:not(#de-win-${ name })`, winEl.parentNode))
 	) {
 		toggleWindow(el.id.substr(7), false);
 	}
@@ -3547,8 +3596,8 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 			showWindow(winEl, winBody, name, isRemove, data, Cfg.animation);
 			winEl = winBody = name = isRemove = data = null;
 		});
-		winEl.classList.remove('de-win-open');
-		winEl.classList.add('de-win-close');
+		winEl.classList.remove('de-win-anim-open');
+		winEl.classList.add('de-win-anim-close');
 	} else {
 		showWindow(winEl, winBody, name, isRemove, data, isAnim);
 	}
@@ -3556,17 +3605,17 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 
 function showWindow(winEl, winBody, name, isRemove, data, isAnim) {
 	winBody.innerHTML = '';
-	winEl.classList.toggle('de-win-active', !isRemove);
+	winEl.classList.toggle('de-win-opened', !isRemove);
 	if(isRemove) {
-		winEl.classList.remove('de-win-close');
+		winEl.classList.remove('de-win-anim-close');
 		$hide(winEl);
-		if(!Cfg.expandPanel && !$q('.de-win-active')) {
-			$hide($id('de-panel-buttons'));
+		if(!Cfg.expandPanel && !$q('.de-win-opened')) {
+			$hide($q('#de-panel-buttons', Panel.mainEl));
 		}
 		return;
 	}
 	if(!Cfg.expandPanel) {
-		$show($id('de-panel-buttons'));
+		$show($q('#de-panel-buttons', Panel.mainEl));
 	}
 	switch(name) {
 	case 'fav':
@@ -3578,7 +3627,7 @@ function showWindow(winEl, winBody, name, isRemove, data, isAnim) {
 			showFavoritesWindow(winBody, favObj);
 			$show(winEl);
 			if(isAnim) {
-				winEl.classList.add('de-win-open');
+				winEl.classList.add('de-win-anim-open');
 			}
 		});
 		return;
@@ -3588,7 +3637,7 @@ function showWindow(winEl, winBody, name, isRemove, data, isAnim) {
 	}
 	$show(winEl);
 	if(isAnim) {
-		winEl.classList.add('de-win-open');
+		winEl.classList.add('de-win-anim-open');
 	}
 }
 
@@ -4236,8 +4285,7 @@ function showFavoritesWindow(winBody, favObj) {
 			for(let page = 0; page < endPage; ++page) {
 				const tNums = new Set();
 				try {
-					const form = await ajaxLoad(aib.getPageUrl(aib.b, page));
-					const els = DelForm.getThreads(form);
+					const els = DelForm.getThreads(await ajaxLoad(aib.getPageUrl(aib.b, page)));
 					for(let i = 0, len = els.length; i < len; ++i) {
 						tNums.add(aib.getTNum(els[i]));
 					}
@@ -4269,19 +4317,18 @@ function showFavoritesWindow(winBody, favObj) {
 	);
 
 	// Deletion of confirm/cancel buttons
-	const delBtns = $bEnd(winBody, '<div id="de-fav-del-confirm" style="display: none;"></div>');
-	delBtns.append(
+	$bEnd(winBody, '<div id="de-fav-del-confirm" style="display: none;"></div>').append(
 		$button(Lng.remove[lang], Lng.delEntries[lang], () => {
 			$Q('.de-entry > .de-fav-del-btn[de-checked]', winBody).forEach(
 				el => el.parentNode.setAttribute('de-removed', ''));
 			remove404Favorites();
 			$show(btns);
-			$hide(delBtns);
+			$hide($id('de-fav-del-confirm'));
 		}),
 		$button(Lng.cancel[lang], '', () => {
 			$Q('.de-fav-del-btn', winBody).forEach(el => el.removeAttribute('de-checked'));
 			$show(btns);
-			$hide(delBtns);
+			$hide($id('de-fav-del-confirm'));
 		})
 	);
 }
@@ -5022,10 +5069,10 @@ const CfgWindow = {
 			${ postform.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
 			${ postform.mail ? `${ this._getBox('addSageBtn') }
 				${ this._getBox('saveSage') }<br>` : '' }
-			${ postform.captcha ? `${ !aib.noCapUpdTime && this._getInp('capUpdTime', true, 4) }<br>
-				${ this._getSel('captchaLang') }<br>` : '' }
+			${ postform.captcha ? `${ !aib.noCapUpdTime ? this._getInp('capUpdTime', true, 4) + '<br>' : '' }
+				${ postform.captcha.textEl ? `${ this._getSel('captchaLang') }<br>` : '' }` : '' }
 			${ !aib.noMarkupBtns && postform.txta ? `${ this._getSel('addTextBtns') }
-				${ !aib.noMarkupBtns && !aib._4chan ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
+				${ !aib._4chan ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
 			${ postform.passw ? `${ this._getInp('passwValue', false, 9) }
 				${ this._getBox('userPassw') }<input type="button"` +
 				` id="de-cfg-button-pass" class="de-cfg-button" value="${ Lng.change[lang] }"><br>` : '' }
@@ -5286,10 +5333,10 @@ class Menu {
 			({ textContent: s }) => insertText($id('de-spell-txt'), s +
 				(!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : `[${ aib.b },${ aib.t }]`) +
 				(Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : '')));
-		case 'de-panel-refresh':
+		case 'de-panel-btn-refresh':
 			return new Menu(el, tags(Lng.selAjaxPages[lang]),
 				el => Pages.loadPages(Array.prototype.indexOf.call(el.parentNode.children, el) + 1));
-		case 'de-panel-savethr':
+		case 'de-panel-btn-savethr':
 			return new Menu(el, tags($q(aib.qPostImg, DelForm.first.el) ?
 				Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]),
 			el => {
@@ -5305,12 +5352,12 @@ class Menu {
 					ContentLoader.downloadThread(imgOnly);
 				}
 			});
-		case 'de-panel-audio-off':
+		case 'de-panel-btn-audio-off':
 			return new Menu(el, tags(Lng.selAudioNotif[lang]), el => {
 				updater.enableUpdater();
 				updater.toggleAudio(
 					[3e4, 6e4, 12e4, 3e5][Array.prototype.indexOf.call(el.parentNode.children, el)]);
-				$id('de-panel-audio-off').id = 'de-panel-audio-on';
+				$q('#de-panel-btn-audio-off', Panel.mainEl).id = 'de-panel-btn-audio-on';
 			});
 		}
 	}
@@ -5376,8 +5423,8 @@ class Menu {
 			if(e.target.classList.contains('de-menu-item')) {
 				this.removeMenu();
 				this._clickFn(e.target, e);
-				if(!Cfg.expandPanel && !$q('.de-win-active')) {
-					$hide($id('de-panel-buttons'));
+				if(!Cfg.expandPanel && !$q('.de-win-opened')) {
+					$hide($q('#de-panel-buttons', Panel.mainEl));
 				}
 			}
 			break;
@@ -5550,7 +5597,7 @@ const HotKeys = {
 				toggleWindow('hid', false);
 				break;
 			case 8: // Open/close panel
-				$toggle($id('de-panel-buttons'));
+				$toggle($q('#de-panel-buttons', Panel.mainEl));
 				break;
 			case 9: // Mask/unmask images
 				toggleCfg('maskImgs').then(() => updateCSS());
@@ -6043,7 +6090,6 @@ const ContentLoader = {
 				$q('head', dc).insertAdjacentHTML('beforeend',
 					'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
 				const docBody = $q('body', dc);
-				docBody.classList.remove('de-runned-inpage', 'de-runned-userscript');
 				docBody.classList.add('de-runned-local');
 				$delAll('#de-css, #de-css-dynamic, #de-css-user', dc);
 				tar.addString('data/dollscript.js', `${ nav.isESNext ?
@@ -6083,8 +6129,9 @@ const ContentLoader = {
 			}
 		});
 		if(!imgOnly) {
-			$delAll('.de-btn-img, #de-main, .de-parea, .de-post-btns, .de-refmap, .de-thr-buttons, ' +
-				'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' + aib.qForm, dc);
+			$delAll('.de-btn-img, #de-main-container, .de-parea, .de-post-btns, .de-refmap, ' +
+				'.de-thr-buttons, .de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' +
+				aib.qForm, dc);
 			$Q('a', dc).forEach(el => {
 				let num;
 				const tc = el.textContent;
@@ -6156,7 +6203,7 @@ const ContentLoader = {
 		$ajax(url, { responseType: 'arraybuffer' }, !url.startsWith('blob')).then(xhr => {
 			if('response' in xhr) {
 				try {
-					return nav.unsafeUint8Array(xhr.response);
+					return nav.uint8Array(xhr.response);
 				} catch(err) {}
 			}
 			const txt = xhr.responseText;
@@ -6257,7 +6304,7 @@ const ContentLoader = {
 		}
 		const ext = ['7z', 'zip', 'rar', 'ogg', 'mp3'][type];
 		nameLink.insertAdjacentHTML('afterend', `<a href="${ deWindow.URL.createObjectURL(
-			new Blob([nav.unsafeUint8Array(info.data, info.idx)], {
+			new Blob([nav.uint8Array(info.data, info.idx)], {
 				type: [
 					'application/x-7z-compressed',
 					'application/zip',
@@ -7088,11 +7135,9 @@ function ajaxPostsLoad(board, tNum, useCache, useJson = true) {
 			}
 		}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 	}
-	return aib.hasArchive ?
-		ajaxLoad(aib.getThrUrl(board, tNum), true, useCache, true)
-			.then(data => data?.[0] ? new DOMPostsBuilder(data[0], data[1]) : null) :
-		ajaxLoad(aib.getThrUrl(board, tNum), true, useCache)
-			.then(form => form ? new DOMPostsBuilder(form) : null);
+	return ajaxLoad(aib.getThrUrl(board, tNum), true, useCache, aib.hasArchive).then(aib.hasArchive ?
+		data => data?.[0] ? new DOMPostsBuilder(data[0], data[1]) : null :
+		formEl => formEl ? new DOMPostsBuilder(formEl) : null);
 }
 
 function infoLoadErrors(err, showError = true) {
@@ -9545,7 +9590,7 @@ async function html5Submit(form, submitter, needProgress = false) {
 }
 
 function cleanFile(data, extraData) {
-	const img = nav.unsafeUint8Array(data);
+	const img = nav.uint8Array(data);
 	const rand = Cfg.postSameImg && String(Math.round(Math.random() * 1e6));
 	const rv = extraData ?
 		rand ? [img, extraData, rand] : [img, extraData] :
@@ -9555,7 +9600,7 @@ function cleanFile(data, extraData) {
 		return rv;
 	}
 	let i, len, val, lIdx, jpgDat;
-	const subarray = (begin, end) => nav.unsafeUint8Array(data, begin, end - begin);
+	const subarray = (begin, end) => nav.uint8Array(data, begin, end - begin);
 	// JPG
 	if(img[0] === 0xFF && img[1] === 0xD8) {
 		let deep = 1;
@@ -9598,7 +9643,7 @@ function cleanFile(data, extraData) {
 		if(lIdx === 2) {
 			// Remove data after the end marker
 			if(i < len) {
-				rv[0] = nav.unsafeUint8Array(data, 0, i);
+				rv[0] = nav.uint8Array(data, 0, i);
 			}
 			return rv;
 		}
@@ -9625,7 +9670,7 @@ function cleanFile(data, extraData) {
 		i += 8;
 		// Remove data after the end marker
 		if(i !== len && (extraData || len - i <= 75)) {
-			rv[0] = nav.unsafeUint8Array(data, 0, i);
+			rv[0] = nav.uint8Array(data, 0, i);
 		}
 		return rv;
 	}
@@ -9636,7 +9681,7 @@ function cleanFile(data, extraData) {
 		while(i && img[--i - 1] !== 0x00 && img[i] !== 0x3B) /* empty */;
 		// Remove data after the end marker
 		if(++i !== len) {
-			rv[0] = nav.unsafeUint8Array(data, 0, i);
+			rv[0] = nav.uint8Array(data, 0, i);
 		}
 		return rv;
 	}
@@ -9651,7 +9696,7 @@ function readExif(data, offset, len) {
 	let xRes = 0;
 	let yRes = 0;
 	let resT = 0;
-	const dv = nav.unsafeDataView(data, offset);
+	const dv = nav.dataView(data, offset);
 	const le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
 	if(dv.getUint16(2, le) !== 0x2A) {
 		return null;
@@ -10797,13 +10842,13 @@ class AbstractPost {
 		if(!isInit) {
 			$popup('load-fullmsg', Lng.loading[lang], true);
 		}
-		ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(form => {
+		ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(formEl => {
 			let sourceEl;
 			const maybeSpells = new Maybe(SpellsRunner);
 			if(this.isOp) {
-				sourceEl = form;
+				sourceEl = formEl;
 			} else {
-				const posts = $Q(aib.qPost, form);
+				const posts = $Q(aib.qPost, formEl);
 				for(let i = 0, len = posts.length; i < len; ++i) {
 					const post = posts[i];
 					if(this.num === aib.getPNum(post)) {
@@ -14434,9 +14479,9 @@ function initThreadUpdater(title, enableUpdate) {
 		disableAudio() {
 			this.stopAudio();
 			this.enabled = false;
-			const btn = $id('de-panel-audio-on');
+			const btn = $q('#de-panel-btn-audio-on', Panel.mainEl);
 			if(btn) {
-				btn.id = 'de-panel-audio-off';
+				btn.id = 'de-panel-btn-audio-off';
 			}
 		},
 		playAudio() {
@@ -14771,7 +14816,7 @@ function initThreadUpdater(title, enableUpdate) {
 		_seconds    : 0,
 		_state      : -1,
 		get _panelButton() {
-			const value = $q('button[id^="de-panel-upd"]');
+			const value = $q('button[id^="de-panel-btn-upd"]');
 			if(value) {
 				Object.defineProperty(this, '_panelButton', { value });
 			}
@@ -14863,7 +14908,7 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		_setUpdateStatus(status) {
 			if(this._panelButton) {
-				this._panelButton.id = 'de-panel-upd-' + status;
+				this._panelButton.id = 'de-panel-btn-upd-' + status;
 				this._panelButton.title = Lng.panelBtn[`upd-${ status === 'off' ? 'off' : 'on' }`][lang];
 			}
 		}
@@ -15244,6 +15289,7 @@ function initBrowser() {
 		firefoxVer      : isFirefox ? +(userAgent.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
 		hasGlobalStorage: hasOldGM || hasNewGM || hasWebStorage,
 		hasGMXHR,
+		hasInPageDE     : false,
 		hasNewGM,
 		hasOldGM,
 		hasWebStorage,
@@ -15302,7 +15348,7 @@ function initBrowser() {
 		},
 		// XXX: Firefox + old Greasemonkey
 		// Hack to prevent 'Accessing TypedArray data over Xrays is slow, and forbidden' errors
-		unsafeUint8Array(data, i, len) {
+		uint8Array(data, i, len) {
 			let Ctor = Uint8Array;
 			if(this.isFirefox && (this.hasOldGM || this.isTampermonkey)) {
 				try {
@@ -15321,7 +15367,7 @@ function initBrowser() {
 			throw new Error();
 		},
 		// XXX: Firefox + old Greasemonkey
-		unsafeDataView(data, offset = 0) {
+		dataView(data, offset = 0) {
 			const value = new DataView(data, offset);
 			return this.isFirefox && this.hasOldGM && !(value instanceof DataView) ?
 				new unsafeWindow.DataView(data, offset) : value;
@@ -16552,7 +16598,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `.newpost, .newpost + hr, .postpanel > :not(img), .refmap, #youtube-thumb-float
 					{ display: none !important; }
-				.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }
+				.de-win-opened:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }
 				.postform { width: initial; }
 				.preview.lazy { opacity: 1; }`;
 		}
@@ -17244,7 +17290,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ super.css }
 				.bottomNav, .delLink, #expandAll, .hidePost, .hideThread, .linkLast50,
 					.linkPreview, #modeBanner, .watchButton { display: none !important; }
-				#de-main, .de-pview { font-size: 75%; }`;
+				#de-main-container, .de-pview { font-size: 75%; }`;
 		}
 		getSubmitData(jsonString) {
 			const { status, data } = JSON.parse(jsonString);
@@ -17297,8 +17343,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ this.protocol }//${ this.host }/${ this.b }/catalogue.html`;
 		}
 		get css() {
-			return `${ !this.t ? '' : 'hr + #de-main { margin-top: -17px; }' }
-			.iichan-hide-thread-btn, .iichan-quick-reply-btn, .postnum { display: none; }
+			return `.iichan-hide-thread-btn, .iichan-quick-reply-btn, .postnum { display: none !important; }
 			.replypage div[id^="thread"] span.reflink::after { content: none; }`;
 		}
 		get isArchived() {
@@ -17855,7 +17900,7 @@ function showDonateMsg() {
 	const item = (name, value) =>
 		`<div>- <i>${ name }</i>: <i style="font: 14px monospace; color: green;">${ value }</i></div>`;
 	$popup('donate', Lng.donateMsg[lang] + `:<br style="margin-bottom: 8px;"><!--
-		--><div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div><!--
+		--><div class="de-donate-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div><!--
 		--><div style="display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;">` +
 			item('BTC', '13NWiiMocssmXiaVKRG4A4SQ6JP4WbLACz') +
 			item('BTC (SegWit)', 'bc1q2x33mkrwv6zadhflvxv2cct45ssn5a7t4ygvtj') +
@@ -18182,22 +18227,23 @@ function scriptCSS() {
 	let x = `
 	/* Main panel */
 	#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }
-	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }
+	.de-panel-btn { display: block; flex: none; margin: 0 1px; padding: 0 !important; min-width: auto; transition: all .3s ease; border: none !important; background: transparent !important; color: inherit !important; cursor: pointer; }
+	.de-panel-btn, .de-panel-svg { width: 25px; height: 25px; }
+	.de-panel-btn-active { stroke: #32ff32 !important; fill: #32ff32 !important; }
+	#de-panel-btn-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-btn-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }
+	#de-panel-btn-expimg, #de-panel-btn-maskimg, #de-panel-btn-preimg { stroke: currentColor; fill: currentColor; }
+	#de-panel-btn-goback { transform: rotate(180deg); will-change: transform; }
+	#de-panel-btn-godown { transform: rotate(90deg); will-change: transform; }
+	#de-panel-btn-goup { transform: rotate(-90deg); will-change: transform; }
+	#de-panel-btn-info { display: flex; flex: none; margin-left: 2px; font: 18px arial; }
+	#de-panel-btn-info > span { background-color: #fff2; margin-right: 4px; padding: 0 1px; border: 1px solid #fff3; border-radius: 4px; }
+	#de-panel-btn-info > span:empty { display: none; }
+	#de-panel-btn-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }
+	#de-panel-btn-upd-on { fill: #32ff32; }
+	#de-panel-btn-upd-warn { fill: #fff441; }
+	#de-panel-btn-upd-off { fill: #ff3232; }
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }
-	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0 !important; min-width: auto; transition: all .3s ease; border: none !important; background: transparent !important; color: inherit !important; cursor: pointer; }
-	.de-panel-button, #de-panel-logo, #de-panel-logo-svg, .de-panel-svg { width: 25px; height: 25px; }
-	.de-panel-button-active { stroke: #32ff32 !important; fill: #32ff32 !important; }
-	#de-panel-expimg, #de-panel-maskimg, #de-panel-preimg { stroke: currentColor; fill: currentColor; }
-	#de-panel-goback { transform: rotate(180deg); will-change: transform; }
-	#de-panel-godown { transform: rotate(90deg); will-change: transform; }
-	#de-panel-goup { transform: rotate(-90deg); will-change: transform; }
-	#de-panel-upd-on { fill: #32ff32; }
-	#de-panel-upd-warn { fill: #fff441; }
-	#de-panel-upd-off { fill: #ff3232; }
-	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }
-	#de-panel-info { display: flex; flex: none; margin-left: 2px; font: 18px arial; }
-	#de-panel-info > span { background-color: #fff2; margin-right: 4px; padding: 0 1px; border: 1px solid #fff3; border-radius: 4px; }
-	#de-panel-info > span:empty { display: none; }
+	.de-runned-userscript > #de-panel { z-index: 10000; }
 	#de-svg-icons, #de-svg-icons > svg { height: 0; width: 0; position: fixed; }
 	.de-svg-fill { stroke: none; fill: currentColor; }
 	.de-svg-stroke { stroke: currentColor; fill: none; }
@@ -18223,9 +18269,9 @@ function scriptCSS() {
 		`{ background: linear-gradient(to bottom, #e854ca, #8c1273 60%, #832da2 100%); }
 		#de-panel-buttons { border-color: #c15dad; }`
 	][Cfg.scriptStyle] }
-	.de-logo { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #121212 60%, #1f2740 100%) }
-	.de-panel-svg:hover, #de-panel-logo-svg:hover { margin: -2px; width: 29px; height: 29px; color: #d0e7ff !important; }
-	.de-panel-button:hover { background-color: rgba(255,255,255,.15) !important; box-shadow: 0 0 3px rgba(200,200,200,0.5); color: inherit !important; }\r\n`;
+	.de-donate-logo { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #121212 60%, #1f2740 100%) }
+	.de-panel-svg:hover { margin: -2px; width: 29px; height: 29px; color: #d0e7ff !important; }
+	.de-panel-btn:hover { background-color: rgba(255,255,255,.15) !important; box-shadow: 0 0 3px rgba(200,200,200,0.5); color: inherit !important; }\r\n`;
 
 	if(Cfg.disabled) {
 		$css(x).id = 'de-css';
@@ -18396,8 +18442,8 @@ function scriptCSS() {
 		.de-close { animation: de-close .15s ease-in both; }
 		.de-blink { animation: de-blink .7s ease-in-out both; }
 		.de-post-new { animation: de-post-new .2s ease-out both; }
-		.de-win-open { animation: de-win-open .2s ease-out backwards; }
-		.de-win-close { animation: de-win-close .2s ease-in both; }\r\n`;
+		.de-win-anim-open { animation: de-win-open .2s ease-out backwards; }
+		.de-win-anim-close { animation: de-win-close .2s ease-in both; }\r\n`;
 	} else {
 		Cfg.animation = 0;
 	}
@@ -18520,6 +18566,8 @@ function scriptCSS() {
 	/* Other */
 	.de-abtn, a.link-button { text-decoration: none !important; outline: none; }
 	.de-button { flex: none; padding: 0 ${ nav.isFirefox ? 2 : 4 }px !important; margin: 1px 2px; min-width: auto !iportant; height: 24px; font: 13px arial; }
+	.de-donate-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }
+	.de-donate-logo > svg { width: 130px; height: 130px; }
 	.de-editor { display: block; width: 600px; height: 300px; max-width: calc(100vw - 20px); font: 12px courier new; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }
 	.de-gotothr-button { vertical-align: 5px; font-size: 0 !important; }
 	.de-gotothr-button::after { content: "${ Lng.goToThr[lang] }"; font-size: 14px; }
@@ -18531,8 +18579,6 @@ function scriptCSS() {
 	.de-link-pview { font-weight: bold; }
 	.de-list { padding-top: 4px; }
 	.de-list::before { content: "\u25CF"; margin-right: 4px; }
-	.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }
-	.de-logo > svg { width: 130px; height: 130px; }
 	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }
 	.de-menu-item:hover { background-color: #222; color: #fff; }
@@ -18700,9 +18746,7 @@ async function runMain(checkDomains, dataPromise) {
 		runFrames();
 		return;
 	}
-	if(doc.body.classList.contains('de-runned-userscript') ||
-		aib.observeContent?.(checkDomains, dataPromise) === false
-	) {
+	if(aib.observeContent?.(checkDomains, dataPromise) === false) {
 		return;
 	}
 	Logger.log('Imageboard check');
@@ -18710,7 +18754,6 @@ async function runMain(checkDomains, dataPromise) {
 	if(!Cfg.disabled && aib.init?.() || !localData && doc.body.classList.contains('de-runned-local')) {
 		return;
 	}
-	doc.body.classList.add(nav.isInPage ? 'de-runned-inpage' : 'de-runned-userscript');
 	Logger.log('Storage loading');
 	addSVGIcons();
 	if(Cfg.disabled) {

@@ -836,7 +836,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `.newpost, .newpost + hr, .postpanel > :not(img), .refmap, #youtube-thumb-float
 					{ display: none !important; }
-				.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }
+				.de-win-opened:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }
 				.postform { width: initial; }
 				.preview.lazy { opacity: 1; }`;
 		}
@@ -1528,7 +1528,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ super.css }
 				.bottomNav, .delLink, #expandAll, .hidePost, .hideThread, .linkLast50,
 					.linkPreview, #modeBanner, .watchButton { display: none !important; }
-				#de-main, .de-pview { font-size: 75%; }`;
+				#de-main-container, .de-pview { font-size: 75%; }`;
 		}
 		getSubmitData(jsonString) {
 			const { status, data } = JSON.parse(jsonString);
@@ -1581,8 +1581,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ this.protocol }//${ this.host }/${ this.b }/catalogue.html`;
 		}
 		get css() {
-			return `${ !this.t ? '' : 'hr + #de-main { margin-top: -17px; }' }
-			.iichan-hide-thread-btn, .iichan-quick-reply-btn, .postnum { display: none; }
+			return `.iichan-hide-thread-btn, .iichan-quick-reply-btn, .postnum { display: none !important; }
 			.replypage div[id^="thread"] span.reflink::after { content: none; }`;
 		}
 		get isArchived() {
