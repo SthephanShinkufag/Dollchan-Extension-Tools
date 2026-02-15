@@ -699,7 +699,7 @@ const CfgWindow = {
 			${ postform.mail ? `${ this._getBox('addSageBtn') }
 				${ this._getBox('saveSage') }<br>` : '' }
 			${ postform.captcha ? `${ this._getInp('capUpdTime') }<br>
-				${ this._getSel('captchaLang') }<br>` : '' }
+				${ postform.captcha.textEl ? `${ this._getSel('captchaLang') }<br>` : '' }` : '' }
 			${ postform.txta ? `${ this._getSel('addTextBtns') }
 				${ this._getBox('txtBtnsLoc') }<br>` : '' }
 			${ postform.passw ? `${ this._getInp('passwValue', false, 9) }

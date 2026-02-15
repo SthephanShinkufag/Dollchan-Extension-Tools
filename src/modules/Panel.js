@@ -4,13 +4,15 @@
 
 const Panel = Object.create({
 	isVidEnabled: false,
+	mainEl      : null,
 	initPanel(formEl) {
 		const filesCount = $Q(aib.qPostImg, formEl).length;
 		const isThr = aib.t;
-		(postform?.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `<div id="de-main">
+		this.mainEl = $bBegin(formEl, `<div id="de-main-container" class="de-runned-${
+			nav.isInPage ? 'inpage' : 'userscript' }">
 			<div id="de-panel">
-				<div id="de-panel-logo" title="${ Lng.panelBtn.attach[lang] }">
-					<svg id="de-panel-logo-svg">
+				<div id="de-panel-btn-logo" class="de-panel-btn" title="${ Lng.panelBtn.attach[lang] }">
+					<svg class="de-panel-svg">
 						<use xlink:href="#de-symbol-panel-logo"/>
 					</svg>
 				</div>
@@ -25,7 +27,8 @@ const Panel = Object.create({
 						(!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') +
 					this._getButton('goup') +
 					this._getButton('godown') +
-					(filesCount ? this._getButton('expimg') + this._getButton('maskimg') : '') +
+					(filesCount ? this._getButton('expimg') +
+						this._getButton('maskimg', Cfg.maskImgs ? 'de-panel-btn-active' : '') : '') +
 					(!localData ?
 						(filesCount && !Cfg.preLoadImgs ? this._getButton('preimg') : '') +
 						(isThr ? this._getButton('savethr') : '') : '') +
@@ -47,12 +50,12 @@ const Panel = Object.create({
 			</div>
 			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div>' }
 		</div>`);
-		this._el = $id('de-panel');
+		this._el = $q('#de-panel', this.mainEl);
 		this._el.addEventListener('click', this, true);
 		if(!nav.isMobile) {
 			['mouseover', 'mouseout'].forEach(e => this._el.addEventListener(e, this));
 		}
-		this._buttons = $id('de-panel-buttons');
+		this._buttons = $q('#de-panel-buttons', this.mainEl);
 	},
 	removeMain() {
 		this._el.removeEventListener('click', this, true);
@@ -62,9 +65,18 @@ const Panel = Object.create({
 		delete this._postsCountEl;
 		delete this._filesCountEl;
 		delete this._postersCountEl;
-		$id('de-main').remove();
+		this.mainEl.remove();
 	},
 	async handleEvent(e) {
+		if(nav.isInPage) {
+			if(!Panel.mainEl) {
+				return;
+			}
+		} else if(nav.hasInPageDE) {
+			// Removing a Dollchan copy that may be already embedded on the page
+			$Q('#de-main, #de-main-container:not(.de-runned-userscript)').forEach(
+				el => el !== this.mainEl && el?.remove());
+		}
 		if('isTrusted' in e && !e.isTrusted) {
 			return;
 		}
@@ -77,9 +89,9 @@ const Panel = Object.create({
 			}
 			e.preventDefault();
 			switch(el.id) {
-			case 'de-panel-logo':
+			case 'de-panel-btn-logo':
 				if(Cfg.expandPanel) {
-					if(!$q('.de-win-active')) {
+					if(!$q('.de-win-opened', this.mainEl)) {
 						$hide(this._buttons);
 					}
 				} else {
@@ -87,32 +99,32 @@ const Panel = Object.create({
 				}
 				await toggleCfg('expandPanel');
 				return;
-			case 'de-panel-cfg': toggleWindow('cfg', false); return;
-			case 'de-panel-hid': toggleWindow('hid', false); return;
-			case 'de-panel-fav': toggleWindow('fav', false); return;
-			case 'de-panel-vid':
+			case 'de-panel-btn-cfg': toggleWindow('cfg', false); return;
+			case 'de-panel-btn-hid': toggleWindow('hid', false); return;
+			case 'de-panel-btn-fav': toggleWindow('fav', false); return;
+			case 'de-panel-btn-vid':
 				this.isVidEnabled = !this.isVidEnabled;
 				toggleWindow('vid', false);
 				return;
-			case 'de-panel-refresh':
+			case 'de-panel-btn-refresh':
 				if(nav.isMobile && !aib.t) {
 					this._menuToggleClickBtn(el);
 				} else {
 					deWindow.location.reload();
 				}
 				return;
-			case 'de-panel-goup': scrollTo(0, 0); return;
-			case 'de-panel-godown': scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight); return;
-			case 'de-panel-expimg':
-				el.classList.toggle('de-panel-button-active');
+			case 'de-panel-btn-goup': scrollTo(0, 0); return;
+			case 'de-panel-btn-godown': scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight); return;
+			case 'de-panel-btn-expimg':
+				el.classList.toggle('de-panel-btn-active');
 				isExpImg = !isExpImg;
 				$q('.de-fullimg-center')?.remove();
 				for(let post = Thread.first.op; post; post = post.next) {
 					post.toggleImages(isExpImg, false);
 				}
 				return;
-			case 'de-panel-preimg':
-				el.classList.toggle('de-panel-button-active');
+			case 'de-panel-btn-preimg':
+				el.classList.toggle('de-panel-btn-active');
 				isPreImg = !isPreImg;
 				if(!e.ctrlKey) {
 					for(const { el } of DelForm) {
@@ -120,32 +132,32 @@ const Panel = Object.create({
 					}
 				}
 				return;
-			case 'de-panel-maskimg':
-				el.classList.toggle('de-panel-button-active');
+			case 'de-panel-btn-maskimg':
+				el.classList.toggle('de-panel-btn-active');
 				await toggleCfg('maskImgs');
 				updateCSS();
 				return;
-			case 'de-panel-upd-on':
-			case 'de-panel-upd-warn':
-			case 'de-panel-upd-off':
+			case 'de-panel-btn-upd-on':
+			case 'de-panel-btn-upd-warn':
+			case 'de-panel-btn-upd-off':
 				updater.toggle();
 				return;
-			case 'de-panel-audio-on':
+			case 'de-panel-btn-audio-on':
 				if(nav.isMobile) {
 					updater.toggleAudio(0);
-					el.id = 'de-panel-audio-off';
+					el.id = 'de-panel-btn-audio-off';
 					return;
 				}
 				/* falls through */
-			case 'de-panel-audio-off': {
+			case 'de-panel-btn-audio-off': {
 				if(nav.isMobile) {
 					this._menuToggleClickBtn(el);
 					return;
 				} else if(updater.toggleAudio(0)) {
 					updater.enableUpdater();
-					el.id = 'de-panel-audio-on';
+					el.id = 'de-panel-btn-audio-on';
 				} else {
-					el.id = 'de-panel-audio-off';
+					el.id = 'de-panel-btn-audio-off';
 				}
 				if(this._menu) {
 					this._menu.removeMenu();
@@ -153,12 +165,12 @@ const Panel = Object.create({
 				}
 				return;
 			}
-			case 'de-panel-savethr':
+			case 'de-panel-btn-savethr':
 				if(nav.isMobile) {
 					this._menuToggleClickBtn(el);
 				}
 				return;
-			case 'de-panel-enable':
+			case 'de-panel-btn-enable':
 				await toggleCfg('disabled');
 				deWindow.location.reload();
 				return;
@@ -170,20 +182,20 @@ const Panel = Object.create({
 				$show(this._buttons);
 			}
 			switch(el.id) {
-			case 'de-panel-cfg': KeyEditListener.setTitle(el, 10); break;
-			case 'de-panel-hid': KeyEditListener.setTitle(el, 7); break;
-			case 'de-panel-fav': KeyEditListener.setTitle(el, 6); break;
-			case 'de-panel-vid': KeyEditListener.setTitle(el, 18); break;
-			case 'de-panel-goback': KeyEditListener.setTitle(el, 4); break;
-			case 'de-panel-gonext': KeyEditListener.setTitle(el, 17); break;
-			case 'de-panel-maskimg': KeyEditListener.setTitle(el, 9); break;
-			case 'de-panel-refresh':
+			case 'de-panel-btn-cfg': KeyEditListener.setTitle(el, 10); break;
+			case 'de-panel-btn-hid': KeyEditListener.setTitle(el, 7); break;
+			case 'de-panel-btn-fav': KeyEditListener.setTitle(el, 6); break;
+			case 'de-panel-btn-vid': KeyEditListener.setTitle(el, 18); break;
+			case 'de-panel-btn-goback': KeyEditListener.setTitle(el, 4); break;
+			case 'de-panel-btn-gonext': KeyEditListener.setTitle(el, 17); break;
+			case 'de-panel-btn-maskimg': KeyEditListener.setTitle(el, 9); break;
+			case 'de-panel-btn-refresh':
 				if(aib.t) {
 					return;
 				}
 				/* falls through */
-			case 'de-panel-savethr':
-			case 'de-panel-audio-off': {
+			case 'de-panel-btn-savethr':
+			case 'de-panel-btn-audio-off': {
 				if(this._menu?.parentEl === el) {
 					return;
 				}
@@ -199,9 +211,9 @@ const Panel = Object.create({
 		default: // mouseout
 			this._setHideTimeout(e.relatedTarget);
 			switch(el.id) {
-			case 'de-panel-refresh':
-			case 'de-panel-savethr':
-			case 'de-panel-audio-off': clearTimeout(this._menuTO);
+			case 'de-panel-btn-refresh':
+			case 'de-panel-btn-savethr':
+			case 'de-panel-btn-audio-off': clearTimeout(this._menuTO);
 			}
 		}
 	},
@@ -216,21 +228,21 @@ const Panel = Object.create({
 	_menu  : null,
 	_menuTO: null,
 	get _filesCountEl() {
-		const value = $id('de-panel-info-files');
+		const value = $q('#de-panel-info-files', this.mainEl);
 		Object.defineProperty(this, '_filesCountEl', { value, configurable: true });
 		return value;
 	},
 	get _postersCountEl() {
-		const value = $id('de-panel-info-posters');
+		const value = $q('#de-panel-info-posters', this.mainEl);
 		Object.defineProperty(this, '_postersCountEl', { value, configurable: true });
 		return value;
 	},
 	get _postsCountEl() {
-		const value = $id('de-panel-info-posts');
+		const value = $q('#de-panel-info-posts', this.mainEl);
 		Object.defineProperty(this, '_postsCountEl', { value, configurable: true });
 		return value;
 	},
-	_getButton(id) {
+	_getButton(id, className) {
 		let page, href, title, useId;
 		let tag = 'button';
 		switch(id) {
@@ -261,8 +273,9 @@ const Panel = Object.create({
 			tag = 'a';
 			href = aib.catalogUrl;
 		}
-		return `<${ tag } id="de-panel-${ id }" class="de-abtn de-panel-button"
-			title="${ title || Lng.panelBtn[id][lang] }" ${ href ? 'href="' + href + '"' : '' }>
+		return `<${ tag } id="de-panel-btn-${ id }" class="de-abtn de-panel-btn${
+			className ? ' ' + className : '' }" title="${ title || Lng.panelBtn[id][lang] }" ${
+			href ? 'href="' + href + '"' : '' }>
 			<svg class="de-panel-svg">
 			${ id !== 'audio-off' ? `
 				<use xlink:href="#de-symbol-panel-${ useId || id }"/>` : `
@@ -280,7 +293,7 @@ const Panel = Object.create({
 		this._menu = Menu.addMenu(buttonEl);
 	},
 	_setHideTimeout(targetEl) {
-		if(!Cfg.expandPanel && !$q('.de-win-active') && !$contains(this._el, targetEl)) {
+		if(!Cfg.expandPanel && !$q('.de-win-opened', this.mainEl) && !$contains(this._el, targetEl)) {
 			this._hideTO = setTimeout(() => $hide(this._buttons), 500);
 		}
 	}

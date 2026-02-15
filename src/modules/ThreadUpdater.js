@@ -19,9 +19,9 @@ function initThreadUpdater(title, enableUpdate) {
 		disableAudio() {
 			this.stopAudio();
 			this.enabled = false;
-			const btn = $id('de-panel-audio-on');
+			const btn = $q('#de-panel-btn-audio-on', Panel.mainEl);
 			if(btn) {
-				btn.id = 'de-panel-audio-off';
+				btn.id = 'de-panel-btn-audio-off';
 			}
 		},
 		playAudio() {
@@ -348,7 +348,7 @@ function initThreadUpdater(title, enableUpdate) {
 		_seconds    : 0,
 		_state      : -1,
 		get _panelButton() {
-			const value = $q('button[id^="de-panel-upd"]');
+			const value = $q('button[id^="de-panel-btn-upd"]');
 			if(value) {
 				Object.defineProperty(this, '_panelButton', { value });
 			}
@@ -440,7 +440,7 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		_setUpdateStatus(status) {
 			if(this._panelButton) {
-				this._panelButton.id = 'de-panel-upd-' + status;
+				this._panelButton.id = 'de-panel-btn-upd-' + status;
 				this._panelButton.title = Lng.panelBtn[`upd-${ status === 'off' ? 'off' : 'on' }`][lang];
 			}
 		}

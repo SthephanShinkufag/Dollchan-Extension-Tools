@@ -10,22 +10,23 @@ function scriptCSS() {
 	let x = `
 	/* Main panel */
 	#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }
-	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }
+	.de-panel-btn { display: block; flex: none; margin: 0 1px; padding: 0 !important; min-width: auto; transition: all .3s ease; border: none !important; background: transparent !important; color: inherit !important; cursor: pointer; }
+	.de-panel-btn, .de-panel-svg { width: 25px; height: 25px; }
+	.de-panel-btn-active { stroke: #32ff32 !important; fill: #32ff32 !important; }
+	#de-panel-btn-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-btn-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }
+	#de-panel-btn-expimg, #de-panel-btn-maskimg, #de-panel-btn-preimg { stroke: currentColor; fill: currentColor; }
+	#de-panel-btn-goback { transform: rotate(180deg); will-change: transform; }
+	#de-panel-btn-godown { transform: rotate(90deg); will-change: transform; }
+	#de-panel-btn-goup { transform: rotate(-90deg); will-change: transform; }
+	#de-panel-btn-info { display: flex; flex: none; margin-left: 2px; font: 18px arial; }
+	#de-panel-btn-info > span { background-color: #fff2; margin-right: 4px; padding: 0 1px; border: 1px solid #fff3; border-radius: 4px; }
+	#de-panel-btn-info > span:empty { display: none; }
+	#de-panel-btn-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }
+	#de-panel-btn-upd-on { fill: #32ff32; }
+	#de-panel-btn-upd-warn { fill: #fff441; }
+	#de-panel-btn-upd-off { fill: #ff3232; }
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }
-	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0 !important; min-width: auto; transition: all .3s ease; border: none !important; background: transparent !important; color: inherit !important; cursor: pointer; }
-	.de-panel-button, #de-panel-logo, #de-panel-logo-svg, .de-panel-svg { width: 25px; height: 25px; }
-	.de-panel-button-active { stroke: #32ff32 !important; fill: #32ff32 !important; }
-	#de-panel-expimg, #de-panel-maskimg, #de-panel-preimg { stroke: currentColor; fill: currentColor; }
-	#de-panel-goback { transform: rotate(180deg); will-change: transform; }
-	#de-panel-godown { transform: rotate(90deg); will-change: transform; }
-	#de-panel-goup { transform: rotate(-90deg); will-change: transform; }
-	#de-panel-upd-on { fill: #32ff32; }
-	#de-panel-upd-warn { fill: #fff441; }
-	#de-panel-upd-off { fill: #ff3232; }
-	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }
-	#de-panel-info { display: flex; flex: none; margin-left: 2px; font: 18px arial; }
-	#de-panel-info > span { background-color: #fff2; margin-right: 4px; padding: 0 1px; border: 1px solid #fff3; border-radius: 4px; }
-	#de-panel-info > span:empty { display: none; }
+	.de-runned-userscript > #de-panel { z-index: 10000; }
 	#de-svg-icons, #de-svg-icons > svg { height: 0; width: 0; position: fixed; }
 	.de-svg-fill { stroke: none; fill: currentColor; }
 	.de-svg-stroke { stroke: currentColor; fill: none; }
@@ -51,9 +52,9 @@ function scriptCSS() {
 		`{ background: linear-gradient(to bottom, #e854ca, #8c1273 60%, #832da2 100%); }
 		#de-panel-buttons { border-color: #c15dad; }`
 	][Cfg.scriptStyle] }
-	.de-logo { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #121212 60%, #1f2740 100%) }
-	.de-panel-svg:hover, #de-panel-logo-svg:hover { margin: -2px; width: 29px; height: 29px; color: #d0e7ff !important; }
-	.de-panel-button:hover { background-color: rgba(255,255,255,.15) !important; box-shadow: 0 0 3px rgba(200,200,200,0.5); color: inherit !important; }\r\n`;
+	.de-donate-logo { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #121212 60%, #1f2740 100%) }
+	.de-panel-svg:hover { margin: -2px; width: 29px; height: 29px; color: #d0e7ff !important; }
+	.de-panel-btn:hover { background-color: rgba(255,255,255,.15) !important; box-shadow: 0 0 3px rgba(200,200,200,0.5); color: inherit !important; }\r\n`;
 
 	if(Cfg.disabled) {
 		$css(x).id = 'de-css';
@@ -224,8 +225,8 @@ function scriptCSS() {
 		.de-close { animation: de-close .15s ease-in both; }
 		.de-blink { animation: de-blink .7s ease-in-out both; }
 		.de-post-new { animation: de-post-new .2s ease-out both; }
-		.de-win-open { animation: de-win-open .2s ease-out backwards; }
-		.de-win-close { animation: de-win-close .2s ease-in both; }\r\n`;
+		.de-win-anim-open { animation: de-win-open .2s ease-out backwards; }
+		.de-win-anim-close { animation: de-win-close .2s ease-in both; }\r\n`;
 	} else {
 		Cfg.animation = 0;
 	}
@@ -348,6 +349,8 @@ function scriptCSS() {
 	/* Other */
 	.de-abtn { text-decoration: none !important; outline: none; }
 	.de-button { flex: none; padding: 0 ${ nav.isFirefox ? 2 : 4 }px !important; margin: 1px 2px; min-width: auto !iportant; height: 24px; font: 13px arial; }
+	.de-donate-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }
+	.de-donate-logo > svg { width: 130px; height: 130px; }
 	.de-editor { display: block; width: 600px; height: 300px; max-width: calc(100vw - 20px); font: 12px courier new; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }
 	.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }
@@ -357,8 +360,6 @@ function scriptCSS() {
 	.de-link-pview { font-weight: bold; }
 	.de-list { padding-top: 4px; }
 	.de-list::before { content: "\u25CF"; margin-right: 4px; }
-	.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }
-	.de-logo > svg { width: 130px; height: 130px; }
 	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }
 	.de-menu-item:hover { background-color: #222; color: #fff; }

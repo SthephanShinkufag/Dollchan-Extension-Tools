@@ -457,8 +457,7 @@ function showFavoritesWindow(winBody, favObj) {
 			for(let page = 0; page < endPage; ++page) {
 				const tNums = new Set();
 				try {
-					const form = await ajaxLoad(aib.getPageUrl(aib.b, page));
-					const els = DelForm.getThreads(form);
+					const els = DelForm.getThreads(await ajaxLoad(aib.getPageUrl(aib.b, page)));
 					for(let i = 0, len = els.length; i < len; ++i) {
 						tNums.add(aib.getTNum(els[i]));
 					}
@@ -490,19 +489,18 @@ function showFavoritesWindow(winBody, favObj) {
 	);
 
 	// Deletion of confirm/cancel buttons
-	const delBtns = $bEnd(winBody, '<div id="de-fav-del-confirm" style="display: none;"></div>');
-	delBtns.append(
+	$bEnd(winBody, '<div id="de-fav-del-confirm" style="display: none;"></div>').append(
 		$button(Lng.remove[lang], Lng.delEntries[lang], () => {
 			$Q('.de-entry > .de-fav-del-btn[de-checked]', winBody).forEach(
 				el => el.parentNode.setAttribute('de-removed', ''));
 			remove404Favorites();
 			$show(btns);
-			$hide(delBtns);
+			$hide($id('de-fav-del-confirm'));
 		}),
 		$button(Lng.cancel[lang], '', () => {
 			$Q('.de-fav-del-btn', winBody).forEach(el => el.removeAttribute('de-checked'));
 			$show(btns);
-			$hide(delBtns);
+			$hide($id('de-fav-del-confirm'));
 		})
 	);
 }

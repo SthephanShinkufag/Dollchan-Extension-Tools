@@ -418,9 +418,9 @@ const Lng = {
 			'Warn about a tripcode in "Subject" field',
 			'Сповіщувати про трипкод в полі "Тема"'],
 		addSageBtn: [
-			'Кнопка Sage вместо поля "Email" ',
-			'Replace "Email" with Sage button ',
-			'Кнопка Sage замість "E-mail" '],
+			'Кнопка <svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>Sage ',
+			'Sage <svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>button ',
+			'Кнопка <svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>Sage '],
 		saveSage: [
 			'Помнить сажу',
 			'Remember sage',

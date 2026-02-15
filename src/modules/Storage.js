@@ -92,6 +92,21 @@ async function toggleCfg(id) {
 
 // Config initialization, checking for Dollchan update.
 async function readCfg() {
+	// Detect built-in-page Dollchan copy and block it
+	if(!nav.isInPage) {
+		let locObj;
+		const locConfig = JSON.parse(locStorage.DESU_Config || '{}') || {};
+		if(aib.domain in locConfig && !$isEmpty(locObj = locConfig[aib.domain])) {
+			nav.hasInPageDE = true;
+			if(locObj.disabled !== 1) {
+				locObj.disabled = 1;
+				locConfig[aib.domain] = locObj;
+				locStorage.DESU_Config = JSON.stringify(locConfig);
+				deWindow.location.reload();
+			}
+		}
+	}
+
 	let obj;
 	const val = await getStoredObj('DESU_Config');
 	if(!(aib.domain in val) || $isEmpty(obj = val[aib.domain])) {
@@ -242,7 +257,8 @@ function readPostsData(firstPost, favObj) {
 		maybeSpells.value.endSpells();
 	}
 	if(aib.t && Cfg.panelCounter === 2) {
-		$id('de-panel-info-posts').textContent = Thread.first.postsCount - Thread.first.hiddenCount;
+		$q('#de-panel-info-posts', Panel.mainEl).textContent =
+			Thread.first.postsCount - Thread.first.hiddenCount;
 	}
 	if(updatedFav) {
 		saveFavorites(favObj);
@@ -253,7 +269,7 @@ function readPostsData(firstPost, favObj) {
 	// After following a link from Favorites, we need to open Favorites again.
 	const hasFavWinKey = sesStorage['de-fav-win'] === '1';
 	if(hasFavWinKey || Cfg.favWinOn) {
-		toggleWindow('fav', !!$q('#de-win-fav.de-win-active'), null, true);
+		toggleWindow('fav', !!$q('#de-win-fav.de-win-opened'), null, true);
 		if(hasFavWinKey) {
 			sesStorage.removeItem('de-fav-win');
 		}

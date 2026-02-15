@@ -138,7 +138,7 @@ const HotKeys = {
 				toggleWindow('hid', false);
 				break;
 			case 8: // Open/close panel
-				$toggle($id('de-panel-buttons'));
+				$toggle($q('#de-panel-buttons', Panel.mainEl));
 				break;
 			case 9: // Mask/unmask images
 				toggleCfg('maskImgs').then(() => updateCSS());

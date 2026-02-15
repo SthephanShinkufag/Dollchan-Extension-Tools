@@ -14,15 +14,11 @@ async function runMain(checkDomains, dataPromise) {
 	if(!formEl) {
 		return;
 	}
-	if(doc.body.classList.contains('de-runned-userscript')) {
-		return;
-	}
 	Logger.log('Imageboard check');
 	const [favObj] = await (dataPromise || Promise.all([readFavorites(), readCfg()]));
 	if(!localData && doc.body.classList.contains('de-runned-local')) {
 		return;
 	}
-	doc.body.classList.add(nav.isInPage ? 'de-runned-inpage' : 'de-runned-userscript');
 	Logger.log('Storage loading');
 	addSVGIcons();
 	if(Cfg.disabled) {

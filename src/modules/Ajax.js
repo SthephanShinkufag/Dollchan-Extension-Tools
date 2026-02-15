@@ -193,10 +193,10 @@ function getAjaxResponseEl(text, needForm) {
 }
 
 function ajaxLoad(url, needForm = true, useCache = false) {
-	return AjaxCache.runCachedAjax(url, useCache).then(xhr => {
-		const el = getAjaxResponseEl(xhr.responseText, needForm);
-		return el ? el : CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
-	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
+	return AjaxCache.runCachedAjax(url, useCache).then(
+		xhr => getAjaxResponseEl(xhr.responseText, needForm) ||
+			CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang])),
+		err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 
 function ajaxPostsLoad(board, tNum, useCache, useJson = true) {
@@ -215,7 +215,7 @@ function ajaxPostsLoad(board, tNum, useCache, useJson = true) {
 		}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 	}
 	return ajaxLoad(aib.getThrUrl(board, tNum), true, useCache)
-		.then(form => form ? new DOMPostsBuilder(form) : null);
+		.then(formEl => formEl ? new DOMPostsBuilder(formEl) : null);
 }
 
 function infoLoadErrors(err, showError = true) {
