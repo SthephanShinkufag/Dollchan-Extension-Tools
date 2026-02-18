@@ -8452,7 +8452,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this24 = this;
   var _marked = _regenerator().m(getFormElements);
   var version = '26.2.15.0';
-  var commit = 'be508f5';
+  var commit = 'b8040ef';
 
 
   var doc = deWindow.document;
@@ -24785,8 +24785,9 @@ Spells.addSpell(9, '', false);
         _this101.qDelForm = $id('posts') ? '#posts' : '#delform';
         _this101.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
         _this101.qPages = '.pagelist';
-        _this101.qPostImg = 'img.thumb, video.thumb';
-        _this101.qPostMsg = '.message';
+        _this101.qPostImg = '.file-thumb';
+        _this101.qPostImgInfo = '.file-info';
+        _this101.qPostMsg = '.post-message';
         _this101.qPostRef = '.post-reflink';
         _this101.qPostUid = '.posteruid';
         _this101.timePattern = 'yy+nn+dd+w+hh+ii+ss';
@@ -24927,12 +24928,12 @@ Spells.addSpell(9, '', false);
       }, {
         key: "getImgRealName",
         value: function getImgRealName(wrap) {
-          return $q('.filesize > a', wrap).textContent;
+          return $q('.file-fullname', wrap).textContent;
         }
       }, {
         key: "getImgWrap",
         value: function getImgWrap(img) {
-          return img.closest('.image-container');
+          return img.closest('.post-file');
         }
       }, {
         key: "_getPasscodeStatus",
