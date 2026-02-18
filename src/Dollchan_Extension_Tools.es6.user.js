@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = 'f35a5ea';
+const commit = '7a05495';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -17184,8 +17184,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qDelForm = $id('posts') ? '#posts' : '#delform';
 			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
 			this.qPages = '.pagelist';
-			this.qPostImg = 'img.thumb, video.thumb';
-			this.qPostMsg = '.message';
+			this.qPostImg = '.file-thumb';
+			this.qPostImgInfo = '.file-info';
+			this.qPostMsg = '.post-message';
 			this.qPostRef = '.post-reflink';
 			this.qPostUid = '.posteruid';
 			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
@@ -17301,10 +17302,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
 		}
 		getImgRealName(wrap) {
-			return $q('.filesize > a', wrap).textContent;
+			return $q('.file-fullname', wrap).textContent;
 		}
 		getImgWrap(img) {
-			return img.closest('.image-container');
+			return img.closest('.post-file');
 		}
 		async _getPasscodeStatus() {
 			let status = 'showcaptcha';
