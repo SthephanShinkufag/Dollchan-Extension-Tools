@@ -4,7 +4,7 @@
 'use strict';
 
 const version = '26.2.15.0';
-const commit = 'b8040ef';
+const commit = 'f284991';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -15015,6 +15015,7 @@ function getImageBoard(checkDomains) {
 			this.qPostImgInfo = '.file-info';
 			this.qPostMsg = '.post-message';
 			this.qPostRef = '.post-reflink';
+			this.qPostSubj = '.post-subject';
 			this.qPostUid = '.posteruid';
 			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
 		}

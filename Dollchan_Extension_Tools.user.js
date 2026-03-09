@@ -8452,7 +8452,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this24 = this;
   var _marked = _regenerator().m(getFormElements);
   var version = '26.2.15.0';
-  var commit = 'b8040ef';
+  var commit = 'f284991';
 
 
   var doc = deWindow.document;
@@ -24789,6 +24789,7 @@ Spells.addSpell(9, '', false);
         _this101.qPostImgInfo = '.file-info';
         _this101.qPostMsg = '.post-message';
         _this101.qPostRef = '.post-reflink';
+        _this101.qPostSubj = '.post-subject';
         _this101.qPostUid = '.posteruid';
         _this101.timePattern = 'yy+nn+dd+w+hh+ii+ss';
         return _this101;
