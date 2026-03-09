@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '7a05495';
+const commit = '4b4dfd3';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -17188,6 +17188,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostImgInfo = '.file-info';
 			this.qPostMsg = '.post-message';
 			this.qPostRef = '.post-reflink';
+			this.qPostSubj = '.post-subject';
 			this.qPostUid = '.posteruid';
 			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
 		}

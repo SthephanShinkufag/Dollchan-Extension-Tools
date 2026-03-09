@@ -1368,6 +1368,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostImgInfo = '.file-info';
 			this.qPostMsg = '.post-message';
 			this.qPostRef = '.post-reflink';
+			this.qPostSubj = '.post-subject';
 			this.qPostUid = '.posteruid';
 			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
 		}
