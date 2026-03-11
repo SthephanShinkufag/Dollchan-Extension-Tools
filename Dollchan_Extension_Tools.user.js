@@ -8452,7 +8452,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this24 = this;
   var _marked = _regenerator().m(getFormElements);
   var version = '26.2.15.0';
-  var commit = 'f284991';
+  var commit = '48025da';
 
 
   var doc = deWindow.document;
@@ -24742,7 +24742,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "isIgnoreError",
       value: function isIgnoreError(txt) {
-        return /successful|uploaded|updating|post deleted|post created|обновл|удален[о.]/i.test(txt);
+        return /successful|updating|post deleted|post created|обновл|удален[о.]/i.test(txt);
       }
     }, {
       key: "parseURL",
@@ -24783,7 +24783,7 @@ Spells.addSpell(9, '', false);
         _this101.markupBB = true;
         _this101.multiFile = true;
         _this101.qDelForm = $id('posts') ? '#posts' : '#delform';
-        _this101.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+        _this101.qError = 'body[align=center] div';
         _this101.qPages = '.pagelist';
         _this101.qPostImg = '.file-thumb';
         _this101.qPostImgInfo = '.file-info';

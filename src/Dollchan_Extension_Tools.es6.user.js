@@ -4,7 +4,7 @@
 'use strict';
 
 const version = '26.2.15.0';
-const commit = 'f284991';
+const commit = '48025da';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -14972,7 +14972,7 @@ class BaseBoard {
 		return status === 200 || status === 206;
 	}
 	isIgnoreError(txt) {
-		return /successful|uploaded|updating|post deleted|post created|обновл|удален[о.]/i.test(txt);
+		return /successful|updating|post deleted|post created|обновл|удален[о.]/i.test(txt);
 	}
 	parseURL() {
 		const url = (deWindow.location.pathname || '').replace(/^[/]+/, '').replace(/[/]+/g, '/');
@@ -15009,7 +15009,7 @@ function getImageBoard(checkDomains) {
 			this.markupBB = true;
 			this.multiFile = true;
 			this.qDelForm = $id('posts') ? '#posts' : '#delform';
-			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+			this.qError = 'body[align=center] div';
 			this.qPages = '.pagelist';
 			this.qPostImg = '.file-thumb';
 			this.qPostImgInfo = '.file-info';

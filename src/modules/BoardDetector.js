@@ -12,7 +12,7 @@ function getImageBoard(checkDomains) {
 			this.markupBB = true;
 			this.multiFile = true;
 			this.qDelForm = $id('posts') ? '#posts' : '#delform';
-			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+			this.qError = 'body[align=center] div';
 			this.qPages = '.pagelist';
 			this.qPostImg = '.file-thumb';
 			this.qPostImgInfo = '.file-info';
