@@ -323,11 +323,7 @@ class BaseBoard {
 		return +post.id.match(/\d+/);
 	}
 	getPostElOfEl(el) {
-		const sel = this.qPost + ', [de-thread], .de-pview';
-		while(el && !nav.matchesSelector(el, sel)) {
-			el = el.parentElement;
-		}
-		return el;
+		return el.closest(this.qPost + ', [de-thread], .de-pview');
 	}
 	getPostOfEl(el) {
 		return pByEl.get(this.getPostElOfEl(el));

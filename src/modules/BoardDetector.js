@@ -711,12 +711,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return { error, postNum };
 		}
 		handlePostClick(post, el, e) {
-			const { classList } = el;
 			// Click on like/dislike elements
-			let likeEl = el;
-			if(classList.contains('post__rate') ||
-				(likeEl = el.parentNode).classList.contains('post__rate')
-			) {
+			const likeEl = el.closest('.post__rate');
+			if(likeEl) {
 				const task = likeEl.id.split('-')[0];
 				const num = +likeEl.id.match(/\d+/);
 				$ajax(`/api/${ task }?board=${ aib.b }&num=${ num }`).then(xhr => {
@@ -730,18 +727,16 @@ function getImageBoard(checkDomains, checkEngines) {
 					countEl.textContent = +countEl.textContent + 1;
 				}, () => $popup('err-2chlike', Lng.noConnect[lang]));
 			}
+			// Click on spoiler image
+			const spoilerEl = el.closest('.post__file-nsfw');
+			if(spoilerEl) {
+				$hide(spoilerEl.firstElementChild);
+			}
 			// Click on "truncated message" link
-			if(classList.contains('expand-large-comment')) {
+			if(el.classList.contains('expand-large-comment')) {
 				post._getFullMsg(el, false);
 				e.preventDefault();
 				e.stopPropagation();
-			}
-			// Click on spoiler image
-			if(classList.contains('file__nsfw')) {
-				$hide(el);
-			}
-			if(classList.contains('post__file-nsfw')) {
-				$hide(el.firstElementChild);
 			}
 		}
 		init() {

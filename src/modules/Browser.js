@@ -120,13 +120,6 @@ function initBrowser() {
 			Object.defineProperty(this, 'hasWorker', { value });
 			return value;
 		},
-		get matchesSelector() {
-			const dE = doc.documentElement;
-			const func = dE.matches || dE.mozMatchesSelector || dE.webkitMatchesSelector;
-			const value = (el, sel) => func.call(el, sel);
-			Object.defineProperty(this, 'matchesSelector', { value });
-			return value;
-		},
 		get viewportHeight() {
 			const value = doc.compatMode && doc.compatMode === 'CSS1Compat' ?
 				() => doc.documentElement.clientHeight : () => doc.body.clientHeight;

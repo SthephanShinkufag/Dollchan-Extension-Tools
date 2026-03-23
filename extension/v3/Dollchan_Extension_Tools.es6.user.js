@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '71489b1';
+const commit = '6ca2e74';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -9434,7 +9434,7 @@ function isFormElDisabled(el) {
 		}
 		/* falls through */
 	default:
-		if(nav.matchesSelector(el, 'fieldset[disabled] > :not(legend):not(:first-of-type) *')) {
+		if(el.matches('fieldset[disabled] > :not(legend):not(:first-of-type) *')) {
 			return true;
 		}
 	}
@@ -9513,7 +9513,7 @@ function* getFormElements(form, submitter) {
 				el   : field,
 				name : fixName(dirname),
 				type : 'direction',
-				value: nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr'
+				value: field.matches(':dir(rtl)') ? 'rtl' : 'ltr'
 			};
 		}
 	}
@@ -10257,7 +10257,7 @@ class Captcha {
 		this.hasCaptcha = true;
 		this.textEl = null;
 		this.tNum = initNum;
-		this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCaptchaParent(el);
+		this.parentEl = el.closest(aib.qFormTr) || aib.getCaptchaParent(el);
 		this.isAdded = false;
 		this._isHcap = !!$q('.h-captcha', this.parentEl);
 		this._isRecap = this._isHcap || !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
@@ -10883,10 +10883,9 @@ class AbstractPost {
 				end = end.parentNode;
 			}
 			const inMsgSel = `${ aib.qPostMsg }, ${ aib.qPostMsg } *`;
-			if((nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel)) || (
-				nav.matchesSelector(start, aib.qPostSubj) &&
-				nav.matchesSelector(end, aib.qPostSubj)
-			)) {
+			if((start.matches(inMsgSel) && end.matches(inMsgSel)) ||
+				(start.matches(aib.qPostSubj) && end.matches(aib.qPostSubj))
+			) {
 				if(this._selText.includes('\n')) {
 					await Spells.addSpell(1 /* #exp */,
 						`/${ escapeRegExp(this._selText).replace(/\r?\n/g, '\\n') }/`, false);
@@ -15327,13 +15326,6 @@ function initBrowser() {
 			Object.defineProperty(this, 'hasWorker', { value });
 			return value;
 		},
-		get matchesSelector() {
-			const dE = doc.documentElement;
-			const func = dE.matches || dE.mozMatchesSelector || dE.webkitMatchesSelector;
-			const value = (el, sel) => func.call(el, sel);
-			Object.defineProperty(this, 'matchesSelector', { value });
-			return value;
-		},
 		get viewportHeight() {
 			const value = doc.compatMode && doc.compatMode === 'CSS1Compat' ?
 				() => doc.documentElement.clientHeight : () => doc.body.clientHeight;
@@ -15700,11 +15692,7 @@ class BaseBoard {
 		return +post.id.match(/\d+/);
 	}
 	getPostElOfEl(el) {
-		const sel = this.qPost + ', [de-thread], .de-pview';
-		while(el && !nav.matchesSelector(el, sel)) {
-			el = el.parentElement;
-		}
-		return el;
+		return el.closest(this.qPost + ', [de-thread], .de-pview');
 	}
 	getPostOfEl(el) {
 		return pByEl.get(this.getPostElOfEl(el));
@@ -16473,12 +16461,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return { error, postNum };
 		}
 		handlePostClick(post, el, e) {
-			const { classList } = el;
 			// Click on like/dislike elements
-			let likeEl = el;
-			if(classList.contains('post__rate') ||
-				(likeEl = el.parentNode).classList.contains('post__rate')
-			) {
+			const likeEl = el.closest('.post__rate');
+			if(likeEl) {
 				const task = likeEl.id.split('-')[0];
 				const num = +likeEl.id.match(/\d+/);
 				$ajax(`/api/${ task }?board=${ aib.b }&num=${ num }`).then(xhr => {
@@ -16492,18 +16477,16 @@ function getImageBoard(checkDomains, checkEngines) {
 					countEl.textContent = +countEl.textContent + 1;
 				}, () => $popup('err-2chlike', Lng.noConnect[lang]));
 			}
+			// Click on spoiler image
+			const spoilerEl = el.closest('.post__file-nsfw');
+			if(spoilerEl) {
+				$hide(spoilerEl.firstElementChild);
+			}
 			// Click on "truncated message" link
-			if(classList.contains('expand-large-comment')) {
+			if(el.classList.contains('expand-large-comment')) {
 				post._getFullMsg(el, false);
 				e.preventDefault();
 				e.stopPropagation();
-			}
-			// Click on spoiler image
-			if(classList.contains('file__nsfw')) {
-				$hide(el);
-			}
-			if(classList.contains('post__file-nsfw')) {
-				$hide(el.firstElementChild);
 			}
 		}
 		init() {

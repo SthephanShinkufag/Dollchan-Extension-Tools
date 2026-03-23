@@ -12,5 +12,6 @@ require('core-js/features/string/repeat');
 require('core-js/features/string/replace-all');
 require('core-js/features/string/starts-with');
 require('core-js/features/symbol');
+require('element-closest-polyfill');
 require('element-polyfill');
 require('regenerator-runtime/runtime');
