@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '7305063';
+const commit = '71489b1';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -17183,13 +17183,17 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 			this.qDelForm = $id('posts') ? '#posts' : '#delform';
 			this.qError = 'body[align=center] div';
+			this.qOPost = '.op';
 			this.qPages = '.pagelist';
+			this.qPostHeader = '.post-meta';
 			this.qPostImg = '.file-thumb';
 			this.qPostImgInfo = '.file-info';
 			this.qPostMsg = '.post-message';
-			this.qPostRef = '.post-reflink';
+			this.qPostName = '.poster-name';
+			this.qPostRef = '.post-id';
 			this.qPostSubj = '.post-subject';
-			this.qPostUid = '.posteruid';
+			this.qPostTrip = '.poster-trip';
+			this.qPostUid = '.poster-uid';
 			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
 		}
 		get captchaInit() {
