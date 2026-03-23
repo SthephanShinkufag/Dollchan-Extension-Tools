@@ -428,10 +428,9 @@ class AbstractPost {
 				end = end.parentNode;
 			}
 			const inMsgSel = `${ aib.qPostMsg }, ${ aib.qPostMsg } *`;
-			if((nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel)) || (
-				nav.matchesSelector(start, aib.qPostSubj) &&
-				nav.matchesSelector(end, aib.qPostSubj)
-			)) {
+			if((start.matches(inMsgSel) && end.matches(inMsgSel)) ||
+				(start.matches(aib.qPostSubj) && end.matches(aib.qPostSubj))
+			) {
 				if(this._selText.includes('\n')) {
 					await Spells.addSpell(1 /* #exp */,
 						`/${ escapeRegExp(this._selText).replace(/\r?\n/g, '\\n') }/`, false);

@@ -3,8 +3,8 @@
 (function deMainFuncInner(deWindow, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '26.2.15.0';
-const commit = '298d8f4';
+const version = '26.3.25.0';
+const commit = '49a2947';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -9215,7 +9215,7 @@ function isFormElDisabled(el) {
 		}
 		/* falls through */
 	default:
-		if(nav.matchesSelector(el, 'fieldset[disabled] > :not(legend):not(:first-of-type) *')) {
+		if(el.matches('fieldset[disabled] > :not(legend):not(:first-of-type) *')) {
 			return true;
 		}
 	}
@@ -9294,7 +9294,7 @@ function* getFormElements(form, submitter) {
 				el   : field,
 				name : fixName(dirname),
 				type : 'direction',
-				value: nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr'
+				value: field.matches(':dir(rtl)') ? 'rtl' : 'ltr'
 			};
 		}
 	}
@@ -10032,7 +10032,7 @@ class Captcha {
 		this.hasCaptcha = true;
 		this.textEl = null;
 		this.tNum = initNum;
-		this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCaptchaParent(el);
+		this.parentEl = el.closest(aib.qFormTr) || aib.getCaptchaParent(el);
 		this.isAdded = false;
 		this._isHcap = !!$q('.h-captcha', this.parentEl);
 		this._isRecap = this._isHcap || !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
@@ -10643,10 +10643,9 @@ class AbstractPost {
 				end = end.parentNode;
 			}
 			const inMsgSel = `${ aib.qPostMsg }, ${ aib.qPostMsg } *`;
-			if((nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel)) || (
-				nav.matchesSelector(start, aib.qPostSubj) &&
-				nav.matchesSelector(end, aib.qPostSubj)
-			)) {
+			if((start.matches(inMsgSel) && end.matches(inMsgSel)) ||
+				(start.matches(aib.qPostSubj) && end.matches(aib.qPostSubj))
+			) {
 				if(this._selText.includes('\n')) {
 					await Spells.addSpell(1 /* #exp */,
 						`/${ escapeRegExp(this._selText).replace(/\r?\n/g, '\\n') }/`, false);
@@ -14650,13 +14649,6 @@ function initBrowser() {
 			Object.defineProperty(this, 'hasWorker', { value });
 			return value;
 		},
-		get matchesSelector() {
-			const dE = doc.documentElement;
-			const func = dE.matches || dE.mozMatchesSelector || dE.webkitMatchesSelector;
-			const value = (el, sel) => func.call(el, sel);
-			Object.defineProperty(this, 'matchesSelector', { value });
-			return value;
-		},
 		get viewportHeight() {
 			const value = doc.compatMode && doc.compatMode === 'CSS1Compat' ?
 				() => doc.documentElement.clientHeight : () => doc.body.clientHeight;
@@ -14935,11 +14927,7 @@ class BaseBoard {
 		return +post.id.match(/\d+/);
 	}
 	getPostElOfEl(el) {
-		const sel = this.qPost + ', [de-thread], .de-pview';
-		while(el && !nav.matchesSelector(el, sel)) {
-			el = el.parentElement;
-		}
-		return el;
+		return el.closest(this.qPost + ', [de-thread], .de-pview');
 	}
 	getPostOfEl(el) {
 		return pByEl.get(this.getPostElOfEl(el));

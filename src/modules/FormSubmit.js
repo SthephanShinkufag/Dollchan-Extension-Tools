@@ -136,7 +136,7 @@ function isFormElDisabled(el) {
 		}
 		/* falls through */
 	default:
-		if(nav.matchesSelector(el, 'fieldset[disabled] > :not(legend):not(:first-of-type) *')) {
+		if(el.matches('fieldset[disabled] > :not(legend):not(:first-of-type) *')) {
 			return true;
 		}
 	}
@@ -215,7 +215,7 @@ function* getFormElements(form, submitter) {
 				el   : field,
 				name : fixName(dirname),
 				type : 'direction',
-				value: nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr'
+				value: field.matches(':dir(rtl)') ? 'rtl' : 'ltr'
 			};
 		}
 	}
