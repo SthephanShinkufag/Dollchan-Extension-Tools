@@ -75,7 +75,8 @@ class _4chanPostsBuilder {
 	}
 	getOpMessage() {
 		const { no, com } = this._posts[0];
-		return $add(aib.fixHTML(`<blockquote class="postMessage" id="m${ no }"> ${ com }</blockquote>`));
+		return nav.parseHTML(aib.fixHTML(
+			`<blockquote class="postMessage" id="m${ no }"> ${ com }</blockquote>`));
 	}
 	getPNum(i) {
 		return this._posts[i + 1].no;
@@ -84,7 +85,7 @@ class _4chanPostsBuilder {
 		return this.getPostEl(-1);
 	}
 	getPostEl(i) {
-		return $add(aib.fixHTML(this.getPostHTML(i))).lastElementChild;
+		return nav.parseHTML(aib.fixHTML(this.getPostHTML(i))).lastElementChild;
 	}
 	getPostHTML(i) {
 		const data = this._posts[i + 1];
@@ -248,7 +249,7 @@ class MakabaPostsBuilder {
 		return this._json.is_closed;
 	}
 	getOpMessage() {
-		return $add(aib.fixHTML(this._getPostMsg(this._posts[0])));
+		return nav.parseHTML(aib.fixHTML(this._getPostMsg(this._posts[0])));
 	}
 	getPNum(i) {
 		return this._posts[i + 1].num;
@@ -257,7 +258,7 @@ class MakabaPostsBuilder {
 		return this.getPostEl(-1);
 	}
 	getPostEl(i) {
-		return $add(aib.fixHTML(this.getPostHTML(i))).firstElementChild;
+		return nav.parseHTML(aib.fixHTML(this.getPostHTML(i))).firstElementChild;
 	}
 	getPostHTML(i) {
 		const data = this._posts[i + 1];
@@ -354,11 +355,12 @@ class MakabaPostsBuilder {
 		for(const { banned, num } of this._posts) {
 			switch(banned) {
 			case 1:
-				yield [1, num, $add('<span class="post__pomyanem">(Автор этого поста был забанен.)</span>')];
+				yield [1, num, nav.parseHTML(
+					'<span class="post__pomyanem">(Автор этого поста был забанен.)</span>')];
 				break;
 			case 2:
-				yield [2, num, $add('<span class="post__pomyanem">' +
-					'(Автор этого поста был предупрежден.)</span>')];
+				yield [2, num, nav.parseHTML(
+					'<span class="post__pomyanem">(Автор этого поста был предупрежден.)</span>')];
 				break;
 			}
 		}

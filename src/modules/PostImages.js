@@ -373,7 +373,7 @@ class ImagesViewer {
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-		const el = $add(`<div class="de-fullimg-center${
+		const el = nav.parseHTML(`<div class="de-fullimg-center${
 			data.isVideo ? ' de-fullimg-center-video' : '' }" style="top:${
 			this._oldT - (Cfg.imgInfoLink ? 18 : 0) }px; left:${ this._oldL }px; width:${
 			width }px; height:${ height }px; display: block;"></div>`);
@@ -646,7 +646,7 @@ class ExpandableImage {
 		if(!this.isVideo) {
 			const waitEl = !aib.getImgRedirectSrc && this._size ? '' :
 				'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
-			wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
+			wrapEl = nav.parseHTML(`<div class="de-fullimg-wrap${ wrapClass }">
 				${ waitEl }
 				<img class="de-fullimg" src="${ src }" alt="${ src }">
 				<div class="de-fullimg-info">${ imgNameEl }</a> <span class="de-fullimg-scale"></span></div>
@@ -694,7 +694,7 @@ class ExpandableImage {
 		}
 		const hasTitle = needTitle && this.el.hasAttribute('de-metatitle');
 		const title = hasTitle ? this.el.getAttribute('de-metatitle') : '';
-		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>${
+		wrapEl = nav.parseHTML(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>${
 			nav.firefoxVer >= 59 || nav.isMobile ? `<div class="de-fullimg-video-hack">${
 				// XXX: Videos won't close in Chrome Mobile. Create a close button.
 				nav.isMobile && nav.isWebkit ? '\u00D7' : ''

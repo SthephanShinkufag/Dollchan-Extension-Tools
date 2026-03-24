@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '6ca2e74';
+const commit = '348583a';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -36,7 +36,7 @@ const doc = deWindow.document;
 const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
 const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
-let aib, Cfg, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum, postform,
+let aib, Cfg, dTime, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum, postform,
 	sesStorage, updater;
 let topWinZ = 10;
 
@@ -1792,13 +1792,9 @@ function $delAll(path, rootEl = doc.body) {
 	rootEl.querySelectorAll(path, rootEl).forEach(el => el.remove());
 }
 
-function $add(html) {
-	dummy.innerHTML = html;
-	return dummy.firstElementChild;
-}
-
 function $button(value, title, fn, className = 'de-button') {
-	const el = $add(`<input type="button" class="${ className }" value="${ value }" title="${ title }">`);
+	const el = nav.parseHTML(
+		`<input type="button" class="${ className }" value="${ value }" title="${ title }">`);
 	el.addEventListener('click', fn);
 	return el;
 }
@@ -3658,7 +3654,7 @@ function showVideosWindow(winBody) {
 		<a class="de-abtn" id="de-video-btn-next" href="#" title="${ Lng.nextVideo[lang] }">&#x25B6;</a>
 		<a class="de-abtn" id="de-video-btn-hide" href="#" title="${ Lng.hideLnkList[lang] }">&#x25B2;</a>
 	</div>`;
-	const linkList = $add(`<div id="de-video-list" style="max-width: ${
+	const linkList = nav.parseHTML(`<div id="de-video-list" style="max-width: ${
 		+Cfg.YTubeWidth + 40 }px; max-height: ${
 		nav.viewportHeight() * 0.92 - +Cfg.YTubeHeigh - 82 }px;"></div>`);
 
@@ -8833,7 +8829,7 @@ class PostForm {
 			return;
 		}
 		if(!el) {
-			el = $add('<span id="de-txt-panel"></span>');
+			el = nav.parseHTML('<span id="de-txt-panel"></span>');
 			['click', 'mouseover'].forEach(e => el.addEventListener(e, this));
 		}
 		el.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
@@ -9207,14 +9203,14 @@ class PostForm {
 		});
 	}
 	_makeHideableContainer() {
-		(this.pForm = $add('<div id="de-pform" class="de-win-body"></div>'))
+		(this.pForm = nav.parseHTML('<div id="de-pform" class="de-win-body"></div>'))
 			.append(this.form || '', this.oeForm || '');
 		const html = '<div class="de-parea"><div><a href="#"></a></div><hr></div>';
 		this.pArea = [$bBegin(DelForm.first.el, html), $aEnd(DelForm.first.el, html)];
 		this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 		this._pBtn[0].firstElementChild.onclick = e => this.showMainReply(false, e);
 		this._pBtn[1].firstElementChild.onclick = e => this.showMainReply(true, e);
-		this.qArea = $add(`<div style="display: none; ${ Cfg.replyWinX }; ${
+		this.qArea = nav.parseHTML(`<div style="display: none; ${ Cfg.replyWinX }; ${
 			Cfg.replyWinY }; z-index: ${ ++topWinZ };" id="de-win-reply" class="${
 			aib.cReply + (Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost') }"></div>`);
 		this.isBottom = Cfg.addPostForm === 1;
@@ -9804,7 +9800,7 @@ class FileInput {
 		this._rarMsg = null;
 		this._spoilEl = $q(aib.qFormSpoiler, el.parentNode);
 		this._thumb = null;
-		this._utils = $add(`<div class="de-file-utils">
+		this._utils = nav.parseHTML(`<div class="de-file-utils">
 			<span class="de-file-btn-rar" title="${ Lng.helpAddFile[lang] }" style="display: none;">
 				<svg><use xlink:href="#de-symbol-file-rar"/></svg></span>
 			<input class="de-file-spoil" type="checkbox" title="` +
@@ -9818,7 +9814,7 @@ class FileInput {
 		</div>`);
 		[this._btnRar, this._btnSpoil, this._btnTxt, this._btnRen, this._btnDel] = [...this._utils.children];
 		this._utils.addEventListener('click', this);
-		this._txtWrap = $add(`<span class="de-file-txt-wrap">
+		this._txtWrap = nav.parseHTML(`<span class="de-file-txt-wrap">
 			<input type="text" name="de-file-txt" class="de-file-txt-input de-file-txt-noedit" title="` +
 				`${ Lng.youCanDrag[lang] }" placeholder="${ Lng.dropFileHere[lang] }">
 			<input type="button" class="de-file-txt-add" value="+" title="` +
@@ -10893,10 +10889,9 @@ class AbstractPost {
 					await Spells.addSpell(0 /* #words */, this._selText.toLowerCase(), false);
 				}
 			} else {
-				dummy.innerHTML = '';
-				dummy.append(this._selRange.cloneContents());
+				const html = nav.parseRange(this._selRange);
 				await Spells.addSpell(2 /* #exph */,
-					`/${ escapeRegExp(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) }/`, false);
+					`/${ escapeRegExp(html.replace(/^<[^>]+>|<[^>]+>$/g, '')) }/`, false);
 			}
 			return;
 		}
@@ -11578,12 +11573,12 @@ class Pview extends AbstractPost {
 			if(post) {
 				this._buildPview(post);
 			} else {
-				this._showPview(this.el = $add(`<div class="${ aib.cReply } de-pview-info de-pview">
+				this._showPview(this.el = nav.parseHTML(`<div class="${ aib.cReply } de-pview-info de-pview">
 					${ Lng.postNotFound[lang] }</div>`));
 			}
 			return;
 		}
-		this._showPview(this.el = $add(`<div class="${ aib.cReply } de-pview-info de-pview">
+		this._showPview(this.el = nav.parseHTML(`<div class="${ aib.cReply } de-pview-info de-pview">
 			<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`));
 
 		// Get post preview via ajax. Always use DOM parsing.
@@ -12395,7 +12390,7 @@ class ImagesViewer {
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-		const el = $add(`<div class="de-fullimg-center${
+		const el = nav.parseHTML(`<div class="de-fullimg-center${
 			data.isVideo ? ' de-fullimg-center-video' : '' }" style="top:${
 			this._oldT - (Cfg.imgInfoLink ? 18 : 0) }px; left:${ this._oldL }px; width:${
 			width }px; height:${ height }px; display: block;"></div>`);
@@ -12668,7 +12663,7 @@ class ExpandableImage {
 		if(!this.isVideo) {
 			const waitEl = !aib.getImgRedirectSrc && this._size ? '' :
 				'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
-			wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
+			wrapEl = nav.parseHTML(`<div class="de-fullimg-wrap${ wrapClass }">
 				${ waitEl }
 				<img class="de-fullimg" src="${ src }" alt="${ src }">
 				<div class="de-fullimg-info">${ imgNameEl }</a> <span class="de-fullimg-scale"></span></div>
@@ -12716,7 +12711,7 @@ class ExpandableImage {
 		}
 		const hasTitle = needTitle && this.el.hasAttribute('de-metatitle');
 		const title = hasTitle ? this.el.getAttribute('de-metatitle') : '';
-		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>${
+		wrapEl = nav.parseHTML(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>${
 			nav.firefoxVer >= 59 || nav.isMobile ? `<div class="de-fullimg-video-hack">${
 				// XXX: Videos won't close in Chrome Mobile. Create a close button.
 				nav.isMobile && nav.isWebkit ? '\u00D7' : ''
@@ -13260,7 +13255,8 @@ class _4chanPostsBuilder {
 	}
 	getOpMessage() {
 		const { no, com } = this._posts[0];
-		return $add(aib.fixHTML(`<blockquote class="postMessage" id="m${ no }"> ${ com }</blockquote>`));
+		return nav.parseHTML(aib.fixHTML(
+			`<blockquote class="postMessage" id="m${ no }"> ${ com }</blockquote>`));
 	}
 	getPNum(i) {
 		return this._posts[i + 1].no;
@@ -13269,7 +13265,7 @@ class _4chanPostsBuilder {
 		return this.getPostEl(-1);
 	}
 	getPostEl(i) {
-		return $add(aib.fixHTML(this.getPostHTML(i))).lastElementChild;
+		return nav.parseHTML(aib.fixHTML(this.getPostHTML(i))).lastElementChild;
 	}
 	getPostHTML(i) {
 		const data = this._posts[i + 1];
@@ -13433,7 +13429,7 @@ class MakabaPostsBuilder {
 		return this._json.is_closed;
 	}
 	getOpMessage() {
-		return $add(aib.fixHTML(this._getPostMsg(this._posts[0])));
+		return nav.parseHTML(aib.fixHTML(this._getPostMsg(this._posts[0])));
 	}
 	getPNum(i) {
 		return this._posts[i + 1].num;
@@ -13442,7 +13438,7 @@ class MakabaPostsBuilder {
 		return this.getPostEl(-1);
 	}
 	getPostEl(i) {
-		return $add(aib.fixHTML(this.getPostHTML(i))).firstElementChild;
+		return nav.parseHTML(aib.fixHTML(this.getPostHTML(i))).firstElementChild;
 	}
 	getPostHTML(i) {
 		const data = this._posts[i + 1];
@@ -13539,11 +13535,12 @@ class MakabaPostsBuilder {
 		for(const { banned, num } of this._posts) {
 			switch(banned) {
 			case 1:
-				yield [1, num, $add('<span class="post__pomyanem">(Автор этого поста был забанен.)</span>')];
+				yield [1, num, nav.parseHTML(
+					'<span class="post__pomyanem">(Автор этого поста был забанен.)</span>')];
 				break;
 			case 2:
-				yield [2, num, $add('<span class="post__pomyanem">' +
-					'(Автор этого поста был предупрежден.)</span>')];
+				yield [2, num, nav.parseHTML(
+					'<span class="post__pomyanem">(Автор этого поста был предупрежден.)</span>')];
 				break;
 			}
 		}
@@ -14086,9 +14083,8 @@ class Thread {
 				html.push(pBuilder.getPostHTML(i));
 				nums.push(pBuilder.getPNum(i));
 			}
-			const temp = doc.createElement('template');
-			temp.innerHTML = aib.fixHTML(html.join(''));
-			fragment = temp.content;
+			nav.domContainer.innerHTML = aib.fixHTML(html.join(''));
+			fragment = nav.domContainer.content;
 			const posts = $Q(aib.qPost, fragment);
 			for(let i = 0, len = posts.length; i < len; ++i) {
 				last = this._addPost(fragment, posts[i], begin + i + 1, last, maybeVParser);
@@ -15291,6 +15287,7 @@ function initBrowser() {
 		hasInPageDE     : false,
 		hasNewGM,
 		hasOldGM,
+		hasTemplate     : 'content' in doc.createElement('template'),
 		hasWebStorage,
 		isESNext        : typeof deMainFuncOuter === 'undefined',
 		isFirefox,
@@ -15310,9 +15307,9 @@ function initBrowser() {
 			Object.defineProperty(this, 'canPlayMP3', { value });
 			return value;
 		},
-		get hasTemplate() {
-			const value = 'content' in doc.createElement('template');
-			Object.defineProperty(this, 'hasTemplate', { value });
+		get domContainer() {
+			const value = doc.createElement(this.hasTemplate ? 'template' : 'div');
+			Object.defineProperty(this, 'domContainer', { value });
 			return value;
 		},
 		get hasWorker() {
@@ -15337,6 +15334,16 @@ function initBrowser() {
 				() => doc.documentElement.clientWidth : () => doc.body.clientWidth;
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
+		},
+		parseHTML(html) {
+			this.domContainer.innerHTML = html;
+			return (this.hasTemplate ? this.domContainer.content : this.domContainer).firstElementChild;
+		},
+		parseRange(range) {
+			const container = this.hasTemplate ? this.domContainer.content : this.domContainer;
+			container.innerHTML = '';
+			container.append(range.cloneContents());
+			return this.domContainer.innerHTML.trim();
 		},
 		// XXX: Firefox + old Greasemonkey
 		// Hack to prevent 'Accessing TypedArray data over Xrays is slow, and forbidden' errors
@@ -18237,6 +18244,7 @@ function scriptCSS() {
 	.de-svg-fill { stroke: none; fill: currentColor; }
 	.de-svg-stroke { stroke: currentColor; fill: none; }
 	use { fill: inherit; pointer-events: none; }
+	${ !nav.isInPage && nav.hasInPageDE ? '.de-runned-inpage { display: none; }' : '' }
 
 	/* Panel theme */
 	.de-img-btn, #de-panel, .de-win-head ${ [
@@ -18778,7 +18786,6 @@ async function runMain(checkDomains, dataPromise) {
 	MyPosts.readStorage();
 	Logger.log('Read my posts');
 	$hide(doc.body);
-	dummy = doc.createElement('div');
 	formEl = aib.fixHTML(formEl, true);
 	Logger.log('Replace delform');
 	pByEl = new Map();

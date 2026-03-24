@@ -31,6 +31,7 @@ function scriptCSS() {
 	.de-svg-fill { stroke: none; fill: currentColor; }
 	.de-svg-stroke { stroke: currentColor; fill: none; }
 	use { fill: inherit; pointer-events: none; }
+	${ !nav.isInPage && nav.hasInPageDE ? '.de-runned-inpage { display: none; }' : '' }
 
 	/* Panel theme */
 	.de-img-btn, #de-panel, .de-win-head ${ [

@@ -8495,13 +8495,13 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this24 = this;
   var _marked = _regenerator().m(getFormElements);
   var version = '24.9.16.0';
-  var commit = '6ca2e74';
+  var commit = '348583a';
 
 
   var doc = deWindow.document;
   var gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
   var gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
-  var aib, Cfg, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum, postform, sesStorage, updater;
+  var aib, Cfg, dTime, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum, postform, sesStorage, updater;
   var topWinZ = 10;
 
 
@@ -9161,13 +9161,9 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       return el.remove();
     });
   }
-  function $add(html) {
-    dummy.innerHTML = html;
-    return dummy.firstElementChild;
-  }
   function $button(value, title, fn) {
     var className = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'de-button';
-    var el = $add("<input type=\"button\" class=\"".concat(className, "\" value=\"").concat(value, "\" title=\"").concat(title, "\">"));
+    var el = nav.parseHTML("<input type=\"button\" class=\"".concat(className, "\" value=\"").concat(value, "\" title=\"").concat(title, "\">"));
     el.addEventListener('click', fn);
     return el;
   }
@@ -11384,7 +11380,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       doc.head.append(_script);
     }
     winBody.innerHTML = "<div de-disableautoplay class=\"de-video-obj\"></div>\n\t<div id=\"de-video-buttons\">\n\t\t<a class=\"de-abtn\" id=\"de-video-btn-prev\" href=\"#\" title=\"".concat(Lng.prevVideo[lang], "\">&#x25C0;</a>\n\t\t<a class=\"de-abtn\" id=\"de-video-btn-resize\" href=\"#\" title=\"").concat(Lng.expandVideo[lang], "\"></a>\n\t\t<a class=\"de-abtn\" id=\"de-video-btn-next\" href=\"#\" title=\"").concat(Lng.nextVideo[lang], "\">&#x25B6;</a>\n\t\t<a class=\"de-abtn\" id=\"de-video-btn-hide\" href=\"#\" title=\"").concat(Lng.hideLnkList[lang], "\">&#x25B2;</a>\n\t</div>");
-    var linkList = $add("<div id=\"de-video-list\" style=\"max-width: ".concat(+Cfg.YTubeWidth + 40, "px; max-height: ").concat(nav.viewportHeight() * 0.92 - +Cfg.YTubeHeigh - 82, "px;\"></div>"));
+    var linkList = nav.parseHTML("<div id=\"de-video-list\" style=\"max-width: ".concat(+Cfg.YTubeWidth + 40, "px; max-height: ").concat(nav.viewportHeight() * 0.92 - +Cfg.YTubeHeigh - 82, "px;\"></div>"));
 
     var script = doc.createElement('script');
     script.type = 'text/javascript';
@@ -17189,7 +17185,7 @@ this.disableSpells();
           return;
         }
         if (!el) {
-          el = $add('<span id="de-txt-panel"></span>');
+          el = nav.parseHTML('<span id="de-txt-panel"></span>');
           ['click', 'mouseover'].forEach(function (e) {
             return el.addEventListener(e, _this41);
           });
@@ -17637,7 +17633,7 @@ this.disableSpells();
       key: "_makeHideableContainer",
       value: function _makeHideableContainer() {
         var _this48 = this;
-        (this.pForm = $add('<div id="de-pform" class="de-win-body"></div>')).append(this.form || '', this.oeForm || '');
+        (this.pForm = nav.parseHTML('<div id="de-pform" class="de-win-body"></div>')).append(this.form || '', this.oeForm || '');
         var html = '<div class="de-parea"><div><a href="#"></a></div><hr></div>';
         this.pArea = [$bBegin(DelForm.first.el, html), $aEnd(DelForm.first.el, html)];
         this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
@@ -17647,7 +17643,7 @@ this.disableSpells();
         this._pBtn[1].firstElementChild.onclick = function (e) {
           return _this48.showMainReply(true, e);
         };
-        this.qArea = $add("<div style=\"display: none; ".concat(Cfg.replyWinX, "; ").concat(Cfg.replyWinY, "; z-index: ").concat(++topWinZ, ";\" id=\"de-win-reply\" class=\"").concat(aib.cReply + (Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost'), "\"></div>"));
+        this.qArea = nav.parseHTML("<div style=\"display: none; ".concat(Cfg.replyWinX, "; ").concat(Cfg.replyWinY, "; z-index: ").concat(++topWinZ, ";\" id=\"de-win-reply\" class=\"").concat(aib.cReply + (Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost'), "\"></div>"));
         this.isBottom = Cfg.addPostForm === 1;
         this.setReply(false, !aib.t || Cfg.addPostForm > 1);
       }
@@ -18589,7 +18585,7 @@ this.disableSpells();
       this._rarMsg = null;
       this._spoilEl = $q(aib.qFormSpoiler, el.parentNode);
       this._thumb = null;
-      this._utils = $add("<div class=\"de-file-utils\">\n\t\t\t<span class=\"de-file-btn-rar\" title=\"".concat(Lng.helpAddFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-rar\"/></svg></span>\n\t\t\t<input class=\"de-file-spoil\" type=\"checkbox\" title=\"") + "".concat(Lng.spoilFile[lang], "\" style=\"display: none;\">\n\t\t\t<span class=\"de-file-btn-txt\" title=\"").concat(Lng.addManually[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-txt\"/></svg></span>\n\t\t\t<span class=\"de-file-btn-ren\" title=\"").concat(Lng.renameFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-ren\"/></svg></span>\n\t\t\t<span class=\"de-file-btn-del\" title=\"").concat(Lng.removeFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-del\"/></svg></span>\n\t\t</div>"));
+      this._utils = nav.parseHTML("<div class=\"de-file-utils\">\n\t\t\t<span class=\"de-file-btn-rar\" title=\"".concat(Lng.helpAddFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-rar\"/></svg></span>\n\t\t\t<input class=\"de-file-spoil\" type=\"checkbox\" title=\"") + "".concat(Lng.spoilFile[lang], "\" style=\"display: none;\">\n\t\t\t<span class=\"de-file-btn-txt\" title=\"").concat(Lng.addManually[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-txt\"/></svg></span>\n\t\t\t<span class=\"de-file-btn-ren\" title=\"").concat(Lng.renameFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-ren\"/></svg></span>\n\t\t\t<span class=\"de-file-btn-del\" title=\"").concat(Lng.removeFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-del\"/></svg></span>\n\t\t</div>"));
       var _ref32 = _toConsumableArray(this._utils.children);
       this._btnRar = _ref32[0];
       this._btnSpoil = _ref32[1];
@@ -18597,7 +18593,7 @@ this.disableSpells();
       this._btnRen = _ref32[3];
       this._btnDel = _ref32[4];
       this._utils.addEventListener('click', this);
-      this._txtWrap = $add("<span class=\"de-file-txt-wrap\">\n\t\t\t<input type=\"text\" name=\"de-file-txt\" class=\"de-file-txt-input de-file-txt-noedit\" title=\"" + "".concat(Lng.youCanDrag[lang], "\" placeholder=\"").concat(Lng.dropFileHere[lang], "\">\n\t\t\t<input type=\"button\" class=\"de-file-txt-add\" value=\"+\" title=\"") + "".concat(Lng.add[lang], "\" style=\"display: none;\"></span>"));
+      this._txtWrap = nav.parseHTML("<span class=\"de-file-txt-wrap\">\n\t\t\t<input type=\"text\" name=\"de-file-txt\" class=\"de-file-txt-input de-file-txt-noedit\" title=\"" + "".concat(Lng.youCanDrag[lang], "\" placeholder=\"").concat(Lng.dropFileHere[lang], "\">\n\t\t\t<input type=\"button\" class=\"de-file-txt-add\" value=\"+\" title=\"") + "".concat(Lng.add[lang], "\" style=\"display: none;\"></span>"));
       var _ref33 = _toConsumableArray(this._txtWrap.children);
       this._txtInput = _ref33[0];
       this._txtAddBtn = _ref33[1];
@@ -19902,7 +19898,7 @@ Spells.addSpell(9, '', false);
       key: "_menuClickOnOptions",
       value: function () {
         var _menuClickOnOptions2 = _asyncToGenerator(_regenerator().m(function _callee36(el, e) {
-          var isHide, num, _this$_selRange, start, end, inMsgSel, _this$images$firstAtt, w, wi, h, hash, words, post, isAdd, isPview, task, _t31;
+          var isHide, num, _this$_selRange, start, end, inMsgSel, html, _this$images$firstAtt, w, wi, h, hash, words, post, isAdd, isPview, task, _t31;
           return _regenerator().w(function (_context39) {
             while (1) switch (_context39.n) {
               case 0:
@@ -19940,10 +19936,9 @@ Spells.addSpell(9, '', false);
                 _context39.n = 6;
                 break;
               case 5:
-                dummy.innerHTML = '';
-                dummy.append(this._selRange.cloneContents());
+                html = nav.parseRange(this._selRange);
                 _context39.n = 6;
-                return Spells.addSpell(2 , "/".concat(escapeRegExp(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')), "/"), false);
+                return Spells.addSpell(2 , "/".concat(escapeRegExp(html.replace(/^<[^>]+>|<[^>]+>$/g, '')), "/"), false);
               case 6:
                 return _context39.a(2);
               case 7:
@@ -20813,11 +20808,11 @@ Spells.addSpell(9, '', false);
         if (post) {
           _this71._buildPview(post);
         } else {
-          _this71._showPview(_this71.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t\t\t").concat(Lng.postNotFound[lang], "</div>")));
+          _this71._showPview(_this71.el = nav.parseHTML("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t\t\t").concat(Lng.postNotFound[lang], "</div>")));
         }
         return _possibleConstructorReturn(_this71);
       }
-      _this71._showPview(_this71.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t<svg class=\"de-wait\"><use xlink:href=\"#de-symbol-wait\"/></svg>").concat(Lng.loading[lang], "</div>")));
+      _this71._showPview(_this71.el = nav.parseHTML("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t<svg class=\"de-wait\"><use xlink:href=\"#de-symbol-wait\"/></svg>").concat(Lng.loading[lang], "</div>")));
 
       _this71._loadPromise = ajaxPostsLoad(_this71.board, tNum, false, false).then(function (pBuilder) {
         return _this71._onload(pBuilder);
@@ -21833,7 +21828,7 @@ Spells.addSpell(9, '', false);
         this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
         this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
         this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-        var el = $add("<div class=\"de-fullimg-center".concat(data.isVideo ? ' de-fullimg-center-video' : '', "\" style=\"top:").concat(this._oldT - (Cfg.imgInfoLink ? 18 : 0), "px; left:").concat(this._oldL, "px; width:").concat(width, "px; height:").concat(height, "px; display: block;\"></div>"));
+        var el = nav.parseHTML("<div class=\"de-fullimg-center".concat(data.isVideo ? ' de-fullimg-center-video' : '', "\" style=\"top:").concat(this._oldT - (Cfg.imgInfoLink ? 18 : 0), "px; left:").concat(this._oldL, "px; width:").concat(width, "px; height:").concat(height, "px; display: block;\"></div>"));
         el.append(this._fullEl);
         var scale = 100 * width / data.width;
         $q('.de-fullimg-scale', this._fullEl).textContent = scale === 100 ? '' : "".concat(parseInt(scale, 10), "%");
@@ -22134,7 +22129,7 @@ Spells.addSpell(9, '', false);
         var wrapClass = "".concat(inPost ? ' de-fullimg-wrap-inpost' : " de-fullimg-wrap-center".concat(this._size ? '' : ' de-fullimg-wrap-nosize')).concat(this.isVideo ? ' de-fullimg-video' : '');
         if (!this.isVideo) {
           var waitEl = !aib.getImgRedirectSrc && this._size ? '' : '<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
-          wrapEl = $add("<div class=\"de-fullimg-wrap".concat(wrapClass, "\">\n\t\t\t\t").concat(waitEl, "\n\t\t\t\t<img class=\"de-fullimg\" src=\"").concat(src, "\" alt=\"").concat(src, "\">\n\t\t\t\t<div class=\"de-fullimg-info\">").concat(imgNameEl, "</a> <span class=\"de-fullimg-scale\"></span></div>\n\t\t\t</div>"));
+          wrapEl = nav.parseHTML("<div class=\"de-fullimg-wrap".concat(wrapClass, "\">\n\t\t\t\t").concat(waitEl, "\n\t\t\t\t<img class=\"de-fullimg\" src=\"").concat(src, "\" alt=\"").concat(src, "\">\n\t\t\t\t<div class=\"de-fullimg-info\">").concat(imgNameEl, "</a> <span class=\"de-fullimg-scale\"></span></div>\n\t\t\t</div>"));
           var imgEl = $q('.de-fullimg', wrapEl);
           imgEl.onload = imgEl.onerror = function (_ref39) {
             var img = _ref39.target;
@@ -22182,7 +22177,7 @@ Spells.addSpell(9, '', false);
         }
         var hasTitle = needTitle && this.el.hasAttribute('de-metatitle');
         var title = hasTitle ? this.el.getAttribute('de-metatitle') : '';
-        wrapEl = $add("<div class=\"de-fullimg-wrap".concat(wrapClass, "\"").concat(inPostSize, ">").concat(nav.firefoxVer >= 59 || nav.isMobile ? "<div class=\"de-fullimg-video-hack\">".concat(
+        wrapEl = nav.parseHTML("<div class=\"de-fullimg-wrap".concat(wrapClass, "\"").concat(inPostSize, ">").concat(nav.firefoxVer >= 59 || nav.isMobile ? "<div class=\"de-fullimg-video-hack\">".concat(
         nav.isMobile && nav.isWebkit ? "\xD7" : '', "</div>") : '', "\n\t\t\t<video src=\"").concat(src, "\" ") + "".concat(hasTitle && title ? "title=\"".concat(title, "\" ") : '', "loop autoplay ") + "".concat(Cfg.webmControl ? 'controls ' : '') + "".concat(Cfg.webmVolume === 0 ? 'muted ' : '', "></video>\n\t\t\t<div class=\"de-fullimg-info\">").concat(imgNameEl, "</a> <span class=\"de-fullimg-scale\"></span>\n\t\t\t\t<span class=\"de-webm-title\">").concat(hasTitle && title ? title : '', "</span>\n\t\t\t\t").concat(needTitle && !hasTitle ? "<svg class=\"de-wait\">\n\t\t\t\t\t<use xlink:href=\"#de-symbol-wait\"/></svg>" : '', "\n\t\t\t</div>\n\t\t</div>"));
         var videoEl = $q('video', wrapEl);
         videoEl.volume = Cfg.webmVolume / 100;
@@ -22898,7 +22893,7 @@ Spells.addSpell(9, '', false);
         var _this$_posts$ = this._posts[0],
           no = _this$_posts$.no,
           com = _this$_posts$.com;
-        return $add(aib.fixHTML("<blockquote class=\"postMessage\" id=\"m".concat(no, "\"> ").concat(com, "</blockquote>")));
+        return nav.parseHTML(aib.fixHTML("<blockquote class=\"postMessage\" id=\"m".concat(no, "\"> ").concat(com, "</blockquote>")));
       }
     }, {
       key: "getPNum",
@@ -22913,7 +22908,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "getPostEl",
       value: function getPostEl(i) {
-        return $add(aib.fixHTML(this.getPostHTML(i))).lastElementChild;
+        return nav.parseHTML(aib.fixHTML(this.getPostHTML(i))).lastElementChild;
       }
     }, {
       key: "getPostHTML",
@@ -23054,7 +23049,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "getOpMessage",
       value: function getOpMessage() {
-        return $add(aib.fixHTML(this._getPostMsg(this._posts[0])));
+        return nav.parseHTML(aib.fixHTML(this._getPostMsg(this._posts[0])));
       }
     }, {
       key: "getPNum",
@@ -23069,7 +23064,7 @@ Spells.addSpell(9, '', false);
     }, {
       key: "getPostEl",
       value: function getPostEl(i) {
-        return $add(aib.fixHTML(this.getPostHTML(i))).firstElementChild;
+        return nav.parseHTML(aib.fixHTML(this.getPostHTML(i))).firstElementChild;
       }
     }, {
       key: "getPostHTML",
@@ -23144,12 +23139,12 @@ Spells.addSpell(9, '', false);
               break;
             case 2:
               _context47.n = 3;
-              return [1, num, $add('<span class="post__pomyanem">(Автор этого поста был забанен.)</span>')];
+              return [1, num, nav.parseHTML('<span class="post__pomyanem">(Автор этого поста был забанен.)</span>')];
             case 3:
               return _context47.a(3, 6);
             case 4:
               _context47.n = 5;
-              return [2, num, $add('<span class="post__pomyanem">' + '(Автор этого поста был предупрежден.)</span>')];
+              return [2, num, nav.parseHTML('<span class="post__pomyanem">(Автор этого поста был предупрежден.)</span>')];
             case 5:
               return _context47.a(3, 6);
             case 6:
@@ -23782,9 +23777,8 @@ Spells.addSpell(9, '', false);
             html.push(pBuilder.getPostHTML(i));
             nums.push(pBuilder.getPNum(i));
           }
-          var temp = doc.createElement('template');
-          temp.innerHTML = aib.fixHTML(html.join(''));
-          fragment = temp.content;
+          nav.domContainer.innerHTML = aib.fixHTML(html.join(''));
+          fragment = nav.domContainer.content;
           var posts = $Q(aib.qPost, fragment);
           for (var _i14 = 0, len = posts.length; _i14 < len; ++_i14) {
             last = this._addPost(fragment, posts[_i14], begin + _i14 + 1, last, maybeVParser);
@@ -25091,6 +25085,7 @@ Spells.addSpell(9, '', false);
       hasInPageDE: false,
       hasNewGM: hasNewGM,
       hasOldGM: hasOldGM,
+      hasTemplate: 'content' in doc.createElement('template'),
       hasWebStorage: hasWebStorage,
       isESNext: typeof deMainFuncOuter === 'undefined',
       isFirefox: isFirefox,
@@ -25111,9 +25106,9 @@ Spells.addSpell(9, '', false);
         });
         return value;
       },
-      get hasTemplate() {
-        var value = 'content' in doc.createElement('template');
-        Object.defineProperty(this, 'hasTemplate', {
+      get domContainer() {
+        var value = doc.createElement(this.hasTemplate ? 'template' : 'div');
+        Object.defineProperty(this, 'domContainer', {
           value: value
         });
         return value;
@@ -25152,6 +25147,16 @@ Spells.addSpell(9, '', false);
           value: value
         });
         return value;
+      },
+      parseHTML: function parseHTML(html) {
+        this.domContainer.innerHTML = html;
+        return (this.hasTemplate ? this.domContainer.content : this.domContainer).firstElementChild;
+      },
+      parseRange: function parseRange(range) {
+        var container = this.hasTemplate ? this.domContainer.content : this.domContainer;
+        container.innerHTML = '';
+        container.append(range.cloneContents());
+        return this.domContainer.innerHTML.trim();
       },
       uint8Array: function uint8Array(data, i, len) {
         var Ctor = Uint8Array;
@@ -28666,7 +28671,7 @@ Spells.addSpell(9, '', false);
     var contentIcon = function contentIcon(id, src) {
       return "".concat(id, "::before { content: \"\"; display: inline-block; vertical-align: -3px; padding: 16px 16px 0 0; margin-right: 4px; background: url(").concat(src, ") no-repeat center; background-size: contain; white-space: initial; }");
     };
-    var x = "\n\t/* Main panel */\n\t#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\n\t.de-panel-btn { display: block; flex: none; margin: 0 1px; padding: 0 !important; min-width: auto; transition: all .3s ease; border: none !important; background: transparent !important; color: inherit !important; cursor: pointer; }\n\t.de-panel-btn, .de-panel-svg { width: 25px; height: 25px; }\n\t.de-panel-btn-active { stroke: #32ff32 !important; fill: #32ff32 !important; }\n\t#de-panel-btn-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-btn-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\n\t#de-panel-btn-expimg, #de-panel-btn-maskimg, #de-panel-btn-preimg { stroke: currentColor; fill: currentColor; }\n\t#de-panel-btn-goback { transform: rotate(180deg); will-change: transform; }\n\t#de-panel-btn-godown { transform: rotate(90deg); will-change: transform; }\n\t#de-panel-btn-goup { transform: rotate(-90deg); will-change: transform; }\n\t#de-panel-btn-info { display: flex; flex: none; margin-left: 2px; font: 18px arial; }\n\t#de-panel-btn-info > span { background-color: #fff2; margin-right: 4px; padding: 0 1px; border: 1px solid #fff3; border-radius: 4px; }\n\t#de-panel-btn-info > span:empty { display: none; }\n\t#de-panel-btn-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\n\t#de-panel-btn-upd-on { fill: #32ff32; }\n\t#de-panel-btn-upd-warn { fill: #fff441; }\n\t#de-panel-btn-upd-off { fill: #ff3232; }\n\t#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\n\t.de-runned-userscript > #de-panel { z-index: 10000; }\n\t#de-svg-icons, #de-svg-icons > svg { height: 0; width: 0; position: fixed; }\n\t.de-svg-fill { stroke: none; fill: currentColor; }\n\t.de-svg-stroke { stroke: currentColor; fill: none; }\n\tuse { fill: inherit; pointer-events: none; }\n\n\t/* Panel theme */\n\t.de-img-btn, #de-panel, .de-win-head ".concat([
+    var x = "\n\t/* Main panel */\n\t#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\n\t.de-panel-btn { display: block; flex: none; margin: 0 1px; padding: 0 !important; min-width: auto; transition: all .3s ease; border: none !important; background: transparent !important; color: inherit !important; cursor: pointer; }\n\t.de-panel-btn, .de-panel-svg { width: 25px; height: 25px; }\n\t.de-panel-btn-active { stroke: #32ff32 !important; fill: #32ff32 !important; }\n\t#de-panel-btn-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-btn-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\n\t#de-panel-btn-expimg, #de-panel-btn-maskimg, #de-panel-btn-preimg { stroke: currentColor; fill: currentColor; }\n\t#de-panel-btn-goback { transform: rotate(180deg); will-change: transform; }\n\t#de-panel-btn-godown { transform: rotate(90deg); will-change: transform; }\n\t#de-panel-btn-goup { transform: rotate(-90deg); will-change: transform; }\n\t#de-panel-btn-info { display: flex; flex: none; margin-left: 2px; font: 18px arial; }\n\t#de-panel-btn-info > span { background-color: #fff2; margin-right: 4px; padding: 0 1px; border: 1px solid #fff3; border-radius: 4px; }\n\t#de-panel-btn-info > span:empty { display: none; }\n\t#de-panel-btn-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\n\t#de-panel-btn-upd-on { fill: #32ff32; }\n\t#de-panel-btn-upd-warn { fill: #fff441; }\n\t#de-panel-btn-upd-off { fill: #ff3232; }\n\t#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\n\t.de-runned-userscript > #de-panel { z-index: 10000; }\n\t#de-svg-icons, #de-svg-icons > svg { height: 0; width: 0; position: fixed; }\n\t.de-svg-fill { stroke: none; fill: currentColor; }\n\t.de-svg-stroke { stroke: currentColor; fill: none; }\n\tuse { fill: inherit; pointer-events: none; }\n\t".concat(!nav.isInPage && nav.hasInPageDE ? '.de-runned-inpage { display: none; }' : '', "\n\n\t/* Panel theme */\n\t.de-img-btn, #de-panel, .de-win-head ").concat([
     '{ background: linear-gradient(to bottom, #7b849b, #616b86 8%, #121212 60%, #1f2740 100%); }', "{ background: linear-gradient(to bottom, #4b90df, #183d77 60%, #325f9e 100%); }\n\t\t#de-panel-buttons { border-color: #8fbbed; }", "{ background-color: #777; }\n\t\t#de-panel-buttons { border-color: #ccc; }", 
     '{ background-color: rgba(0,20,80,.72); }', "{ background: none; background-color: #333; border-radius: 0 !important; }\n\t\t#de-win-reply.de-win { border-radius: 0 !important; }\n\t\t#de-panel-buttons { border-color: #666; }", "{ background: linear-gradient(to bottom, #e854ca, #8c1273 60%, #832da2 100%); }\n\t\t#de-panel-buttons { border-color: #c15dad; }"][Cfg.scriptStyle], "\n\t.de-donate-logo { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #121212 60%, #1f2740 100%) }\n\t.de-panel-svg:hover { margin: -2px; width: 29px; height: 29px; color: #d0e7ff !important; }\n\t.de-panel-btn:hover { background-color: rgba(255,255,255,.15) !important; box-shadow: 0 0 3px rgba(200,200,200,0.5); color: inherit !important; }\r\n");
     if (Cfg.disabled) {
@@ -28815,7 +28820,6 @@ Spells.addSpell(9, '', false);
             MyPosts.readStorage();
             Logger.log('Read my posts');
             $hide(doc.body);
-            dummy = doc.createElement('div');
             formEl = aib.fixHTML(formEl, true);
             Logger.log('Replace delform');
             pByEl = new Map();

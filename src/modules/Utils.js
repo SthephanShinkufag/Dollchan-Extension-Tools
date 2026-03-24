@@ -51,13 +51,9 @@ function $delAll(path, rootEl = doc.body) {
 	rootEl.querySelectorAll(path, rootEl).forEach(el => el.remove());
 }
 
-function $add(html) {
-	dummy.innerHTML = html;
-	return dummy.firstElementChild;
-}
-
 function $button(value, title, fn, className = 'de-button') {
-	const el = $add(`<input type="button" class="${ className }" value="${ value }" title="${ title }">`);
+	const el = nav.parseHTML(
+		`<input type="button" class="${ className }" value="${ value }" title="${ title }">`);
 	el.addEventListener('click', fn);
 	return el;
 }

@@ -443,10 +443,9 @@ class AbstractPost {
 					await Spells.addSpell(0 /* #words */, this._selText.toLowerCase(), false);
 				}
 			} else {
-				dummy.innerHTML = '';
-				dummy.append(this._selRange.cloneContents());
+				const html = nav.parseRange(this._selRange);
 				await Spells.addSpell(2 /* #exph */,
-					`/${ escapeRegExp(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) }/`, false);
+					`/${ escapeRegExp(html.replace(/^<[^>]+>|<[^>]+>$/g, '')) }/`, false);
 			}
 			return;
 		}

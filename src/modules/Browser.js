@@ -85,6 +85,7 @@ function initBrowser() {
 		hasInPageDE     : false,
 		hasNewGM,
 		hasOldGM,
+		hasTemplate     : 'content' in doc.createElement('template'),
 		hasWebStorage,
 		isESNext        : typeof deMainFuncOuter === 'undefined',
 		isFirefox,
@@ -104,9 +105,9 @@ function initBrowser() {
 			Object.defineProperty(this, 'canPlayMP3', { value });
 			return value;
 		},
-		get hasTemplate() {
-			const value = 'content' in doc.createElement('template');
-			Object.defineProperty(this, 'hasTemplate', { value });
+		get domContainer() {
+			const value = doc.createElement(this.hasTemplate ? 'template' : 'div');
+			Object.defineProperty(this, 'domContainer', { value });
 			return value;
 		},
 		get hasWorker() {
@@ -131,6 +132,16 @@ function initBrowser() {
 				() => doc.documentElement.clientWidth : () => doc.body.clientWidth;
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
+		},
+		parseHTML(html) {
+			this.domContainer.innerHTML = html;
+			return (this.hasTemplate ? this.domContainer.content : this.domContainer).firstElementChild;
+		},
+		parseRange(range) {
+			const container = this.hasTemplate ? this.domContainer.content : this.domContainer;
+			container.innerHTML = '';
+			container.append(range.cloneContents());
+			return this.domContainer.innerHTML.trim();
 		},
 		// XXX: Firefox + old Greasemonkey
 		// Hack to prevent 'Accessing TypedArray data over Xrays is slow, and forbidden' errors
