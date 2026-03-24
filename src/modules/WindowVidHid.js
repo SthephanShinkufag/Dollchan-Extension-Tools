@@ -25,7 +25,7 @@ function showVideosWindow(winBody) {
 		<a class="de-abtn" id="de-video-btn-next" href="#" title="${ Lng.nextVideo[lang] }">&#x25B6;</a>
 		<a class="de-abtn" id="de-video-btn-hide" href="#" title="${ Lng.hideLnkList[lang] }">&#x25B2;</a>
 	</div>`;
-	const linkList = $add(`<div id="de-video-list" style="max-width: ${
+	const linkList = nav.parseHTML(`<div id="de-video-list" style="max-width: ${
 		+Cfg.YTubeWidth + 40 }px; max-height: ${
 		nav.viewportHeight() * 0.92 - +Cfg.YTubeHeigh - 82 }px;"></div>`);
 

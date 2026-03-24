@@ -74,7 +74,7 @@ class FileInput {
 		this._rarMsg = null;
 		this._spoilEl = $q(aib.qFormSpoiler, el.parentNode);
 		this._thumb = null;
-		this._utils = $add(`<div class="de-file-utils">
+		this._utils = nav.parseHTML(`<div class="de-file-utils">
 			<span class="de-file-btn-rar" title="${ Lng.helpAddFile[lang] }" style="display: none;">
 				<svg><use xlink:href="#de-symbol-file-rar"/></svg></span>
 			<input class="de-file-spoil" type="checkbox" title="` +
@@ -88,7 +88,7 @@ class FileInput {
 		</div>`);
 		[this._btnRar, this._btnSpoil, this._btnTxt, this._btnRen, this._btnDel] = [...this._utils.children];
 		this._utils.addEventListener('click', this);
-		this._txtWrap = $add(`<span class="de-file-txt-wrap">
+		this._txtWrap = nav.parseHTML(`<span class="de-file-txt-wrap">
 			<input type="text" name="de-file-txt" class="de-file-txt-input de-file-txt-noedit" title="` +
 				`${ Lng.youCanDrag[lang] }" placeholder="${ Lng.dropFileHere[lang] }">
 			<input type="button" class="de-file-txt-add" value="+" title="` +

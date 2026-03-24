@@ -284,9 +284,8 @@ class Thread {
 				html.push(pBuilder.getPostHTML(i));
 				nums.push(pBuilder.getPNum(i));
 			}
-			const temp = doc.createElement('template');
-			temp.innerHTML = aib.fixHTML(html.join(''));
-			fragment = temp.content;
+			nav.domContainer.innerHTML = aib.fixHTML(html.join(''));
+			fragment = nav.domContainer.content;
 			const posts = $Q(aib.qPost, fragment);
 			for(let i = 0, len = posts.length; i < len; ++i) {
 				last = this._addPost(fragment, posts[i], begin + i + 1, last, maybeVParser);

@@ -46,6 +46,7 @@ function initBrowser() {
 		canUseFetch    : 'AbortController' in deWindow, // Firefox 57+, Chrome 66+, Safari 11.1+,
 		canUseNativeXHR: true,
 		firefoxVer     : isFirefox ? +(userAgent.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
+		hasTemplate    : 'content' in doc.createElement('template'),
 		isESNext       : typeof deMainFuncOuter === 'undefined',
 		isFirefox,
 		isInPage       : true,
@@ -60,9 +61,9 @@ function initBrowser() {
 			Object.defineProperty(this, 'canPlayMP3', { value });
 			return value;
 		},
-		get hasTemplate() {
-			const value = 'content' in doc.createElement('template');
-			Object.defineProperty(this, 'hasTemplate', { value });
+		get domContainer() {
+			const value = doc.createElement(this.hasTemplate ? 'template' : 'div');
+			Object.defineProperty(this, 'domContainer', { value });
 			return value;
 		},
 		get hasWorker() {
@@ -87,6 +88,16 @@ function initBrowser() {
 				() => doc.documentElement.clientWidth : () => doc.body.clientWidth;
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
+		},
+		parseHTML(html) {
+			this.domContainer.innerHTML = html;
+			return (this.hasTemplate ? this.domContainer.content : this.domContainer).firstElementChild;
+		},
+		parseRange(range) {
+			const container = this.hasTemplate ? this.domContainer.content : this.domContainer;
+			container.innerHTML = '';
+			container.append(range.cloneContents());
+			return this.domContainer.innerHTML.trim();
 		}
 	};
 }

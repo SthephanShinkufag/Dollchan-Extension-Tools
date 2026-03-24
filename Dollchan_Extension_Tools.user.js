@@ -8472,13 +8472,13 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this24 = this;
   var _marked = _regenerator().m(getFormElements);
   var version = '26.3.25.0';
-  var commit = '49a2947';
+  var commit = 'e91c315';
 
 
   var doc = deWindow.document;
   var gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
   var gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
-  var aib, Cfg, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum, postform, sesStorage, updater;
+  var aib, Cfg, dTime, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum, postform, sesStorage, updater;
   var topWinZ = 10;
 
 
@@ -9130,13 +9130,9 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       return el.remove();
     });
   }
-  function $add(html) {
-    dummy.innerHTML = html;
-    return dummy.firstElementChild;
-  }
   function $button(value, title, fn) {
     var className = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'de-button';
-    var el = $add("<input type=\"button\" class=\"".concat(className, "\" value=\"").concat(value, "\" title=\"").concat(title, "\">"));
+    var el = nav.parseHTML("<input type=\"button\" class=\"".concat(className, "\" value=\"").concat(value, "\" title=\"").concat(title, "\">"));
     el.addEventListener('click', fn);
     return el;
   }
@@ -11251,7 +11247,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       doc.head.append(_script);
     }
     winBody.innerHTML = "<div de-disableautoplay class=\"de-video-obj\"></div>\n\t<div id=\"de-video-buttons\">\n\t\t<a class=\"de-abtn\" id=\"de-video-btn-prev\" href=\"#\" title=\"".concat(Lng.prevVideo[lang], "\">&#x25C0;</a>\n\t\t<a class=\"de-abtn\" id=\"de-video-btn-resize\" href=\"#\" title=\"").concat(Lng.expandVideo[lang], "\"></a>\n\t\t<a class=\"de-abtn\" id=\"de-video-btn-next\" href=\"#\" title=\"").concat(Lng.nextVideo[lang], "\">&#x25B6;</a>\n\t\t<a class=\"de-abtn\" id=\"de-video-btn-hide\" href=\"#\" title=\"").concat(Lng.hideLnkList[lang], "\">&#x25B2;</a>\n\t</div>");
-    var linkList = $add("<div id=\"de-video-list\" style=\"max-width: ".concat(+Cfg.YTubeWidth + 40, "px; max-height: ").concat(nav.viewportHeight() * 0.92 - +Cfg.YTubeHeigh - 82, "px;\"></div>"));
+    var linkList = nav.parseHTML("<div id=\"de-video-list\" style=\"max-width: ".concat(+Cfg.YTubeWidth + 40, "px; max-height: ").concat(nav.viewportHeight() * 0.92 - +Cfg.YTubeHeigh - 82, "px;\"></div>"));
 
     var script = doc.createElement('script');
     script.type = 'text/javascript';
@@ -16868,7 +16864,7 @@ this.disableSpells();
           return;
         }
         if (!el) {
-          el = $add('<span id="de-txt-panel"></span>');
+          el = nav.parseHTML('<span id="de-txt-panel"></span>');
           ['click', 'mouseover'].forEach(function (e) {
             return el.addEventListener(e, _this41);
           });
@@ -17316,7 +17312,7 @@ this.disableSpells();
       key: "_makeHideableContainer",
       value: function _makeHideableContainer() {
         var _this48 = this;
-        (this.pForm = $add('<div id="de-pform" class="de-win-body"></div>')).append(this.form || '', this.oeForm || '');
+        (this.pForm = nav.parseHTML('<div id="de-pform" class="de-win-body"></div>')).append(this.form || '', this.oeForm || '');
         var html = '<div class="de-parea"><div><a href="#"></a></div></div>';
         this.pArea = [$aEnd($q('.postarea'), html), $aEnd($q(aib.qPages), html)];
         this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
@@ -17326,7 +17322,7 @@ this.disableSpells();
         this._pBtn[1].firstElementChild.onclick = function (e) {
           return _this48.showMainReply(true, e);
         };
-        this.qArea = $add("<div style=\"display: none; ".concat(Cfg.replyWinX, "; ").concat(Cfg.replyWinY, "; z-index: ").concat(++topWinZ, ";\" id=\"de-win-reply\" class=\"").concat(aib.cReply + (Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost'), "\"></div>"));
+        this.qArea = nav.parseHTML("<div style=\"display: none; ".concat(Cfg.replyWinX, "; ").concat(Cfg.replyWinY, "; z-index: ").concat(++topWinZ, ";\" id=\"de-win-reply\" class=\"").concat(aib.cReply + (Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost'), "\"></div>"));
         this.isBottom = Cfg.addPostForm === 1;
         this.setReply(false, !aib.t || Cfg.addPostForm > 1);
       }
@@ -18243,7 +18239,7 @@ this.disableSpells();
       this._rarMsg = null;
       this._spoilEl = $q(aib.qFormSpoiler, el.parentNode);
       this._thumb = null;
-      this._utils = $add("<div class=\"de-file-utils\">\n\t\t\t<span class=\"de-file-btn-rar\" title=\"".concat(Lng.helpAddFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-rar\"/></svg></span>\n\t\t\t<input class=\"de-file-spoil\" type=\"checkbox\" title=\"") + "".concat(Lng.spoilFile[lang], "\" style=\"display: none;\">\n\t\t\t<span class=\"de-file-btn-txt\" title=\"").concat(Lng.addManually[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-txt\"/></svg></span>\n\t\t\t<span class=\"de-file-btn-ren\" title=\"").concat(Lng.renameFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-ren\"/></svg></span>\n\t\t\t<span class=\"de-file-btn-del\" title=\"").concat(Lng.removeFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-del\"/></svg></span>\n\t\t</div>"));
+      this._utils = nav.parseHTML("<div class=\"de-file-utils\">\n\t\t\t<span class=\"de-file-btn-rar\" title=\"".concat(Lng.helpAddFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-rar\"/></svg></span>\n\t\t\t<input class=\"de-file-spoil\" type=\"checkbox\" title=\"") + "".concat(Lng.spoilFile[lang], "\" style=\"display: none;\">\n\t\t\t<span class=\"de-file-btn-txt\" title=\"").concat(Lng.addManually[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-txt\"/></svg></span>\n\t\t\t<span class=\"de-file-btn-ren\" title=\"").concat(Lng.renameFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-ren\"/></svg></span>\n\t\t\t<span class=\"de-file-btn-del\" title=\"").concat(Lng.removeFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-del\"/></svg></span>\n\t\t</div>"));
       var _ref29 = _toConsumableArray(this._utils.children);
       this._btnRar = _ref29[0];
       this._btnSpoil = _ref29[1];
@@ -18251,7 +18247,7 @@ this.disableSpells();
       this._btnRen = _ref29[3];
       this._btnDel = _ref29[4];
       this._utils.addEventListener('click', this);
-      this._txtWrap = $add("<span class=\"de-file-txt-wrap\">\n\t\t\t<input type=\"text\" name=\"de-file-txt\" class=\"de-file-txt-input de-file-txt-noedit\" title=\"" + "".concat(Lng.youCanDrag[lang], "\" placeholder=\"").concat(Lng.dropFileHere[lang], "\">\n\t\t\t<input type=\"button\" class=\"de-file-txt-add\" value=\"+\" title=\"") + "".concat(Lng.add[lang], "\" style=\"display: none;\"></span>"));
+      this._txtWrap = nav.parseHTML("<span class=\"de-file-txt-wrap\">\n\t\t\t<input type=\"text\" name=\"de-file-txt\" class=\"de-file-txt-input de-file-txt-noedit\" title=\"" + "".concat(Lng.youCanDrag[lang], "\" placeholder=\"").concat(Lng.dropFileHere[lang], "\">\n\t\t\t<input type=\"button\" class=\"de-file-txt-add\" value=\"+\" title=\"") + "".concat(Lng.add[lang], "\" style=\"display: none;\"></span>"));
       var _ref30 = _toConsumableArray(this._txtWrap.children);
       this._txtInput = _ref30[0];
       this._txtAddBtn = _ref30[1];
@@ -19525,7 +19521,7 @@ Spells.addSpell(9, '', false);
       key: "_menuClickOnOptions",
       value: function () {
         var _menuClickOnOptions2 = _asyncToGenerator(_regenerator().m(function _callee33(el, e) {
-          var isHide, num, _this$_selRange, start, end, inMsgSel, _this$images$firstAtt, w, wi, h, hash, words, post, isAdd, isPview, task, _t29;
+          var isHide, num, _this$_selRange, start, end, inMsgSel, html, _this$images$firstAtt, w, wi, h, hash, words, post, isAdd, isPview, task, _t29;
           return _regenerator().w(function (_context36) {
             while (1) switch (_context36.n) {
               case 0:
@@ -19563,10 +19559,9 @@ Spells.addSpell(9, '', false);
                 _context36.n = 6;
                 break;
               case 5:
-                dummy.innerHTML = '';
-                dummy.append(this._selRange.cloneContents());
+                html = nav.parseRange(this._selRange);
                 _context36.n = 6;
-                return Spells.addSpell(2 , "/".concat(escapeRegExp(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')), "/"), false);
+                return Spells.addSpell(2 , "/".concat(escapeRegExp(html.replace(/^<[^>]+>|<[^>]+>$/g, '')), "/"), false);
               case 6:
                 return _context36.a(2);
               case 7:
@@ -20436,11 +20431,11 @@ Spells.addSpell(9, '', false);
         if (post) {
           _this70._buildPview(post);
         } else {
-          _this70._showPview(_this70.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t\t\t").concat(Lng.postNotFound[lang], "</div>")));
+          _this70._showPview(_this70.el = nav.parseHTML("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t\t\t").concat(Lng.postNotFound[lang], "</div>")));
         }
         return _possibleConstructorReturn(_this70);
       }
-      _this70._showPview(_this70.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t<svg class=\"de-wait\"><use xlink:href=\"#de-symbol-wait\"/></svg>").concat(Lng.loading[lang], "</div>")));
+      _this70._showPview(_this70.el = nav.parseHTML("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t<svg class=\"de-wait\"><use xlink:href=\"#de-symbol-wait\"/></svg>").concat(Lng.loading[lang], "</div>")));
 
       _this70._loadPromise = ajaxPostsLoad(_this70.board, tNum, false, false).then(function (pBuilder) {
         return _this70._onload(pBuilder);
@@ -21456,7 +21451,7 @@ Spells.addSpell(9, '', false);
         this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
         this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
         this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-        var el = $add("<div class=\"de-fullimg-center".concat(data.isVideo ? ' de-fullimg-center-video' : '', "\" style=\"top:").concat(this._oldT - (Cfg.imgInfoLink ? 18 : 0), "px; left:").concat(this._oldL, "px; width:").concat(width, "px; height:").concat(height, "px; display: block;\"></div>"));
+        var el = nav.parseHTML("<div class=\"de-fullimg-center".concat(data.isVideo ? ' de-fullimg-center-video' : '', "\" style=\"top:").concat(this._oldT - (Cfg.imgInfoLink ? 18 : 0), "px; left:").concat(this._oldL, "px; width:").concat(width, "px; height:").concat(height, "px; display: block;\"></div>"));
         el.append(this._fullEl);
         var scale = 100 * width / data.width;
         $q('.de-fullimg-scale', this._fullEl).textContent = scale === 100 ? '' : "".concat(parseInt(scale, 10), "%");
@@ -21722,7 +21717,7 @@ Spells.addSpell(9, '', false);
         var wrapClass = "".concat(inPost ? ' de-fullimg-wrap-inpost' : " de-fullimg-wrap-center".concat(this._size ? '' : ' de-fullimg-wrap-nosize')).concat(this.isVideo ? ' de-fullimg-video' : '');
         if (!this.isVideo) {
           var waitEl = this._size ? '' : '<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
-          wrapEl = $add("<div class=\"de-fullimg-wrap".concat(wrapClass, "\">\n\t\t\t\t").concat(waitEl, "\n\t\t\t\t<img class=\"de-fullimg\" src=\"").concat(src, "\" alt=\"").concat(src, "\">\n\t\t\t\t<div class=\"de-fullimg-info\">").concat(imgNameEl, "</a> <span class=\"de-fullimg-scale\"></span></div>\n\t\t\t</div>"));
+          wrapEl = nav.parseHTML("<div class=\"de-fullimg-wrap".concat(wrapClass, "\">\n\t\t\t\t").concat(waitEl, "\n\t\t\t\t<img class=\"de-fullimg\" src=\"").concat(src, "\" alt=\"").concat(src, "\">\n\t\t\t\t<div class=\"de-fullimg-info\">").concat(imgNameEl, "</a> <span class=\"de-fullimg-scale\"></span></div>\n\t\t\t</div>"));
           var imgEl = $q('.de-fullimg', wrapEl);
           imgEl.onload = imgEl.onerror = function (_ref36) {
             var img = _ref36.target;
@@ -21770,7 +21765,7 @@ Spells.addSpell(9, '', false);
         }
         var hasTitle = needTitle && this.el.hasAttribute('de-metatitle');
         var title = hasTitle ? this.el.getAttribute('de-metatitle') : '';
-        wrapEl = $add("<div class=\"de-fullimg-wrap".concat(wrapClass, "\"").concat(inPostSize, ">").concat(nav.firefoxVer >= 59 || nav.isMobile ? "<div class=\"de-fullimg-video-hack\">".concat(
+        wrapEl = nav.parseHTML("<div class=\"de-fullimg-wrap".concat(wrapClass, "\"").concat(inPostSize, ">").concat(nav.firefoxVer >= 59 || nav.isMobile ? "<div class=\"de-fullimg-video-hack\">".concat(
         nav.isMobile && nav.isWebkit ? "\xD7" : '', "</div>") : '', "\n\t\t\t<video src=\"").concat(src, "\" ") + "".concat(hasTitle && title ? "title=\"".concat(title, "\" ") : '', "loop autoplay ") + "".concat(Cfg.webmControl ? 'controls ' : '') + "".concat(Cfg.webmVolume === 0 ? 'muted ' : '', "></video>\n\t\t\t<div class=\"de-fullimg-info\">").concat(imgNameEl, "</a> <span class=\"de-fullimg-scale\"></span>\n\t\t\t\t<span class=\"de-webm-title\">").concat(hasTitle && title ? title : '', "</span>\n\t\t\t\t").concat(needTitle && !hasTitle ? "<svg class=\"de-wait\">\n\t\t\t\t\t<use xlink:href=\"#de-symbol-wait\"/></svg>" : '', "\n\t\t\t</div>\n\t\t</div>"));
         var videoEl = $q('video', wrapEl);
         videoEl.volume = Cfg.webmVolume / 100;
@@ -23054,9 +23049,8 @@ Spells.addSpell(9, '', false);
             html.push(pBuilder.getPostHTML(i));
             nums.push(pBuilder.getPNum(i));
           }
-          var temp = doc.createElement('template');
-          temp.innerHTML = aib.fixHTML(html.join(''));
-          fragment = temp.content;
+          nav.domContainer.innerHTML = aib.fixHTML(html.join(''));
+          fragment = nav.domContainer.content;
           var posts = $Q(aib.qPost, fragment);
           for (var _i14 = 0, len = posts.length; _i14 < len; ++_i14) {
             last = this._addPost(fragment, posts[_i14], begin + _i14 + 1, last, maybeVParser);
@@ -24301,6 +24295,7 @@ Spells.addSpell(9, '', false);
       canUseFetch: 'AbortController' in deWindow,
       canUseNativeXHR: true,
       firefoxVer: isFirefox ? +(userAgent.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
+      hasTemplate: 'content' in doc.createElement('template'),
       isESNext: typeof deMainFuncOuter === 'undefined',
       isFirefox: isFirefox,
       isInPage: true,
@@ -24316,9 +24311,9 @@ Spells.addSpell(9, '', false);
         });
         return value;
       },
-      get hasTemplate() {
-        var value = 'content' in doc.createElement('template');
-        Object.defineProperty(this, 'hasTemplate', {
+      get domContainer() {
+        var value = doc.createElement(this.hasTemplate ? 'template' : 'div');
+        Object.defineProperty(this, 'domContainer', {
           value: value
         });
         return value;
@@ -24357,6 +24352,16 @@ Spells.addSpell(9, '', false);
           value: value
         });
         return value;
+      },
+      parseHTML: function parseHTML(html) {
+        this.domContainer.innerHTML = html;
+        return (this.hasTemplate ? this.domContainer.content : this.domContainer).firstElementChild;
+      },
+      parseRange: function parseRange(range) {
+        var container = this.hasTemplate ? this.domContainer.content : this.domContainer;
+        container.innerHTML = '';
+        container.append(range.cloneContents());
+        return this.domContainer.innerHTML.trim();
       }
     };
   }
@@ -25337,7 +25342,6 @@ Spells.addSpell(9, '', false);
             MyPosts.readStorage();
             Logger.log('Read my posts');
             $hide(doc.body);
-            dummy = doc.createElement('div');
             formEl = aib.fixHTML(formEl, true);
             Logger.log('Replace delform');
             pByEl = new Map();

@@ -142,7 +142,7 @@ class PostForm {
 			return;
 		}
 		if(!el) {
-			el = $add('<span id="de-txt-panel"></span>');
+			el = nav.parseHTML('<span id="de-txt-panel"></span>');
 			['click', 'mouseover'].forEach(e => el.addEventListener(e, this));
 		}
 		el.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
@@ -518,14 +518,14 @@ class PostForm {
 		});
 	}
 	_makeHideableContainer() {
-		(this.pForm = $add('<div id="de-pform" class="de-win-body"></div>'))
+		(this.pForm = nav.parseHTML('<div id="de-pform" class="de-win-body"></div>'))
 			.append(this.form || '', this.oeForm || '');
 		const html = '<div class="de-parea"><div><a href="#"></a></div></div>';
 		this.pArea = [$aEnd($q('.postarea'), html), $aEnd($q(aib.qPages), html)];
 		this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 		this._pBtn[0].firstElementChild.onclick = e => this.showMainReply(false, e);
 		this._pBtn[1].firstElementChild.onclick = e => this.showMainReply(true, e);
-		this.qArea = $add(`<div style="display: none; ${ Cfg.replyWinX }; ${
+		this.qArea = nav.parseHTML(`<div style="display: none; ${ Cfg.replyWinX }; ${
 			Cfg.replyWinY }; z-index: ${ ++topWinZ };" id="de-win-reply" class="${
 			aib.cReply + (Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost') }"></div>`);
 		this.isBottom = Cfg.addPostForm === 1;

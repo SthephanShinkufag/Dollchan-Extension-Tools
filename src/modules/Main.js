@@ -54,7 +54,6 @@ async function runMain(checkDomains, dataPromise) {
 	MyPosts.readStorage();
 	Logger.log('Read my posts');
 	$hide(doc.body);
-	dummy = doc.createElement('div');
 	formEl = aib.fixHTML(formEl, true);
 	Logger.log('Replace delform');
 	pByEl = new Map();

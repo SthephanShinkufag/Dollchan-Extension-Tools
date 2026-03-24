@@ -28,12 +28,12 @@ class Pview extends AbstractPost {
 			if(post) {
 				this._buildPview(post);
 			} else {
-				this._showPview(this.el = $add(`<div class="${ aib.cReply } de-pview-info de-pview">
+				this._showPview(this.el = nav.parseHTML(`<div class="${ aib.cReply } de-pview-info de-pview">
 					${ Lng.postNotFound[lang] }</div>`));
 			}
 			return;
 		}
-		this._showPview(this.el = $add(`<div class="${ aib.cReply } de-pview-info de-pview">
+		this._showPview(this.el = nav.parseHTML(`<div class="${ aib.cReply } de-pview-info de-pview">
 			<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`));
 
 		// Get post preview via ajax. Always use DOM parsing.
