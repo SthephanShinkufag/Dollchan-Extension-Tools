@@ -52,26 +52,26 @@ function getImageBoard(checkDomains) {
 				if(recapEl || hasCaptcha) {
 					if(isValidPasscode) {
 						captchaHTML = `<div>No captcha: you are a passcode user. <a href="/${
-							aib.b }/imgboard.php?passcode&logout">Log Out.</a></div>`;
+							this.b }/imgboard.php?passcode&logout">Log Out.</a></div>`;
 					} else {
 						if(recapEl) {
 							captchaHTML = '<div style="min-height: 80px;"><div id="g-recaptcha2" class="' +
 								`g-recaptcha" data-sitekey="${ recapEl.dataset.sitekey }"></div></div>`;
 						} else {
-							captchaHTML = `<div><img src="/${ aib.b }/inc/captcha.php?${ Math.random() }"` +
+							captchaHTML = `<div><img src="/${ this.b }/inc/captcha.php?${ Math.random() }"` +
 								' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;" onclick="' +
-								`this.src = '/${ aib.b }/inc/captcha.php?' + Math.random();"></div>` +
+								`this.src = '/${ this.b }/inc/captcha.php?' + Math.random();"></div>` +
 								`<input type="text" name="captcha" style="width: 300px;" placeholder="${
 									Lng.captcha[lang] }" accesskey="c" autocomplete="off">`;
 						}
 						if(passcodeStatus === 'invalid') {
 							captchaHTML += `<div>Your pass code seems to be not valid. <a href="/${
-								aib.b }/imgboard.php?passcode" target="_blank">Log In Again?</a></div>`;
+								this.b }/imgboard.php?passcode" target="_blank">Log In Again?</a></div>`;
 						}
 					}
 				}
 				const formEl = $q('.report-form', $popup('edit-report',
-					(pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) +
+					(pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) + ` №${ pNum }` +
 					`<div class="report-form"><input type="text" name="reason" value="" placeholder="${
 						Lng.reportReason[lang] }" style=" width: 300px;">` + captchaHTML + '</div>'));
 				if(recapEl && !isValidPasscode) {
@@ -141,6 +141,11 @@ function getImageBoard(checkDomains) {
 		}
 		getImgWrap(img) {
 			return img.closest('.post-file');
+		}
+		getMenuMod(post) {
+			return getCookies().atom_access === '1' ? `<a class="de-menu-item" target="_blank" href="/${
+				this.b }/imgboard.php?manage=&moderate=${ post.num }">${
+				post.isOp ? Lng.moderateThread[lang] : Lng.moderatePost[lang] }</a>` : null;
 		}
 		async _getPasscodeStatus() {
 			let status = 'showcaptcha';

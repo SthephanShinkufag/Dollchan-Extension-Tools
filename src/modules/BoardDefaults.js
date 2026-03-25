@@ -75,6 +75,9 @@ class BaseBoard {
 	get fixFileInputs() {
 		return null;
 	}
+	get getMenuMod() {
+		return null;
+	}
 	get getSubmitData() {
 		return null;
 	}

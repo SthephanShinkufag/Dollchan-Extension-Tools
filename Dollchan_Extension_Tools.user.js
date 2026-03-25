@@ -8472,7 +8472,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this24 = this;
   var _marked = _regenerator().m(getFormElements);
   var version = '26.3.25.0';
-  var commit = 'e91c315';
+  var commit = 'e0f342e';
 
 
   var doc = deWindow.document;
@@ -19230,7 +19230,7 @@ this.disableSpells();
             case 'de-btn-unhide':
             case 'de-btn-unhide-user':
               if (nav.isMobile && Cfg.showHideBtn === 1) {
-                this._menuToggleClickBtn(el, (this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
+                this._menuToggleClickBtn(el, (isPview ? pByNum.get(this.num) : this)._getMenuHide());
               } else {
                 this.setUserVisib(!this.isHidden);
               }
@@ -19245,7 +19245,7 @@ this.disableSpells();
               return;
             case 'de-btn-reply':
               if (nav.isMobile && Cfg.showRepBtn === 1) {
-                this._menuToggleClickBtn(el, (this instanceof Pview ? pByNum.get(this.num) : this)._getMenuReply());
+                this._menuToggleClickBtn(el, (isPview && pByNum.get(this.num) || this)._getMenuReply());
               } else {
                 postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
                 postform.quotedText = '';
@@ -19316,7 +19316,7 @@ Spells.addSpell(9, '', false);
           case 'de-btn-unhide-user':
             this.btns.title = this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang];
             if (!nav.isMobile && Cfg.showHideBtn === 1) {
-              this._menuToggleOverBtn(el, isOutEvent, (this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
+              this._menuToggleOverBtn(el, isOutEvent, (isPview ? pByNum.get(this.num) : this)._getMenuHide());
             }
             return;
           case 'de-btn-img':
@@ -19330,7 +19330,7 @@ Spells.addSpell(9, '', false);
                 if (!isOutEvent) {
                   postform.getSelectedText();
                 }
-                this._menuToggleOverBtn(el, isOutEvent, (this instanceof Pview ? pByNum.get(this.num) : this)._getMenuReply());
+                this._menuToggleOverBtn(el, isOutEvent, (isPview && pByNum.get(this.num) || this)._getMenuReply());
               }
               return;
             }
@@ -19508,6 +19508,12 @@ Spells.addSpell(9, '', false);
             maybeSpells.value.endSpells();
           }
         }, Function.prototype);
+      }
+    }, {
+      key: "_getMenuReply",
+      value: function _getMenuReply() {
+        var _aib$getMenuMod, _aib3;
+        return "<span class=\"de-menu-item\" info=\"post-reply\">".concat(this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang], "</span>") + (((_aib$getMenuMod = (_aib3 = aib).getMenuMod) === null || _aib$getMenuMod === void 0 ? void 0 : _aib$getMenuMod.call(_aib3, this)) || '') + (aib.reportForm ? "<span class=\"de-menu-item\" info=\"post-report\">".concat(this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang], "</span>") : '') + (Cfg.markMyPosts || Cfg.markMyLinks ? "<span class=\"de-menu-item\" info=\"post-markmy\">".concat(MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang], "</span>") : '');
       }
     }, {
       key: "_menuAdd",
@@ -20067,11 +20073,6 @@ Spells.addSpell(9, '', false);
           this._selRange = selection.getRangeAt(0);
         }
         return "".concat(nav.isMobile ? "<span info=\"hide-post\" class=\"de-menu-item\">".concat(this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang], "</span>") : '').concat(selText ? item('sel') : '').concat(this.posterName ? item('name') : '').concat(this.posterTrip ? item('trip') : '').concat(this.posterUid ? item('uid') : '').concat(this.images.hasAttachments ? item('img') + item('imgn') + item('ihash') : item('noimg')).concat(this.text ? item('text') : item('notext')).concat(!Cfg.hideRefPsts && this.ref.hasMap ? item('refs') : '').concat(item('refsonly'));
-      }
-    }, {
-      key: "_getMenuReply",
-      value: function _getMenuReply() {
-        return "<span class=\"de-menu-item\" info=\"post-reply\">".concat(this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang], "</span>") + (getCookies().atom_access === '1' ? "<a class=\"de-menu-item\" target=\"_blank\" href=\"/".concat(aib.b, "/imgboard.php?manage=&moderate=").concat(this.num, "\">").concat(this.isOp ? Lng.moderateThread[lang] : Lng.moderatePost[lang], "</a>") : '') + (aib.reportForm ? "<span class=\"de-menu-item\" info=\"post-report\">".concat(this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang], "</span>") : '') + (Cfg.markMyPosts || Cfg.markMyLinks ? "<span class=\"de-menu-item\" info=\"post-markmy\">".concat(MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang], "</span>") : '');
       }
     }, {
       key: "_strikePostNum",
@@ -22936,16 +22937,16 @@ Spells.addSpell(9, '', false);
         if (!preview || preview.num === this.num) {
           this.op.toggleFavBtn(isEnable);
           this.isFav = isEnable;
-          var _aib3 = aib;
-          host = _aib3.host;
-          board = _aib3.b;
+          var _aib4 = aib;
+          host = _aib4.host;
+          board = _aib4.b;
           num = this.num;
           cnt = this.postsCount;
           txt = this.op.title;
           last = aib.anchor + this.last.num;
         } else {
-          var _aib4 = aib;
-          host = _aib4.host;
+          var _aib5 = aib;
+          host = _aib5.host;
           board = preview.board;
           num = preview.num;
           cnt = preview.remoteThr.postsCount;
@@ -24447,6 +24448,11 @@ Spells.addSpell(9, '', false);
         return null;
       }
     }, {
+      key: "getMenuMod",
+      get: function get() {
+        return null;
+      }
+    }, {
       key: "getSubmitData",
       get: function get() {
         return null;
@@ -24852,19 +24858,19 @@ Spells.addSpell(9, '', false);
                     captchaHTML = '';
                     if (recapEl || hasCaptcha) {
                       if (isValidPasscode) {
-                        captchaHTML = "<div>No captcha: you are a passcode user. <a href=\"/".concat(aib.b, "/imgboard.php?passcode&logout\">Log Out.</a></div>");
+                        captchaHTML = "<div>No captcha: you are a passcode user. <a href=\"/".concat(_this103.b, "/imgboard.php?passcode&logout\">Log Out.</a></div>");
                       } else {
                         if (recapEl) {
                           captchaHTML = '<div style="min-height: 80px;"><div id="g-recaptcha2" class="' + "g-recaptcha\" data-sitekey=\"".concat(recapEl.dataset.sitekey, "\"></div></div>");
                         } else {
-                          captchaHTML = "<div><img src=\"/".concat(aib.b, "/inc/captcha.php?").concat(Math.random(), "\"") + ' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;" onclick="' + "this.src = '/".concat(aib.b, "/inc/captcha.php?' + Math.random();\"></div>") + "<input type=\"text\" name=\"captcha\" style=\"width: 300px;\" placeholder=\"".concat(Lng.captcha[lang], "\" accesskey=\"c\" autocomplete=\"off\">");
+                          captchaHTML = "<div><img src=\"/".concat(_this103.b, "/inc/captcha.php?").concat(Math.random(), "\"") + ' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;" onclick="' + "this.src = '/".concat(_this103.b, "/inc/captcha.php?' + Math.random();\"></div>") + "<input type=\"text\" name=\"captcha\" style=\"width: 300px;\" placeholder=\"".concat(Lng.captcha[lang], "\" accesskey=\"c\" autocomplete=\"off\">");
                         }
                         if (passcodeStatus === 'invalid') {
-                          captchaHTML += "<div>Your pass code seems to be not valid. <a href=\"/".concat(aib.b, "/imgboard.php?passcode\" target=\"_blank\">Log In Again?</a></div>");
+                          captchaHTML += "<div>Your pass code seems to be not valid. <a href=\"/".concat(_this103.b, "/imgboard.php?passcode\" target=\"_blank\">Log In Again?</a></div>");
                         }
                       }
                     }
-                    formEl = $q('.report-form', $popup('edit-report', (pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) + "<div class=\"report-form\"><input type=\"text\" name=\"reason\" value=\"\" placeholder=\"".concat(Lng.reportReason[lang], "\" style=\" width: 300px;\">") + captchaHTML + '</div>'));
+                    formEl = $q('.report-form', $popup('edit-report', (pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) + " \u2116".concat(pNum) + "<div class=\"report-form\"><input type=\"text\" name=\"reason\" value=\"\" placeholder=\"".concat(Lng.reportReason[lang], "\" style=\" width: 300px;\">") + captchaHTML + '</div>'));
                     if (recapEl && !isValidPasscode) {
                       script = doc.createElement('script');
                       script.type = 'text/javascript';
@@ -24949,6 +24955,11 @@ Spells.addSpell(9, '', false);
         key: "getImgWrap",
         value: function getImgWrap(img) {
           return img.closest('.post-file');
+        }
+      }, {
+        key: "getMenuMod",
+        value: function getMenuMod(post) {
+          return getCookies().atom_access === '1' ? "<a class=\"de-menu-item\" target=\"_blank\" href=\"/".concat(this.b, "/imgboard.php?manage=&moderate=").concat(post.num, "\">").concat(post.isOp ? Lng.moderateThread[lang] : Lng.moderatePost[lang], "</a>") : null;
         }
       }, {
         key: "_getPasscodeStatus",

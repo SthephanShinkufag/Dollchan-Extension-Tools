@@ -175,8 +175,7 @@ class AbstractPost {
 			case 'de-btn-unhide':
 			case 'de-btn-unhide-user':
 				if(nav.isMobile && Cfg.showHideBtn === 1) {
-					this._menuToggleClickBtn(el,
-						(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
+					this._menuToggleClickBtn(el, (isPview ? pByNum.get(this.num) : this)._getMenuHide());
 				} else {
 					this.setUserVisib(!this.isHidden);
 				}
@@ -191,8 +190,7 @@ class AbstractPost {
 				return;
 			case 'de-btn-reply':
 				if(nav.isMobile && Cfg.showRepBtn === 1) {
-					this._menuToggleClickBtn(el,
-						(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuReply());
+					this._menuToggleClickBtn(el, (isPview && pByNum.get(this.num) || this)._getMenuReply());
 				} else {
 					postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 					postform.quotedText = '';
@@ -265,7 +263,7 @@ class AbstractPost {
 			this.btns.title = this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang];
 			if(!nav.isMobile && Cfg.showHideBtn === 1) {
 				this._menuToggleOverBtn(el, isOutEvent,
-					(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
+					(isPview ? pByNum.get(this.num) : this)._getMenuHide());
 			}
 			return;
 		case 'de-btn-img':
@@ -279,7 +277,7 @@ class AbstractPost {
 					postform.getSelectedText();
 				}
 				this._menuToggleOverBtn(el, isOutEvent,
-					(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuReply());
+					(isPview && pByNum.get(this.num) || this)._getMenuReply());
 			}
 			return;
 		}
@@ -410,6 +408,18 @@ class AbstractPost {
 				maybeSpells.value.endSpells();
 			}
 		}, Function.prototype);
+	}
+	_getMenuReply() {
+		return `<span class="de-menu-item" info="post-reply">${
+			this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang]
+		}</span>` +
+		(aib.getMenuMod?.(this) || '') +
+		(aib.reportForm ? `<span class="de-menu-item" info="post-report">${
+			this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : '') +
+		(Cfg.markMyPosts || Cfg.markMyLinks ?
+			`<span class="de-menu-item" info="post-markmy">${
+				MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang]
+			}</span>` : '');
 	}
 	_menuAdd(el, html) {
 		return new Menu(el, html, (el, e) =>
@@ -904,20 +914,6 @@ class Post extends AbstractPost {
 			this.text ? item('text') : item('notext') }${
 			!Cfg.hideRefPsts && this.ref.hasMap ? item('refs') : '' }${
 			item('refsonly') }`;
-	}
-	_getMenuReply() {
-		return `<span class="de-menu-item" info="post-reply">${
-			this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang]
-		}</span>` +
-		(getCookies().atom_access === '1' ? `<a class="de-menu-item" target="_blank" href="/${
-			aib.b }/imgboard.php?manage=&moderate=${ this.num }">${
-			this.isOp ? Lng.moderateThread[lang] : Lng.moderatePost[lang] }</a>` : '') +
-		(aib.reportForm ? `<span class="de-menu-item" info="post-report">${
-			this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : '') +
-		(Cfg.markMyPosts || Cfg.markMyLinks ?
-			`<span class="de-menu-item" info="post-markmy">${
-				MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang]
-			}</span>` : '');
 	}
 	_strikePostNum(isHide) {
 		const { num } = this;
