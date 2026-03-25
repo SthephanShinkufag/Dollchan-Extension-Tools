@@ -8495,7 +8495,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this24 = this;
   var _marked = _regenerator().m(getFormElements);
   var version = '24.9.16.0';
-  var commit = '348583a';
+  var commit = '9b32d8c';
 
 
   var doc = deWindow.document;
@@ -17882,7 +17882,7 @@ this.disableSpells();
   }
   function _checkSubmit() {
     _checkSubmit = _asyncToGenerator(_regenerator().m(function _callee55(data) {
-      var error, postNum, isDocument, _aib$captchaAfterSubm, _aib8, _data, _aib$getSubmitData, _postform, tNum, _pByNum$get3, thr, statsParam, dForm;
+      var error, postNum, isDocument, _aib$captchaAfterSubm, _aib9, _data, _aib$getSubmitData, _postform, tNum, _pByNum$get3, thr, statsParam, dForm;
       return _regenerator().w(function (_context63) {
         while (1) switch (_context63.n) {
           case 0:
@@ -17897,7 +17897,7 @@ this.disableSpells();
               _context63.n = 2;
               break;
             }
-            if (!((_aib$captchaAfterSubm = (_aib8 = aib).captchaAfterSubmit) !== null && _aib$captchaAfterSubm !== void 0 && _aib$captchaAfterSubm.call(_aib8, data))) {
+            if (!((_aib$captchaAfterSubm = (_aib9 = aib).captchaAfterSubmit) !== null && _aib$captchaAfterSubm !== void 0 && _aib$captchaAfterSubm.call(_aib9, data))) {
               _context63.n = 1;
               break;
             }
@@ -19603,7 +19603,7 @@ this.disableSpells();
             case 'de-btn-unhide':
             case 'de-btn-unhide-user':
               if (nav.isMobile && Cfg.showHideBtn === 1) {
-                this._menuToggleClickBtn(el, (this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
+                this._menuToggleClickBtn(el, (isPview ? pByNum.get(this.num) : this)._getMenuHide());
               } else {
                 this.setUserVisib(!this.isHidden);
               }
@@ -19618,7 +19618,7 @@ this.disableSpells();
               return;
             case 'de-btn-reply':
               if (nav.isMobile && Cfg.showRepBtn === 1) {
-                this._menuToggleClickBtn(el, (this instanceof Pview ? pByNum.get(this.num) : this)._getMenuReply());
+                this._menuToggleClickBtn(el, (isPview && pByNum.get(this.num) || this)._getMenuReply());
               } else {
                 postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
                 postform.quotedText = '';
@@ -19689,7 +19689,7 @@ Spells.addSpell(9, '', false);
           case 'de-btn-unhide-user':
             this.btns.title = this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang];
             if (!nav.isMobile && Cfg.showHideBtn === 1) {
-              this._menuToggleOverBtn(el, isOutEvent, (this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
+              this._menuToggleOverBtn(el, isOutEvent, (isPview ? pByNum.get(this.num) : this)._getMenuHide());
             }
             return;
           case 'de-btn-img':
@@ -19703,7 +19703,7 @@ Spells.addSpell(9, '', false);
                 if (!isOutEvent) {
                   postform.getSelectedText();
                 }
-                this._menuToggleOverBtn(el, isOutEvent, (this instanceof Pview ? pByNum.get(this.num) : this)._getMenuReply());
+                this._menuToggleOverBtn(el, isOutEvent, (isPview && pByNum.get(this.num) || this)._getMenuReply());
               }
               return;
             }
@@ -19885,6 +19885,12 @@ Spells.addSpell(9, '', false);
             maybeSpells.value.endSpells();
           }
         }, Function.prototype);
+      }
+    }, {
+      key: "_getMenuReply",
+      value: function _getMenuReply() {
+        var _aib$getMenuMod, _aib6;
+        return "<span class=\"de-menu-item\" info=\"post-reply\">".concat(this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang], "</span>") + (((_aib$getMenuMod = (_aib6 = aib).getMenuMod) === null || _aib$getMenuMod === void 0 ? void 0 : _aib$getMenuMod.call(_aib6, this)) || '') + (aib.reportForm ? "<span class=\"de-menu-item\" info=\"post-report\">".concat(this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang], "</span>") : '') + (Cfg.markMyPosts || Cfg.markMyLinks ? "<span class=\"de-menu-item\" info=\"post-markmy\">".concat(MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang], "</span>") : '');
       }
     }, {
       key: "_menuAdd",
@@ -20444,11 +20450,6 @@ Spells.addSpell(9, '', false);
           this._selRange = selection.getRangeAt(0);
         }
         return "".concat(nav.isMobile ? "<span info=\"hide-post\" class=\"de-menu-item\">".concat(this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang], "</span>") : '').concat(selText ? item('sel') : '').concat(this.posterName ? item('name') : '').concat(this.posterTrip ? item('trip') : '').concat(this.posterUid ? item('uid') : '').concat(this.images.hasAttachments ? item('img') + item('imgn') + item('ihash') : item('noimg')).concat(this.text ? item('text') : item('notext')).concat(!Cfg.hideRefPsts && this.ref.hasMap ? item('refs') : '').concat(item('refsonly'));
-      }
-    }, {
-      key: "_getMenuReply",
-      value: function _getMenuReply() {
-        return "<span class=\"de-menu-item\" info=\"post-reply\">".concat(this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang], "</span>") + (getCookies().atom_access === '1' ? "<a class=\"de-menu-item\" target=\"_blank\" href=\"/".concat(aib.b, "/imgboard.php?manage=&moderate=").concat(this.num, "\">").concat(this.isOp ? Lng.moderateThread[lang] : Lng.moderatePost[lang], "</a>") : '') + (aib.reportForm ? "<span class=\"de-menu-item\" info=\"post-report\">".concat(this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang], "</span>") : '') + (Cfg.markMyPosts || Cfg.markMyLinks ? "<span class=\"de-menu-item\" info=\"post-markmy\">".concat(MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang], "</span>") : '');
       }
     }, {
       key: "_strikePostNum",
@@ -23658,16 +23659,16 @@ Spells.addSpell(9, '', false);
         if (!preview || preview.num === this.num) {
           this.op.toggleFavBtn(isEnable);
           this.isFav = isEnable;
-          var _aib6 = aib;
-          host = _aib6.host;
-          board = _aib6.b;
+          var _aib7 = aib;
+          host = _aib7.host;
+          board = _aib7.b;
           num = this.num;
           cnt = this.postsCount;
           txt = this.op.title;
           last = aib.anchor + this.last.num;
         } else {
-          var _aib7 = aib;
-          host = _aib7.host;
+          var _aib8 = aib;
+          host = _aib8.host;
           board = preview.board;
           num = preview.num;
           cnt = preview.remoteThr.postsCount;
@@ -25324,6 +25325,11 @@ Spells.addSpell(9, '', false);
         return null;
       }
     }, {
+      key: "getMenuMod",
+      get: function get() {
+        return null;
+      }
+    }, {
       key: "getSubmitData",
       get: function get() {
         return null;
@@ -26535,7 +26541,7 @@ Spells.addSpell(9, '', false);
         get: function get() {
           var _this112 = this;
           var value = function value(pNum, tNum) {
-            return $q('input[type="button"]', $popup('edit-report', "<input name=\"comment\" value=\"\" placeholder=\"".concat(pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang], "\" type=\"text\"> <input value=\"OK\" type=\"button\">"))).onclick = function (e) {
+            return $q('input[type="button"]', $popup('edit-report', (pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) + " \u2116".concat(pNum, "<div class=\"report-form\"><input type=\"text\" name=\"comment\" value=\"\" placeholder=\"").concat(Lng.reportReason[lang], "\" style=\" width: 300px;\"> <input value=\"OK\" type=\"button\"></div>"))).onclick = function (e) {
               var inpEl = e.target.previousElementSibling;
               if (!inpEl.value) {
                 inpEl.classList.add('de-input-error');
@@ -26675,7 +26681,7 @@ Spells.addSpell(9, '', false);
           if (likeEl) {
             var task = likeEl.id.split('-')[0];
             var num = +likeEl.id.match(/\d+/);
-            $ajax("/api/".concat(task, "?board=").concat(aib.b, "&num=").concat(num)).then(function (xhr) {
+            $ajax("/api/".concat(task, "?board=").concat(this.b, "&num=").concat(num)).then(function (xhr) {
               var obj = JSON.parse(xhr.responseText);
               if (obj.result !== 1) {
                 $popup('err-2chlike', Lng.error[lang] + ': ' + obj.error.message);
@@ -27588,19 +27594,19 @@ Spells.addSpell(9, '', false);
                     captchaHTML = '';
                     if (recapEl || hasCaptcha) {
                       if (isValidPasscode) {
-                        captchaHTML = "<div>No captcha: you are a passcode user. <a href=\"/".concat(aib.b, "/imgboard.php?passcode&logout\">Log Out.</a></div>");
+                        captchaHTML = "<div>No captcha: you are a passcode user. <a href=\"/".concat(_this125.b, "/imgboard.php?passcode&logout\">Log Out.</a></div>");
                       } else {
                         if (recapEl) {
                           captchaHTML = '<div style="min-height: 80px;"><div id="g-recaptcha2" class="' + "g-recaptcha\" data-sitekey=\"".concat(recapEl.dataset.sitekey, "\"></div></div>");
                         } else {
-                          captchaHTML = "<div><img src=\"/".concat(aib.b, "/inc/captcha.php?").concat(Math.random(), "\"") + ' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;" onclick="' + "this.src = '/".concat(aib.b, "/inc/captcha.php?' + Math.random();\"></div>") + "<input type=\"text\" name=\"captcha\" style=\"width: 300px;\" placeholder=\"".concat(Lng.captcha[lang], "\" accesskey=\"c\" autocomplete=\"off\">");
+                          captchaHTML = "<div><img src=\"/".concat(_this125.b, "/inc/captcha.php?").concat(Math.random(), "\"") + ' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;" onclick="' + "this.src = '/".concat(_this125.b, "/inc/captcha.php?' + Math.random();\"></div>") + "<input type=\"text\" name=\"captcha\" style=\"width: 300px;\" placeholder=\"".concat(Lng.captcha[lang], "\" accesskey=\"c\" autocomplete=\"off\">");
                         }
                         if (passcodeStatus === 'invalid') {
-                          captchaHTML += "<div>Your pass code seems to be not valid. <a href=\"/".concat(aib.b, "/imgboard.php?passcode\" target=\"_blank\">Log In Again?</a></div>");
+                          captchaHTML += "<div>Your pass code seems to be not valid. <a href=\"/".concat(_this125.b, "/imgboard.php?passcode\" target=\"_blank\">Log In Again?</a></div>");
                         }
                       }
                     }
-                    formEl = $q('.report-form', $popup('edit-report', (pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) + "<div class=\"report-form\"><input type=\"text\" name=\"reason\" value=\"\" placeholder=\"".concat(Lng.reportReason[lang], "\" style=\" width: 300px;\">") + captchaHTML + '</div>'));
+                    formEl = $q('.report-form', $popup('edit-report', (pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) + " \u2116".concat(pNum) + "<div class=\"report-form\"><input type=\"text\" name=\"reason\" value=\"\" placeholder=\"".concat(Lng.reportReason[lang], "\" style=\" width: 300px;\">") + captchaHTML + '</div>'));
                     if (recapEl && !isValidPasscode) {
                       script = doc.createElement('script');
                       script.type = 'text/javascript';
@@ -27685,6 +27691,11 @@ Spells.addSpell(9, '', false);
         key: "getImgWrap",
         value: function getImgWrap(img) {
           return img.closest('.post-file');
+        }
+      }, {
+        key: "getMenuMod",
+        value: function getMenuMod(post) {
+          return getCookies().atom_access === '1' ? "<a class=\"de-menu-item\" target=\"_blank\" href=\"/".concat(this.b, "/imgboard.php?manage=&moderate=").concat(post.num, "\">").concat(post.isOp ? Lng.moderateThread[lang] : Lng.moderatePost[lang], "</a>") : null;
         }
       }, {
         key: "_getPasscodeStatus",
@@ -28739,7 +28750,7 @@ Spells.addSpell(9, '', false);
   }
   function _runMain() {
     _runMain = _asyncToGenerator(_regenerator().m(function _callee59(checkDomains, dataPromise) {
-      var _aib$observeContent, _aib9, _aib$init, _aib0;
+      var _aib$observeContent, _aib0, _aib$init, _aib1;
       var formEl, _yield, _yield2, favObj, storageName, firstThr, _t53;
       return _regenerator().w(function (_context67) {
         while (1) switch (_context67.p = _context67.n) {
@@ -28762,7 +28773,7 @@ Spells.addSpell(9, '', false);
             runFrames();
             return _context67.a(2);
           case 2:
-            if (!(((_aib$observeContent = (_aib9 = aib).observeContent) === null || _aib$observeContent === void 0 ? void 0 : _aib$observeContent.call(_aib9, checkDomains, dataPromise)) === false)) {
+            if (!(((_aib$observeContent = (_aib0 = aib).observeContent) === null || _aib$observeContent === void 0 ? void 0 : _aib$observeContent.call(_aib0, checkDomains, dataPromise)) === false)) {
               _context67.n = 3;
               break;
             }
@@ -28775,7 +28786,7 @@ Spells.addSpell(9, '', false);
             _yield = _context67.v;
             _yield2 = _slicedToArray(_yield, 1);
             favObj = _yield2[0];
-            if (!(!Cfg.disabled && (_aib$init = (_aib0 = aib).init) !== null && _aib$init !== void 0 && _aib$init.call(_aib0) || !localData && doc.body.classList.contains('de-runned-local'))) {
+            if (!(!Cfg.disabled && (_aib$init = (_aib1 = aib).init) !== null && _aib$init !== void 0 && _aib$init.call(_aib1) || !localData && doc.body.classList.contains('de-runned-local'))) {
               _context67.n = 5;
               break;
             }

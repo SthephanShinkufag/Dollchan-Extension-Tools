@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '348583a';
+const commit = '9b32d8c';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -10680,8 +10680,7 @@ class AbstractPost {
 			case 'de-btn-unhide':
 			case 'de-btn-unhide-user':
 				if(nav.isMobile && Cfg.showHideBtn === 1) {
-					this._menuToggleClickBtn(el,
-						(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
+					this._menuToggleClickBtn(el, (isPview ? pByNum.get(this.num) : this)._getMenuHide());
 				} else {
 					this.setUserVisib(!this.isHidden);
 				}
@@ -10696,8 +10695,7 @@ class AbstractPost {
 				return;
 			case 'de-btn-reply':
 				if(nav.isMobile && Cfg.showRepBtn === 1) {
-					this._menuToggleClickBtn(el,
-						(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuReply());
+					this._menuToggleClickBtn(el, (isPview && pByNum.get(this.num) || this)._getMenuReply());
 				} else {
 					postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 					postform.quotedText = '';
@@ -10770,7 +10768,7 @@ class AbstractPost {
 			this.btns.title = this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang];
 			if(!nav.isMobile && Cfg.showHideBtn === 1) {
 				this._menuToggleOverBtn(el, isOutEvent,
-					(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
+					(isPview ? pByNum.get(this.num) : this)._getMenuHide());
 			}
 			return;
 		case 'de-btn-img':
@@ -10784,7 +10782,7 @@ class AbstractPost {
 					postform.getSelectedText();
 				}
 				this._menuToggleOverBtn(el, isOutEvent,
-					(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuReply());
+					(isPview && pByNum.get(this.num) || this)._getMenuReply());
 			}
 			return;
 		}
@@ -10919,6 +10917,18 @@ class AbstractPost {
 				maybeSpells.value.endSpells();
 			}
 		}, Function.prototype);
+	}
+	_getMenuReply() {
+		return `<span class="de-menu-item" info="post-reply">${
+			this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang]
+		}</span>` +
+		(aib.getMenuMod?.(this) || '') +
+		(aib.reportForm ? `<span class="de-menu-item" info="post-report">${
+			this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : '') +
+		(Cfg.markMyPosts || Cfg.markMyLinks ?
+			`<span class="de-menu-item" info="post-markmy">${
+				MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang]
+			}</span>` : '');
 	}
 	_menuAdd(el, html) {
 		return new Menu(el, html, (el, e) =>
@@ -11413,20 +11423,6 @@ class Post extends AbstractPost {
 			this.text ? item('text') : item('notext') }${
 			!Cfg.hideRefPsts && this.ref.hasMap ? item('refs') : '' }${
 			item('refsonly') }`;
-	}
-	_getMenuReply() {
-		return `<span class="de-menu-item" info="post-reply">${
-			this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang]
-		}</span>` +
-		(getCookies().atom_access === '1' ? `<a class="de-menu-item" target="_blank" href="/${
-			aib.b }/imgboard.php?manage=&moderate=${ this.num }">${
-			this.isOp ? Lng.moderateThread[lang] : Lng.moderatePost[lang] }</a>` : '') +
-		(aib.reportForm ? `<span class="de-menu-item" info="post-report">${
-			this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : '') +
-		(Cfg.markMyPosts || Cfg.markMyLinks ?
-			`<span class="de-menu-item" info="post-markmy">${
-				MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang]
-			}</span>` : '');
 	}
 	_strikePostNum(isHide) {
 		const { num } = this;
@@ -15548,6 +15544,9 @@ class BaseBoard {
 	get getImgRedirectSrc() {
 		return null;
 	}
+	get getMenuMod() {
+		return null;
+	}
 	get getSubmitData() {
 		return null;
 	}
@@ -16425,10 +16424,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		get reportForm() {
 			const value = (pNum, tNum) => ($q('input[type="button"]', $popup(
 				'edit-report',
-				`<input name="comment" value="" placeholder="${
-					pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]
-				}" type="text"> <input value="OK" type="button">`)
-			).onclick = e => {
+				(pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) + ` №${
+					pNum }<div class="report-form"><input type="text" name="comment" value="" placeholder="${
+					Lng.reportReason[lang] }" style=" width: 300px;"> <input value="OK" type="button"></div>`
+			)).onclick = e => {
 				const inpEl = e.target.previousElementSibling;
 				if(!inpEl.value) {
 					inpEl.classList.add('de-input-error');
@@ -16531,7 +16530,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(likeEl) {
 				const task = likeEl.id.split('-')[0];
 				const num = +likeEl.id.match(/\d+/);
-				$ajax(`/api/${ task }?board=${ aib.b }&num=${ num }`).then(xhr => {
+				$ajax(`/api/${ task }?board=${ this.b }&num=${ num }`).then(xhr => {
 					const obj = JSON.parse(xhr.responseText);
 					if(obj.result !== 1) {
 						$popup('err-2chlike', Lng.error[lang] + ': ' + obj.error.message);
@@ -17212,26 +17211,26 @@ function getImageBoard(checkDomains, checkEngines) {
 				if(recapEl || hasCaptcha) {
 					if(isValidPasscode) {
 						captchaHTML = `<div>No captcha: you are a passcode user. <a href="/${
-							aib.b }/imgboard.php?passcode&logout">Log Out.</a></div>`;
+							this.b }/imgboard.php?passcode&logout">Log Out.</a></div>`;
 					} else {
 						if(recapEl) {
 							captchaHTML = '<div style="min-height: 80px;"><div id="g-recaptcha2" class="' +
 								`g-recaptcha" data-sitekey="${ recapEl.dataset.sitekey }"></div></div>`;
 						} else {
-							captchaHTML = `<div><img src="/${ aib.b }/inc/captcha.php?${ Math.random() }"` +
+							captchaHTML = `<div><img src="/${ this.b }/inc/captcha.php?${ Math.random() }"` +
 								' width="175" height="55" alt="CAPTCHA" style="cursor: pointer;" onclick="' +
-								`this.src = '/${ aib.b }/inc/captcha.php?' + Math.random();"></div>` +
+								`this.src = '/${ this.b }/inc/captcha.php?' + Math.random();"></div>` +
 								`<input type="text" name="captcha" style="width: 300px;" placeholder="${
 									Lng.captcha[lang] }" accesskey="c" autocomplete="off">`;
 						}
 						if(passcodeStatus === 'invalid') {
 							captchaHTML += `<div>Your pass code seems to be not valid. <a href="/${
-								aib.b }/imgboard.php?passcode" target="_blank">Log In Again?</a></div>`;
+								this.b }/imgboard.php?passcode" target="_blank">Log In Again?</a></div>`;
 						}
 					}
 				}
 				const formEl = $q('.report-form', $popup('edit-report',
-					(pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) +
+					(pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) + ` №${ pNum }` +
 					`<div class="report-form"><input type="text" name="reason" value="" placeholder="${
 						Lng.reportReason[lang] }" style=" width: 300px;">` + captchaHTML + '</div>'));
 				if(recapEl && !isValidPasscode) {
@@ -17301,6 +17300,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getImgWrap(img) {
 			return img.closest('.post-file');
+		}
+		getMenuMod(post) {
+			return getCookies().atom_access === '1' ? `<a class="de-menu-item" target="_blank" href="/${
+				this.b }/imgboard.php?manage=&moderate=${ post.num }">${
+				post.isOp ? Lng.moderateThread[lang] : Lng.moderatePost[lang] }</a>` : null;
 		}
 		async _getPasscodeStatus() {
 			let status = 'showcaptcha';
