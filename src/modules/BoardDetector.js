@@ -1353,6 +1353,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Dollchan extends BaseBoard {
 		constructor(...args) {
 			super(...args);
+			this.dollchan = true;
+
 			this.hasCatalog = true;
 			this.markupBB = true;
 			this.multiFile = true;

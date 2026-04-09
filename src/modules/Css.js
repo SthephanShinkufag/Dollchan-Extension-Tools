@@ -392,8 +392,10 @@ function scriptCSS() {
 	.de-wait, .de-fav-wait, .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }
 	.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }
 	#de-wrapper-popup { max-width: calc(100vw - (100vw - 100%)); overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }
-	.link-button { display: inline-flex; padding: 3px 5px; margin-left: 4px; background: rgba(0, 40, 140, 0.06); border: 1px solid rgba(120, 120, 120, .5); border-radius: 4px; font: 14px/14px arial; }
-	.link-button:hover { background: rgba(60, 60, 160, 0.12); }
+	${ !aib.dollchan ?
+		`.link-button { display: inline-flex; padding: 4px 8px; margin-left: 4px; background: rgba(40, 40, 160, 0.08); border: 1px solid rgba(120, 120, 120, .5); border-radius: 4px; font: 14px/14px arial; }
+		.link-button:hover { background: rgba(100, 100, 160, 0.20); }
+		.link-button:active { transform: translateY(1px); }` : '' }
 	@keyframes de-wait-anim { to { transform: rotate(360deg); } }
 
 	/* Mobile devices */

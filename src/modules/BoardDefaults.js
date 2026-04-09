@@ -6,6 +6,7 @@ class BaseBoard {
 	constructor(protocol, domain) {
 		// Imageboard-specific booleans
 		this._4chan = false;
+		this.dollchan = false;
 		this.kohlchan = false;
 
 		// Query paths
