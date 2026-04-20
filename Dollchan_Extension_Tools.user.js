@@ -8472,7 +8472,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this24 = this;
   var _marked = _regenerator().m(getFormElements);
   var version = '26.3.25.0';
-  var commit = 'e0f342e';
+  var commit = '9d998e0';
 
 
   var doc = deWindow.document;
@@ -22026,8 +22026,10 @@ Spells.addSpell(9, '', false);
             w = w.replace(this.nameLink.innerText, '');
           }
           w = w.match(/(\d+(?:[.,]\d+)?)\s*([mмkк])?i?[bб]/i);
-          var w1 = w[1].replace(',', '.');
-          value = w[2] === 'M' ? w1 * 1e3 | 0 : !w[2] ? Math.round(w1 / 1e3) : w1;
+          if (w) {
+            var w1 = w[1].replace(',', '.');
+            value = w[2] === 'M' ? w1 * 1e3 | 0 : !w[2] ? Math.round(w1 / 1e3) : w1;
+          }
         }
         Object.defineProperty(this, 'weight', {
           value: value
