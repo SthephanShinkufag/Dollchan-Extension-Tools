@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = 'bd1764b';
+const commit = '665d981';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -12913,8 +12913,10 @@ class AttachedImage extends ExpandableImage {
 				w = w.replace(this.nameLink.innerText, '');
 			}
 			w = w.match(/(\d+(?:[.,]\d+)?)\s*([mмkк])?i?[bб]/i);
-			const w1 = w[1].replace(',', '.');
-			value = w[2] === 'M' ? (w1 * 1e3) | 0 : !w[2] ? Math.round(w1 / 1e3) : w1;
+			if(w) {
+				const w1 = w[1].replace(',', '.');
+				value = w[2] === 'M' ? (w1 * 1e3) | 0 : !w[2] ? Math.round(w1 / 1e3) : w1;
+			}
 		}
 		Object.defineProperty(this, 'weight', { value });
 		return value;
