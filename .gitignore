@@ -1,2 +1,4 @@
 node_modules
 other
+# prr state file (auto-generated)
+.pr-resolver-state.json
