@@ -1526,9 +1526,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['ejchan.site'] = Ejchan;
 
-	// Magrathea / Double Plus: DOM and board paths match lynxphp (../lynxphp). JSON and other
-	// backend APIs for :8443 (preconnect BACKEND_PUBLIC_URL) are wired in ../bridge/index.js
-	// (e.g. GET /opt/:boardUri/thread/:thread, GET /opt/threadRefresh, /doubleplus/*).
+	// Magrathea / Double Plus: DOM and board paths follow the lynxphp layout. JSON and other
+	// backend APIs on port 8443 use separate routing (e.g. /opt/:boardUri/thread/:thread,
+	// /opt/threadRefresh, /doubleplus/*).
 	class Doubleplus extends BaseBoard {
 		constructor(...args) {
 			super(...args);
