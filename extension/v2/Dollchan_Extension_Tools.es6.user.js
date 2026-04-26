@@ -17301,7 +17301,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.formParent = 'thread';
 			this.hasCatalog = true;
 			this.multiFile = true;
-			this.qDelForm = 'form[action*="/forms/board/"][action$="/actions"]:has(.thread)';
+			this.qDelForm = 'form[action*="/forms/board/"][action$="/actions"]';
 			this.qDelBtn = 'input[type="submit"][value="Submit"]';
 			this.qDelPassw = '#password, input[name="postpassword"]';
 			this.qForm = '#postform.form-post, form.form-post[action$="post"]';
@@ -17389,6 +17389,15 @@ function getImageBoard(checkDomains, checkEngines) {
 				return;
 			}
 			super.parseURL();
+		}
+		getDelForm() {
+			const forms = $Q(this.qDelForm);
+			for(let i = 0; i < forms.length; ++i) {
+				if($q('.thread', forms[i])) {
+					return forms[i];
+				}
+			}
+			return null;
 		}
 		updateSubmitBtn(el) {
 			el.value = Lng.reply[lang];
