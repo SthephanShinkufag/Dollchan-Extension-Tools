@@ -32,7 +32,11 @@ class DOMPostsBuilder {
 			const link = links[i];
 			const tc = link.textContent;
 			if(tc[0] === '>' && tc[1] === '>') {
-				const lNum = parseInt(tc.substr(2), 10);
+				let lNum = parseInt(tc.substr(2), 10);
+				if(!lNum) {
+					const m = tc.match(/\d+/);
+					lNum = m ? +m[0] : 0;
+				}
 				if(lNum) {
 					yield [link, lNum];
 					const url = link.getAttribute('href');
