@@ -13210,7 +13210,11 @@ class DOMPostsBuilder {
 			const link = links[i];
 			const tc = link.textContent;
 			if(tc[0] === '>' && tc[1] === '>') {
-				const lNum = parseInt(tc.substr(2), 10);
+				let lNum = parseInt(tc.substr(2), 10);
+				if(!lNum) {
+					const m = tc.match(/\d+/);
+					lNum = m ? +m[0] : 0;
+				}
 				if(lNum) {
 					yield [link, lNum];
 					const url = link.getAttribute('href');
@@ -17284,6 +17288,123 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['ejchan.site'] = Ejchan;
+
+	// Magrathea / Double Plus: DOM and board paths match lynxphp (../lynxphp). JSON and other
+	// backend APIs for :8443 (preconnect BACKEND_PUBLIC_URL) are wired in ../bridge/index.js
+	// (e.g. GET /opt/:boardUri/thread/:thread, GET /opt/threadRefresh, /doubleplus/*).
+	class Doubleplus extends BaseBoard {
+		constructor(...args) {
+			super(...args);
+			this.cReply = 'post-container';
+			this.docExt = '.html';
+			this.firstPage = 1;
+			this.formParent = 'thread';
+			this.hasCatalog = true;
+			this.multiFile = true;
+			this.qDelForm = 'form[action*="/forms/board/"][action$="/actions"]';
+			this.qDelBtn = 'input[type="submit"][value="Submit"]';
+			this.qDelPassw = '#password, input[name="postpassword"]';
+			this.qForm = '#postform.form-post, form.form-post[action$="post"]';
+			this.qFormFile = 'input[name="files[]"], input[type="file"]';
+			this.qFormPassw = 'input[name="postpassword"]';
+			this.qFormSpoiler = 'input[name="spoiler_all"]';
+			this.qFormSubm = '#postform input[type="submit"], #bottom_postform input[type="submit"]';
+			this.qFormTr = 'section.row';
+			this.qFormTxta = 'textarea[name="message"]';
+			this.qOPost = 'article.post-container.op';
+			this.qPages = '.pages';
+			this.qPost = 'article.post-container';
+			this.qPostHeader = 'header.post-info';
+			this.qPostImg = '.post-files img, .post-files video';
+			this.qPostImgInfo = '.post-files';
+			this.qPostMsg = '.post-message';
+			this.qPostRef = 'a.quote';
+			this.qReplyBtn = 'a[href*="_postform"]';
+			this.qThread = 'div.thread';
+			this.res = 'thread/';
+			this.timePattern = 'nn+dd+yy+w+hh+ii+ss';
+		}
+		get css() {
+			return `.doubleplus-actions-dropdown, .doubleplus-actions { display: none !important; }
+				.post-container { position: relative; }`;
+		}
+		get markupTags() {
+			return ['\'\'\'', '\'\'', '__', '~~', '**', '[code'];
+		}
+		get qFormMail() {
+			return 'input[name="email"]';
+		}
+		get qFormName() {
+			return 'input[name="name"]';
+		}
+		get qFormSubj() {
+			return 'input[name="subject"]';
+		}
+		get qPostImgNameLink() {
+			return '.post-files a[download], .post-files a.filename';
+		}
+		fixFileInputs(el) {
+			const str = ' class="de-file-wrap"><input type="file" name="files[]"></div>';
+			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(19);
+		}
+		getPageUrl(board, page) {
+			return page > 1 ? `/${ board }/page/${ page }` : fixBoardName(board);
+		}
+		getPNum(post) {
+			const id = post.getAttribute('data-post-id');
+			return id ? +id : +post.id.match(/\d+/)[0];
+		}
+		getPostWrap(el, isOp) {
+			return el;
+		}
+		getSage(/* post */) {
+			return false;
+		}
+		getTNum(thr) {
+			const chk = $q('input.post-check[name="checkedposts[]"]', thr);
+			if(chk) {
+				const parts = chk.value.split('-');
+				return parts.length >= 2 ? +parts[1] : 0;
+			}
+			const hid = $q('input[name="thread"][type="hidden"]', thr);
+			return hid ? +hid.value : 0;
+		}
+		parseURL() {
+			const url = (deWindow.location.pathname || '').replace(/^[/]+/, '').replace(/[/]+/g, '/');
+			if(this.docExt === null) {
+				this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
+			}
+			const mPage = url.match(/^([^/]+)\/page\/(\d+)\/?$/);
+			if(mPage) {
+				this.b = mPage[1];
+				this.page = +mPage[2];
+				this.t = false;
+				return;
+			}
+			const mThr = url.match(/^([^/]+)\/thread\/(\d+)\.html$/);
+			if(mThr) {
+				this.b = mThr[1];
+				this.t = +mThr[2];
+				this.page = this.firstPage;
+				return;
+			}
+			super.parseURL();
+		}
+		getDelForm() {
+			const forms = $Q(this.qDelForm);
+			for(let i = 0; i < forms.length; ++i) {
+				if($q('.thread', forms[i])) {
+					return forms[i];
+				}
+			}
+			return null;
+		}
+		updateSubmitBtn(el) {
+			el.value = Lng.reply[lang];
+		}
+	}
+	ibDomains['magrathea.endchan.net'] =
+		ibDomains['magratheadjpgyfuncr42dxzjb2czd7vxotcxkzp3lykagw24wcv63yd.onion'] = Doubleplus;
 
 	class Endchan extends Lynxchan {
 		constructor(...args) {
