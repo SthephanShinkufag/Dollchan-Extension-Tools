@@ -226,6 +226,34 @@ async function readFile(file, asText) {
 	});
 }
 
+// Detects an extension from magic bytes when the URL name has no usable extension
+function sniffFileExt(data) {
+	const is = (offset, signature) => {
+		for(let i = 0, len = signature.length; i < len; ++i) {
+			if(data[offset + i] !== signature.charCodeAt(i)) {
+				return false;
+			}
+		}
+		return true;
+	};
+	if(is(0, '\xFF\xD8\xFF')) {
+		return 'jpg';
+	}
+	if(is(0, '\x89PNG\r\n\x1A\n')) {
+		return 'png';
+	}
+	if(is(0, 'GIF87a') || is(0, 'GIF89a')) {
+		return 'gif';
+	}
+	if(is(0, '\x1A\x45')) {
+		return 'webm';
+	}
+	if(is(0, 'RIFF') && is(8, 'WEBP')) {
+		return 'webp';
+	}
+	return '';
+}
+
 // Gets mime type depending on file name
 function getFileMime(url) {
 	const dotIdx = url.lastIndexOf('.') + 1;

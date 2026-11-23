@@ -133,14 +133,7 @@ class FileInput {
 			let name = file?.name || getFileName(url);
 			const type = file?.type || getFileMime(name);
 			if(!type || name.includes('?')) {
-				let ext;
-				switch((data[0] << 8) | data[1]) {
-				case 0xFFD8: ext = 'jpg'; break;
-				case 0x8950: ext = 'png'; break;
-				case 0x4749: ext = 'gif'; break;
-				case 0x1A45: ext = 'webm'; break;
-				default: ext = '';
-				}
+				const ext = sniffFileExt(data);
 				if(ext) {
 					name = name.split('?').shift() + '.' + ext;
 				}
