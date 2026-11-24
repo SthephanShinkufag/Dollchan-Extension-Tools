@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '24.9.16.0';
-const commit = '665d981';
+const commit = '6c4c62e';
 
 /* ==[ GlobalVars.js ]== */
 
@@ -1965,6 +1965,34 @@ async function readFile(file, asText) {
 			fr.readAsArrayBuffer(file);
 		}
 	});
+}
+
+// Detects an extension from magic bytes when the URL name has no usable extension
+function sniffFileExt(data) {
+	const is = (offset, signature) => {
+		for(let i = 0, len = signature.length; i < len; ++i) {
+			if(data[offset + i] !== signature.charCodeAt(i)) {
+				return false;
+			}
+		}
+		return true;
+	};
+	if(is(0, '\xFF\xD8\xFF')) {
+		return 'jpg';
+	}
+	if(is(0, '\x89PNG\r\n\x1A\n')) {
+		return 'png';
+	}
+	if(is(0, 'GIF87a') || is(0, 'GIF89a')) {
+		return 'gif';
+	}
+	if(is(0, '\x1A\x45')) {
+		return 'webm';
+	}
+	if(is(0, 'RIFF') && is(8, 'WEBP')) {
+		return 'webp';
+	}
+	return '';
 }
 
 // Gets mime type depending on file name
@@ -9909,14 +9937,7 @@ class FileInput {
 			let name = file?.name || getFileName(url);
 			const type = file?.type || getFileMime(name);
 			if(!type || name.includes('?')) {
-				let ext;
-				switch((data[0] << 8) | data[1]) {
-				case 0xFFD8: ext = 'jpg'; break;
-				case 0x8950: ext = 'png'; break;
-				case 0x4749: ext = 'gif'; break;
-				case 0x1A45: ext = 'webm'; break;
-				default: ext = '';
-				}
+				const ext = sniffFileExt(data);
 				if(ext) {
 					name = name.split('?').shift() + '.' + ext;
 				}

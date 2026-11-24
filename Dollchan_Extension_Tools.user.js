@@ -8484,7 +8484,7 @@ function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Can
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
-function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _toPrimitive(t, e) { if ("object" != _typeof(t) || !t) return t; var r; if ("undefined" != typeof Symbol && void 0 !== (r = t[Symbol.toPrimitive])) { var i = r.call(t, e || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === e ? String : Number)(t); }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 
@@ -8495,7 +8495,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
   var _this24 = this;
   var _marked = _regenerator().m(getFormElements);
   var version = '24.9.16.0';
-  var commit = '665d981';
+  var commit = '6c4c62e';
 
 
   var doc = deWindow.document;
@@ -9323,6 +9323,33 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     }));
     return _readFile.apply(this, arguments);
   }
+  function sniffFileExt(data) {
+    var is = function is(offset, signature) {
+      for (var i = 0, len = signature.length; i < len; ++i) {
+        if (data[offset + i] !== signature.charCodeAt(i)) {
+          return false;
+        }
+      }
+      return true;
+    };
+    if (is(0, '\xFF\xD8\xFF')) {
+      return 'jpg';
+    }
+    if (is(0, '\x89PNG\r\n\x1A\n')) {
+      return 'png';
+    }
+    if (is(0, 'GIF87a') || is(0, 'GIF89a')) {
+      return 'gif';
+    }
+    if (is(0, '\x1A\x45')) {
+      return 'webm';
+    }
+    if (is(0, 'RIFF') && is(8, 'WEBP')) {
+      return 'webp';
+    }
+    return '';
+  }
+
   function getFileMime(url) {
     var dotIdx = url.lastIndexOf('.') + 1;
     switch (dotIdx && url.substr(dotIdx).toLowerCase()) {
@@ -18650,23 +18677,7 @@ this.disableSpells();
                   var name = ((_file = file) === null || _file === void 0 ? void 0 : _file.name) || getFileName(url);
                   var type = ((_file2 = file) === null || _file2 === void 0 ? void 0 : _file2.type) || getFileMime(name);
                   if (!type || name.includes('?')) {
-                    var ext;
-                    switch (data[0] << 8 | data[1]) {
-                      case 0xFFD8:
-                        ext = 'jpg';
-                        break;
-                      case 0x8950:
-                        ext = 'png';
-                        break;
-                      case 0x4749:
-                        ext = 'gif';
-                        break;
-                      case 0x1A45:
-                        ext = 'webm';
-                        break;
-                      default:
-                        ext = '';
-                    }
+                    var ext = sniffFileExt(data);
                     if (ext) {
                       name = name.split('?').shift() + '.' + ext;
                     }
